@@ -1,0 +1,23 @@
+Estado 0 (AM_LOCK_INIT) - Si recibe una señal de reset o el bloque recibido no está marcado, reseteo el AM_CTR. 
+                          Si o si paso al Estado 1.
+
+Estado 1 (AM_RESET_CNT) - Es el estado after reset, inicializo los contadores de AM invalidos y slip_done en 0. Me voy al Estado 2.
+
+Estado 2 (FIND_1ST)     - En este estado, chequeo si el bloque recibido es un AM. Si es verdadero, establezo al AM recibido como el 					      primero y me voy al Estado 3. Si es falso, me voy al Estado 10. 
+
+Estado 3 (COUNT 1)		- Inicio el contador de AM. Se cuentan 16383 bloques (de 66 bit). Una vez que finaliza, me voy al Estado 4.
+
+Estado 4 (COMP_2ND)		- Verifico si el próximo bloque luego de que terminó la cuenta es un AM igual al que tengo determinado por el 							Estado 2. Si es verdadero, me voy al Estado 5. Si no, me voy al Estado 10.
+
+Estado 5 (2_GOOD)		- Pongo el AM lock en true, e identifico la lane correspondiente a ese AM. Me voy al Estado 6.
+
+Estado 6 (COUNT_2)		- Inicio el contador de AM nuevamente. Se cuentan 16383 bloques (de 66 bit). Una vez que finaliza, me voy al 						   Estado 7.
+
+Estado 7 (COMP_AM)		- Verifico si el proximo bloque luego de que terminó la 2da cuenta es un AM igual al determinado por el 
+						  Estado 2. Si es verdadero, me voy al Estado 8. Si no, me voy al Estado 9.
+
+Estado 8 (GOOD_AM)		- Establezco la cuenta de AM invalidos en 0. Me voy al Estado 6. 
+
+Estado 9 (INVALID_AM)	- Incremento la cuenta de AM invalidos en 1. Si es menor a 4, me voy al Estado 6. Si es mayor, me voy al 							  Estado 10.
+
+Estado 10 (SLIP)		- Establezco el AM lock en falso. Chequeo el proximo bloque con AM_SLIP. Cuando el AM_SLIP finaliza, pongo el 							slip_done en 1 y me voy al Estado 1.
