@@ -1,0 +1,51 @@
+Proyecto: Implementación en FPGA de una interfaz PCS/CAUI de 100GbE.
+
+Objetivos:
+
+    * Capacitación en diseño de arquitecturas de hardware de bloques de procesamiento de protocolos de comunicación.
+    * Capacitación en diseño de hardware utilizando HDL (Verilog-RTL).
+    * Capacitación en simulación y verificación de bloques descriptos utilizando HDL.
+    * Capacitación en sintesis en FPGA de bloques de procesamiento de protocolo en FPGA.
+
+Descipcion del proyecto:
+
+    Desarrollar la arquitectura de los bloques de la capa PCS/CAUI de 100GbE.
+Implementar dichos bloques utilizando Verilog RTL. Elaborar un plan de verificación para los mismos.
+Desarrollar un entorno de testeo utilizando modelos de Python o C++. Verificar el funcionamiento de los bloques.
+Sintetizar los bloques en FPGA.
+
+    Las funciones que se deben incluir en los bloques de PCS/CAUI son:
+* Codificación / decodificación en bloques de 64/66.
+* Scrambling / descrambling.
+* Insersión / remoción de marcadores de alineación.
+* Redistribución de bloques. 
+* Reordenamiento, sincornización y deskew de lanes.
+
+
+Plan de trabajo:
+
+* Estudio de estandares  802-2001, 802.3 y 802.3ba
+    * Elaboración de una presentación con
+        * Conceptos basicos
+        * Capa PCS para 100GbE
+
+* Diseño de arquitectura del bloque PCS para 100GbE
+    * Elaboración de una presentación con los diagramas de bloque detallados de todos los sub-módulos
+
+* Generación de modelos de referencia de alto nivel (C++ o Python) para PCS de 100GbE
+    * Definición de interfaces
+    * Elaboración de modelos
+    * Elaboración de una presentación
+
+* Generación de modelos de referencia de orientados a la arquitectura (C++ o Python)
+    * Elaboración de una presentación
+
+* Codifcación de RTL sintetizable con VM
+    * Elaboración de una presentación
+
+* Generación de banco de prueba para testeo dentro de FPGA
+    * Elaboración de una presentación
+
+* Sintesis y verificación en FPGA.
+
+  
