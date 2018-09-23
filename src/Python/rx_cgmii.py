@@ -63,73 +63,73 @@ CODED_T7_BLOCK   = [0x02,0xFF, D0, D1, D2, D3, D4, D5, D6]
 ##########################################################################
 CGMII_DECODER = { 
 			
-			'CODED_ERROR_BLOCK':{		'block_name'		: 'ERROR_BLOCK'
+			'CODED_ERROR_BLOCK':{		'block_name'		: 'ERROR_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII]		
 		    					},
 
-		    'CODED_START_BLOCK':{ 		'block_name'		: 'START_BLOCK'
+		    'CODED_START_BLOCK':{ 		'block_name'		: 'START_BLOCK',
 		    							'RXC'				: 0x80,
 		    							'RXD'				: [S, D1, D2, D3, D4, D5, D6, D7]	
 		    					},
 
-		    'CODED_DATA_BLOCK':{ 		'block_name'		: 'START_BLOCK'
+		    'CODED_DATA_BLOCK':{ 		'block_name'		: 'DATA_BLOCK',
 		    							'RXC'				: 0x00,
 		    							'RXD'				: [D0, D1, D2, D3, D4, D5, D6, D7]	
 		    					},
 
-		    'CODED_Q_ORD_BLOCK':{ 		'block_name'		: 'START_BLOCK'
+		    'CODED_Q_ORD_BLOCK':{ 		'block_name'		: 'Q_ORD_BLOCK',
 		    							'RXC'				: 0x80,
 		    							'RXD'				: [Q, D1, D2, D3, Z, Z, Z, Z]		
 		    					},
 
 
-		    'CODED_Fsig_ORD_BLOCK':{ 	'block_name'		: 'START_BLOCK'
+		    'CODED_Fsig_ORD_BLOCK':{ 	'block_name'		: 'Fsig_ORD_BLOCK',
 		    							'RXC'				: 0x80,
 		    							'RXD'				: [Fsig, D1, D2, D3, Z, Z, Z, Z] 	
 									},
 
-			'CODED_IDLE_BLOCK':{ 		'block_name'		: 'IDLE_BLOCK'
+			'CODED_IDLE_BLOCK':{ 		'block_name'		: 'IDLE_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
 								},					    
 
-			'CODED_T0_BLOCK':{			'block_name'		: 'IDLE_BLOCK'
+			'CODED_T0_BLOCK':{			'block_name'		: 'T0_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
 							},
 
-			'CODED_T1_BLOCK':{			'block_name'		: 'IDLE_BLOCK'
+			'CODED_T1_BLOCK':{			'block_name'		: 'T1_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
 							},
 
-			'CODED_T2_BLOCK':{			'block_name'		: 'IDLE_BLOCK'
+			'CODED_T2_BLOCK':{			'block_name'		: 'T2_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
 							},
 
-			'CODED_T3_BLOCK':{			'block_name'		: 'IDLE_BLOCK'
+			'CODED_T3_BLOCK':{			'block_name'		: 'T3_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
 							},
 
-			'CODED_T4_BLOCK':{			'block_name'		: 'IDLE_BLOCK'
+			'CODED_T4_BLOCK':{			'block_name'		: 'T4_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, D3, T, I_CMGII, I_CMGII, I_CMGII]		
 							},
 
-			'CODED_T5_BLOCK':{			'block_name'		: 'IDLE_BLOCK'
+			'CODED_T5_BLOCK':{			'block_name'		: 'T5_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, D3, D4, T, I_CMGII, I_CMGII]	
 							},
 
-			'CODED_T6_BLOCK':{			'block_name'		: 'IDLE_BLOCK'
+			'CODED_T6_BLOCK':{			'block_name'		: 'T6_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, D3, D4, D5, T, I_CMGII]		
 							},
 
-			'CODED_T7_BLOCK':{			'block_name'		: 'IDLE_BLOCK'
+			'CODED_T7_BLOCK':{			'block_name'		: 'T7_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, D3, D4, D5, D6, T]		
 							},
@@ -141,154 +141,145 @@ CGMII_DECODER = {
 
 class rx_FSM(object):																	
 
-	def __init__(self, frame):
+	def __init__(self):
 		self.state = 'RX_INIT'
-		self.rx_coded = frame								#Trama que recibo --- Es un diccionario de campos: block_name, sh, btype_field y payload
-		self.rx_raw = []									#Trama a enviar	
+		self.rx_coded []
+		self.rx_raw = CGMII_DECODER['CODED_Q_ORD_BLOCK']	#Trama a enviar	
+
+
+	def R_TYPE(self):
+
+		if(rx_coded['block_name'] == 'CODED_IDLE_BLOCK' or rx_coded['block_name'] == 'CODED_Q_ORD_BLOCK' or rx_coded['block_name'] == 'CODED_Fsig_ORD_BLOCK'):
+			return 'C'
+		elif(rx_coded['block_type'] == 'CODED_T0_BLOCK' or rx_coded['block_type'] == 'CODED_T1_BLOCK' or rx_coded['block_type'] == 'CODED_T2_BLOCK' or rx_coded['block_type'] == 'CODED_T3_BLOCK' or 
+			rx_coded['block_type'] == 'CODED_T4_BLOCK' or rx_coded['block_type'] == 'CODED_T5_BLOCK' or rx_coded['block_type'] == 'CODED_T6_BLOCK' or rx_coded['block_type'] == 'CODED_T7_BLOCK'):
+			return 'T'
+		elif(rx_coded['block_type'] == 'START_BLOCK'):
+			return 'S'
+		elif(rx_coded['sh'] == 0x1):
+			return 'D'
+		else:
+			return 'E'
+
+
+
 	
-	def transition(self, frame):
+	def transition(self, received_block):
 
-		self.rx_coded = frame
+		self.rx_coded = received_block						#Trama que recibo --- Es un diccionario de campos: block_name, sh, btype_field y payload
 
-		if(self.state == 'RX_INIT'):
+		TYPE = self.R_TYPE()
 
-			rx_raw = Q_ORD_BLOCK
+		if(rx_coded['sh'] == 0x2 or rx_coded['sh'] == 0x1):
+
+			if(self.state == 'RX_INIT'):
+
+				#self.rx_raw = CGMII_DECODER['CODED_Q_ORD_BLOCK']
 
 			print "Estado actual: ", self.state
+				
+				if( TYPE == 'C'):
+					self.state = 'RX_C'
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
 
-			if(rx_coded == IDLE_BLOCK):
-				self.state = 'RX_C'
-				rx_raw = hex(encoder[IDLE_BLOCK])
+				elif(TYPE == 'S'):
+					self.state = 'RX_D'
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
 
-			elif(rx_coded == Q_ORD_BLOCK):
-				self.state = 'RX_C'
-				rx_raw = hex(encoder[Q_ORD_BLOCK])
-
-
-			elif(rx_coded == START_BLOCK):
-				self.state = 'RX_D'
-				rx_raw = hex(encoder[START_BLOCK])
-
-			elif(rx_coded == ERROR_BLOCK):
-				self.state = 'RX_E'
-				rx_raw = hex(encoder[ERROR_BLOCK])
+				elif(TYPE in ['E', 'D', 'T']):
+					self.state = 'RX_E'
+					rx_raw = CGMII_DECODER['ERROR_BLOCK']
 
 
-			elif(rx_coded == DATA_BLOCK):
-				self.state = 'RX_E'
-				rx_raw = hex(encoder[ERROR_BLOCK])
-
-			elif(rx_coded == T0_BLOCK):
-				self.state = 'RX_E'
-				rx_raw = hex(encoder[ERROR_BLOCK])
-
-
-			print "Send to CGMII: ", self.rx_raw
-			print "Proximo estado: ", self.state
-	
-	
-		
-		elif(self.state == 'RX_C'):
-
-			print "Estado actual: ", self.state
-
-			if(rx_coded == IDLE_BLOCK): 
-				self.state = self.state
-				rx_raw = hex(encoder[IDLE_BLOCK])
-
-			elif(rx_coded == Q_ORD_BLOCK):
-				self.state = self.state
-				rx_raw = hex(encoder[Q_ORD_BLOCK])
-
-
-			elif(rx_coded == DATA_BLOCK):
-				self.state = 'RX_E'
-				rx_raw = hex(encoder[ERROR_BLOCK])
-
-			elif(rx_coded == T0_BLOCK):
-				self.state = 'RX_E'
-				rx_raw = hex(encoder[ERROR_BLOCK])
-
-
-			elif(rx_coded == START_BLOCK):
-				rx_raw = hex(encoder[START_BLOCK])
-				self.state = 'RX_D'
-
-			print "Send to CGMII: ", self.rx_raw
-			print "Proximo estado: ", self.state
-
-
-
-		elif(self.state == 'RX_D'):
-
-			print "Estado actual: ", self.state
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
 			
-			if(rx_coded == DATA_BLOCK):
-				rx_raw = hex(encoder[DATA_BLOCK])
-				self.state = self.state
+			
+				
+			elif(self.state == 'RX_C'):
 
-			elif(rx_coded == T0_BLOCK):
-				rx_raw = hex(encoder[T0_BLOCK])
-				self.state = 'RX_T'
+				print "Estado actual: ", self.state
+
+				if(TYPE == 'C'): 
+					self.state = 'RX_C'
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
+
+				elif(TYPE == 'S'):
+					self.state = 'RX_D'
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
+
+				elif(TYPE in ['E', 'D', 'T']):
+					self.state = 'RX_E'
+					rx_raw = CGMII_DECODER['ERROR_BLOCK']
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+
+
+
+			elif(self.state == 'RX_D'):
+
+				print "Estado actual: ", self.state
+				
+				if(TYPE == 'D'):
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
+					self.state = 'RX_D'
+
+				elif(TYPE == 'T'):
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
+					self.state = 'RX_T'
+
+				else:
+					rx_raw = CGMII_DECODER['ERROR_BLOCK']
+					self.state = 'RX_E'
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+
+
+
+			elif(self.state == 'RX_T'):
+
+				print "Estado actual: ", self.state
+
+				if(TYPE == 'C'): 
+					self.state = 'RX_C'
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
+				elif(TYPE == 'S'):
+					self.state = 'RX_D'
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+
+
+			elif(self.state == 'RX_E'):
+
+				if(TYPE == 'C'): 
+					self.state = 'RX_C'
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
+
+				elif(TYPE == 'D'):
+					self.state = 'RX_D'
+					rx_raw = CGMII_DECODER[rx_coded['block_name']]
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+
 
 
 			else:
-				rx_raw = hex(encoder[ERROR_BLOCK])				
+				print 'Unknown state'
+				rx_raw = CGMII_DECODER['ERROR_BLOCK']
 				self.state = 'RX_E'
 
-			print "Send to CGMII: ", self.rx_raw
-			print "Proximo estado: ", self.state
-
-
-
-		elif(self.state == 'RX_T'):
-
-			print "Estado actual: ", self.state
-
-			if(rx_coded == IDLE_BLOCK): 
-				self.state = 'RX_C'
-				rx_raw = hex(encoder[IDLE_BLOCK])
-
-			elif(rx_coded == Q_ORD_BLOCK):
-				self.state = 'RX_C'
-				rx_raw = hex(encoder[Q_ORD_BLOCK])
-
-
-			elif(rx_coded == START_BLOCK):
-				self.state = 'RX_D'
-				rx_raw = hex(encoder[DATA_BLOCK])
-
-			print "Send to CGMII: ", self.rx_raw
-			print "Proximo estado: ", self.state
-
-
-
-		elif(self.state == 'RX_E'):
-
-			if(rx_coded == IDLE_BLOCK): 
-				self.state = 'RX_C'
-				rx_raw = hex(encoder[IDLE_BLOCK])
-
-			elif(rx_coded == Q_ORD_BLOCK):
-				self.state = 'RX_C'
-				rx_raw = hex(encoder[Q_ORD_BLOCK])
-
-			elif(rx_coded == DATA_BLOCK):
-				self.state = 'RX_D'
-				rx_raw = hex(encoder[DATA_BLOCK])
-
-			print "Send to CGMII: ", self.rx_raw
-			print "Proximo estado: ", self.state
-
-
-
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+			
 		else:
-			print 'Unknown state'
-			rx_raw = hex(encoder[ERROR_BLOCK])
-
-			print "Send to CGMII: ", self.rx_raw
-			print "Proximo estado: ", self.state
-
+			print'SH ERROR: Sending error to CMGII'
+			rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
+			self.state = 'TX_E'
 
 
 
