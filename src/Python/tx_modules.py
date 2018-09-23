@@ -219,7 +219,7 @@ CODED_T7_BLOCK   = [0x02,0xFF, D0, D1, D2, D3, D4, D5, D6]
 
 ##################### ENCODER TABLE ##########################
 
-encoder = {
+ENCODER = {
 
 			'DATA_BLOCK' : {'block_name'   : 'CODED_DATA_BLOCK',
 							'sh' 		   : 0x1  ,
@@ -305,6 +305,82 @@ encoder = {
 							'payload' 	   : [D0, D1, D2, D3, D4, D5, D6]
 							} 
 		 }
+I_CMGII = 0x07
+E_CGMII = 0x1E		 
+CGMII_TRANSMIT = { 
+			
+			'ERROR_BLOCK'		:{		'block_name'		: 'ERROR_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII]		
+		    					},
+
+		    'START_BLOCK':{ 		'block_name'		: 'START_BLOCK',
+		    							'RXC'				: 0x80,
+		    							'RXD'				: [S, D1, D2, D3, D4, D5, D6, D7]	
+		    					},
+
+		    'DATA_BLOCK':{ 		'block_name'			: 'DATA_BLOCK',
+		    							'RXC'				: 0x00,
+		    							'RXD'				: [D0, D1, D2, D3, D4, D5, D6, D7]	
+		    					},
+
+		    'Q_ORD_BLOCK':{ 		'block_name'		: 'Q_ORD_BLOCK',
+		    							'RXC'				: 0x80,
+		    							'RXD'				: [Q, D1, D2, D3, Z, Z, Z, Z]		
+		    					},
+
+
+		    'Fsig_ORD_BLOCK':{ 	'block_name'			: 'Fsig_ORD_BLOCK',
+		    							'RXC'				: 0x80,
+		    							'RXD'				: [Fsig, D1, D2, D3, Z, Z, Z, Z] 	
+									},
+
+			'IDLE_BLOCK':{ 		'block_name'			: 'IDLE_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+								},					    
+
+			'T0_BLOCK':{			'block_name'		: 'T0_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+							},
+
+			'T1_BLOCK':{			'block_name'		: 'T1_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [D0, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+							},
+
+			'T2_BLOCK':{			'block_name'		: 'T2_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [D0, D1, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+							},
+
+			'T3_BLOCK':{			'block_name'		: 'T3_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [D0, D1, D2, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+							},
+
+			'T4_BLOCK':{			'block_name'		: 'T4_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [D0, D1, D2, D3, T, I_CMGII, I_CMGII, I_CMGII]		
+							},
+
+			'T5_BLOCK':{			'block_name'		: 'T5_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [D0, D1, D2, D3, D4, T, I_CMGII, I_CMGII]	
+							},
+
+			'T6_BLOCK':{			'block_name'		: 'T6_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [D0, D1, D2, D3, D4, D5, T, I_CMGII]		
+							},
+
+			'T7_BLOCK':{			'block_name'		: 'T7_BLOCK',
+		    							'RXC'				: 0xFF,
+		    							'RXD'				: [D0, D1, D2, D3, D4, D5, D6, T]		
+							},
+		   
+	    	}
 
 ################################################################
 
@@ -418,7 +494,7 @@ class Scrambler(object) :
 class CgmiiFSM(object) :
 	def __init__(self):
 		self.state = TX_INIT
-		self.tx_raw = Q_ORD_BLOCK
+		self.tx_raw = CGMII_TRANSMIT['Q_ORD_BLOCK']
 		self.data_counter = 0
 		self.idle_counter = 0
 		self.state_sequence =[]
@@ -441,7 +517,7 @@ class CgmiiFSM(object) :
 				self.variables.append( state_name[self.state] ) # LOGEO
 				
 				#######funcionalidad#####
-				self.tx_raw = IDLE_BLOCK
+				self.tx_raw = CGMII_TRANSMIT['IDLE_BLOCK']
 				self.idle_counter+=1
 				self.state = TX_C
 				#########################
@@ -456,11 +532,11 @@ class CgmiiFSM(object) :
 				########funcionalidad#########
 				
 				if self.idle_counter < NIDLE:
-					self.tx_raw = IDLE_BLOCK
+					self.tx_raw = CGMII_TRANSMIT['IDLE_BLOCK']
 					self.idle_counter+=1
 					self.state = TX_C
 				else :
-					self.tx_raw = START_BLOCK
+					self.tx_raw = CGMII_TRANSMIT['START_BLOCK']
 					self.state = TX_D
 					self.data_counter+=1
 				#############################
@@ -475,11 +551,11 @@ class CgmiiFSM(object) :
 
 				######funcionalidad###########
 				if self.data_counter < NDATA:
-					self.tx_raw = DATA_BLOCK
+					self.tx_raw = CGMII_TRANSMIT['DATA_BLOCK']
 					self.state = TX_D
 					self.data_counter+=1
 				else:
-					self.tx_raw = T0_BLOCK
+					self.tx_raw = CGMII_TRANSMIT['T0_BLOCK']
 					self.state = TX_T
 				#############################
 
@@ -492,7 +568,7 @@ class CgmiiFSM(object) :
 				self.variables.append( state_name[self.state] ) # LOGEO
 
 				#####funcionalidad############
-				self.tx_raw = IDLE_BLOCK
+				self.tx_raw = CGMII_TRANSMIT['IDLE_BLOCK']
 				self.state = TX_C
 				self.idle_counter = 0
 				self.data_counter = 0
@@ -507,7 +583,7 @@ class CgmiiFSM(object) :
 				self.variables.append( state_name[self.state] )# LOGEO
 
 				####funcionalidad#######
-				self.tx_raw = ERR_BLOCK
+				self.tx_raw = CGMII_TRANSMIT['ERROR_BLOCK']
 				self.state = TX_E
 				########################			         
 
