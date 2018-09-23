@@ -4,8 +4,8 @@ import random
 import numpy as np
 from pdb import set_trace as bp
 import tx_modules as tx 
-import shit as rx
-NCLOCK = 40
+import rx_modules as rx
+NCLOCK = 80
 NIDLE = 5
 NDATA = 16
 NLANES = 20

@@ -78,35 +78,7 @@ def swap_lanes(nlanes):
 
 
 
-def list_to_hex(hex_list):
-	"""Genera un numero a partir de una lista.
-	
-	Args:
-		hex_list: lista de enteros de 8 bits
-	Comentarios:
-		Concatena los elementos de una lista de octetos para formar un unico numero equivalente,
-		el numero resutante tiene al octeto de la posicion 0 de la lista
-		como sus bits mas significativos
-	"""
-	result = 0x000000000
-	counter = ( len(hex_list)-1 )
-	for value in hex_list:
-		result |= (value << (counter*8))
-		counter-=1
-	#return hex(result).rstrip('L')
-	return result
 
-def block_to_hex(block):
-	"""Genera un numero a partir de los valores en un diccionario.
-
-	Concatena los elementos de un bloque para formar un unico numero equivalente,
-	con la forma {sh, block_type, payload}.
-	"""
-	hex_list = []
-	hex_list.append(block['block_type'])
-	hex_list+= block['payload']
-	hexnum = list_to_hex(hex_list)
-	return hexnum	
 
 
 ################# ESTADOS ######################
@@ -121,99 +93,6 @@ state_name = ['TX_INIT', 'TX_C', 'TX_D','TX_T', 'TX_E']
 
 #######################################################
 
-
-############## CGMII CHARACTERS########################
- 
-D0 = 0x70 # 'p'
-D1 = 0x68 # 'h'
-D2 = 0x79 # 'y'
-D3 = 0x73 # 's'
-D4 = 0x69 # 'i'
-D5 = 0x63 # 'c'
-D6 = 0x61 # 'a'
-D7 = 0x6c # 'l'
-
-S = 0xFB
-T = 0xFD
-I = 0x07
-Q = 0x9C
-Fsig = 0x5C
-Z = 0x00
-E = 0xFE
-############## 100GBE CHARACTERS ######################
-
-I_100G = 0x00
-E_100G = 0x1E
-
-##############################################
-
-############ RAW_BLOCKS ################################
-
-DATA_BLOCK = [0x00, D0, D1, D2, D3, D4, D5, D6, D7] 
-
-START_BLOCK = [0x80, S, D1, D2, D3, D4, D5, D6, D7]
-
-Q_ORD_BLOCK = [0x80, Q, D1, D2, D3, Z, Z, Z, Z]
- 
-Fsig_ORD_BLOCK = [0x80, Fsig, D1, D2, D3, Z, Z, Z, Z]
- 
-IDLE_BLOCK = [0xFF, I, I, I, I, I, I, I, I]
- 
-T0_BLOCK = [0xFF, T, I, I, I, I, I, I, I]
-
-T1_BLOCK = [0xFF, D0, T, I, I, I, I, I, I]
-
-T2_BLOCK = [0xFF, D0, D1, T, I, I, I, I, I]
-
-T3_BLOCK = [0xFF, D0, D1, D2, T, I, I, I, I]
-
-T4_BLOCK = [0xFF, D0, D1, D2, D3,T, I, I, I]
-
-T5_BLOCK = [0xFF, D0, D1, D2, D3, D4, T, I, I]
-
-T6_BLOCK = [0xFF, D0, D1, D2, D3, D4, D5, T, I]
-
-T7_BLOCK = [0xFF, D0, D1, D2, D3, D4, D5, D6, T]
-
-###############################################################
-
-
-##################### CODED BLOCKS ############################
-
-# cuidado!! esta codificacion es lo mas parecida posible a la que debemos implementar pero
-# no es exactamente igual
-
-CODED_DATA_BLOCK = [0x01, D0, D1, D2, D3, D4, D5, D6, D7] 
-
-CODED_START_BLOCK = [0x02,0x78, D1, D2, D3, D4, D5, D6, D7]
-
-CODED_Q_ORD_BLOCK = [0x02,0x4B, D1, D2, D3, Z, Z, Z, Z]
- 
-CODED_Fsig_ORD_BLOCK = [0x02,0x4B, D1, D2, D3, 0XF0, Z, Z, Z]
- 
-CODED_IDLE_BLOCK = [I, I, I, I, I, I, I] ##cuidado
-
-CODED_ERROR_BLOCK = [0x02,0x1E, E, E, E, E, E, E, E]
- 
-CODED_T0_BLOCK   = [0x02,0x87, I, I, I, I, I, I, I]
-
-CODED_T1_BLOCK   = [0x02,0x99, D0, I, I, I, I, I, I]
-
-CODED_T2_BLOCK   = [0x02,0xAA, D0, D1, I, I, I, I, I]
-
-CODED_T3_BLOCK   = [0x02,0xB4, D0, D1, D2, I, I, I, I]
-
-CODED_T4_BLOCK   = [0x02,0xCC, D0, D1, D2, D3, I, I, I]
-
-CODED_T5_BLOCK   = [0x02,0xD2, D0, D1, D2, D3, D4, I, I]
-
-CODED_T6_BLOCK   = [0x02,0xE1, D0, D1, D2, D3, D4, D5, I]
-
-CODED_T7_BLOCK   = [0x02,0xFF, D0, D1, D2, D3, D4, D5, D6]
-
-###############################################################
-#desordenar import random
-# random.sample(xrange(0, 20), 20)
 
 ##################### ENCODER TABLE ##########################
 
@@ -303,8 +182,7 @@ ENCODER = {
 							'payload' 	   : [D0, D1, D2, D3, D4, D5, D6]
 							} 
 		 }
-I_CMGII = 0x07
-E_CGMII = 0x1E		 
+	 
 CGMII_TRANSMIT = { 
 			
 			'ERROR_BLOCK'		:{		'block_name'		: 'ERROR_BLOCK',
@@ -434,7 +312,7 @@ def align_marker_insertion(lanes,block_counter):
 	AM_BLOCK_GAP = 16384
 	if ( (block_counter % AM_BLOCK_GAP) == 0 ):
 		for i in range(0, len(lanes)):
-			AM = align_marker_list[i]
+			AM = align_marker_dict[i]
 			lanes[i].insert(0,AM)
 		return lanes
 	else :
