@@ -103,10 +103,8 @@ def block_to_hex(block):
 	con la forma {sh, block_type, payload}.
 	"""
 	hex_list = []
-	hex_list.append(block['sh'])
 	hex_list.append(block['block_type'])
-	for payload in block['payload'] :
-		hex_list.append(payload)
+	hex_list+= block['payload']
 	hexnum = list_to_hex(hex_list)
 	return hexnum	
 
@@ -454,38 +452,39 @@ class Scrambler(object) :
 		self.polynom_1 = 38
 		self.polynom_2 = 57
 		self.shift_reg = map(int,np.zeros(58))
-		self.output = 0x000000000000000000
 		self.xor = 0	
 	def tx_scrambling(self,in_block):
-		#bypass de los dos bit de sh
-		self.output |= ( in_block & (1 << 65) )
-		self.output |= ( in_block & (1 << 64) )
-		#realizo scrambling
+		output = { 'block_name' : in_block['block_name'],
+				   'sh'			: in_block['sh'],
+				   'payload'    : 0x00000000 	
+				  }
 		'''
 			OJO !!!! DEBERIA INVERTIR EL ORDEN DE LOS OCTETOS creo
 		''' 
+		hex_payload = block_to_hex(in_block)
 		for i in reversed(range(0,self.BLOCK_CODED_LEN)):
-			self.xor = ( (in_block & (1<<i) ) >>i ) ^ self.shift_reg[self.polynom_1] ^ self.shift_reg[self.polynom_2]
+			self.xor = ( (hex_payload & (1<<i) ) >>i ) ^ self.shift_reg[self.polynom_1] ^ self.shift_reg[self.polynom_2]
 			self.shift_reg = np.roll(self.shift_reg,1)
-			self.output |= self.xor << i
+			output['payload'] |= self.xor << i
 			self.shift_reg[0] = self.xor
 			
-		return self.output
+		return output
+
 	def rx_scrambling(self,in_block):
-		#bypass de los dos bit de sh
-		self.output |= ( in_block & (1 << 65) )
-		self.output |= ( in_block & (1 << 64) )
-		#realizo scrambling
+		output = { 'block_name' : in_block['block_name'],
+				   'sh'			: in_block['sh'],
+				   'payload'    : 0x00000000	
+				  }
 		'''
 			OJO !!!! DEBERIA INVERTIR EL ORDEN DE LOS OCTETOS 
 		''' 
 		for i in reversed(range(0,self.BLOCK_CODED_LEN)):
-			self.xor = ( (in_block & (1<<i) ) >>i ) ^ self.shift_reg[self.polynom_1] ^ self.shift_reg[self.polynom_2]
+			self.xor = ( (in_block['payload'] & (1<<i) ) >>i ) ^ self.shift_reg[self.polynom_1] ^ self.shift_reg[self.polynom_2]
 			self.shift_reg = np.roll(self.shift_reg,1)
-			self.output |= self.xor << i
-			self.shift_reg[0] = ( (in_block & (1<<i) ) >>i )
+			output['payload'] |= self.xor << i
+			self.shift_reg[0] = ( (in_block['payload'] & (1<<i) ) >>i )
 			
-		return self.output
+		return output
 
 #############################################################################################################
 #############################################################################################################
