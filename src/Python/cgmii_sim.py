@@ -4,7 +4,7 @@ import random
 import numpy as np
 from pdb import set_trace as bp
 import tx_modules as tx 
-import rx_cgmii as rx
+import shit as rx
 NCLOCK = 40
 NIDLE = 5
 NDATA = 16
@@ -35,7 +35,8 @@ def main():
 			tx_coded = tx.ENCODER[ tx_raw['block_name'] ]
 		else :
 			tx_coded = tx.ENCODER['ERROR_BLOCK']
-
+		if clock == 23 :
+			tx_coded = tx.ENCODER['T0_BLOCK']	
 		coded_vector.append(tx_coded) #solo para debugging
 		rx_cgmii.transition(tx_coded)
 		
@@ -45,7 +46,7 @@ def main():
 		receive = rx_scrambler_module.rx_scrambling(send)
 		'''
 
-
+	bp()
 
 	
 
