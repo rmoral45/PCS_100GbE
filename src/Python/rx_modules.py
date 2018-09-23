@@ -178,20 +178,19 @@ class rx_FSM(object):
 
 
 	
-	def transition(self, received_block):
+	def change_state(self, received_block):
 		self.rx_coded = self.rx_coded_next
 		self.rx_coded_next = received_block		
 
 
 		TYPE = self.R_TYPE(self.rx_coded)
-		NEXT_TYPE = self.R_TYPE(self.rx_coded_next)
+		TYPE_NEXT = self.R_TYPE(self.rx_coded_next)
 		
 
 		if(self.rx_coded['sh'] == 0x2 or self.rx_coded['sh'] == 0x1):
 
-			if(self.state == 'RX_INIT'):
 
-				#self.rx_raw = CGMII_DECODER['CODED_Q_ORD_BLOCK']
+			if(self.state == 'RX_INIT'):
 
 				print "Estado actual: ", self.state
 				
@@ -209,8 +208,7 @@ class rx_FSM(object):
 
 
 				print "Send to CGMII: ", self.rx_raw
-				print "Proximo estado: ", self.state
-			
+				print "Proximo estado: ", self.state			
 			
 				
 			elif(self.state == 'RX_C'):
@@ -233,7 +231,6 @@ class rx_FSM(object):
 				print "Proximo estado: ", self.state
 
 
-
 			elif(self.state == 'RX_D'):
 
 				print "Estado actual: ", self.state
@@ -242,18 +239,17 @@ class rx_FSM(object):
 					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
 					self.state = 'RX_D'
 
-				elif(TYPE == 'T' and NEXT_TYPE in ['S','C']):
+				elif(TYPE == 'T' and TYPE_NEXT in ['S','C']):
 					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
 					self.state = 'RX_T'
 
-				else:
+				elif((TYPE == 'T' and TYPE_NEXT in ['E', 'D', 'T']) or TYPE in ['E', 'C', 'S']):
 					self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
 					self.state = 'RX_E'
 
 				print "Send to CGMII: ", self.rx_raw
 				print "Proximo estado: ", self.state
 				
-
 
 			elif(self.state == 'RX_T'):
 
@@ -280,9 +276,17 @@ class rx_FSM(object):
 					self.state = 'RX_D'
 					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
 
+				elif((TYPE == 'T' and (TYPE_NEXT in ['E', 'D', 'S'])) or TYPE in ['E', 'S']):
+					self.state = 'RX_E'
+					self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
+
+				elif(TYPE == 'T' and TYPE_NEXT in ['S', 'C']):
+					self.state = 'RX_T'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+
 				print "Send to CGMII: ", self.rx_raw
 				print "Proximo estado: ", self.state
-
 
 
 			else:
