@@ -261,6 +261,7 @@ class CgmiiFSM(object) :
 				self.variables[1] = state_name[self.state] # LOGEO
 				self.variables[2] = self.tx_raw			   # LOGEO
 				self.state_sequence.append(self.variables) # LOGEO
+
 class Scrambler(object) :
 	def __init__(self):
 		self.BLOCK_CODED_LEN = 64
