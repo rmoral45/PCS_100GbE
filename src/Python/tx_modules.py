@@ -389,7 +389,8 @@ class CgmiiFSM(object) :
 		if force_error :
 			print 'ERROR FORZADO \n'
 			'''
-			dado el estado actual generar un bloque invalido
+			Falta agregar la funcionalidad para que, dado el estado actual se transmita un bloque que 
+			genera un error en la secuencia recibida, es decir forzar una transmision de trama erronea
 			'''
 		else :
 			if self.state == TX_INIT :
