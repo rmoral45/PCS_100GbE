@@ -2,6 +2,8 @@
 import random
 import numpy as np
 from pdb import set_trace as bp
+from common_variables import *
+from common_functions import *
 
 
 
@@ -213,42 +215,42 @@ CGMII_TRANSMIT = {
 
 			'IDLE_BLOCK':{ 		'block_name'			: 'IDLE_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 								},					    
 
 			'T0_BLOCK':{			'block_name'		: 'T0_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T1_BLOCK':{			'block_name'		: 'T1_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [D0, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T2_BLOCK':{			'block_name'		: 'T2_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [D0, D1, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T3_BLOCK':{			'block_name'		: 'T3_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [D0, D1, D2, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T4_BLOCK':{			'block_name'		: 'T4_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, T, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [D0, D1, D2, D3, T, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T5_BLOCK':{			'block_name'		: 'T5_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, D4, T, I_CMGII, I_CMGII]	
+		    							'RXD'				: [D0, D1, D2, D3, D4, T, I_CGMII, I_CGMII]	
 							},
 
 			'T6_BLOCK':{			'block_name'		: 'T6_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, D4, D5, T, I_CMGII]		
+		    							'RXD'				: [D0, D1, D2, D3, D4, D5, T, I_CGMII]		
 							},
 
 			'T7_BLOCK':{			'block_name'		: 'T7_BLOCK',
@@ -339,7 +341,7 @@ class Scrambler(object) :
 		'''
 			OJO !!!! DEBERIA INVERTIR EL ORDEN DE LOS OCTETOS creo
 		''' 
-		hex_payload = block_to_hex(in_block)
+		hex_payload = block_to_hex(in_block,block_format = 'encoder')
 		for i in reversed(range(0,self.BLOCK_CODED_LEN)):
 			self.xor = ( (hex_payload & (1<<i) ) >>i ) ^ self.shift_reg[self.polynom_1] ^ self.shift_reg[self.polynom_2]
 			self.shift_reg = np.roll(self.shift_reg,1)

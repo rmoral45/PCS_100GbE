@@ -38,13 +38,14 @@ def main():
 		if clock == 23 :
 			tx_coded = tx.ENCODER['T0_BLOCK']	
 		coded_vector.append(tx_coded) #solo para debugging
-		rx_cgmii.transition(tx_coded)
+		rx_cgmii.change_state(tx_coded)
 		
 		cgmii_module.change_state(0)
-		'''
+		
 		send = tx_scrambler_module.tx_scrambling(tx_coded)
+		bp()
 		receive = rx_scrambler_module.rx_scrambling(send)
-		'''
+		
 
 	bp()
 

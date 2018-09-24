@@ -196,28 +196,28 @@ align_marker_dict = {
 				   				'sh'		 : 0x2,
 				   				'payload'    : 0x83C7CA007C3835ff	
 				  		  	} ,
-				  		15 { 
+				  		15 :{ 
 					  			'block_name' : 'Aligner Marker 15',
 				   				'sh'		 : 0x2,
 				   				'payload'    : 0x3536CD00CAC932ff	
 				  		  	} ,
 				  		16 : { 
-					  			'block_name' : 'Aligner Marker 2',
+					  			'block_name' : 'Aligner Marker 16',
 				   				'sh'		 : 0x2,
 				   				'payload'    : 0xC4314C003BCEB3ff	
 				  		  	} ,
 				  		17 : { 
-					  			'block_name' : 'Aligner Marker 2',
+					  			'block_name' : 'Aligner Marker 17',
 				   				'sh'		 : 0x2,
 				   				'payload'    : 0xADD6B700522948ff	
 				  		  	} ,
 				  		18 : { 
-					  			'block_name' : 'Aligner Marker 2',
+					  			'block_name' : 'Aligner Marker 18',
 				   				'sh'		 : 0x2,
 				   				'payload'    : 0x5F662A00A099D5ff	
 				  		  	} ,
 				  		19 : { 
-					  			'block_name' : 'Aligner Marker 2',
+					  			'block_name' : 'Aligner Marker 19',
 				   				'sh'		 : 0x2,
 				   				'payload'    : 0xC0F0E5003F0F1Aff	
 				  		  	} ,  	  	  	  	  	  	  	  	  	  	
