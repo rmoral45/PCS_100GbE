@@ -192,68 +192,68 @@ CGMII_TRANSMIT = {
 		    							'RXD'				: [E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII]		
 		    					},
 
-		    'START_BLOCK':{ 		'block_name'		: 'START_BLOCK',
+		    'START_BLOCK':{ 			'block_name'		: 'START_BLOCK',
 		    							'RXC'				: 0x80,
 		    							'RXD'				: [S, D1, D2, D3, D4, D5, D6, D7]	
 		    					},
 
-		    'DATA_BLOCK':{ 		'block_name'			: 'DATA_BLOCK',
+		    'DATA_BLOCK':{ 				'block_name'		: 'DATA_BLOCK',
 		    							'RXC'				: 0x00,
 		    							'RXD'				: [D0, D1, D2, D3, D4, D5, D6, D7]	
 		    					},
 
-		    'Q_ORD_BLOCK':{ 		'block_name'		: 'Q_ORD_BLOCK',
+		    'Q_ORD_BLOCK':{ 			'block_name'		: 'Q_ORD_BLOCK',
 		    							'RXC'				: 0x80,
 		    							'RXD'				: [Q, D1, D2, D3, Z, Z, Z, Z]		
 		    					},
 
 
-		    'Fsig_ORD_BLOCK':{ 	'block_name'			: 'Fsig_ORD_BLOCK',
+		    'Fsig_ORD_BLOCK':{ 			'block_name'		: 'Fsig_ORD_BLOCK',
 		    							'RXC'				: 0x80,
 		    							'RXD'				: [Fsig, D1, D2, D3, Z, Z, Z, Z] 	
 									},
 
-			'IDLE_BLOCK':{ 		'block_name'			: 'IDLE_BLOCK',
+			'IDLE_BLOCK':{ 				'block_name'		: 'IDLE_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 								},					    
 
-			'T0_BLOCK':{			'block_name'		: 'T0_BLOCK',
+			'T0_BLOCK':{				'block_name'		: 'T0_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
-			'T1_BLOCK':{			'block_name'		: 'T1_BLOCK',
+			'T1_BLOCK':{				'block_name'		: 'T1_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
-			'T2_BLOCK':{			'block_name'		: 'T2_BLOCK',
+			'T2_BLOCK':{				'block_name'		: 'T2_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
-			'T3_BLOCK':{			'block_name'		: 'T3_BLOCK',
+			'T3_BLOCK':{				'block_name'		: 'T3_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
-			'T4_BLOCK':{			'block_name'		: 'T4_BLOCK',
+			'T4_BLOCK':{				'block_name'		: 'T4_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, D3, T, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
-			'T5_BLOCK':{			'block_name'		: 'T5_BLOCK',
+			'T5_BLOCK':{				'block_name'		: 'T5_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, D3, D4, T, I_CGMII, I_CGMII]	
 							},
 
-			'T6_BLOCK':{			'block_name'		: 'T6_BLOCK',
+			'T6_BLOCK':{				'block_name'		: 'T6_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, D3, D4, D5, T, I_CGMII]		
 							},
 
-			'T7_BLOCK':{			'block_name'		: 'T7_BLOCK',
+			'T7_BLOCK':{				'block_name'		: 'T7_BLOCK',
 		    							'RXC'				: 0xFF,
 		    							'RXD'				: [D0, D1, D2, D3, D4, D5, D6, T]		
 							},
@@ -262,50 +262,11 @@ CGMII_TRANSMIT = {
 
 ################################################################
 
-####################### ALIGNER MARKERS ########################
-
-"""Los alineadores no estan definidos como listas o diccionarios
-   debido a que se insertan luego de la fase de codificacion y scrambling
-   en la cual los bloques se representan como un unico numero entero.   
-"""
-
-align_marker_list = [ 0x2C16821003E97DEff ,
-					  0x29D718E00628E71ff ,
-					  0x2594BE800A6B417ff ,
-					  0x24D957B00B26A84ff ,
-					  0x2F50709000AF8F6ff ,
-					  0x2DD14C20022EB3Dff ,
-					  0x29A4A260065B5D9ff ,
-					  0x27B45660084BA99ff ,
-					  0x2A02476005FDB89ff ,
-					  0x268C9FB00973604ff ,
-					  0x2FD6C9900029366ff ,
-					  0x2B9915500466EAAff ,
-					  0x25CB9B200A3464Dff ,
-					  0x21AF8BD00E50742ff ,
-					  0x283C7CA007C3835ff ,
-					  0x23536CD00CAC932ff ,
-					  0x2C4314C003BCEB3ff ,
-					  0x2ADD6B700522948ff ,
-					  0x25F662A00A099D5ff ,
-					  0x2C0F0E5003F0F1Aff
-					]
-
-################################################################
 
 
 
-def reverse_byte(num):
-	"""Invierte el orden de los bits de un numero
-	
-	Ejemplo:
-		param: num = 225 = 0xE1 = 0b11100001 ; return: 135 = 0x87 = 0b10000111
-	Comentario:
-		esta funcion en necesaria por la manera en que el estandar define la  transmision de datos		
-	"""
-	binary = bin(num) 
-	reverse = binary[-1:1:-1] 
-	return int(reverse,2)	
+
+
 
 def align_marker_insertion(lanes,block_counter):
 	"""Inserta los marcadores correspondientes a cada lane solo si
@@ -339,7 +300,7 @@ class Scrambler(object) :
 				   'payload'    : 0x00000000 	
 				  }
 		'''
-			OJO !!!! DEBERIA INVERTIR EL ORDEN DE LOS OCTETOS creo
+			OJO !!!! DEBERIA INVERTIR EL ORDEN DE LOS OCTETOS
 		''' 
 		hex_payload = block_to_hex(in_block,block_format = 'encoder')
 		for i in reversed(range(0,self.BLOCK_CODED_LEN)):

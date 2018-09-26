@@ -90,10 +90,6 @@ CODED_T7_BLOCK   = [0x02,0xFF, D0, D1, D2, D3, D4, D5, D6]
 
 ####################### ALIGNER MARKERS ########################
 
-"""Los alineadores no estan definidos como listas o diccionarios
-   debido a que se insertan luego de la fase de codificacion y scrambling
-   en la cual los bloques se representan como un unico numero entero.   
-"""
 
 align_marker_list = [ 0x2C16821003E97DEff ,
 					  0x29D718E00628E71ff ,

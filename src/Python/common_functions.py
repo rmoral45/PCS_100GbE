@@ -50,4 +50,17 @@ def block_to_hex(block,block_format = 'list'):
 		hexnum |= ( block['sh'] << 64)
 		hexnum |= block['payload']
 	
-	return hexnum	
+	return hexnum
+
+	
+def reverse_byte(num):
+	"""Invierte el orden de los bits de un numero
+	
+	Ejemplo:
+		param: num = 225 = 0xE1 = 0b11100001 ; return: 135 = 0x87 = 0b10000111
+	Comentario:
+		esta funcion en necesaria por la manera en que el estandar define la  transmision de datos		
+	"""
+	binary = bin(num) 
+	reverse = binary[-1:1:-1] 
+	return int(reverse,2)		

@@ -33,42 +33,42 @@ CGMII_DECODER = {
 
 			'CODED_IDLE_BLOCK':{ 		'block_name'		: 'IDLE_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 								},					    
 
 			'CODED_T0_BLOCK':{			'block_name'		: 'T0_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'CODED_T1_BLOCK':{			'block_name'		: 'T1_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [D0, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'CODED_T2_BLOCK':{			'block_name'		: 'T2_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [D0, D1, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'CODED_T3_BLOCK':{			'block_name'		: 'T3_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, T, I_CMGII, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [D0, D1, D2, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'CODED_T4_BLOCK':{			'block_name'		: 'T4_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, T, I_CMGII, I_CMGII, I_CMGII]		
+		    							'RXD'				: [D0, D1, D2, D3, T, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'CODED_T5_BLOCK':{			'block_name'		: 'T5_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, D4, T, I_CMGII, I_CMGII]	
+		    							'RXD'				: [D0, D1, D2, D3, D4, T, I_CGMII, I_CGMII]	
 							},
 
 			'CODED_T6_BLOCK':{			'block_name'		: 'T6_BLOCK',
 		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, D4, D5, T, I_CMGII]		
+		    							'RXD'				: [D0, D1, D2, D3, D4, D5, T, I_CGMII]		
 							},
 
 			'CODED_T7_BLOCK':{			'block_name'		: 'T7_BLOCK',
