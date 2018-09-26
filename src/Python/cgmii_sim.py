@@ -21,7 +21,7 @@ def main():
 	lanes = [[] for y in range(NLANES)]
 
 	cgmii_module = tx.CgmiiFSM()
-	rx_cgmii = rx.rx_FSM()
+	rx_decoder_module = rx.rx_FSM()
 	tx_scrambler_module = tx.Scrambler()
 	rx_scrambler_module = tx.Scrambler()
 	#rx_scrambler = Scrambler()
@@ -37,7 +37,7 @@ def main():
 			tx_coded = tx.ENCODER['ERROR_BLOCK']
 		
 		coded_vector.append(tx_coded) #solo para debugging
-		rx_cgmii.change_state(tx_coded)
+		rx_decoder_module.change_state(tx_coded)
 		
 		cgmii_module.change_state(0)
 		
