@@ -35,8 +35,7 @@ def main():
 			tx_coded = tx.ENCODER[ tx_raw['block_name'] ]
 		else :
 			tx_coded = tx.ENCODER['ERROR_BLOCK']
-		if clock == 23 :
-			tx_coded = tx.ENCODER['T0_BLOCK']	
+		
 		coded_vector.append(tx_coded) #solo para debugging
 		
 		rx_decoder_module.change_state(tx_coded) #
