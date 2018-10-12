@@ -21,13 +21,19 @@ class BlockSyncModule(object):
 								'block_name'  : 'Initial locked block',
 								'payload' 	  : 0x0 
 							 }
+		self.new_block  = {
+								'block_name'  : 'New block',
+								'payload' 	  :  0x0 
+							 }							 
 
 		self.block_lock = False
 		self.test_sh = False #esta  variable esta en false hasta que el bloque haya acumulado 66bits
 		self.sh_cnt = 0
 		self.sh_invld_cnt = 0
 		self.shift = 0 #variable que se incrementa en el estado SLIP
-		self.initial_phase = 0 #esta variable se utiliza para simular un defasaje con respecto al inicio del bloque
+		self.initial_phase = 0 #esta variable se utiliza para simular un defasaje con respecto al inicio del bloque(si uso 
+		# fifo de TAREA 1 no seria necesario)
+		self.recv_bit_cnt = 0
 
 
 	def  FSM_change_state():
@@ -101,6 +107,7 @@ class BlockSyncModule(object):
 
 
 	def receive_block(recv_block):
+		#uso recive bit frm PMA aca adentro para coompactar la funcionalidad?????
 		self.extended_block['payload'] = 0
 		self.extended_block['payload'] |= self.previous_block['payload']
 		self.extended_block['payload'] |= recv_block['payload'] << 66
@@ -126,8 +133,27 @@ class BlockSyncModule(object):
 			return False	
 
 
-	def set_testSh_flag():
-		self.test_sh = True
+	def recive_bit_from_PMA(channel_fifo):
+		"""
+			IDEA: esta funcion podria recibir como parametro algo que permita modifica el
+			puntero de lectura de la fifo para poder 'romper' la transmision?
+
+			return :
+				True acumulo 66 bits
+				False No acumulo 66 bits
+		"""
+		bit = channel_fifo.get_bit() 
+		self.new_block['payload'] |=  bit << self.recv_bit_cnt
+		self.recv_bit_cnt += 1
+
+		if self.recv_bit_cnt == 66 : # revisar indice
+			self.test_sh = True
+			self.recv_bit_cnt = 0
+			return True
+
+
+		return False	
+
 
 
 
