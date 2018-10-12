@@ -1,0 +1,2 @@
+TAREA 0 : Hacer un template de maquinas de estado para no tener que reescribir codigo para cada bloque
+STATUS TAREA 0 : no comenzada 
