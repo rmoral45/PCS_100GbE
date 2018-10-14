@@ -1,7 +1,7 @@
 from common_variables import *
 from common_functions import *
 
-estados = ['AM_LOCK_INIT','AM_RESET_CNT','FIND_1ST','COUNT_1','COMP_2ND','2_GOOD','COMP_AM','GOOD_AM','INVALID_AM','COUNT_2','SLIP']
+#estados = ['AM_LOCK_INIT','AM_RESET_CNT','FIND_1ST','COUNT_1','COMP_2ND','2_GOOD','COMP_AM','GOOD_AM','INVALID_AM','COUNT_2','SLIP']
 
 
 class AlignMarkerLockModule(object):
@@ -24,6 +24,8 @@ class AlignMarkerLockModule(object):
 				- block_ready : funciona como enable,es un flag que se recibe desde el modulo
 				  block sync indicando que se acumularon los bits correspondientes a un bloque
 				- recv_block : bloque enviado desde BlockSyncModule  
+			CUIDADO,debe recibir siempre bloques,los AM se eliminan aca o en otro modulo?
+			agregar funcion de bypass para bloques quie no son AM	
 		"""
 		
 		if block_lock_x == False:
@@ -51,7 +53,7 @@ class AlignMarkerLockModule(object):
 		elif self.state == 'FIND_1ST' : 
 			self.test_am = False
 			self.first_am = recv_block['payload']
-			self.am_valid = search_valid_am()
+			self.am_valid = search_valid_am(recv_block)
 
 			if  self.am_valid  : 
 				self.state = 'COUNT_1'
@@ -69,24 +71,47 @@ class AlignMarkerLockModule(object):
 			"""
 				habra que considerar el SH al hacer la comparacion?
 			"""
+			self.am_counter = 0 # RESETEO CONTADOR DE BLOQUES
 			if  self.first_am == recv_block['payload']  : 
 				self.state = '2_GOOD'
 			else  :	
 				self.state = 'SLIP' 
 
-		elif self.state == '' : #estado 5
+		elif self.state == '2_GOOD' : 
+			self.am_lock = True
+			self.lane_id = align_marker_list.index(self.first_am)
+			self.state = 'COUNT_2'
 
-			if    : #condicion para transcision 1
-				self.state = ''
-			elif  :	#condicion para transcision 2
-				self.state = '' 
+		elif self.state == 'COUNT_2' : #estado 6
+			self.am_counter += 1
 
-		elif self.state == '' : #estado 6
+			if self.am_counter == self.BLOCKS_BETWEEN_AM  : 
+				self.state = 'COMP_AM' 
+		elif self.state == 'COMP_AM':
+			"""
+				habra que considerar el SH al hacer la comparacion?
+			"""
+			self.am_counter = 0 # RESETEO CONTADOR DE BLOQUES
+			if  self.first_am == recv_block['payload']  : 
+				self.am_invld_cnt = 0
+				self.state = 'GOOD_AM'
+			else  :	
+				self.state = 'INVALID_AM'
+		elif self.state == 'INVALID_AM':
+			self.am_invld_cnt += 1
+			if self.am_invld_cnt < 4 :
+				self.state = 'COUNT_2'
+			elif self.am_invld_cnt == 4 :
+				self.state = 'SLIP' 
+		elif self.state == 'SLIP' :
+			self.am_lock = False
+			##revisar implementacion de AM_SLIP	
 
-			if    : #condicion para transcision 1
-				self.state = ''
-			elif  :	#condicion para transcision 2
-				self.state = ''
 
-	def search_valid_am():
+	def search_valid_am(block):
+		"""
+			compara tmb usando el sh,pero block sync puede recibir
+			sh invalidos en estado de regimen,cuidado con eso
+		"""
+		return block['payload'] in align_marker_list
 
