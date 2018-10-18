@@ -62,10 +62,13 @@ def reverse_num(num):
 	Comentario:
 		esta funcion en necesaria por la manera en que el estandar define la  transmision de datos		
 	"""
-	binary = bin(num) 
+	num1 = num | (1<<8) #agrego bit para que no recorte ceros
+	#sino cuando num=0x0f por ej da mal el resultado
+	binary = bin(num1)
 	reverse = binary[-1:1:-1]
-	bp()
-	return int(reverse,2)
+	num2=int(reverse,2) & (0b111111110)#elimino bit agregado
+	num2 = (num2 >> 1)bin()
+	return num2
 def hex_to_byte_list(num,num_len):
 	"""
 		Args:
