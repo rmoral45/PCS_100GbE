@@ -7,7 +7,8 @@ estados = ['LOCK_INIT','RESET_CNT','TEST_SH','VALID_SH','64_GOOD','TEST_SH2','IN
 
 class BlockSyncModule(object):
 	
-	def __init__(self):
+	def __init__(self,phy_lane_id):
+		self.phy_lane_id = phy_lane_id
 		self.state = 'LOCK_INIT'
 		self.previous_block = {
 								'block_name'  : 'Initial previous block',
@@ -142,8 +143,10 @@ class BlockSyncModule(object):
 				True acumulo 66 bits
 				False No acumulo 66 bits
 		"""
-		bit = channel_fifo.get_bit() 
-		self.new_block['payload'] |=  bit << self.recv_bit_cnt
+		bit = channel.get_bit(self.phy_lane_id)
+
+		self.new_block['payload'] |=  bit << (66 - self.recv_bit_cnt) #los bits se guardan desde la pos 66 hasta 0
+		# para recibir bloques del mismo formato que el estandar [b0(sh0) b1(sh1) ................b66]
 		self.recv_bit_cnt += 1
 
 		if self.recv_bit_cnt == 66 : # revisar indice
