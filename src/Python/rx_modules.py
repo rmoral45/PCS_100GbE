@@ -2,7 +2,6 @@ from pdb import set_trace as bp
 from common_variables import *
 from common_functions import *
 
-
 CGMII_DECODER = { 
 			
 			'CODED_ERROR_BLOCK':{		'block_name'		: 'ERROR_BLOCK',
@@ -79,7 +78,7 @@ CGMII_DECODER = {
 	    	}
 ##########################################################################
 
-##TODO: - Implementar RX_TYPE_NEXT
+payload_nbytes = 8
 
 class rx_FSM(object):																	
 
@@ -93,7 +92,7 @@ class rx_FSM(object):
 							}
 		self.rx_raw = CGMII_DECODER['CODED_Q_ORD_BLOCK']	#Trama a enviar	
 
-
+	'''
 	def R_TYPE(self,block):
 
 		if(block['block_name'] == 'CODED_IDLE_BLOCK' or block['block_name'] == 'CODED_Q_ORD_BLOCK' or 
@@ -111,9 +110,6 @@ class rx_FSM(object):
 		else:
 			return 'E'
 
-
-
-	
 	def change_state(self, received_block):
 		self.rx_coded = self.rx_coded_next
 		self.rx_coded_next = received_block		
@@ -238,6 +234,224 @@ class rx_FSM(object):
 			self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
 			self.state = 'TX_E'
 
+	'''
+
+	#Version verificacion de tipo de bloque 
+
+	def R_TYPE(self, block):
+		
+		payload = block['payload']
+		block_type = (payload & (0xff << (payload_nbytes - 1)*8)) >> ((payload_nbytes - 1)*8)
+		
+		sh = block['sh']
+		if(sh == 0x1):
+			block['block_name'] = 'CODED_DATA_BLOCK'
+			return 'D'
+		elif(block_type == 0x1e):
+			block['block_name'] = 'CODED_IDLE_BLOCK'
+			block['btype'] = 0x1e			
+			return 'C'
+		elif(block_type == 0x4b):
+			block['block_name'] = 'CODED_Q_ORD_BLOCK'
+			block['btype'] = 0x4b
+			return 'C'
+		elif(block_type == 0x4b && (payload & (0xff << 24)) == 0xf0):
+			block['block_name'] = 'CODED_Fsig_ORD_BLOCK'
+			block['btype'] = 0x4b
+			return 'C'
+		elif(block_type == 0x87):
+			block['block_name'] = 'CODED_T0_BLOCK'
+			block['btype'] = 0x87
+			return 'T'
+		elif(block_type == 0x99):
+			block['block_name'] = 'CODED_T1_BLOCK'
+			block['btype'] = 0x99
+			return 'T'
+		elif(block_type == 0xaa):
+			block['block_name'] = 'CODED_T2_BLOCK'
+			block['btype'] = 0xaa
+			return 'T'
+		elif(block_type == 0xb4):
+			block['block_name'] = 'CODED_T3_BLOCK'
+			block['btype'] = 0xb4
+			return 'T'
+		elif(block_type == 0xcc):
+			block['block_name'] = 'CODED_T4_BLOCK'
+			block['btype'] = 0xcc
+			return 'T'
+		elif(block_type == 0xd2):
+			block['block_name'] = 'CODED_T5_BLOCK'
+			block['btype'] = 0xd2
+			return 'T'
+		elif(block_type == 0xe1):
+			block['block_name'] = 'CODED_T6_BLOCK'
+			block['btype'] = 0xe1
+			return 'T'
+		elif(block_type == 0xff):
+			block['block_name'] = 'CODED_T7_BLOCK'
+			block['btype'] = 0xff
+			return 'T'
+		elif(block_type == 0x78):
+			block['block_name'] = 'CODED_START_BLOCK'	
+			block['btype'] = 0x78		
+			return 'S'
+		else
+			block['block_name'] = 'CODED_ERROR_BLOCK'
+			block['btype'] = 0x1e
+			return 'E'
+
+	#TODO: TERMINAR BLOCK_CHECKER
+
+	#Funcion destinada a controlar el payload de los bloques, sin mirar el block type
+	def BLOCK_CHECKER(self, block):
+
+		payload = block['payload']
+		payload = payload & 0xFFFFFFFFFFFFFF #le sacamos el btype al payload original
+
+		if(block['btype'] == 0x1e && ['block_name'] = 'CODED_ERROR_BLOCK'):
+
+			for i in range(0, payload_nbytes):
+				check_condition = (payload & (0xff << i*8)) >> i*8
+
+				if(!(check_condition == E_100G)):
+					##ERROR
+
+
+
+
+
+
+
+	#VERSION DE MAQUINA DE ESTADOS DEL RX CON BLOQUES GENERICOS COMPUESTOS POR SH + payload
+
+	#El received_block sera un diccionario compuesto por SH y payload
+	#Se debe verificar el primer octeto del payload para ver el tipo de bloque, luego verificar los 7 octetos restantes
+	#para verificar el orden.
+
+	def change_state(self, received_block):
+
+		self.rx_coded = self.rx_coded_next
+		self.rx_coded_next = received_block		
+
+
+		TYPE = self.R_TYPE(self.rx_coded)
+		TYPE_NEXT = self.R_TYPE(self.rx_coded_next)
+		
+
+		if(self.rx_coded['sh'] == 0x2 or self.rx_coded['sh'] == 0x1):
+
+
+			if(self.state == 'RX_INIT'):
+
+				print "Estado actual: ", self.state
+				
+				if( TYPE == 'C'):
+					self.state = 'RX_C'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+				elif(TYPE == 'S'):
+					self.state = 'RX_D'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+				elif(TYPE in ['E', 'D', 'T']):
+					self.state = 'RX_E'
+					self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
+
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state			
+			
+				
+			elif(self.state == 'RX_C'):
+				
+				print "Estado actual: ", self.state
+
+				if(TYPE == 'C'): 
+					self.state = 'RX_C'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+				elif(TYPE == 'S'):
+					self.state = 'RX_D'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+				elif(TYPE in ['E', 'D', 'T']):
+					self.state = 'RX_E'
+					self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+
+
+			elif(self.state == 'RX_D'):
+
+				print "Estado actual: ", self.state
+				
+				if(TYPE == 'D'):
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+					self.state = 'RX_D'
+
+				elif(TYPE == 'T' and TYPE_NEXT in ['S','C']):
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+					self.state = 'RX_T'
+
+				elif((TYPE == 'T' and TYPE_NEXT in ['E', 'D', 'T']) or TYPE in ['E', 'C', 'S']):
+					self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
+					self.state = 'RX_E'
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+				
+
+			elif(self.state == 'RX_T'):
+
+				print "Estado actual: ", self.state
+
+				if(TYPE == 'C'): 
+					self.state = 'RX_C'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+				elif(TYPE == 'S'):
+					self.state = 'RX_D'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+
+
+			elif(self.state == 'RX_E'):
+
+				if(TYPE == 'C'): 
+					self.state = 'RX_C'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+				elif(TYPE == 'D'):
+					self.state = 'RX_D'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+				elif((TYPE == 'T' and (TYPE_NEXT in ['E', 'D', 'S'])) or TYPE in ['E', 'S']):
+					self.state = 'RX_E'
+					self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
+
+				elif(TYPE == 'T' and TYPE_NEXT in ['S', 'C']):
+					self.state = 'RX_T'
+					self.rx_raw = CGMII_DECODER[self.rx_coded['block_name']]
+
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+
+
+			else:
+				print 'Unknown state'
+				self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
+				self.state = 'RX_E'
+
+				print "Send to CGMII: ", self.rx_raw
+				print "Proximo estado: ", self.state
+			
+		else:
+			print'SH ERROR: Sending error to CMGII'
+			self.rx_raw = CGMII_DECODER['CODED_ERROR_BLOCK']
+			self.state = 'TX_E'
 
 
 			
