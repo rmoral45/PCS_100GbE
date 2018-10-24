@@ -1,5 +1,5 @@
 TAREA 0 : Hacer un template de maquinas de estado para no tener que reescribir codigo para cada bloque
-STATUS TAREA 0 : no comenzada
+STATUS TAREA 0 : lista
 
 TAREA 1 : hacer una fifo con puntero de escritura en fifo[0],puntero de lectura parametrizable,y donde para el estado
 inicial los valores de fifo[0:puntero_lectura]  sean 1s y 0s de forma aleatoria.El valor inicial del puntero de lectura debe depender de dos parametros RX_DELAY(se usa para simular que el receptor se enciende en un instante de tiempo t desp que el TX,esta variable es comun para

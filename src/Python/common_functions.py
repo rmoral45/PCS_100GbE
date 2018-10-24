@@ -70,6 +70,11 @@ def reverse_num(num,nbits):
 	num2 = (num2 >> 1)
 	return num2
 def num_to_hex_list(block):
+	"""
+		devuelve el numero como lista de bytes pero con los octetos invertidos
+
+		REVISAR !!!!!!!!!!!!!!!!!
+	"""
 	PAYLOAD_NBYTES = 8
 	byte_list = []
 	for i in reversed(range(0,PAYLOAD_NBYTES)):
