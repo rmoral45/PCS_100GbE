@@ -92,6 +92,8 @@ class rx_FSM(object):
 							}
 		self.rx_raw = CGMII_DECODER['CODED_Q_ORD_BLOCK']	#Trama a enviar	
 
+		
+
 	'''
 	def R_TYPE(self,block):
 
@@ -306,13 +308,12 @@ class rx_FSM(object):
 	def BLOCK_CHECKER(self, block):
 
 		payload = block['payload']
-		payload = payload & 0xFFFFFFFFFFFFFF #le sacamos el btype al payload original
 
 		if(block['btype'] == 0x1e && ['block_name'] = 'CODED_ERROR_BLOCK'):
 
-			for i in range(0, payload_nbytes):
+			for i in range(1, payload_nbytes+1): #Recorremos al payload desde el 2do byte (salteamos el btype)
+				
 				check_condition = (payload & (0xff << i*8)) >> i*8
-
 				if(!(check_condition == E_100G)):
 					##ERROR
 
