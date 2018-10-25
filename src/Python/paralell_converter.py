@@ -1,5 +1,6 @@
 import numpy
-
+from common_functions import *
+from pdb import set_trace as bp
 
 
 
@@ -19,7 +20,7 @@ class ParallelConverterModule(object):
 			if len(i) >= 1 :
 				count += 1
 
-		if count == NLANES :
+		if count == self.NLANES :
 			return True
 
 		else :
@@ -29,12 +30,12 @@ class ParallelConverterModule(object):
 	def add_block(self,block) :
 		self._lanes_fifo[self._InsertIterator].insert(0,block)
 		self._InsertIterator += 1
-		if self._InsertIterator == NLANES :
+		if self._InsertIterator == self.NLANES :
 			self._InsertIterator = 0
 
 	def get_block(self):
 		block = self._lanes_fifo[self._PopIterator].pop()
 		self._PopIterator += 1
-		if self._PopIterator == NLANES:
+		if self._PopIterator == self.NLANES:
 			self._PopIterator = 0
 		return block
