@@ -35,6 +35,7 @@ def main():
 	##################debug vars ################
 	bcount = 0
 	tx_cgm = []
+	bsync_vect = []
 	#############################################
 
 	##################reset##############
@@ -83,7 +84,7 @@ def main():
 
 		rx_block['block_name'] = 'block_' + str(bcount)
 		bcount += 1
-
+		bsync_vect.append(rx_block)
 		Block_Sync.receive_block(rx_block)
 		for y in range(10):
 			Block_Sync.FSM_change_state()
