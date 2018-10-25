@@ -16,8 +16,6 @@ class BlockSyncModule(object):
 		self.sh_cnt = 0
 		self.sh_invld_cnt = 0
 		self.shift = 0 #variable que se incrementa en el estado SLIP
-		self.initial_phase = 0 #esta variable se utiliza para simular un defasaje con respecto al inicio del bloque(si uso 
-		# fifo de TAREA 1 no seria necesario)
 		self.recv_bit_cnt = 0
 		self.locked_bcount = 0 # solo se incrementa al llamar get_block
 		self.previous_block = {
@@ -42,18 +40,11 @@ class BlockSyncModule(object):
 		self.test_sh = False
 		self._dgb_seq.append('LOCK_INIT')
 		self._dgb_seq.append(self.state)
+
 	def  FSM_change_state(self):
-		"""
-			CUIDADO,revisar que pasa con la  variable tesh_sh, que por recibir de a bloques deberia estar siempre en TRUE
-		"""
-		##este estado se deberia poner en una funcion reset quizas ???????
-		"""
-		if self.state == 'LOCK_INIT' :
-			self.state = 'RESET_CNT'
-			self.block_lock = False
-			self.test_sh = False
-		"""
+		
 		if self.state == 'RESET_CNT' :
+
 			self.sh_cnt=0
 			self.sh_invld_cnt=0
 			if self.test_sh == True and self.block_lock == False :
@@ -64,6 +55,7 @@ class BlockSyncModule(object):
 				self._dgb_seq.append(self.state)
 
 		elif self.state == 'TEST_SH'	:
+
 			self.test_sh = False 
 			if self.check_sync_header() :
 				self.state = 'VALID_SH'
@@ -73,7 +65,7 @@ class BlockSyncModule(object):
 				self._dgb_seq.append(self.state)
 
 		elif self.state == 'VALID_SH':
-			#self.sh_cnt += 1  !!!!!!!!!!!!!!!!!!
+
 			if self.test_sh == True and self.sh_cnt < 64 :
 				self.state = 'TEST_SH'
 				self._dgb_seq.append(self.state)
@@ -97,7 +89,6 @@ class BlockSyncModule(object):
 				self._dgb_seq.append(self.state)
 
 		elif self.state == 'VALID_SH2':
-			#self.sh_cnt += 1  !!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 
 			if self.test_sh == True and self.sh_cnt < 1024 :
 				self.state = 'TEST_SH2'
@@ -107,8 +98,6 @@ class BlockSyncModule(object):
 				self._dgb_seq.append(self.state)
 
 		elif self.state == 'INVALID_SH' :
-			#self.sh_cnt += 1
-			#self.sh_invld_cnt += 1
 
 			if self.sh_invld_cnt == 65 :
 				self.state = 'SLIP'
@@ -121,18 +110,15 @@ class BlockSyncModule(object):
 				self._dgb_seq.append(self.state)
 
 		elif self.state == 'SLIP' :
+
 			self.block_lock = False
 			self.shift += 1
 			"""
 				if self.shift == 65
-					sacar alguna flag de error
+					sacar alguna flag de error???
 					reset self.shift
 
 			"""
-
-
-
-
 			self.state = 'RESET_CNT'
 			self._dgb_seq.append(self.state)				
 
@@ -140,6 +126,13 @@ class BlockSyncModule(object):
 
 
 	def receive_block(self,recv_block):
+		"""
+			Concatena el payload del bloque recibido con el anterior {66bit_NewBlock , 66bitPrevBlock }
+			Args :
+				-<type dict> recv_block : nuevo bloque recibido desde SerialToParallelConverter
+			Sets :
+				-<type bool> tesh_sh : indica que se recibio un nuevo bloque,es usada por la FSM
+		"""
 		self.test_sh = True
 		self.extended_block['payload'] = 0
 		self.extended_block['payload'] |= self.previous_block['payload']
@@ -151,6 +144,15 @@ class BlockSyncModule(object):
 		"""
 
 	def check_sync_header(self):
+		"""
+			Revisa la validez de sh
+
+			Retuns :
+				-<type bool> : True si el sh es valido, False si no lo es
+			Sets :
+				-<type int> sh_cnt : incrementa en 1
+				-<type int> sh_invld_cnt : incrementa en 1 si el sh testeado es invalido (0b00/0b11)
+		"""
 
 		sh_bit_0 = (self.extended_block['payload'] & (1<< (130 - self.shift)) ) >> (130 - self.shift)
 		sh_bit_1 = (self.extended_block['payload'] & (1<<(130 - self.shift + 1))) >> (130 - self.shift + 1)
@@ -164,6 +166,12 @@ class BlockSyncModule(object):
 	
 
 	def get_block(self):
+		"""
+			funcion que utiliza el modulo siguiente(en este caso Aligment Lock) para solicitar un bloque
+			Returns :
+				-<type dict> block: Bloque correcto si la variable 'block_lock' se encuentra en True,
+									o un bloque con basura si esta se encuentra en False
+		"""
 		block = {	
 					'block_name' : ''
 					'payload' : 0
@@ -181,6 +189,10 @@ class BlockSyncModule(object):
 		return block
 
 	def debug_state_seq(self):
+		"""
+			Compara la secuencia de estados alcanzados con todos los estados posibles
+			e imprime en pantalla aquellos estados no alcanzados
+		"""
 		for i in BLOCK_SYNC_STATES :
 			if i not in self._dgb_seq :
 				print ' Estado no alcanzado :  ' , i

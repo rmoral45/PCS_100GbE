@@ -9,21 +9,41 @@ import copy
 class SerialToParallelModule(object):
 	
 	def __init__(self,phy_lane_id):
+		"""
+			Args:
+				-<type int> phy_lane_id : indica a que linea de recepcion fisica corresponde el conversor
+		"""
 		self._block = {
 						'payload' : 0
 				     }
 		self._block_ready = False #se setea a true cuando se acumularon 66 bits desde PMA
 		self._bit_counter = 66 #se decrementa cada vez que obtiene un bit
 		self._phy_lane_id = phy_lane_id
+
 	def get_66_bit(self):
-		block = copy.deepcopy(self._block)
+		"""
+			Returns :
+				-block : bloque con un payload conteniendo 66bits acumulados desde pma
+		"""
+		block = copy.deepcopy(self._block) #por las dudas,para evitar paso por referencia
 		self._block['payload'] = 0
 		self._bit_counter = 66
-		self._block_ready = False
+		self._block_ready = False 
 		return block
 		
 
 	def acumulate_bit(self,channel):
+		"""
+			Args :
+				-<type ChannelModel> channel : canal del sistema,el cual esta modelado como matriz donde cada columna corresponde
+						   a una lane fisica de transmision
+			Uses :
+				-<type function> reorder_block() : los octetos se reciben en el mismo orden que se encontraban en el transmisor
+				 shbit0 shbit1 D0 D1 ...... D7 pero con el orden de los bit invertidos, se utiliza la funcion para acomodar el orden
+				 de los bits
+			Sets :
+				-<type bool> _block_ready : se setea en true luego de haber acumulado y reordenado 66 bits
+		"""
 	
 		new_bit = channel.get_bit(self._phy_lane_id)
 		self._bit_counter -= 1
@@ -34,7 +54,11 @@ class SerialToParallelModule(object):
 
 	def block_ready(self):
 		return self._block_ready
+
 	def reorder_block(self):
+		"""
+			invierte el orden de los bits de cada octeto de payload
+		"""
 		block = {
 					'payload' : 0
 				}

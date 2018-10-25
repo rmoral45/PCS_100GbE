@@ -28,12 +28,23 @@ class ParallelConverterModule(object):
 
 
 	def add_block(self,block) :
+		"""
+			Recibe un bloque y lo almacena en alguna de las fifos de cada lane,el primer bloque en lane_0_fifo,
+			el segundo lane_1_fifo y asi sucesivamente hasta lane_n_fifo y vuelve al principio
+			Args :
+				-<type dict> block
+		"""
 		self._lanes_fifo[self._InsertIterator].insert(0,block)
 		self._InsertIterator += 1
 		if self._InsertIterator == self.NLANES :
 			self._InsertIterator = 0
 
 	def get_block(self):
+		"""
+			Inverso de add_block()
+			Fix : se deberia modificar para devolver N bloques, donde cada bloque 
+			corresponde a una lane de transmision.
+		"""
 		block = self._lanes_fifo[self._PopIterator].pop()
 		self._PopIterator += 1
 		if self._PopIterator == self.NLANES:
