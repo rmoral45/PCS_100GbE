@@ -1,6 +1,6 @@
 
 from common_variables import *
-
+import copy
 
 
 class AmInsertionModule(object):
@@ -15,7 +15,7 @@ class AmInsertionModule(object):
 		
 	def get_block(self,block_counter):
 		if block_counter == AM_BLOCK_GAP:
-			return self._aligner_marker
+			return copy.deepcopy(self._aligner_marker)
 		else:
 			return self._block_fifo.pop()
 
