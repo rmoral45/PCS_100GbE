@@ -1,0 +1,140 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%% Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Procesadores embebidos y unidades aritméticas en FPGAs}
+\begin{frame}
+  \frametitle{\textbf{Tabla de Contenidos}}
+  \begin{center}
+    {\vspace{-1.5cm}\Large \textbf{Sección \thesection}\vspace{0.5cm}}
+    
+    \begin{beamercolorbox}[
+      sep=8pt,center]{part title}
+      \usebeamerfont{part title}
+      \textbf{\insertsection}
+    \end{beamercolorbox}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}%[allowframebreaks]
+  \frametitle{\textbf{Procesadores embebidos y unidades aritméticas en FPGAs}}
+  %\framesubtitle{<En caso que haga falta se agrega un subtitulo >}
+  \begin{block}{\textbf{Introducción}}
+    \begin{itemize} \justifying\footnotesize
+    \item Las FPGAs han surgido como dispositivos que permiten desarrollar
+      aplicaciones de procesamiento de señales de alto rendimiento.
+		\item En este campo de aplicación, los FPGA han superado a la tradicional
+      tecnología de procesadores de señal \(DSP\). Sin importar cuantos MACs pueda
+      colocar el proveedor de DSP en un chip, esto no compite contra los cientos de
+      estas unidades que pueden ser colocadas en un dispositivo FPGA de alto
+      rendimiento.
+		\item En la actualidad, los FPGA cuentan con procesadores incorporados,
+      interfaces estándar y bloques de procesamiento de señales constituidos por
+      multiplicadores, sumadores, registros y multiplexores. Diferentes
+      dispositivos de una misma familia poseen un gran número de estas unidades
+      embebidas, y con el tiempo se espera que el número de las mismas en un
+      mismo dispositivo siga creciendo.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}%[allowframebreaks]
+  \frametitle{\textbf{Procesadores embebidos y unidades aritméticas en FPGAs}}
+  %\framesubtitle{Filtro IIR}
+  \vspace{-0.3cm}
+  \begin{figure}[!t] \centering
+    \includegraphics[scale=0.5]{./figures/block.eps}
+    \caption*{Bloques DSP en FPGAs Xilinx.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}%[allowframebreaks]
+  \frametitle{\textbf{Instanciación de bloques}}
+  \framesubtitle{Comparación entre dos tecnologías}
+  \vspace{-0.3cm}
+  \begin{figure}[!t] \centering
+    \includegraphics[scale=0.26]{./figures/block.eps}
+    \caption*{\centering \footnotesize Reporte de Síntesis - Spartan3}
+  \end{figure}
+  \vspace{-0.5cm}
+  \begin{figure}[!t] \centering
+				\includegraphics[scale=0.26]{./figures/block.eps}
+				\caption*{\centering \footnotesize Reporte de Síntesis - Virtex4.}
+		\end{figure}
+\end{frame}
+
+\begin{frame}%[allowframebreaks]
+  \frametitle{\textbf{Sumadores}}
+  \framesubtitle{Sumadores Básicos}
+  \begin{block}{\textbf{Half Adders}}
+    \begin{itemize} \justifying\footnotesize
+    \item Un half adder \textit{(HA)} es un circuito combinacional usado para
+      sumar dos bits, $a_{i}$ y $b_{i}$, sin un acarreo de entrada. La suma
+      $s_{i}$ y el acarreo de salida $c_{i}$ están dados por:
+    \end{itemize}
+    \begin{eqnarray}
+      s_{i} &=& a_{i} \oplus b_{i} \\
+      c_{i} &=& a_{i}b_{i}
+    \end{eqnarray}
+    \begin{itemize} \justifying\footnotesize
+    \item El path crítico posee una latencia de 1, y corresponde a la longitud
+      de cualquiera de los dos paths \textit{(de cualquiera de las dos
+        operaciones)}.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}%[allowframebreaks]
+  \frametitle{\textbf{Los Cuatro Niveles de Abstracción}}
+  \framesubtitle{Nivel Comportamental}
+
+  \begin{exampleblock}{\textbf{Asignación Bloqueante}}
+    \vspace{-0.5cm}
+    \begin{tabular}[c]{lr}
+      %\hspace{-0.4cm}
+      \begin{minipage}[t]{0.45\linewidth}
+        \vspace{0.5cm}
+        \begin{itemize} \justifying\footnotesize
+        \item El path crítico posee una latencia de 1, y corresponde a la longitud
+          de cualquiera de los dos paths \textit{(de cualquiera de las dos
+            operaciones)}.
+        \end{itemize}
+      \end{minipage}
+      \hspace{0.3cm}
+      \begin{minipage}[t]{0.45\linewidth}
+        \vspace{0.5cm}
+        \begin{figure}[!t] \centering
+          \includegraphics[scale=0.8]{./figures/block.eps}
+        \end{figure}
+      \end{minipage}
+    \end{tabular}
+  \end{exampleblock}
+
+\end{frame}
+
+\begin{frame}%[allowframebreaks]
+  \frametitle{\textbf{Los Cuatro Niveles de Abstracción}}
+  \framesubtitle{Nivel Comportamental}
+  %\vspace{-0.5cm}
+  \begin{tabular}[c]{lr}
+    % \hspace{-0.4cm}
+    \begin{minipage}[t]{0.45\linewidth}
+      \begin{exampleblock}{\textbf{Asignación Bloqueante}}
+        % \vspace{0.5cm}
+        \begin{itemize} \justifying\footnotesize
+        \item El path crítico posee una latencia de 1, y corresponde a la longitud
+          de cualquiera de los dos paths \textit{(de cualquiera de las dos
+            operaciones)}.
+        \end{itemize}
+      \end{exampleblock}
+      \end{minipage}
+      \hspace{0.3cm}
+      \begin{minipage}[t]{0.45\linewidth}
+        \vspace{0.5cm}
+        \begin{figure}[!t] \centering
+          \includegraphics[scale=0.8]{./figures/block.eps}
+        \end{figure}
+      \end{minipage}
+    \end{tabular}
+\end{frame}

@@ -1,0 +1,169 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%% For normal presentations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[xcolor=table,ps]{beamer}
+\usepackage{listings}
+\usepackage[spanish,english]{babel}           % Para separar correctamente las palabras de multitud de idiomas
+\usepackage[utf8x]{inputenc}         % Este paquete permite poner acentos directamente y e.es
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{ltablex}
+\usepackage{courier}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage{caption}
+\captionsetup[figure]{font={stretch=0.5}}
+\usepackage{cancel}
+% \usepackage{subfig}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\usetheme{Boadilla}
+\usetheme{Madrid}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\setbeamercolor*{bibliography entry note}{fg=black}
+\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+\definecolor{gray_c}{rgb}{0.0,0.0,0.5}
+\definecolor{gray0}{gray}{0.6}
+\definecolor{gray1}{gray}{0.8}
+\definecolor{gray2}{gray}{0.85}
+\definecolor{gray3}{gray}{0.7}
+
+\definecolor{col0}{rgb}{0.88,1,1}
+
+\newcolumntype{g}{>{\columncolor{gray1}}c}
+\newcolumntype{t}{>{\columncolor{gray0}}c}
+\usecolortheme[named=gray_c]{structure}
+\definecolor{apceleste}{rgb}{0.0,0.0,0.99}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Personal Information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title[Arquitectura de subcapa PCS para Ethernet 40/100 Gbps] %optional
+      {\textbf{Arquitectura de subcapa PCS para Ethernet 40/100 Gbps}}
+
+\subtitle{\textbf{Bloques Básicos de Diseño en FPGA y VLSI} \\\small(Unidad 4)} % (optional)
+
+
+\author[] {\large Ariel L. Pola\\arielpola@gmail.com}
+\date{\today} % (optional)
+
+\titlegraphic{\vspace{.4cm}\includegraphics[width=0.3\paperwidth]{./logo_ff.eps}}
+
+\makeatletter
+\@addtoreset{subfigure}{framenumber}% subfigure counter resets every frame
+\makeatother
+
+%%%%% Para código fuente y reportes
+\usepackage{listings}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{mygrayV}{rgb}{0.8,0.8,0.8}
+
+\lstset{
+  backgroundcolor=\color{mygrayV},
+  basicstyle=\tiny,%\scriptsize,%\footnotesize, 
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  commentstyle=\color{mygreen},
+  deletekeywords={...},
+  escapeinside={\%*}{*)},
+  extendedchars=true,
+  frame=single,
+  keepspaces=true,
+  keywordstyle=\color{blue},
+  language=Verilog,
+  morekeywords={*,...},
+  numbers=left,
+  numbersep=3pt,
+  numberstyle=\tiny\color{mygray},
+  rulecolor=\color{black},
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  stepnumber=1,
+  stringstyle=\color{mymauve},
+  tabsize=2,
+  %title=\lstname
+  framerule=0pt,
+  aboveskip=0pt,
+  framextopmargin=0pt,
+  framexbottommargin=0pt,
+  %framexleftmargin=3pt,
+  framesep=0.1pt,
+  rulesep=.4pt,
+  rulesepcolor=\color{blue},
+  numberfirstline = true,
+}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Title Frame
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+%  \vspace{1.cm}
+  \titlepage
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Logo Lower-Left
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usebackgroundtemplate{
+\setlength{\unitlength}{1mm}
+\begin{picture}(1,1)
+ \linethickness{0.5mm}
+  \put(0,-94){\includegraphics[height=0.4cm]{./logo_ff.eps}}
+\end{picture}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Frame
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame} 
+  \frametitle{\textbf{Tabla de Contenidos}}
+  \tableofcontents
+  % \mframetitle{Outline}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Frame
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{parte00.tex}
+\input{parte01.tex}
+%\input{parte02.tex}
+%\input{parte03.tex}
+%\input{parte04.tex}
+
+% %%%%%%%%%%%%%%%%%%%
+% %% FRAME
+% \section{Bibliografía}
+% \begin{frame}[t,allowframebreaks]
+%   \frametitle{Bibliografía}
+%   % \vspace{-0.7cm}
+%   \tiny
+%   %\bibliographystyle{./IEEEtranBST/IEEEtran}
+%   \bibliographystyle{ieeetr}
+%   \bibliography{../APola_references}
+% \end{frame}
+
+% \end{document}
+
+\begin{frame}%[allowframebreaks]
+  \frametitle{\textbf{Preguntas}}
+  % \framesubtitle{}
+   \begin{center}
+     {\Huge \textbf{Muchas Gracias}}
+    \end{center}
+\end{frame}
+
+\end{document}
