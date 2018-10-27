@@ -4,4 +4,6 @@ Testear maquinas de estado.
 
 Simular skew.
 
+!!!!importante!!!!
+resetear el estado del scrambler desp de hacer el scrambling de un bloque,tanto en tx como rx
 
