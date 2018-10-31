@@ -27,7 +27,7 @@ def main():
 	rx_scrambler_module = tx.Scrambler()
 	SEED = np.random.randint(0,2,58)
 	tx_scrambler_module.shift_reg = copy.deepcopy(SEED)
-	rx_scrambler_module.shift_reg = copy.deepcopy(SEED)
+	#rx_scrambler_module.shift_reg = copy.deepcopy(SEED)
 	#rx_scrambler = Scrambler()
 
 	for clock in range (0,NCLOCK): # MAIN LOOP
@@ -52,8 +52,8 @@ def main():
 		print ' \n\n'
 		print 'receive : ' , hex(receive['payload'])
 		bp()
-		tx_scrambler_module.shift_reg = copy.deepcopy(SEED)
-		rx_scrambler_module.shift_reg = copy.deepcopy(SEED)
+		#tx_scrambler_module.shift_reg = copy.deepcopy(SEED)
+		#rx_scrambler_module.shift_reg = copy.deepcopy(SEED)
 		
 
 
