@@ -92,15 +92,22 @@ localparam [12:0] CODED_T7   = 13'b0000000000001;
 
 
 
-////SIGNALS_TO_FSM
+/////////////   SIGNALS_TO_FSM    /////////////////////////
+
 wire D_SIGNAL; // lo recibido en tx_data es bloque de datos
 wire C_SIGNAL; // lo recibido en tx_data es bloque de control
 wire S_SIGNAL; // lo recibido en tx_data es bloque de start
 wire T_SIGNAL; // lo recibido en tx_data es bloque de terminate
 wire [3:0] T_TYPE;//concatenacion de las seniales anteriores
 
+////////////////////////////////////////////////////////////
 
-//enables
+///////////////////  enables  //////////////////////////////
+
+/*
+	comparo el vector TX_C con los formatos correspondientes
+	a los distintos tipos de bloque
+*/
 wire enable_data_block;
 wire enable_S_Q_Fsig_block;
 wire enable_control_block;
@@ -112,7 +119,14 @@ wire enable_t4_block;
 wire enable_t5_block;
 wire enable_t6_block;
 wire enable_t7_block;
-//payload
+
+///////////////////////////////////////////////////////////
+
+///////////////    payload   //////////////////////////////
+/*
+	comparo el payload de los bloques con el payload corrspondiente
+	a los distintos tipos de bloque
+*/
 wire payload_S_block;
 wire payload_Q_block;
 wire payload_Fsig_block;
@@ -142,8 +156,18 @@ wire type_t7;
 wire [12:0] deco_type;  // de tamanio igual a la suma de todos los type_
 reg  [12:0] deco_type_reg;
 
+//////////////////////////////////////////////////////////////////
 
 ////////////////////// caracteres mapeados /////////////////////
+
+/*
+	registros para realizar el mapeo y validacion de los caracteres del payload,
+	necesito tenerlos por que los bloques terminate tienen cualquier combinacion 
+	de IDLES y ERROR luego del caracter /T/
+*/
+
+reg [7:0] valid_char; // en cada posicion seteo 1'b1 si el caracter respectivo es IDLE o ERROR
+// caracteres de payload (TX_D)
 reg [7:0] in_char_0;
 reg [7:0] in_char_1;
 reg [7:0] in_char_2;
@@ -153,6 +177,7 @@ reg [7:0] in_char_5;
 reg [7:0] in_char_6;
 reg [7:0] in_char_7;
 
+// caracteres mapeados
 reg [6:0] pcs_char_0;
 reg [6:0] pcs_char_1;
 reg [6:0] pcs_char_2;
@@ -161,8 +186,6 @@ reg [6:0] pcs_char_4;
 reg [6:0] pcs_char_5;
 reg [6:0] pcs_char_6;
 reg [6:0] pcs_char_7;
-
-reg [7:0] valid_char;
 
 ///////////////////////////////////////////////////////////////
 

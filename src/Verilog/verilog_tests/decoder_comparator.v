@@ -11,12 +11,16 @@ module decoder_comparator
     input wire i_clock,
     input wire i_reset,
     input wire  [LEN_CODED_BLOCK-1 : 0] i_rx_coded,
-    output wire [LEN_RX_DATA-1 : 0] o_rx_data,
-    output wire [LEN_RX_CTRL-1 : 0] o_rx_ctrl,
-    output wire [] o_r_type
+    input wire i_enable,
+    output reg [LEN_RX_DATA-1 : 0] o_rx_data,
+    output reg [LEN_RX_CTRL-1 : 0] o_rx_ctrl,
+    output wire [3:0] o_r_type
  );
 
  /////////// CGMII CHARACTERS /////////////////
+ localparam LEN_CGMII_CHAR = 8;
+ localparam LEN_PCS_CHAR   = 7;
+
  localparam [7:0] CGMII_START     = 8'hFB;
  localparam [7:0] CGMII_TERMINATE = 8'hFD;
  localparam [7:0] CGMII_FSIG      = 8'h5C;
@@ -30,6 +34,29 @@ module decoder_comparator
  localparam [6:0] PCS_ERROR = 7'h1E;
  localparam [3:0] PCS_Q     = 4'h0;
  localparam [3:0] PCS_FSIG  = 4'hF;
+
+ /////////////////  SH  /////////////////
+ 
+ localparam [1:0]  DATA_SH = 2'b01;
+ localparam [1:0]  CTRL_SH = 2'b10;
+
+
+ ////////////////////////////////////////
+
+ /////////// character positions /////////////
+
+ localparam CHAR_0 = LEN_CODED_BLOCK-3-8; // 66bits-1(65) - 2(sh) -8(blocktype)  = 55(es el primer bit del caracter 0)
+ localparam CHAR_1 = LEN_CODED_BLOCK-3-8-7;
+ localparam CHAR_2 = LEN_CODED_BLOCK-3-8-14;
+ localparam CHAR_3 = LEN_CODED_BLOCK-3-8-21;
+ localparam CHAR_4 = LEN_CODED_BLOCK-3-8-28;
+ localparam CHAR_5 = LEN_CODED_BLOCK-3-8-35;
+ localparam CHAR_6 = LEN_CODED_BLOCK-3-8-42;
+ localparam CHAR_7 = LEN_CODED_BLOCK-3-8-49;
+
+ /////////////////////////////////////////////
+
+
  //////////    BLOCK_TYPE        /////////////
  localparam [7:0] BTYPE_CTRL  = 8'h1E;
  localparam [7:0] BTYPE_S     = 8'h78;
@@ -42,36 +69,36 @@ module decoder_comparator
  localparam [7:0] BTYPE_T5    = 8'hD2;
  localparam [7:0] BTYPE_T6    = 8'hE1;
  localparam [7:0] BTYPE_T7    = 8'hFF;
+
  ///////////////   DECODIFICACION    //////////////////////
 
- localparam [1:0]  DATA_SH = 2'b01;
- localparam [1:0]  CTRL_SH = 2'b10;
- localparam [12:0] CODED_DATA = 13'b1000000000000;
- localparam [12:0] CODED_S    = 13'b0100000000000;
- localparam [12:0] CODED_Q    = 13'b0010000000000;
- localparam [12:0] CODED_FSIG = 13'b0001000000000;
- localparam [12:0] CODED_IDLE = 13'b0000100000000;
- localparam [12:0] CODED_T0   = 13'b0000010000000;
- localparam [12:0] CODED_T1   = 13'b0000001000000;
- localparam [12:0] CODED_T2   = 13'b0000000100000;
- localparam [12:0] CODED_T3   = 13'b0000000010000;
- localparam [12:0] CODED_T4   = 13'b0000000001000;
- localparam [12:0] CODED_T5   = 13'b0000000000100;
- localparam [12:0] CODED_T6   = 13'b0000000000010;
- localparam [12:0] CODED_T7   = 13'b0000000000001;
+ 
+ localparam [12:0] RAW_DATA = 13'b1000000000000;
+ localparam [12:0] RAW_S    = 13'b0100000000000;
+ localparam [12:0] RAW_Q    = 13'b0010000000000;
+ localparam [12:0] RAW_FSIG = 13'b0001000000000;
+ localparam [12:0] RAW_IDLE = 13'b0000100000000;
+ localparam [12:0] RAW_T0   = 13'b0000010000000;
+ localparam [12:0] RAW_T1   = 13'b0000001000000;
+ localparam [12:0] RAW_T2   = 13'b0000000100000;
+ localparam [12:0] RAW_T3   = 13'b0000000010000;
+ localparam [12:0] RAW_T4   = 13'b0000000001000;
+ localparam [12:0] RAW_T5   = 13'b0000000000100;
+ localparam [12:0] RAW_T6   = 13'b0000000000010;
+ localparam [12:0] RAW_T7   = 13'b0000000000001;
 
 // division de bloque de entrada en payload,block_type y sh
 
 wire [1:0] sh;
-wire [(LEN_CODED_BLOCK-2)-1 : 0] coded_payload;
+wire [LEN_CODED_BLOCK-11 : 0] coded_payload;
 wire ctrl_sh;
 wire data_sh;
 
-assign sh            = i_rx_coded [LEN_CODED_BLOCK-1 -: 2]; // bits 65-64
-assign coded_btype   = i_rx_coded [LEN_CODED_BLOCK-3 -: 8]; // bits 63-56
-assign coded_payload = i_rx_coded [LEN_CODED_BLOCK-11 : 0]; // bits 55-0
-assign ctrl_sh = (sh == 2'b10) ? 1'b1 : 1'b0;
-assign data_sh = (sh == 2'b01) ? 1'b1 : 1'b0;
+assign sh            = rx_coded [LEN_CODED_BLOCK-1 -: 2]; // bits 65-64
+assign coded_btype   = rx_coded [LEN_CODED_BLOCK-3 -: 8]; // bits 63-56
+assign coded_payload = rx_coded [LEN_CODED_BLOCK-11 : 0]; // bits 55-0
+assign ctrl_sh = (sh == CTRL_SH) ? 1'b1 : 1'b0;
+assign data_sh = (sh == DATA_SH) ? 1'b1 : 1'b0;
 ///////////////////////////////////////////////////
 
 ////////////////  block type check  ///////////////
@@ -90,7 +117,7 @@ wire block_type_t6 ;
 wire block_type_t7 ;
 
 
-assign block_type_data = data_sh;
+assign block_type_data    = data_sh;
 assign block_type_control = (ctrl_sh && (coded_btype == BTYPE_CTRL)) ? 1'b1 : 1'b0;
 assign block_type_start   = (ctrl_sh && (coded_btype == BTYPE_S))    ? 1'b1 : 1'b0;
 assign block_type_Q_Fsig  = (ctrl_sh && (coded_btype == BTYPE_ORDER))? 1'b1 : 1'b0;
@@ -129,63 +156,255 @@ wire payload_t7_block;
 
 assign payload_idle_block = (coded_payload == {8{PCS_IDLE}}) ? 1'b1 : 1'b0 ;
 //assign payload_start_block;solo block type se checkea
-assign payload_Q_block = (coded_payload[31:0] == {8{ZERO}}) ? 1'b1 : 1'b0 ;
-assign payload_Fsig_block =(coded_payload[31:0] == {4'hf,{7{ZERO}}}) ? 1'b1 : 1'b0 ;
-assign payload_t0_block = &(valid[6:0]);
-assign payload_t1_block; 
-assign payload_t2_block;
-assign payload_t3_block;
-assign payload_t4_block;
-assign payload_t5_block;
-assign payload_t6_block;
-assign payload_t7_block;
+assign payload_Q_block    = (coded_payload[31:0] == {8{ZERO}}) ? 1'b1 : 1'b0 ;
+
+assign payload_Fsig_block = (coded_payload[31:0] == {4'hf,{7{ZERO}}}) ? 1'b1 : 1'b0 ;
+
+assign payload_t0_block   =  &(valid[6:0]);
+assign payload_t1_block   =  &(valid[5:0]); 
+assign payload_t2_block   =  &(valid[4:0]);
+assign payload_t3_block   =  &(valid[3:0]);
+assign payload_t4_block   =  &(valid[2:0]);
+assign payload_t5_block   =  &(valid[1:0]);
+assign payload_t6_block   =  &(valid[0]);
+assign payload_t7_block   =  block_type_t7; //solo se checkea el tipo de bloque(asignacion redundante,para mantener el estilo nomas)
+
+////////////////////////////  block format check  /////////////////////////
+/*
+	verifico que los bloques tengan tanto block type como payload valido
+*/
+wire type_data;
+wire type_S;
+wire type_Q;
+wire type_Fsig;
+wire type_idle;
+wire type_t0;
+wire type_t1;
+wire type_t2;
+wire type_t3;
+wire type_t4;
+wire type_t5;
+wire type_t6;
+wire type_t7;
+wire [12:0] deco_type;  // de tamanio igual a la suma de todos los type_
+reg  [12:0] deco_type_reg;
+
+assign type_data = block_type_data; //solo se checkea el sh (asignacion redundante,para mantener el estilo nomas)
+assign type_S    = block_type_start; //solo se checkea el block type (asignacion redundante,para mantener el estilo nomas)
+assign type_Q    = (block_type_Q_Fsig  & payload_Q_block);
+assign type_Fsig = (block_type_Q_Fsig  & payload_Fsig_block);
+assign type_idle = (block_type_control & payload_idle_block);
+assign type_t0   = (block_type_t0 & payload_t0_block);
+assign type_t1   = (block_type_t1 & payload_t1_block);
+assign type_t2   = (block_type_t2 & payload_t2_block);
+assign type_t3   = (block_type_t3 & payload_t3_block);
+assign type_t4   = (block_type_t4 & payload_t4_block);
+assign type_t5   = (block_type_t5 & payload_t5_block);
+assign type_t6   = (block_type_t6 & payload_t6_block);
+assign type_t7   = (block_type_t7 & payload_t7_block);
+
+assign deco_type = { type_data,type_S,type_Q,type_Fsig,type_idle ,
+type_t0,type_t1,type_t2,type_t3,type_t4,type_t5,type_t6, type_t7 };
+
+///////////////////////////////////////////////////////////////////////////
 
 
-wire [7:0] char_1_valid = ((i_rx_coded[6:0] == PCS_IDLE) ? CGMII_IDLE :
-(i_rx_coded[6:0]) == PCS_ERROR ) ? CGMII_ERROR :
 
 
 
+/////////////////latcheo de entrada////////////////
 
+reg [LEN_CODED_BLOCK-1 : 0] rx_coded;
 
-
-
-
-
-
-
-
-
-
-
-
-
-map_char(byte1,valid[0]);
-
-
-
-task map_char
-input [6 : 0] pcs_char
-output valid
-output [LEN_CGMII_CHAR-1 : 0] cgmii_char
+always @ (posedge  i_clock)
 begin
-    if(pcs_char == PCS_IDLE)
-    begin
-        cgmii_char = CGMII_IDLE;
-        valid = 1;
-    end
-    else if(pcs_char == PCS_ERROR)
-    begin
-        cgmii_char = CGMII_ERROR;
-        valid = 1;
-    end
-    else
-    begin
-        cgmii_char = 8'00;
-        valid = 0;
-    end
+	if(i_reset)        rx_coded <= {LEN_CODED_BLOCK{1'b0}};
+	else if (i_enable) rx_coded <= i_rx_coded;
 end
 
+/////////////////////////////////////////////////////
+
+
+///////////////////  mapeo de caracteres  //////////////////////
+/*
+ valid_char :
+ 	en cada posicion seteo 1'b1 si el caracter respectivo es IDLE o ERROR,
+    valid[7] se corrsponde al caracter de mas a la izquierda segun la tabla del estandar,
+    es decir, el caracter 0
+
+*/
+
+reg [7:0] valid_char; 
+
+
+// caracteres de payload (TX_CODED)
+reg [6:0] in_char_0;
+reg [6:0] in_char_1;
+reg [6:0] in_char_2;
+reg [6:0] in_char_3;
+reg [6:0] in_char_4;
+reg [6:0] in_char_5;
+reg [6:0] in_char_6;
+reg [6:0] in_char_7;
+
+
+reg [6:0] cgmii_char_0;
+reg [6:0] cgmii_char_1;
+reg [6:0] cgmii_char_2;
+reg [6:0] cgmii_char_3;
+reg [6:0] cgmii_char_4;
+reg [6:0] cgmii_char_5;
+reg [6:0] cgmii_char_6;
+reg [6:0] cgmii_char_7;
+
+always @ *
+begin
+	in_char_0 = rx_coded[CHAR_0 -: 7]
+	in_char_0 = rx_coded[CHAR_1 -: 7]
+	in_char_0 = rx_coded[CHAR_2 -: 7]
+	in_char_0 = rx_coded[CHAR_3 -: 7]
+	in_char_0 = rx_coded[CHAR_4 -: 7]
+	in_char_0 = rx_coded[CHAR_5 -: 7]
+	in_char_0 = rx_coded[CHAR_6 -: 7]
+	in_char_0 = rx_coded[CHAR_7 -: 7]
+
+	pcs_to_cgmii_char(in_char_0,valid[7],cgmii_char_0)
+	pcs_to_cgmii_char(in_char_1,valid[6],cgmii_char_1)
+	pcs_to_cgmii_char(in_char_2,valid[5],cgmii_char_2)
+	pcs_to_cgmii_char(in_char_3,valid[4],cgmii_char_3)
+	pcs_to_cgmii_char(in_char_4,valid[3],cgmii_char_4)
+	pcs_to_cgmii_char(in_char_5,valid[2],cgmii_char_5)
+	pcs_to_cgmii_char(in_char_6,valid[1],cgmii_char_6)
+	pcs_to_cgmii_char(in_char_7,valid[0],cgmii_char_7)
+end
+
+
+
+////////////////////////////////////////////////////////////////
+
+
+
+///////////////////   SIGNALS TO FSM  //////////////////////////
+
+wire       D_SIGNAL;
+wire       S_SIGNAL;
+wire       C_SIGNAL;
+wire       T_SIGNAL;
+wire [3:0] R_TYPE;
+
+assign D_SIGNAL = type_data;//solo se checkea el sh (asignacion redundante,para mantener el estilo nomas)
+assign S_SIGNAL = type_S;//solo se checkea block_type (asignacion redundante,para mantener el estilo nomas)
+/*
+	
+	PREG A RAMIRO L
+
+
+
+	el estandar dice que hay que chekear solo el block type de los ordered(0x4b) no especifica el caracter
+	0x0 o 0xf ,pero deberia ser asi supongo
+
+
+
+
+*/
+assign C_SIGNAL = (type_Q | type_Fsig | type_idle );
+
+assign T_SIGNAL = (type_t0 | type_t1 |type_t2 | type_t3 | type_t4 | type_t5 | type_t6 | type_t7);
+
+assign R_TYPE = {D_SIGNAL,S_SIGNAL,C_SIGNAL,T_SIGNAL};//si R_TYPE es 4'b0000 implica error
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+///////////////    PORT ASSIGMENTS   /////////////////////////////////////////
+
+assign o_r_type = R_TYPE;
+
+always @ *
+begin
+	deco_type_reg = deco_type;// verificar si se puede hacer case con el wire nomas
+	case(deco_type_reg)
+		RAW_DATA :
+		begin
+			o_rx_data
+			o_rx_ctrl
+		end
+		RAW_S :
+		begin
+		end
+		RAW_Q :
+		begin
+		end
+		RAW_FSIG :
+		begin
+		end
+		RAW_IDLE :
+		begin
+		end
+		RAW_T0 :
+		begin
+		end
+		RAW_T1 :
+		begin
+		end
+		RAW_T2 :
+		begin
+		end
+		RAW_T3 :
+		begin
+		end
+		RAW_T4 :
+		begin
+		end
+		RAW_T5 :
+		begin
+		end
+		RAW_T6 :
+		begin
+		end
+		RAW_T7 :
+		begin
+		end
+	endcase
+end
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+
+task automatic pcs_to_cgmii_char;
+localparam [7:0] CGMII_IDLE   = 8'h07;
+localparam [7:0] CGMII_ERROR  = 8'hFE;
+localparam [6:0] PCS_IDLE     = 7'h00;
+localparam [6:0] PCS_ERROR    = 7'h1E;
+
+
+input  [6:0] char_in; //pcs_char
+output		 valid_out; // bit indicando caracter valido
+output [7:0] char_out; //cgmii_char
+
+begin
+	if(char_in == PCS_IDLE)
+	begin
+		char_out = CGMII_IDLE;
+		valid_out = 1'b1;
+	end
+	else if (char_in == PCS_ERROR) 
+	begin
+		char_out = CGMII_ERROR;
+		valid_out = 1'b1;
+	end
+	else 
+	begin
+		char_out = 7'hFF; // seteo algun valor que no sirva por defecto
+		valid_out = 1'b0;
+	end
+end
 endtask
 
 endmodule
