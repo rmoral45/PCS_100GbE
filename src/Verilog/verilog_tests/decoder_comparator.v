@@ -249,13 +249,13 @@ reg [7:0] cgmii_char_7;
 always @ *
 begin
 	in_char_0 = rx_coded[CHAR_0 -: 7]
-	in_char_0 = rx_coded[CHAR_1 -: 7]
-	in_char_0 = rx_coded[CHAR_2 -: 7]
-	in_char_0 = rx_coded[CHAR_3 -: 7]
-	in_char_0 = rx_coded[CHAR_4 -: 7]
-	in_char_0 = rx_coded[CHAR_5 -: 7]
-	in_char_0 = rx_coded[CHAR_6 -: 7]
-	in_char_0 = rx_coded[CHAR_7 -: 7]
+	in_char_1 = rx_coded[CHAR_1 -: 7]
+	in_char_2 = rx_coded[CHAR_2 -: 7]
+	in_char_3 = rx_coded[CHAR_3 -: 7]
+	in_char_4 = rx_coded[CHAR_4 -: 7]
+	in_char_5 = rx_coded[CHAR_5 -: 7]
+	in_char_6 = rx_coded[CHAR_6 -: 7]
+	in_char_7 = rx_coded[CHAR_7 -: 7]
 
 	pcs_to_cgmii_char(in_char_0,valid[7],cgmii_char_0)
 	pcs_to_cgmii_char(in_char_1,valid[6],cgmii_char_1)
