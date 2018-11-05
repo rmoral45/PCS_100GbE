@@ -35,7 +35,7 @@ module decoder_comparator
  localparam [3:0] PCS_Q     = 4'h0;
  localparam [3:0] PCS_FSIG  = 4'hF;
 
- /////////////////  SH  /////////////////
+ /////////////////  SyncHeaders  /////////////////
  
  localparam [1:0]  DATA_SH = 2'b01;
  localparam [1:0]  CTRL_SH = 2'b10;
@@ -56,6 +56,20 @@ module decoder_comparator
 
  /////////////////////////////////////////////
 
+ ////////// byte positions ///////////////////
+
+
+localparam BYTE_0 = LEN_CODED_BLOCK-3; // resto 3 para empezar en la posicion 63
+localparam BYTE_1 = LEN_CODED_BLOCK-3-8;
+localparam BYTE_2 = LEN_CODED_BLOCK-3-16;
+localparam BYTE_3 = LEN_CODED_BLOCK-3-24;
+localparam BYTE_4 = LEN_CODED_BLOCK-3-32;
+localparam BYTE_5 = LEN_CODED_BLOCK-3-40;
+localparam BYTE_6 = LEN_CODED_BLOCK-3-48;
+localparam BYTE_7 = LEN_CODED_BLOCK-3-56;
+
+/////////////////////////////////////////////
+
 
  //////////    BLOCK_TYPE        /////////////
  localparam [7:0] BTYPE_CTRL  = 8'h1E;
@@ -70,7 +84,30 @@ module decoder_comparator
  localparam [7:0] BTYPE_T6    = 8'hE1;
  localparam [7:0] BTYPE_T7    = 8'hFF;
 
- ///////////////   DECODIFICACION    //////////////////////
+ ///////////////    RX_CTRL    /////////////////
+ /*
+ 	se definen los bits de control a enviar a CGMII
+ 	dependiendo del tipo de bloque decodificado
+ */
+
+ localparam [7:0] RX_CTRL_DATA  = 8'b 0000_0000;
+ localparam [7:0] RX_CTRL_IDLE  = 8'b 1111_1111;
+ localparam [7:0] RX_CTRL_ERROR = 8'b 1111_1111;
+ localparam [7:0] RX_CTRL_START = 8'b 1000_0000;
+ localparam [7:0] RX_CTRL_ORDER = 8'b 1000_0000;
+ localparam [7:0] RX_CTRL_T0    = 8'b 1111_1111;
+ localparam [7:0] RX_CTRL_T1    = 8'b 0111_1111;
+ localparam [7:0] RX_CTRL_T2    = 8'b 0011_1111;
+ localparam [7:0] RX_CTRL_T3    = 8'b 0001_1111;
+ localparam [7:0] RX_CTRL_T4    = 8'b 0000_1111;
+ localparam [7:0] RX_CTRL_T5    = 8'b 0000_0111;
+ localparam [7:0] RX_CTRL_T6    = 8'b 0000_0011;
+ localparam [7:0] RX_CTRL_T7    = 8'b 0000_0001;
+ 
+ ///////////////////////////////////////////////
+
+
+ ///////////////   DECODIFICACION    ///////////
 
  
  localparam [12:0] RAW_DATA = 13'b1000000000000;
@@ -87,19 +124,62 @@ module decoder_comparator
  localparam [12:0] RAW_T6   = 13'b0000000000010;
  localparam [12:0] RAW_T7   = 13'b0000000000001;
 
+
+/////////////////latcheo de entrada////////////////
+
+reg [LEN_CODED_BLOCK-1 : 0] rx_coded;
+
+always @ (posedge  i_clock)
+begin
+	if(i_reset)        rx_coded <= {LEN_CODED_BLOCK{1'b0}};
+	else if (i_enable) rx_coded <= i_rx_coded;
+end
+
+/////////////////////////////////////////////////////
+
+
+
+
+
 // division de bloque de entrada en payload,block_type y sh
 
 wire [1:0] sh;
-wire [LEN_CODED_BLOCK-11 : 0] coded_payload;
+wire [7:0] rx_block_type; 
+wire [LEN_CODED_BLOCK-11 : 0] rx_payload;
 wire ctrl_sh;
 wire data_sh;
 
 assign sh            = rx_coded [LEN_CODED_BLOCK-1 -: 2]; // bits 65-64
-assign coded_btype   = rx_coded [LEN_CODED_BLOCK-3 -: 8]; // bits 63-56
-assign coded_payload = rx_coded [LEN_CODED_BLOCK-11 : 0]; // bits 55-0
+assign rx_block_type   = rx_coded [LEN_CODED_BLOCK-3 -: 8]; // bits 63-56(primer octeto)
+assign rx_payload = rx_coded [LEN_CODED_BLOCK-11 : 0]; // bits 55-0
 assign ctrl_sh = (sh == CTRL_SH) ? 1'b1 : 1'b0;
 assign data_sh = (sh == DATA_SH) ? 1'b1 : 1'b0;
+
+
+reg [7:0] byte_0;
+reg [7:0] byte_1;
+reg [7:0] byte_2;
+reg [7:0] byte_3;
+reg [7:0] byte_4;
+reg [7:0] byte_5;
+reg [7:0] byte_6;
+reg [7:0] byte_7;
+
+always @ *
+begin
+	byte_0 = [BYTE_0 -: 8]; // D0
+	byte_1 = [BYTE_1 -: 8]; // D1
+	byte_2 = [BYTE_2 -: 8]; // D2
+	byte_3 = [BYTE_3 -: 8]; 
+	byte_4 = [BYTE_4 -: 8];
+	byte_5 = [BYTE_5 -: 8];
+	byte_6 = [BYTE_6 -: 8];
+	byte_7 = [BYTE_7 -: 8]; // D7
+end
+
 ///////////////////////////////////////////////////
+
+
 
 ////////////////  block type check  ///////////////
 
@@ -118,19 +198,78 @@ wire block_type_t7 ;
 
 
 assign block_type_data    = data_sh;
-assign block_type_control = (ctrl_sh && (coded_btype == BTYPE_CTRL)) ? 1'b1 : 1'b0;
-assign block_type_start   = (ctrl_sh && (coded_btype == BTYPE_S))    ? 1'b1 : 1'b0;
-assign block_type_Q_Fsig  = (ctrl_sh && (coded_btype == BTYPE_ORDER))? 1'b1 : 1'b0;
-assign block_type_t0      = (ctrl_sh && (coded_btype == BTYPE_T0))   ? 1'b1 : 1'b0;
-assign block_type_t1      = (ctrl_sh && (coded_btype == BTYPE_T1))   ? 1'b1 : 1'b0;
-assign block_type_t2      = (ctrl_sh && (coded_btype == BTYPE_T2))   ? 1'b1 : 1'b0;
-assign block_type_t3      = (ctrl_sh && (coded_btype == BTYPE_T3))   ? 1'b1 : 1'b0;
-assign block_type_t4      = (ctrl_sh && (coded_btype == BTYPE_T4))   ? 1'b1 : 1'b0;
-assign block_type_t5      = (ctrl_sh && (coded_btype == BTYPE_T5))   ? 1'b1 : 1'b0;
-assign block_type_t6      = (ctrl_sh && (coded_btype == BTYPE_T6))   ? 1'b1 : 1'b0;
-assign block_type_t7      = (ctrl_sh && (coded_btype == BTYPE_T7))   ? 1'b1 : 1'b0;
+assign block_type_control = (ctrl_sh && (rx_block_type == BTYPE_CTRL)) ? 1'b1 : 1'b0;
+assign block_type_start   = (ctrl_sh && (rx_block_type == BTYPE_S))    ? 1'b1 : 1'b0;
+assign block_type_Q_Fsig  = (ctrl_sh && (rx_block_type == BTYPE_ORDER))? 1'b1 : 1'b0;
+assign block_type_t0      = (ctrl_sh && (rx_block_type == BTYPE_T0))   ? 1'b1 : 1'b0;
+assign block_type_t1      = (ctrl_sh && (rx_block_type == BTYPE_T1))   ? 1'b1 : 1'b0;
+assign block_type_t2      = (ctrl_sh && (rx_block_type == BTYPE_T2))   ? 1'b1 : 1'b0;
+assign block_type_t3      = (ctrl_sh && (rx_block_type == BTYPE_T3))   ? 1'b1 : 1'b0;
+assign block_type_t4      = (ctrl_sh && (rx_block_type == BTYPE_T4))   ? 1'b1 : 1'b0;
+assign block_type_t5      = (ctrl_sh && (rx_block_type == BTYPE_T5))   ? 1'b1 : 1'b0;
+assign block_type_t6      = (ctrl_sh && (rx_block_type == BTYPE_T6))   ? 1'b1 : 1'b0;
+assign block_type_t7      = (ctrl_sh && (rx_block_type == BTYPE_T7))   ? 1'b1 : 1'b0;
 
 ////////////////////////////////////////////////////
+
+
+///////////////////  mapeo de caracteres  //////////////////////
+/*
+ 
+ valid_char :
+ 	en cada posicion seteo 1'b1 si el caracter respectivo es IDLE o ERROR,
+    valid[7] se corrsponde al caracter de mas a la izquierda segun la tabla del estandar,
+    es decir, el caracter 0, valid[6] al caracter 1 y asi sucesivamente
+
+*/
+
+reg [7:0] valid_char; 
+
+
+// caracteres de payload (TX_CODED)
+reg [6:0] in_char_0;
+reg [6:0] in_char_1;
+reg [6:0] in_char_2;
+reg [6:0] in_char_3;
+reg [6:0] in_char_4;
+reg [6:0] in_char_5;
+reg [6:0] in_char_6;
+reg [6:0] in_char_7;
+
+
+reg [7:0] cgmii_char_0;
+reg [7:0] cgmii_char_1;
+reg [7:0] cgmii_char_2;
+reg [7:0] cgmii_char_3;
+reg [7:0] cgmii_char_4;
+reg [7:0] cgmii_char_5;
+reg [7:0] cgmii_char_6;
+reg [7:0] cgmii_char_7;
+
+always @ *
+begin
+	in_char_0 = rx_coded[CHAR_0 -: 7]
+	in_char_0 = rx_coded[CHAR_1 -: 7]
+	in_char_0 = rx_coded[CHAR_2 -: 7]
+	in_char_0 = rx_coded[CHAR_3 -: 7]
+	in_char_0 = rx_coded[CHAR_4 -: 7]
+	in_char_0 = rx_coded[CHAR_5 -: 7]
+	in_char_0 = rx_coded[CHAR_6 -: 7]
+	in_char_0 = rx_coded[CHAR_7 -: 7]
+
+	pcs_to_cgmii_char(in_char_0,valid[7],cgmii_char_0)
+	pcs_to_cgmii_char(in_char_1,valid[6],cgmii_char_1)
+	pcs_to_cgmii_char(in_char_2,valid[5],cgmii_char_2)
+	pcs_to_cgmii_char(in_char_3,valid[4],cgmii_char_3)
+	pcs_to_cgmii_char(in_char_4,valid[3],cgmii_char_4)
+	pcs_to_cgmii_char(in_char_5,valid[2],cgmii_char_5)
+	pcs_to_cgmii_char(in_char_6,valid[1],cgmii_char_6)
+	pcs_to_cgmii_char(in_char_7,valid[0],cgmii_char_7)
+end
+
+
+
+////////////////////////////////////////////////////////////////
 
 
 ///////////////   payload check   /////////////////
@@ -154,11 +293,11 @@ wire payload_t6_block;
 wire payload_t7_block;
 
 
-assign payload_idle_block = (coded_payload == {8{PCS_IDLE}}) ? 1'b1 : 1'b0 ;
+assign payload_idle_block = (rx_payload == {8{PCS_IDLE}}) ? 1'b1 : 1'b0 ;
 //assign payload_start_block;solo block type se checkea
-assign payload_Q_block    = (coded_payload[31:0] == {8{ZERO}}) ? 1'b1 : 1'b0 ;
+assign payload_Q_block    = (rx_payload[31:0] == {8{ZERO}}) ? 1'b1 : 1'b0 ;
 
-assign payload_Fsig_block = (coded_payload[31:0] == {4'hf,{7{ZERO}}}) ? 1'b1 : 1'b0 ;
+assign payload_Fsig_block = (rx_payload[31:0] == {4'hf,{7{ZERO}}}) ? 1'b1 : 1'b0 ;
 
 assign payload_t0_block   =  &(valid[6:0]);
 assign payload_t1_block   =  &(valid[5:0]); 
@@ -212,76 +351,6 @@ type_t0,type_t1,type_t2,type_t3,type_t4,type_t5,type_t6, type_t7 };
 
 
 
-/////////////////latcheo de entrada////////////////
-
-reg [LEN_CODED_BLOCK-1 : 0] rx_coded;
-
-always @ (posedge  i_clock)
-begin
-	if(i_reset)        rx_coded <= {LEN_CODED_BLOCK{1'b0}};
-	else if (i_enable) rx_coded <= i_rx_coded;
-end
-
-/////////////////////////////////////////////////////
-
-
-///////////////////  mapeo de caracteres  //////////////////////
-/*
- valid_char :
- 	en cada posicion seteo 1'b1 si el caracter respectivo es IDLE o ERROR,
-    valid[7] se corrsponde al caracter de mas a la izquierda segun la tabla del estandar,
-    es decir, el caracter 0
-
-*/
-
-reg [7:0] valid_char; 
-
-
-// caracteres de payload (TX_CODED)
-reg [6:0] in_char_0;
-reg [6:0] in_char_1;
-reg [6:0] in_char_2;
-reg [6:0] in_char_3;
-reg [6:0] in_char_4;
-reg [6:0] in_char_5;
-reg [6:0] in_char_6;
-reg [6:0] in_char_7;
-
-
-reg [6:0] cgmii_char_0;
-reg [6:0] cgmii_char_1;
-reg [6:0] cgmii_char_2;
-reg [6:0] cgmii_char_3;
-reg [6:0] cgmii_char_4;
-reg [6:0] cgmii_char_5;
-reg [6:0] cgmii_char_6;
-reg [6:0] cgmii_char_7;
-
-always @ *
-begin
-	in_char_0 = rx_coded[CHAR_0 -: 7]
-	in_char_0 = rx_coded[CHAR_1 -: 7]
-	in_char_0 = rx_coded[CHAR_2 -: 7]
-	in_char_0 = rx_coded[CHAR_3 -: 7]
-	in_char_0 = rx_coded[CHAR_4 -: 7]
-	in_char_0 = rx_coded[CHAR_5 -: 7]
-	in_char_0 = rx_coded[CHAR_6 -: 7]
-	in_char_0 = rx_coded[CHAR_7 -: 7]
-
-	pcs_to_cgmii_char(in_char_0,valid[7],cgmii_char_0)
-	pcs_to_cgmii_char(in_char_1,valid[6],cgmii_char_1)
-	pcs_to_cgmii_char(in_char_2,valid[5],cgmii_char_2)
-	pcs_to_cgmii_char(in_char_3,valid[4],cgmii_char_3)
-	pcs_to_cgmii_char(in_char_4,valid[3],cgmii_char_4)
-	pcs_to_cgmii_char(in_char_5,valid[2],cgmii_char_5)
-	pcs_to_cgmii_char(in_char_6,valid[1],cgmii_char_6)
-	pcs_to_cgmii_char(in_char_7,valid[0],cgmii_char_7)
-end
-
-
-
-////////////////////////////////////////////////////////////////
-
 
 
 ///////////////////   SIGNALS TO FSM  //////////////////////////
@@ -320,50 +389,87 @@ assign R_TYPE = {D_SIGNAL,S_SIGNAL,C_SIGNAL,T_SIGNAL};//si R_TYPE es 4'b0000 imp
 
 assign o_r_type = R_TYPE;
 
+
+//////////////   asignacion de bloque de salida ()
 always @ *
 begin
 	deco_type_reg = deco_type;// verificar si se puede hacer case con el wire nomas
 	case(deco_type_reg)
 		RAW_DATA :
 		begin
-			o_rx_data
-			o_rx_ctrl
+			o_rx_data = {byte_0,byte_1,byte_2,byte_3,byte_4,byte_5,byte_6,byte_7}; //todo el bloque excepto sh
+			o_rx_ctrl = RX_CTRL_DATA;
 		end
 		RAW_S :
 		begin
+			o_rx_data = {CGMII_START,byte_1,byte_2,byte_3,byte_4,byte_5,byte_6,byte_7};
+			o_rx_ctrl =  RX_CTRL_START;
 		end
 		RAW_Q :
 		begin
+			o_rx_data = {CGMII_Q,byte_1,byte_2,byte_3,byte_4,byte_5,byte_6,byte_7};
+			o_rx_ctrl =  RX_CTRL_ORDER;
 		end
 		RAW_FSIG :
 		begin
+			o_rx_data = {CGMII_FSIG,byte_1,byte_2,byte_3,byte_4,byte_5,byte_6,byte_7};
+			o_rx_ctrl =  RX_CTRL_ORDER;
 		end
 		RAW_IDLE :
+			o_rx_data = {8{CGMII_IDLE}};
+			o_rx_ctrl =  RX_CTRL_IDLE;
 		begin
 		end
 		RAW_T0 :
 		begin
+			o_rx_data = 
+			{CGMII_TERMINATE,cgmii_char_1,cgmii_char_2,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+			o_rx_ctrl = RX_CTRL_T0;
 		end
 		RAW_T1 :
 		begin
+			o_rx_data = 
+			{byte0,CGMII_TERMINATE,cgmii_char_2,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+		  //{  D0 ,       /T/     , /I/ o /E/  , /I/ o /E/  ,  /I/ o /E/ ,  /I/ o /E/ , /I/ o /E/  , /I/ o /E/  }
+			o_rx_ctrl = RX_CTRL_T1;
 		end
 		RAW_T2 :
 		begin
+			o_rx_data = 
+			{byte_0,byte_1,CGMII_TERMINATE,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+		  //{   D0 ,  D1  ,      /T/      , /I/ o /E/  , /I/ o /E/  ,  /I/ o /E/ ,  /I/ o /E/ , /I/ o /E/  }
+
+			o_rx_ctrl = RX_CTRL_T2;
 		end
 		RAW_T3 :
 		begin
+			o_rx_data = 
+			{byte_0,byte_1,byte_2,CGMII_TERMINATE,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+			o_rx_ctrl = RX_CTRL_T3;
 		end
 		RAW_T4 :
 		begin
+			o_rx_data = 
+			{byte_0,byte_1,byte_2,byte_3,CGMII_TERMINATE,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+			o_rx_ctrl = RX_CTRL_T4;
 		end
 		RAW_T5 :
 		begin
+			o_rx_data = 
+			{byte_0,byte_1,byte_2,byte_3,_byte_4,CGMII_TERMINATE,cgmii_char_6,cgmii_char_7};
+			o_rx_ctrl = RX_CTRL_T5;
 		end
 		RAW_T6 :
 		begin
+			o_rx_data = 
+			{byte_0,byte_1,byte_2,byte_3,_byte_4,byte_5,CGMII_TERMINATE,cgmii_char_7};
+			o_rx_ctrl = RX_CTRL_T6;
 		end
 		RAW_T7 :
 		begin
+			o_rx_data = 
+			{byte_0,byte_1,byte_2,byte_3,_byte_4,byte_5,byte_6,CGMII_TERMINATE};
+			o_rx_ctrl = RX_CTRL_T7;
 		end
 	endcase
 end
@@ -386,7 +492,7 @@ localparam [6:0] PCS_ERROR    = 7'h1E;
 
 input  [6:0] char_in; //pcs_char
 output		 valid_out; // bit indicando caracter valido
-output [7:0] char_out; //cgmii_char
+output [7:0] char_out; //cgmii_char(mapeo de caracter de tipo PCS a tipo CGMII)
 
 begin
 	if(char_in == PCS_IDLE)

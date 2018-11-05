@@ -7,6 +7,7 @@ module encoder_fsm
  (
   input  wire i_clock,
   input  wire i_reset,
+  input  wire i_enable,
   input  wire [3:0] i_t_type,
   input  wire [LEN_TX_CODED-1 : 0] i_tx_coded,
   output wire [LEN_TX_CODED-1 : 0] o_tx_coded
@@ -48,7 +49,7 @@ begin
         state <= TX_INIT;
     end
 
-    else
+    else if (i_enable)
     begin
         tx_coded <= tx_coded_next;
         state <= state_next;
