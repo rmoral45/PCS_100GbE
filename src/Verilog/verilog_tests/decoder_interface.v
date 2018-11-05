@@ -9,7 +9,8 @@ R_TYPE y R_TYPE_NEXT
 
 module decoder_interface
 #(
-	parameter LEN_CODED_BLOCK = 66
+    parameter LEN_RX_DATA = 64,
+    parameter LEN_RX_CTRL = 8
  )
  (
  	input wire  i_clock,
