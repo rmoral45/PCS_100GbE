@@ -1,8 +1,6 @@
 /*
 
-IMPORTANTE,despues de un terminate puede haber todos idle o todos error
-o mezclados !!!!!!!!!!!!!!
-agregar eso !!!!!
+   IMPORTANTE, FALTA IMPLEMENTAR R_TYPE_NEXT
 
 */
 
@@ -20,7 +18,7 @@ module encoder_comparator
   input wire [LEN_TX_CTRL-1 : 0] i_tx_ctrl,
   input wire i_enable,
   output wire [3:0] o_t_type,
-  output wire  o_enable_fsm,
+  //output wire  o_enable_fsm,
   output reg [LEN_CODED_BLOCK-1 : 0] o_tx_coded
  );
 ////////////   CGMII CHARACTERS   /////////////
@@ -166,8 +164,16 @@ reg  [12:0] deco_type_reg;
 	de IDLES y ERROR luego del caracter /T/
 */
 
-reg [7:0] valid_char; // en cada posicion seteo 1'b1 si el caracter respectivo es IDLE o ERROR
-// caracteres de payload (TX_D)
+/*
+ valid_char :
+ 	en cada posicion seteo 1'b1 si el caracter respectivo es IDLE o ERROR,
+    valid[7] se corrsponde al caracter de mas a la izquierda segun la tabla del estandar,
+    es decir, el caracter 0
+
+*/
+
+reg [7:0] valid_char;  
+
 reg [7:0] in_char_0;
 reg [7:0] in_char_1;
 reg [7:0] in_char_2;
@@ -195,7 +201,7 @@ reg [LEN_TX_DATA-1 : 0] tx_data;
 reg [LEN_TX_CTRL-1 : 0] tx_ctrl;
 reg enable_fsm;
 
-assign o_enable_fsm = enable_fsm;
+//assign o_enable_fsm = enable_fsm;
 
 always @(posedge i_clock)
 begin
@@ -275,6 +281,13 @@ assign payload_t0_block =
 //(tx_data   == {CGMII_TERMINATE , {7{CGMII_IDLE}} } ) ? 1'b1 : 1'b0;
 ((tx_data[BYTE_0 -: 8] == CGMII_TERMINATE) && (& valid_char[6:0])) ? 1'b1 : 1'b0;
 
+
+/*
+
+  MODIFICAR EL CHECKEO DE PAYLOADS IGUAL QUE PARA EL CASO DE t0 arriba
+
+
+*/
 assign payload_t1_block = 
 (tx_data [(LEN_TX_DATA-1 -8) : 0]   == {CGMII_TERMINATE,{6{CGMII_IDLE}} }) ? 1'b1 : 1'b0;
 
@@ -348,20 +361,20 @@ begin
 	in_char_5 = tx_data[BYTE_5 -: 8];
 	in_char_6 = tx_data[BYTE_6 -: 8];
 	in_char_7 = tx_data[BYTE_7 -: 8];
-	cgmii_to_pcs_char(in_char_0,valid_char[0],pcs_char_0);
-	cgmii_to_pcs_char(in_char_0,valid_char[1],pcs_char_1);
-	cgmii_to_pcs_char(in_char_0,valid_char[2],pcs_char_2);
-	cgmii_to_pcs_char(in_char_0,valid_char[3],pcs_char_3);
-	cgmii_to_pcs_char(in_char_0,valid_char[4],pcs_char_4);
-	cgmii_to_pcs_char(in_char_0,valid_char[5],pcs_char_5);
-	cgmii_to_pcs_char(in_char_0,valid_char[6],pcs_char_6);
-	cgmii_to_pcs_char(in_char_0,valid_char[7],pcs_char_7);
+	cgmii_to_pcs_char(in_char_0,valid_char[7],pcs_char_0);
+	cgmii_to_pcs_char(in_char_1,valid_char[6],pcs_char_1);
+	cgmii_to_pcs_char(in_char_2,valid_char[5],pcs_char_2);
+	cgmii_to_pcs_char(in_char_3,valid_char[4],pcs_char_3);
+	cgmii_to_pcs_char(in_char_4,valid_char[3],pcs_char_4);
+	cgmii_to_pcs_char(in_char_5,valid_char[2],pcs_char_5);
+	cgmii_to_pcs_char(in_char_6,valid_char[1],pcs_char_6);
+	cgmii_to_pcs_char(in_char_7,valid_char[0],pcs_char_7);
 
 
 end
 
 
-
+//////////////////////////////////////////////////////////////////////////
 
 
 
@@ -376,8 +389,8 @@ assign o_t_type = T_TYPE;
 
 always @ *
 begin
-    deco_type_reg = deco_type;
-    case(deco_type)
+    deco_type_reg = deco_type; // verificar si se puede hacer case con el wire nomas
+    case(deco_type_reg)
         CODED_DATA : o_tx_coded = {DATA_SH,tx_data};
 
         CODED_S :    o_tx_coded = {CTRL_SH,BTYPE_S,tx_data[55:0]};

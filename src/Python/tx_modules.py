@@ -188,74 +188,74 @@ ENCODER = {
 CGMII_TRANSMIT = { 
 			
 			'ERROR_BLOCK'		:{		'block_name'		: 'ERROR_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII, E_CGMII]		
 		    					},
 
 		    'START_BLOCK':{ 			'block_name'		: 'START_BLOCK',
-		    							'RXC'				: 0x80,
-		    							'RXD'				: [S, D1, D2, D3, D4, D5, D6, D7]	
+		    							'TXC'				: 0x80,
+		    							'TXD'				: [S, D1, D2, D3, D4, D5, D6, D7]	
 		    					},
 
 		    'DATA_BLOCK':{ 				'block_name'		: 'DATA_BLOCK',
-		    							'RXC'				: 0x00,
-		    							'RXD'				: [D0, D1, D2, D3, D4, D5, D6, D7]	
+		    							'TXC'				: 0x00,
+		    							'TXD'				: [D0, D1, D2, D3, D4, D5, D6, D7]	
 		    					},
 
 		    'Q_ORD_BLOCK':{ 			'block_name'		: 'Q_ORD_BLOCK',
-		    							'RXC'				: 0x80,
-		    							'RXD'				: [Q, D1, D2, D3, Z, Z, Z, Z]		
+		    							'TXC'				: 0x80,
+		    							'TXD'				: [Q, D1, D2, D3, Z, Z, Z, Z]		
 		    					},
 
 
 		    'Fsig_ORD_BLOCK':{ 			'block_name'		: 'Fsig_ORD_BLOCK',
-		    							'RXC'				: 0x80,
-		    							'RXD'				: [Fsig, D1, D2, D3, Z, Z, Z, Z] 	
+		    							'TXC'				: 0x80,
+		    							'TXD'				: [Fsig, D1, D2, D3, Z, Z, Z, Z] 	
 									},
 
 			'IDLE_BLOCK':{ 				'block_name'		: 'IDLE_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 								},					    
 
 			'T0_BLOCK':{				'block_name'		: 'T0_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T1_BLOCK':{				'block_name'		: 'T1_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [D0, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T2_BLOCK':{				'block_name'		: 'T2_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [D0, D1, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T3_BLOCK':{				'block_name'		: 'T3_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [D0, D1, D2, T, I_CGMII, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T4_BLOCK':{				'block_name'		: 'T4_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, T, I_CGMII, I_CGMII, I_CGMII]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [D0, D1, D2, D3, T, I_CGMII, I_CGMII, I_CGMII]		
 							},
 
 			'T5_BLOCK':{				'block_name'		: 'T5_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, D4, T, I_CGMII, I_CGMII]	
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [D0, D1, D2, D3, D4, T, I_CGMII, I_CGMII]	
 							},
 
 			'T6_BLOCK':{				'block_name'		: 'T6_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, D4, D5, T, I_CGMII]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [D0, D1, D2, D3, D4, D5, T, I_CGMII]		
 							},
 
 			'T7_BLOCK':{				'block_name'		: 'T7_BLOCK',
-		    							'RXC'				: 0xFF,
-		    							'RXD'				: [D0, D1, D2, D3, D4, D5, D6, T]		
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: [D0, D1, D2, D3, D4, D5, D6, T]		
 							},
 		   
 	    	}
