@@ -6,7 +6,12 @@ agregar eso !!!!!
 
 */
 
+/*
 
+FUNCIONALIDAD EXTENDIDA EN COIMPARATOR_TEST ,por ahora probar con ese
+
+
+*/
 module encoder_comparator
 #(
     parameter LEN_CODED_BLOCK = 66,

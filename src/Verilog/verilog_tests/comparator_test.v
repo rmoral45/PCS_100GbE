@@ -5,7 +5,7 @@
 */
 
 
-module encoder_comparator
+module comparator_test
 #(
     parameter LEN_CODED_BLOCK = 66,
     parameter LEN_TX_DATA = 64,
@@ -410,7 +410,7 @@ begin
         //{CTRL_SH,BTYPE_T1,tx_data[63-:8],{6{1'b0}},{6{PCS_IDLE}} };
 
         CODED_T2 :   o_tx_coded = 
-        	CTRL_SH,BTYPE_T2,tx_data[63-:16],{5{1'b0}},{pcs_char_3,pcs_char_4,pcs_char_5,pcs_char_6,pcs_char_7} };
+        	{CTRL_SH,BTYPE_T2,tx_data[63-:16],{5{1'b0}},{pcs_char_3,pcs_char_4,pcs_char_5,pcs_char_6,pcs_char_7} };
 
         //{CTRL_SH,BTYPE_T2,tx_data[63-:16],{5{1'b0}},{5{PCS_IDLE}} };
 
