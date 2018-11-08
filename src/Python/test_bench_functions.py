@@ -1,21 +1,6 @@
 
-def list_to_hex(hex_list):
-	"""Genera un numero a partir de una lista.
-	
-	Args:
-		hex_list: lista de enteros de 8 bits
-	Comentarios:
-		Concatena los elementos de una lista de octetos para formar un unico numero equivalente,
-		el numero resutante tiene al octeto de la posicion 0 de la lista
-		como sus bits mas significativos
-	"""
-	result = 0x000000000
-	counter = ( len(hex_list)-1 )
-	for value in hex_list:
-		result |= (value << (counter*8))
-		counter-=1
-	#return hex(result).rstrip('L')
-	return result
+import numpy
+import random
 
 def num_to_bin(number, nbits):
 	binary = bin(number)
@@ -25,14 +10,14 @@ def num_to_bin(number, nbits):
 def cgmii_block_to_bin(block):
 
 	DATA_NBYTES = 8
-	DATA_BITS = 64
+	DATA_BITS = 8
 	CTRL_BITS = 8
 	tx_ctrl = block['TXC']
 	tx_data = block['TXD']
-	ctrl_bin = (bin(tx_ctrl)[2:0].zfill(CTRL_BITS))
+	ctrl_bin = (bin(tx_ctrl)[2:].zfill(CTRL_BITS))
 	data_bin = ''
 	for num in tx_data:
-		data_bin += (bin(num)[2:0].zfill(DATA_BITS))
+		data_bin += (bin(num)[2:].zfill(DATA_BITS))
 	
 	return data_bin, ctrl_bin
 
@@ -47,6 +32,21 @@ def encoder_block_to_bin(block):
 	coded_bin += ( TB_ENCODER[block['block_name']] )['payload']
 	return coded_bin
 
+def random_comparator_IO():
+	random_block_name = random.sample(TB_CGMII_TRANSMIT.keys(),1) #selecciono bloque random dentro de el dict
+
+	tx_block = TB_CGMII_TRANSMIT[random_block_name] #saco el bloque del dict
+	(data_bin,ctrl_bin) = cgmii_block_to_bin(tx_block) # obtengo el bin de TXD y TXC
+
+	coded_block_name = 'CODED_' + random_block_name 
+
+	coded_block = TB_ENCODER[coded_block_name] # busco el bloque codificado correspondiente al enviadp
+
+	coded_bin = encoder_block_to_bin(coded_block)
+
+	return (data_bin, ctrl_bin , coded_bin)
+
+
 
 
 D0 = '00000000'
@@ -57,12 +57,20 @@ D4 = '00000100'
 D5 = '00000101'
 D6 = '00000110'
 D7 = '00000111'
+#pcs char
 
 I_100G = '0000111'
 E_100G = '0011110'
 Z = '00'
 
+# cgmi char
 
+S       = '11111011' # 0xfb
+T       = '11111101' # 0xfd
+Q       = '10011100' # 0x9c
+Fsig    = '01011100' # 0x5c
+I_CGMII = '00000111' # 0x07
+E_CGMII = '11111110' # 0xfe
 
 
 TB_ENCODER = {
@@ -151,3 +159,79 @@ TB_ENCODER = {
 							'payload' 	   : D0+D1+D2+D3+D4+D5+D6
 							} 
 		 }
+
+
+TB_CGMII_TRANSMIT = { 
+			
+			'ERROR_BLOCK'		:{		'block_name'		: 'ERROR_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: E_CGMII+E_CGMII+E_CGMII+E_CGMII+E_CGMII+E_CGMII+E_CGMII+E_CGMII		
+		    					},
+
+		    'START_BLOCK':{ 			'block_name'		: 'START_BLOCK',
+		    							'TXC'				: 0x80,
+		    							'TXD'				: S+D1+D2+D3+D4+D5+D6+D7	
+		    					},
+
+		    'DATA_BLOCK':{ 				'block_name'		: 'DATA_BLOCK',
+		    							'TXC'				: 0x00,
+		    							'TXD'				: D0+D1+D2+D3+D4+D5+D6+D7	
+		    					},
+
+		    'Q_ORD_BLOCK':{ 			'block_name'		: 'Q_ORD_BLOCK',
+		    							'TXC'				: 0x80,
+		    							'TXD'				: Q+D1+D2+D3+Z+Z+Z+Z		
+		    					},
+
+
+		    'Fsig_ORD_BLOCK':{ 			'block_name'		: 'Fsig_ORD_BLOCK',
+		    							'TXC'				: 0x80,
+		    							'TXD'				: Fsig+D1+D2+D3+Z+Z+Z+Z 	
+									},
+
+			'IDLE_BLOCK':{ 				'block_name'		: 'IDLE_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII		
+								},					    
+
+			'T0_BLOCK':{				'block_name'		: 'T0_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: T+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII		
+							},
+
+			'T1_BLOCK':{				'block_name'		: 'T1_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: D0+T+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII		
+							},
+
+			'T2_BLOCK':{				'block_name'		: 'T2_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: D0+D1+T+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII		
+							},
+
+			'T3_BLOCK':{				'block_name'		: 'T3_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: D0+D1+D2+T+I_CGMII+I_CGMII+I_CGMII+I_CGMII		
+							},
+
+			'T4_BLOCK':{				'block_name'		: 'T4_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: D0+D1+D2+D3+T+I_CGMII+I_CGMII+I_CGMII		
+							},
+
+			'T5_BLOCK':{				'block_name'		: 'T5_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: D0+D1+D2+D3+D4+T+I_CGMII+I_CGMII	
+							},
+
+			'T6_BLOCK':{				'block_name'		: 'T6_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: D0+D1+D2+D3+D4+D5+T+I_CGMII		
+							},
+
+			'T7_BLOCK':{				'block_name'		: 'T7_BLOCK',
+		    							'TXC'				: 0xFF,
+		    							'TXD'				: D0+D1+D2+D3+D4+D5+D6+T		
+							},
+		   
+	    	}
