@@ -32,6 +32,10 @@ def main():
 		(bin_tx_data , bin_tx_ctrl) = tb.cgmii_block_to_bin(tx_raw)
 		bin_tx_coded = tb.encoder_block_to_bin(tx_coded)
 
+		bin_tx_data  = ''.join(map(lambda x: x+' ' ,  bin_tx_data))
+		bin_tx_ctrl  = ''.join(map(lambda x: x+' ' ,  bin_tx_ctrl))
+		bin_tx_coded = ''.join(map(lambda x: x+' ' ,  bin_tx_coded))
+
 		enco_input_data_file.write(bin_tx_data + '\n')
 		enco_input_ctrl_file.write(bin_tx_ctrl + '\n')
 		enco_output_file.write(bin_tx_coded    + '\n')

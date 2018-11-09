@@ -5,14 +5,14 @@ module encoder_fsm
    parameter LEN_TX_CODED = 66
  )
  (
-  input  wire i_clock,
-  input  wire i_reset,
-  input  wire i_enable,
-  input  wire [3:0] i_t_type,
-  input  wire [LEN_TX_CODED-1 : 0] i_tx_coded,
-  output wire [LEN_TX_CODED-1 : 0] o_tx_coded
- )
-[LEN_TX_CODED-1 : 0]
+  input  wire                       i_clock,
+  input  wire                       i_reset,
+  input  wire                       i_enable,
+  input  wire [3:0]                 i_t_type,
+  input  wire [LEN_TX_CODED-1 : 0]  i_tx_coded,
+  output wire [LEN_TX_CODED-1 : 0]  o_tx_coded
+ );
+
 // T_TYPE
 localparam [3:0] TYPE_D  = 4'b1000;
 localparam [3:0] TYPE_S  = 4'b0100;
@@ -25,34 +25,29 @@ localparam [4:0] TX_C    = 5'b01000;
 localparam [4:0] TX_D    = 5'b00100;
 localparam [4:0] TX_T    = 5'b00010;
 localparam [4:0] TX_E    = 5'b00001;
+localparam PCS_ERROR = 7'h1E;
+localparam [LEN_TX_CODED-1 : 0] LBLOCK_T = 66'h24B00001F000000; //bloque signal ordered set con D3 = 1
+localparam [LEN_TX_CODED-1 : 0] EBLOCK_T = { 2'h2,8'h1E,{8{PCS_ERROR}} };
 
-/*
-
-AGREGARR 
-
-localparam [LEN_TX_CODED-1 : 0] LBLOCK_T = (seq ordered set)
-localparam [LEN_TX_CODED-1 : 0] EBLOCK_T
-
-*/
 
 reg [4:0] state,state_next;
 reg [LEN_TX_CODED-1 : 0] tx_coded , tx_coded_next;
 
 assign o_tx_coded = tx_coded;
 
-always @ (posedge i_clock , posedge i_reset)
+always @ (posedge i_clock)
 begin
 
     if(i_reset)
     begin
         tx_coded <= LBLOCK_T;
-        state <= TX_INIT;
+        state    <= TX_INIT;
     end
 
     else if (i_enable)
     begin
         tx_coded <= tx_coded_next;
-        state <= state_next;
+        state    <= state_next;
     end
 
 end
@@ -60,7 +55,6 @@ end
 always @ * 
 begin
     state_next = state;
-    //tx_coded_next = tx_coded;
     tx_coded_next = {LEN_TX_CODED{1'b0}};
     
 

@@ -4,11 +4,11 @@ module decoder_interface
     parameter LEN_RX_CTRL = 8
  )
  (
- 	input wire  i_clock,
- 	input wire  i_reset,
- 	input wire  i_enable,
- 	input wire 	[3 : 0] i_r_type,
- 	input wire 	[3 : 0] i_r_type_next
+ 	input wire  					i_clock,
+ 	input wire  					i_reset,
+ 	input wire  					i_enable,
+ 	input wire 	[3 : 0] 			i_r_type,
+ 	input wire 	[3 : 0] 			i_r_type_next
  	input wire  [LEN_RX_DATA-1 : 0] i_rx_raw_data,
  	input wire  [LEN_RX_CTRL-1 : 0] i_rx_raw_control,
  	output wire	[LEN_RX_DATA-1 : 0] o_rx_raw_data,

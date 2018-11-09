@@ -10,14 +10,14 @@ def num_to_bin(number, nbits):
 def cgmii_block_to_bin(block):
 
 	DATA_NBYTES = 8
-	DATA_BITS = 8
-	CTRL_BITS = 8
-	tx_ctrl = block['TXC']
-	tx_data = block['TXD']
-	ctrl_bin = (bin(tx_ctrl)[2:].zfill(CTRL_BITS))
-	data_bin = ''
-	for num in tx_data:
-		data_bin += (bin(num)[2:].zfill(DATA_BITS))
+	DATA_BITS   = 8
+	CTRL_BITS   = 8
+	block_name  = block['block_name']
+	tb_block    = TB_CGMII_TRANSMIT[block_name]
+	tx_ctrl 	= tb_block['TXC']
+	ctrl_bin 	= (bin(tx_ctrl)[2:].zfill(CTRL_BITS))
+	data_bin 	= tb_block['TXD']
+
 	
 	return data_bin, ctrl_bin
 
@@ -180,13 +180,13 @@ TB_CGMII_TRANSMIT = {
 
 		    'Q_ORD_BLOCK':{ 			'block_name'		: 'Q_ORD_BLOCK',
 		    							'TXC'				: 0x80,
-		    							'TXD'				: Q+D1+D2+D3+Z+Z+Z+Z		
+		    							'TXD'				: Q+D1+D2+D3+(16*Z)		
 		    					},
 
 
 		    'Fsig_ORD_BLOCK':{ 			'block_name'		: 'Fsig_ORD_BLOCK',
 		    							'TXC'				: 0x80,
-		    							'TXD'				: Fsig+D1+D2+D3+Z+Z+Z+Z 	
+		    							'TXD'				: Fsig+D1+D2+D3+'1111'+(14*Z) 	
 									},
 
 			'IDLE_BLOCK':{ 				'block_name'		: 'IDLE_BLOCK',

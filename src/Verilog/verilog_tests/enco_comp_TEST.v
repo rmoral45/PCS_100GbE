@@ -1,17 +1,15 @@
 /*
 
-IMPORTANTE,despues de un terminate puede haber todos idle o todos error
-o mezclados !!!!!!!!!!!!!!
-agregar eso !!!!!
+   Este bloque se encarga de realizar:
+    -comparaciones necesarias de TXC y TXD(datos recibidos desde CGMII)
+   	 para determinar el tipo de bloque recibido.<segun figura 82-5 pag 156 del estandar>
+   	-Mapear caracteres de CGMII a caracteres PCS(100GBASE-R).<tabla 82-1 pag 157 standard>
+   	-Realizar encoding 64/66b
+   	-Aplicar funcion T_TYPE.<pag 168 estandar> 
 
 */
 
-/*
 
-FUNCIONALIDAD EXTENDIDA EN COIMPARATOR_TEST ,por ahora probar con ese
-
-
-*/
 module encoder_comparator
 #(
     parameter LEN_CODED_BLOCK = 66,
@@ -19,14 +17,13 @@ module encoder_comparator
     parameter LEN_TX_CTRL = 8
  )
  (
-  input wire i_clock,
-  input wire i_reset,
-  input wire [LEN_TX_DATA-1 : 0] i_tx_data,
-  input wire [LEN_TX_CTRL-1 : 0] i_tx_ctrl,
-  input wire i_enable,
-  output wire [3:0] o_t_type,
-  output wire  o_enable_fsm,
-  output reg [LEN_CODED_BLOCK-1 : 0] o_tx_coded
+  input wire 						  i_clock,
+  input wire 					      i_reset,
+  input wire  [LEN_TX_DATA-1 : 0]     i_tx_data,
+  input wire  [LEN_TX_CTRL-1 : 0] 	  i_tx_ctrl,
+  input wire 					      i_enable,
+  output wire [3:0]                   o_t_type,
+  output reg  [LEN_CODED_BLOCK-1 : 0] o_tx_coded
  );
 ////////////   CGMII CHARACTERS   /////////////
 localparam [7:0] CGMII_START     = 8'hFB;
@@ -43,10 +40,11 @@ localparam [6:0] PCS_IDLE  = 7'h00;
 localparam [6:0] PCS_ERROR = 7'h1E;
 localparam [3:0] PCS_Q     = 4'h0;
 localparam [3:0] PCS_FSIG  = 4'hF;
-//////////    BLOCK_TYPE        /////////////
+/////////// Sync Headers /////////////////////
 localparam [1:0]  DATA_SH 	 = 2'b01;
 localparam [1:0]  CTRL_SH 	 = 2'b10;
-
+//////////    BLOCK_TYPE        //////////////
+localparam		 N_BLOCK_TYPE= 13;
 localparam [7:0] BTYPE_CTRL  = 8'h1E;
 localparam [7:0] BTYPE_S     = 8'h78;
 localparam [7:0] BTYPE_ORDER = 8'h4B;
@@ -59,9 +57,18 @@ localparam [7:0] BTYPE_T5    = 8'hD2;
 localparam [7:0] BTYPE_T6    = 8'hE1;
 localparam [7:0] BTYPE_T7    = 8'hFF;
 
+//////////////////// byte positions //////////////////////
+localparam BYTE_0 = LEN_TX_DATA-1;
+localparam BYTE_1 = LEN_TX_DATA-1-8;
+localparam BYTE_2 = LEN_TX_DATA-1-16;
+localparam BYTE_3 = LEN_TX_DATA-1-24;
+localparam BYTE_4 = LEN_TX_DATA-1-32;
+localparam BYTE_5 = LEN_TX_DATA-1-40;
+localparam BYTE_6 = LEN_TX_DATA-1-48;
+localparam BYTE_7 = LEN_TX_DATA-1-56;
+
+
 ///////////////   DECODIFICACION    //////////////////////
-
-
 localparam [12:0] CODED_DATA = 13'b1000000000000;
 localparam [12:0] CODED_S    = 13'b0100000000000;
 localparam [12:0] CODED_Q    = 13'b0010000000000;
@@ -77,8 +84,8 @@ localparam [12:0] CODED_T6   = 13'b0000000000010;
 localparam [12:0] CODED_T7   = 13'b0000000000001;
 
 
+/////////////   SIGNALS_TO_FSM    /////////////////////////
 
-////SIGNALS_TO_FSM
 wire D_SIGNAL; // lo recibido en tx_data es bloque de datos
 wire C_SIGNAL; // lo recibido en tx_data es bloque de control
 wire S_SIGNAL; // lo recibido en tx_data es bloque de start
@@ -86,7 +93,12 @@ wire T_SIGNAL; // lo recibido en tx_data es bloque de terminate
 wire [3:0] T_TYPE;//concatenacion de las seniales anteriores
 
 
-//enables
+///////////////////  enables  //////////////////////////////
+
+/*
+	comparo el vector TX_C con los formatos correspondientes
+	a los distintos tipos de bloque
+*/
 wire enable_data_block;
 wire enable_S_Q_Fsig_block;
 wire enable_control_block;
@@ -98,7 +110,13 @@ wire enable_t4_block;
 wire enable_t5_block;
 wire enable_t6_block;
 wire enable_t7_block;
-//payload
+
+
+///////////////    payload   //////////////////////////////
+/*
+	comparo el payload de los bloques con el payload corrspondiente
+	a los distintos tipos de bloque
+*/
 wire payload_S_block;
 wire payload_Q_block;
 wire payload_Fsig_block;
@@ -111,7 +129,13 @@ wire payload_t4_block;
 wire payload_t5_block;
 wire payload_t6_block;
 wire payload_t7_block;
-//type
+///////////     type     /////////////////////
+/*
+	A cada uno de estos wires les asigno el resultado de la AND de todas
+	las comparaciones necesarias para que un bloque sea de tipo X.
+	Ej: para que sea IDLE se debe cumplir (TXC=0xff y TXD={8{CGMII_IDLE}})
+*/
+
 wire type_data;
 wire type_S;
 wire type_Q;
@@ -125,54 +149,68 @@ wire type_t4;
 wire type_t5;
 wire type_t6;
 wire type_t7;
-wire [12:0] deco_type;  // de tamanio igual a la suma de todos los type_
-reg  [12:0] deco_type_reg;
+wire [N_BLOCK_TYPE-1:0] deco_type;  // de tamanio igual a la suma de todos los type_
+
+
+////////////////////// caracteres mapeados /////////////////////
+
+/*
+	registros para realizar el mapeo y validacion de los caracteres del payload,
+	necesito tenerlos por que los bloques terminate tienen cualquier combinacion 
+	de IDLES y ERROR luego del caracter /T/
+*/
+
+/*
+ valid_char :
+ 	en cada posicion seteo 1'b1 si el caracter respectivo es IDLE o ERROR,
+    valid[7] se corrsponde al caracter de mas a la izquierda segun la tabla del estandar,
+    es decir, el caracter 0
+
+*/
+
+reg [7:0] valid_char;  
+
+reg [7:0] in_char_0;
+reg [7:0] in_char_1;
+reg [7:0] in_char_2;
+reg [7:0] in_char_3;
+reg [7:0] in_char_4;
+reg [7:0] in_char_5;
+reg [7:0] in_char_6;
+reg [7:0] in_char_7;
+
+// caracteres mapeados
+reg [6:0] pcs_char_0;
+reg [6:0] pcs_char_1;
+reg [6:0] pcs_char_2;
+reg [6:0] pcs_char_3;
+reg [6:0] pcs_char_4;
+reg [6:0] pcs_char_5;
+reg [6:0] pcs_char_6;
+reg [6:0] pcs_char_7;
 
 
 ////////////////////// latcheo de entrada  /////////////////////
 reg [LEN_TX_DATA-1 : 0] tx_data;
 reg [LEN_TX_CTRL-1 : 0] tx_ctrl;
-reg enable_fsm;
-
-assign o_enable_fsm = enable_fsm;
 
 always @(posedge i_clock)
 begin
+
 	if(i_reset)
 	begin
 		tx_data    <= {LEN_TX_DATA{1'b0}};
-		tx_ctrl    <= {LEN_TX_CTRL{1'b1}}; //seteo en 1 para evitar secuencia valida(por las dudas,capas que no hace falta)
-		enable_fsm <= 1'b0;
+		tx_ctrl    <= {LEN_TX_CTRL{1'b0}}; 
 	end
 	else if(i_enable)
 	begin
 		tx_data    <= i_tx_data;
 		tx_ctrl    <= i_tx_ctrl;
-		enable_fsm <= 1'b1;
 	end
-	else
-	begin
-		tx_data    <= tx_data;
-		tx_ctrl    <= tx_ctrl;
-		enable_fsm <= 1'b0;
-	end
+
 end
 
 
-/*
-	   NECESITARE LATCHEAR SALIDA ???????
-*/
-
-
-
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////
 
 
 
@@ -211,8 +249,16 @@ assign payload_idle_block =
 
 
 assign payload_t0_block = 
-(tx_data   == {CGMII_TERMINATE , {7{CGMII_IDLE}} } ) ? 1'b1 : 1'b0;
+//(tx_data   == {CGMII_TERMINATE , {7{CGMII_IDLE}} } ) ? 1'b1 : 1'b0;
+((tx_data[BYTE_0 -: 8] == CGMII_TERMINATE) && (& valid_char[6:0])) ? 1'b1 : 1'b0;
 
+
+/*
+
+  MODIFICAR EL CHECKEO DE PAYLOADS IGUAL QUE PARA EL CASO DE t0 arriba
+
+
+*/
 assign payload_t1_block = 
 (tx_data [(LEN_TX_DATA-1 -8) : 0]   == {CGMII_TERMINATE,{6{CGMII_IDLE}} }) ? 1'b1 : 1'b0;
 
@@ -245,7 +291,7 @@ assign type_Q    = (enable_S_Q_Fsig_block & payload_Q_block);
 assign type_Fsig = (enable_S_Q_Fsig_block & payload_Fsig_block);
 assign type_idle = (enable_control_block  & payload_idle_block);
 
-assign type_t0  = (enable_t0_block & payload_t0_block) ;
+assign type_t0   = (enable_t0_block & payload_t0_block) ;
 assign type_t1   = (enable_t1_block & payload_t1_block);
 assign type_t2   = (enable_t2_block & payload_t2_block);
 assign type_t3   = (enable_t3_block & payload_t3_block);
@@ -271,14 +317,51 @@ assign T_SIGNAL =
 
 assign T_TYPE = {D_SIGNAL,S_SIGNAL,C_SIGNAL,T_SIGNAL};
 
-// PORTS ASSIGMENT
+
+
+
+/////////////////realizo mapeo de caracteres de CGMII a PCS//////////////
+
+always @ *
+begin
+	in_char_0 = tx_data[BYTE_0 -: 8];
+	in_char_1 = tx_data[BYTE_1 -: 8];
+	in_char_2 = tx_data[BYTE_2 -: 8];
+	in_char_3 = tx_data[BYTE_3 -: 8];
+	in_char_4 = tx_data[BYTE_4 -: 8];
+	in_char_5 = tx_data[BYTE_5 -: 8];
+	in_char_6 = tx_data[BYTE_6 -: 8];
+	in_char_7 = tx_data[BYTE_7 -: 8];
+	cgmii_to_pcs_char(in_char_0,valid_char[7],pcs_char_0);
+	cgmii_to_pcs_char(in_char_1,valid_char[6],pcs_char_1);
+	cgmii_to_pcs_char(in_char_2,valid_char[5],pcs_char_2);
+	cgmii_to_pcs_char(in_char_3,valid_char[4],pcs_char_3);
+	cgmii_to_pcs_char(in_char_4,valid_char[3],pcs_char_4);
+	cgmii_to_pcs_char(in_char_5,valid_char[2],pcs_char_5);
+	cgmii_to_pcs_char(in_char_6,valid_char[1],pcs_char_6);
+	cgmii_to_pcs_char(in_char_7,valid_char[0],pcs_char_7);
+
+
+end
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////
+
+///////////////////////////// PORTS ASSIGMENT////////////////////////////////
 
 assign o_t_type = T_TYPE;
 
 always @ *
 begin
-    deco_type_reg = deco_type;
-    case(deco_type)
+    deco_type_reg = deco_type; // verificar si se puede hacer case con el wire nomas
+    case(deco_type_reg)
         CODED_DATA : o_tx_coded = {DATA_SH,tx_data};
 
         CODED_S :    o_tx_coded = {CTRL_SH,BTYPE_S,tx_data[55:0]};
@@ -289,21 +372,33 @@ begin
 
         CODED_IDLE : o_tx_coded = {CTRL_SH,BTYPE_CTRL,{8{PCS_IDLE}} };
 
-        CODED_T0 :   o_tx_coded = {CTRL_SH,BTYPE_T0,{7{1'b0}},{7{PCS_IDLE}} };
+        CODED_T0 :   o_tx_coded = 
+        	{CTRL_SH,BTYPE_T0,{7{1'b0}},{pcs_char_1,pcs_char_2,pcs_char_3,pcs_char_4,pcs_char_5,pcs_char_6,pcs_char_7} }; 
+        //{CTRL_SH,BTYPE_T0,{7{1'b0}},{7{PCS_IDLE}} };
 
-        CODED_T1 :   o_tx_coded = {CTRL_SH,BTYPE_T1,tx_data[63-:8],{6{1'b0}},{6{PCS_IDLE}} };
+        CODED_T1 :   o_tx_coded = 
+        	{CTRL_SH,BTYPE_T1,tx_data[63-:8],{6{1'b0}},{pcs_char_2,pcs_char_3,pcs_char_4,pcs_char_5,pcs_char_6,pcs_char_7} };
+        //{CTRL_SH,BTYPE_T1,tx_data[63-:8],{6{1'b0}},{6{PCS_IDLE}} };
 
-        CODED_T2 :   o_tx_coded = {CTRL_SH,BTYPE_T2,tx_data[63-:16],{5{1'b0}},{5{PCS_IDLE}} };
+        CODED_T2 :   o_tx_coded = 
+        	{CTRL_SH,BTYPE_T2,tx_data[63-:16],{5{1'b0}},{pcs_char_3,pcs_char_4,pcs_char_5,pcs_char_6,pcs_char_7} };
 
-        CODED_T3 :   o_tx_coded = {CTRL_SH,BTYPE_T3,tx_data[63-:24],{4{1'b0}},{4{PCS_IDLE}} };
+        //{CTRL_SH,BTYPE_T2,tx_data[63-:16],{5{1'b0}},{5{PCS_IDLE}} };
 
-        CODED_T4 :   o_tx_coded = {CTRL_SH,BTYPE_T4,tx_data[63-:32],{3{1'b0}},{3{PCS_IDLE}} };
+        CODED_T3 :   o_tx_coded = 
+        	{CTRL_SH,BTYPE_T3,tx_data[63-:24],{4{1'b0}},{pcs_char_4,pcs_char_5,pcs_char_6,pcs_char_7} };
 
-        CODED_T5 :   o_tx_coded = {CTRL_SH,BTYPE_T5,tx_data[63-:40],{2{1'b0}},{2{PCS_IDLE}} };
+        CODED_T4 :   o_tx_coded = 
+        	{CTRL_SH,BTYPE_T4,tx_data[63-:32],{3{1'b0}},{pcs_char_5,pcs_char_6,pcs_char_7} };
 
-        CODED_T6 :   o_tx_coded = {CTRL_SH,BTYPE_T6,tx_data[63-:48],{1'b0},{PCS_IDLE} };
+        CODED_T5 :   o_tx_coded = 
+        	{CTRL_SH,BTYPE_T5,tx_data[63-:40],{2{1'b0}},{pcs_char_6,pcs_char_7} };
 
-        CODED_T7 :   o_tx_coded = {CTRL_SH,BTYPE_T7,tx_data[63-:56]};
+        CODED_T6 :   o_tx_coded = 
+        	{CTRL_SH,BTYPE_T6,tx_data[63-:48],{1'b0},{pcs_char_7} };
+
+        CODED_T7 :   o_tx_coded = 
+        	{CTRL_SH,BTYPE_T7,tx_data[63-:56]};
 
         default  :   o_tx_coded = {CTRL_SH,BTYPE_CTRL,{8{PCS_ERROR}}};
 
@@ -314,9 +409,6 @@ begin
 
 
 end
-
-
-endmodule
 
 
 task automatic cgmii_to_pcs_char;
@@ -348,3 +440,9 @@ begin
 	end
 end
 endtask
+
+
+
+endmodule
+
+
