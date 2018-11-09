@@ -76,23 +76,25 @@ end
 
 comparator_test
 #(
-	.LEN_TX_CTRL(LEN_TX_CTRL),
+	.LEN_TX_CTRL    (LEN_TX_CTRL),
 	.LEN_CODED_BLOCK(LEN_CODED_BLOCK),
-	.LEN_TX_DATA(LEN_TX_DATA)
+	.LEN_TX_DATA    (LEN_TX_DATA)
  )
 
 
 
 	u_comparator
 	(
-		.i_clock(tb_clock),
-		.i_reset(tb_reset),
-		.i_enable(tb_enable),
-		.i_tx_ctrl(tb_tx_ctrl),
-		.i_tx_data(tb_tx_data),
-		.o_t_type(tb_o_type),
+		.i_clock   (tb_clock),
+		.i_reset   (tb_reset),
+		.i_enable  (tb_enable),
+		.i_tx_ctrl (tb_tx_ctrl),
+		.i_tx_data (tb_tx_data),
+		.o_t_type  (tb_o_type),
 		.o_tx_coded(tb_tx_coded)
 	);
+
+
 
 
  always #2.5 tb_clock = ~tb_clock;
