@@ -165,14 +165,14 @@ reg [7:0] byte_7;
 
 always @ *
 begin
-	byte_0 = [BYTE_0 -: 8]; // D0
-	byte_1 = [BYTE_1 -: 8]; // D1
-	byte_2 = [BYTE_2 -: 8]; // D2
-	byte_3 = [BYTE_3 -: 8]; 
-	byte_4 = [BYTE_4 -: 8];
-	byte_5 = [BYTE_5 -: 8];
-	byte_6 = [BYTE_6 -: 8];
-	byte_7 = [BYTE_7 -: 8]; // D7
+	byte_0 = rx_coded [BYTE_0 -: 8]; // D0
+	byte_1 = rx_coded [BYTE_1 -: 8]; // D1
+	byte_2 = rx_coded [BYTE_2 -: 8]; // D2
+	byte_3 = rx_coded [BYTE_3 -: 8]; 
+	byte_4 = rx_coded [BYTE_4 -: 8];
+	byte_5 = rx_coded [BYTE_5 -: 8];
+	byte_6 = rx_coded [BYTE_6 -: 8];
+	byte_7 = rx_coded [BYTE_7 -: 8]; // D7
 end
 
 
@@ -216,7 +216,7 @@ assign block_type_t7      = (ctrl_sh && (rx_block_type == BTYPE_T7))   ? 1'b1 : 
 
 */
 
-reg [7:0] valid_char; 
+reg [7:0] valid; 
 
 
 // caracteres de payload (RX_CODED)
@@ -241,23 +241,23 @@ reg [7:0] cgmii_char_7;
 
 always @ *
 begin
-	in_char_0 = rx_coded[CHAR_0 -: 7]
-	in_char_1 = rx_coded[CHAR_1 -: 7]
-	in_char_2 = rx_coded[CHAR_2 -: 7]
-	in_char_3 = rx_coded[CHAR_3 -: 7]
-	in_char_4 = rx_coded[CHAR_4 -: 7]
-	in_char_5 = rx_coded[CHAR_5 -: 7]
-	in_char_6 = rx_coded[CHAR_6 -: 7]
-	in_char_7 = rx_coded[CHAR_7 -: 7]
+	in_char_0 = rx_coded[CHAR_0 -: 7];
+	in_char_1 = rx_coded[CHAR_1 -: 7];
+	in_char_2 = rx_coded[CHAR_2 -: 7];
+	in_char_3 = rx_coded[CHAR_3 -: 7];
+	in_char_4 = rx_coded[CHAR_4 -: 7];
+	in_char_5 = rx_coded[CHAR_5 -: 7];
+	in_char_6 = rx_coded[CHAR_6 -: 7];
+	in_char_7 = rx_coded[CHAR_7 -: 7];
 
-	pcs_to_cgmii_char(in_char_0,valid[7],cgmii_char_0)
-	pcs_to_cgmii_char(in_char_1,valid[6],cgmii_char_1)
-	pcs_to_cgmii_char(in_char_2,valid[5],cgmii_char_2)
-	pcs_to_cgmii_char(in_char_3,valid[4],cgmii_char_3)
-	pcs_to_cgmii_char(in_char_4,valid[3],cgmii_char_4)
-	pcs_to_cgmii_char(in_char_5,valid[2],cgmii_char_5)
-	pcs_to_cgmii_char(in_char_6,valid[1],cgmii_char_6)
-	pcs_to_cgmii_char(in_char_7,valid[0],cgmii_char_7)
+	pcs_to_cgmii_char(in_char_0,valid[7],cgmii_char_0);
+	pcs_to_cgmii_char(in_char_1,valid[6],cgmii_char_1);
+	pcs_to_cgmii_char(in_char_2,valid[5],cgmii_char_2);
+	pcs_to_cgmii_char(in_char_3,valid[4],cgmii_char_3);
+	pcs_to_cgmii_char(in_char_4,valid[3],cgmii_char_4);
+	pcs_to_cgmii_char(in_char_5,valid[2],cgmii_char_5);
+	pcs_to_cgmii_char(in_char_6,valid[1],cgmii_char_6);
+	pcs_to_cgmii_char(in_char_7,valid[0],cgmii_char_7);
 end
 
 
@@ -387,9 +387,9 @@ begin
 			o_rx_ctrl =  RX_CTRL_ORDER;
 		end
 		RAW_IDLE :
-			o_rx_data = {8{CGMII_IDLE}};
-			o_rx_ctrl =  RX_CTRL_IDLE;
 		begin
+			o_rx_data = {8{CGMII_IDLE}};
+			o_rx_ctrl = RX_CTRL_IDLE;
 		end
 		RAW_T0 :
 		begin
@@ -400,7 +400,7 @@ begin
 		RAW_T1 :
 		begin
 			o_rx_data = 
-			{byte0,CGMII_TERMINATE,cgmii_char_2,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+			{byte_0,CGMII_TERMINATE,cgmii_char_2,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
 		  //{  D0 ,       /T/     , /I/ o /E/  , /I/ o /E/  ,  /I/ o /E/ ,  /I/ o /E/ , /I/ o /E/  , /I/ o /E/  }
 			o_rx_ctrl = RX_CTRL_T1;
 		end
@@ -427,19 +427,19 @@ begin
 		RAW_T5 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,byte_2,byte_3,_byte_4,CGMII_TERMINATE,cgmii_char_6,cgmii_char_7};
+			{byte_0,byte_1,byte_2,byte_3,byte_4,CGMII_TERMINATE,cgmii_char_6,cgmii_char_7};
 			o_rx_ctrl = RX_CTRL_T5;
 		end
 		RAW_T6 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,byte_2,byte_3,_byte_4,byte_5,CGMII_TERMINATE,cgmii_char_7};
+			{byte_0,byte_1,byte_2,byte_3,byte_4,byte_5,CGMII_TERMINATE,cgmii_char_7};
 			o_rx_ctrl = RX_CTRL_T6;
 		end
 		RAW_T7 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,byte_2,byte_3,_byte_4,byte_5,byte_6,CGMII_TERMINATE};
+			{byte_0,byte_1,byte_2,byte_3,byte_4,byte_5,byte_6,CGMII_TERMINATE};
 			o_rx_ctrl = RX_CTRL_T7;
 		end
 	endcase
