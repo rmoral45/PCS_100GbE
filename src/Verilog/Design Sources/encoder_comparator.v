@@ -17,6 +17,7 @@ module encoder_comparator
     parameter LEN_TX_CTRL = 8
  )
  (
+
   input wire 						  i_clock,
   input wire 					      i_reset,
   input wire  [LEN_TX_DATA-1 : 0]     i_tx_data,
@@ -24,26 +25,30 @@ module encoder_comparator
   input wire 					      i_enable,
   output wire [3:0]                   o_t_type,
   output reg  [LEN_CODED_BLOCK-1 : 0] o_tx_coded
+
  );
-////////////   CGMII CHARACTERS   /////////////
+
+
+//LOCALPARAMS
+
+//CGMII CHARACTERS
 localparam [7:0] CGMII_START     = 8'hFB;
 localparam [7:0] CGMII_TERMINATE = 8'hFD;
 localparam [7:0] CGMII_FSIG      = 8'h5C;
 localparam [7:0] CGMII_Q         = 8'h9C;
 localparam [7:0] CGMII_IDLE      = 8'h07;
 localparam [7:0] CGMII_ERROR     = 8'hFE;
-
-
 localparam [3:0] ZERO = 4'h0; 
-///////////   PCS CHARACTERS     /////////////
+
+//PCS CHARACTERS 
 localparam [6:0] PCS_IDLE  = 7'h00;
 localparam [6:0] PCS_ERROR = 7'h1E;
 localparam [3:0] PCS_Q     = 4'h0;
 localparam [3:0] PCS_FSIG  = 4'hF;
-/////////// Sync Headers /////////////////////
+//Sync Headers
 localparam [1:0]  DATA_SH 	 = 2'b01;
 localparam [1:0]  CTRL_SH 	 = 2'b10;
-//////////    BLOCK_TYPE        //////////////
+//BLOCK_TYPE
 localparam		 N_BLOCK_TYPE= 13;
 localparam [7:0] BTYPE_CTRL  = 8'h1E;
 localparam [7:0] BTYPE_S     = 8'h78;
@@ -57,7 +62,7 @@ localparam [7:0] BTYPE_T5    = 8'hD2;
 localparam [7:0] BTYPE_T6    = 8'hE1;
 localparam [7:0] BTYPE_T7    = 8'hFF;
 
-//////////////////// byte positions //////////////////////
+//Byte positions
 localparam BYTE_0 = LEN_TX_DATA-1;
 localparam BYTE_1 = LEN_TX_DATA-1-8;
 localparam BYTE_2 = LEN_TX_DATA-1-16;
@@ -68,7 +73,7 @@ localparam BYTE_6 = LEN_TX_DATA-1-48;
 localparam BYTE_7 = LEN_TX_DATA-1-56;
 
 
-///////////////   DECODIFICACION    //////////////////////
+//DECODIFICACION 
 localparam [12:0] CODED_DATA = 13'b1000000000000;
 localparam [12:0] CODED_S    = 13'b0100000000000;
 localparam [12:0] CODED_Q    = 13'b0010000000000;
@@ -84,7 +89,9 @@ localparam [12:0] CODED_T6   = 13'b0000000000010;
 localparam [12:0] CODED_T7   = 13'b0000000000001;
 
 
-/////////////   SIGNALS_TO_FSM    /////////////////////////
+//INTERNAL SIGNALS
+
+//Signals to encoder FSM
 
 wire D_SIGNAL; // lo recibido en tx_data es bloque de datos
 wire C_SIGNAL; // lo recibido en tx_data es bloque de control
@@ -93,7 +100,7 @@ wire T_SIGNAL; // lo recibido en tx_data es bloque de terminate
 wire [3:0] T_TYPE;//concatenacion de las seniales anteriores
 
 
-///////////////////  enables  //////////////////////////////
+//Enables
 
 /*
 	comparo el vector TX_C con los formatos correspondientes
@@ -112,7 +119,7 @@ wire enable_t6_block;
 wire enable_t7_block;
 
 
-///////////////    payload   //////////////////////////////
+//payload 
 /*
 	comparo el payload de los bloques con el payload corrspondiente
 	a los distintos tipos de bloque
@@ -129,7 +136,9 @@ wire payload_t4_block;
 wire payload_t5_block;
 wire payload_t6_block;
 wire payload_t7_block;
-///////////     type     /////////////////////
+
+
+//type
 /*
 	A cada uno de estos wires les asigno el resultado de la AND de todas
 	las comparaciones necesarias para que un bloque sea de tipo X.
@@ -152,7 +161,7 @@ wire type_t7;
 wire [N_BLOCK_TYPE-1:0] deco_type;  // de tamanio igual a la suma de todos los type_
 
 
-////////////////////// caracteres mapeados /////////////////////
+//caracteres mapeados 
 
 /*
 	registros para realizar el mapeo y validacion de los caracteres del payload,
@@ -182,7 +191,7 @@ reg [6:0] pcs_char_6;
 reg [6:0] pcs_char_7;
 
 
-////////////////////// latcheo de entrada  /////////////////////
+//Update input
 reg [LEN_TX_DATA-1 : 0] tx_data;
 reg [LEN_TX_CTRL-1 : 0] tx_ctrl;
 
@@ -204,9 +213,7 @@ end
 
 
 
-
-
-////////////////////    enables    ////////////////////////////
+//Enable check
 /*
  comparacion de la senial tx_ctrl con las distintas posibilidades
  correspondientes a cada tipo de bloque
@@ -223,7 +230,7 @@ assign enable_t5_block =        (tx_ctrl == 8'h07) ? 1'b1 : 1'b0;
 assign enable_t6_block =        (tx_ctrl == 8'h03) ? 1'b1 : 1'b0;
 assign enable_t7_block =        (tx_ctrl == 8'h01) ? 1'b1 : 1'b0;
 
-/////////////////////   payload    ////////////////////////////
+//Payload check
 /*
 comparacion de 64 bits recibidos con los distintos formatos de bloque
 */
@@ -265,7 +272,7 @@ assign payload_t7_block =
 	 (tx_data[BYTE_7 -: 8] == CGMII_TERMINATE) 						   ? 1'b1 : 1'b0;
 
 
-//////////////////   types    ///////////////////////////////
+//Type check    
 /*
  determino el formato de bloque recibido utilizando la comparacion de tx_ctrl
  con el payload correspondiente a cada una de ellas
@@ -289,10 +296,9 @@ assign deco_type = { type_data,type_S,type_Q,type_Fsig,type_idle ,
 type_t0,type_t1,type_t2,type_t3,type_t4,type_t5,type_t6, type_t7 };
 
 
-///////////////   signals  ///////////////////////////////
+//FSM signal assigment
 /*
- determino el tipo de bloque recibido segun la funcion T_TYPE
- definida en el estandar
+  Equivalente a funcion T_TYPE definida en el estandar.
 */
 assign D_SIGNAL = type_data;
 
@@ -308,7 +314,7 @@ assign T_TYPE = {D_SIGNAL,S_SIGNAL,C_SIGNAL,T_SIGNAL};
 
 
 
-/////////////////realizo mapeo de caracteres de CGMII a PCS//////////////
+//Mapeo de caracteres de CGMII a PCS
 
 /*
  valid_char :
@@ -340,16 +346,10 @@ begin
 end
 
 
-//////////////////////////////////////////////////////////////////////////
 
 
 
-
-
-
-////////////////////////////////////////////////////////////////////////
-
-///////////////////////////// PORTS ASSIGMENT////////////////////////////////
+//Port assigment
 
 assign o_t_type = T_TYPE;
 
@@ -401,7 +401,7 @@ begin
 
 end
 
-
+//Task para realizar mapeo de caracteres
 task automatic cgmii_to_pcs_char;
 localparam [7:0] CGMII_IDLE   = 8'h07;
 localparam [7:0] CGMII_ERROR  = 8'hFE;

@@ -9,8 +9,8 @@ module encoder_fsm
   input  wire                       i_reset,
   input  wire                       i_enable,
   input  wire [3:0]                 i_t_type,
-  input  wire [LEN_TX_CODED-1 : 0]  i_tx_coded,
-  output wire [LEN_TX_CODED-1 : 0]  o_tx_coded
+  input  wire [LEN_TX_CODED-1 : 0]  i_tx_coded, //recibida desde el bloque comparador/codificador
+  output wire [LEN_TX_CODED-1 : 0]  o_tx_coded // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  );
 
 // T_TYPE
@@ -26,15 +26,16 @@ localparam [4:0] TX_D    = 5'b00100;
 localparam [4:0] TX_T    = 5'b00010;
 localparam [4:0] TX_E    = 5'b00001;
 localparam PCS_ERROR = 7'h1E;
-localparam [LEN_TX_CODED-1 : 0] LBLOCK_T = 66'h24B00001F000000; //bloque signal ordered set con D3 = 1
-localparam [LEN_TX_CODED-1 : 0] EBLOCK_T = { 2'h2,8'h1E,{8{PCS_ERROR}} };
+localparam [LEN_TX_CODED-1 : 0] LBLOCK_T = 66'h24B00001F000000; // !!!!FIX!!!!bloque signal ordered set
+localparam [LEN_TX_CODED-1 : 0] EBLOCK_T = 66'h21E1E1E1E1E1E1E; // !!!!FIX!!!! error block
 
-
+//INTERNAL SIGNALS
 reg [4:0] state,state_next;
 reg [LEN_TX_CODED-1 : 0] tx_coded , tx_coded_next;
-
+//PORTS
 assign o_tx_coded = tx_coded;
 
+//Update state
 always @ (posedge i_clock)
 begin
 

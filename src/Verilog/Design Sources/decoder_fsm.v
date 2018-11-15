@@ -1,4 +1,8 @@
-module decoder_interface
+/*
+	Verifica la secuencia de bloques recibidos
+*/
+
+module decoder_fsm
 #(
     parameter LEN_RX_DATA = 64,
     parameter LEN_RX_CTRL = 8
@@ -9,10 +13,10 @@ module decoder_interface
  	input wire  					i_enable,
  	input wire 	[3 : 0] 			i_r_type,
  	input wire 	[3 : 0] 			i_r_type_next
- 	input wire  [LEN_RX_DATA-1 : 0] i_rx_raw_data,
- 	input wire  [LEN_RX_CTRL-1 : 0] i_rx_raw_control,
- 	output wire	[LEN_RX_DATA-1 : 0] o_rx_raw_data,
- 	output wire	[LEN_RX_CTRL-1 : 0] o_rx_raw_control,
+ 	input wire  [LEN_RX_DATA-1 : 0] i_rx_raw_data,   //recibida desde el bloque comparador/decodificador
+ 	input wire  [LEN_RX_CTRL-1 : 0] i_rx_raw_control,//recibida desde el bloque comparador/decodificador
+ 	output wire	[LEN_RX_DATA-1 : 0] o_rx_raw_data,   // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+ 	output wire	[LEN_RX_CTRL-1 : 0] o_rx_raw_control,// solo difiere de lo recibido del comparador si la secuencia es incorrecta
  );
 
 
@@ -52,15 +56,15 @@ localparam [LEN_RX_CTRL-1 : 0] EBLOCK_R_CTRL
 
 
 
-
+//Update state
 always @ (posedge clock, posedge i_reset)
 begin
 	
 
 	if(i_reset)
 	begin	
-		//rx_raw_data <= LBLOCK_R_DATA;  
-		//rx_raw_control <= LBLOCK_R_CTRL;
+		rx_raw_data <= LBLOCK_R_DATA;  
+		rx_raw_control <= LBLOCK_R_CTRL;
 		state_next <= RX_INIT;
 
 	end
@@ -194,3 +198,5 @@ begin
 				end
 		end
 end
+
+endmodule
