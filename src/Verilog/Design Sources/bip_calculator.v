@@ -28,7 +28,7 @@ assign o_bip7 = ~bip;
 
 
 //update state
-always @ (posedge i_clock, posedge i_reset)
+always @ (posedge i_clock)
  begin
     if(i_reset)
         bip <= {8{1'b1}};
