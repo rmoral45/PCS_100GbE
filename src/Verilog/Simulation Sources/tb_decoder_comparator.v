@@ -9,20 +9,17 @@ parameter LEN_CODED_BLOCK	= 66			;
 reg tb_clock								;
 reg tb_reset								;					
 reg tb_enable								;
-reg counter	[9 : 0]							;
-reg [LEN_CODED_BLOCK-1 : 0]  tb_rx_coded	;
-reg [LEN_RX_DATA-1 : 0]		 tb_rx_data		;
-reg [LEN_RX_CTRL-1 : 0]		 tb_rx_ctrl		;
-reg [3 : 0]					 tb_rx_type		;
+reg [9 : 0]                      counter 	;
+reg [LEN_CODED_BLOCK-1 : 0]      tb_rx_coded;
 
-//wire [3 : 0]				 tb_wire_rx_type;
-
-assign 
+wire [LEN_RX_DATA-1 : 0]		 tb_rx_data	;
+wire [LEN_RX_CTRL-1 : 0]		 tb_rx_ctrl ;
+wire [3 : 0]					 tb_rx_type ;
 
 //---------------------------------------LOCALPARAMETERS
 //---------------------------------------SyncHeaders
 localparam DATA_SH = 2'b01					;
-localparam CTRL_SH = 2'b01					;
+localparam CTRL_SH = 2'b10					;
 //---------------------------------------BlockTypes
 localparam CTRL_BTYPE	= 8'h1E				;
 localparam START_BTYPE	= 8'h78				;
@@ -75,7 +72,8 @@ end
 
 //Simulo el envio de IDLE, START, ERROR, DATA, T0, START, T1, START, DATA, T2, START, ERROR, ERROR, T3
 
-always @(posedge tb_clock or posedge tb_reset) begin
+always @(posedge tb_clock or posedge tb_reset)
+begin
 	
 	counter = counter + 1						;
 	
@@ -90,135 +88,111 @@ always @(posedge tb_clock or posedge tb_reset) begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D10: begin
 			tb_rx_coded = START_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D11: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D15: begin
 			tb_rx_coded = ERROR_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D16: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D20: begin
 			tb_rx_coded = DATA_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D21: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D25: begin
 			tb_rx_coded = T0_BLOCK				;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D26: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D30: begin
 			tb_rx_coded = START_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D31: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D35: begin
 			tb_rx_coded = T1_BLOCK				;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D36: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D40: begin
 			tb_rx_coded = START_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D41: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D45: begin
 			tb_rx_coded = DATA_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D46: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D50: begin
 			tb_rx_coded = T2_BLOCK				;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D51: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D55: begin
 			tb_rx_coded = START_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D56: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D60: begin
 			tb_rx_coded = ERROR_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D61: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D65: begin
 			tb_rx_coded = ERROR_BLOCK			;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D66: begin
 			tb_enable = 1'b0                    ;
 		end
 
-		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
-		10'D5: begin
+		10'D70: begin
 			tb_rx_coded = T3_BLOCK				;
 			tb_enable   = 1'b1                  ;
 		end
-		10'D6: begin
+		10'D71: begin
 			tb_enable = 1'b0                    ;
 		end
+		
+	endcase
 
 end
 
@@ -229,7 +203,7 @@ decoder_comparator
 	.LEN_RX_CTRL(LEN_RX_CTRL)
 	)
 
-	test_1
+	test_1_decoder_comparator
 	(
 	.i_clock   	(tb_clock)    			,
 	.i_reset   	(tb_reset)    			,

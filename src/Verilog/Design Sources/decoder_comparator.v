@@ -47,8 +47,8 @@ module decoder_comparator
 
  /////////////////  SyncHeaders  /////////////////
  
- localparam [1:0]  DATA_SH = 2'b01;
- localparam [1:0]  CTRL_SH = 2'b10;
+ localparam DATA_SH = 2'b01;
+ localparam CTRL_SH = 2'b10;
 
 
  /////////// character positions /////////////
