@@ -3,7 +3,6 @@
 este bloque tiene como entrada un bloque codificado y como salida
 el bloque actual y el bloque previo,cada salida va a un bloque comparador para aplicar la funcion
 R_TYPE y R_TYPE_NEXT
-
 */
 
 module decoder_interface
@@ -17,7 +16,6 @@ module decoder_interface
  	input wire  						i_reset,
  	input wire  						i_enable,
  	input wire  [LEN_CODED_BLOCK-1 : 0] i_rx_coded,
-
  	output wire [LEN_CODED_BLOCK-1 : 0] o_rx_coded,
  	output wire [LEN_CODED_BLOCK-1 : 0] o_rx_coded_next
  );

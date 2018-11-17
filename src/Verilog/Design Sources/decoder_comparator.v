@@ -18,8 +18,8 @@ module decoder_comparator
  (
     input wire 							i_clock,
     input wire 							i_reset,
-    input wire  [LEN_CODED_BLOCK-1 : 0] i_rx_coded,
     input wire 							i_enable,
+    input wire  [LEN_CODED_BLOCK-1 : 0] i_rx_coded,
     output reg  [LEN_RX_DATA-1 : 0] 	o_rx_data,
     output reg  [LEN_RX_CTRL-1 : 0] 	o_rx_ctrl,
     output wire [3:0] 					o_r_type

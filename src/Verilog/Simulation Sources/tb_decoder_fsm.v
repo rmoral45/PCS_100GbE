@@ -11,8 +11,8 @@ reg  		 					 tb_enable				;
 reg	 [9 : 0] 					 counter				;
 reg  [LEN_RX_DATA-1 : 0]		 tb_i_rx_data			;
 reg  [LEN_RX_CTRL-1 : 0]		 tb_i_rx_control 		;
-reg  [3 : 0]					 tb_i_rx_type 			;
-reg  [3 : 0]					 tb_i_rx_type_next		;
+reg  [3 : 0]					 tb_i_r_type 			;
+reg  [3 : 0]					 tb_i_r_type_next		;
 
 wire [LEN_RX_DATA-1 : 0]		 tb_o_rx_raw_data		;
 wire [LEN_RX_CTRL-1 : 0]		 tb_o_rx_raw_control 	;
@@ -73,7 +73,7 @@ begin
 	tb_enable 	        = 1'b0                  ;
 	tb_i_rx_data		= {LEN_RX_DATA{1'b0}}	;
     tb_i_rx_control     = {LEN_RX_CTRL{1'b0}}	;
-    tb_i_rx_type        = {4{1'b0}}             ;     
+    tb_i_r_type        = {4{1'b0}}             ;     
 	counter		= 0;
 end
 
@@ -89,8 +89,8 @@ begin
 		10'D2: tb_reset 		= 1'b1              ;
 		10'D3: tb_reset 		= 1'b0              ;
 		10'D5: begin
-			tb_i_rx_type 		= TYPE_C			;
-			tb_i_rx_type_next 	= TYPE_S			;			
+			tb_i_r_type 		= TYPE_C			;
+			tb_i_r_type_next 	= TYPE_S			;			
 			tb_i_rx_control 	= CGMII_IDLE		;
 			tb_i_rx_data 		= IDLE_BLOCK		;
 			tb_enable   		= 1'b1              ;
@@ -101,8 +101,8 @@ begin
 		end
 
 		10'D10: begin
-			tb_i_rx_type 	= TYPE_S				;
-			tb_i_rx_type_next 	= TYPE_E			;
+			tb_i_r_type 	= TYPE_S				;
+			tb_i_r_type_next 	= TYPE_E			;
 			tb_i_rx_control = CGMII_START			;
 			tb_i_rx_data 	= START_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -113,8 +113,8 @@ begin
 		end
 
 		10'D15: begin
-			tb_i_rx_type 	= TYPE_E				;
-			tb_i_rx_type_next 	= TYPE_D			;
+			tb_i_r_type 	= TYPE_E				;
+			tb_i_r_type_next 	= TYPE_D			;
 			tb_i_rx_control = CGMII_ERROR			;
 			tb_i_rx_data 	= ERROR_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -125,8 +125,8 @@ begin
 		end
 
 		10'D20: begin
-			tb_i_rx_type 	= TYPE_D				;
-			tb_i_rx_type_next 	= TYPE_T			;
+			tb_i_r_type 	= TYPE_D				;
+			tb_i_r_type_next 	= TYPE_T			;
 			tb_i_rx_control = 8'h00					;
 			tb_i_rx_data 	= DATA_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -137,8 +137,8 @@ begin
 		end
 
 		10'D25: begin
-			tb_i_rx_type 	= TYPE_T				;
-			tb_i_rx_type_next 	= TYPE_S			;
+			tb_i_r_type 	= TYPE_T				;
+			tb_i_r_type_next 	= TYPE_S			;
 			tb_i_rx_control = CGMII_TERM			;
 			tb_i_rx_data 	= T0_BLOCK				;
 			tb_enable   	= 1'b1              	;
@@ -149,8 +149,8 @@ begin
 		end
 
 		10'D30: begin
-			tb_i_rx_type 	= TYPE_S				;
-			tb_i_rx_type_next 	= TYPE_T			;
+			tb_i_r_type 	= TYPE_S				;
+			tb_i_r_type_next 	= TYPE_T			;
 			tb_i_rx_control = CGMII_START			;
 			tb_i_rx_data 	= START_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -161,8 +161,8 @@ begin
 		end
 
 		10'D35: begin
-			tb_i_rx_type 	= TYPE_T				;
-			tb_i_rx_type_next 	= TYPE_S			;
+			tb_i_r_type 	= TYPE_T				;
+			tb_i_r_type_next 	= TYPE_S			;
 			tb_i_rx_control = CGMII_TERM			;
 			tb_i_rx_data 	= T1_BLOCK				;
 			tb_enable   	= 1'b1              	;
@@ -174,8 +174,8 @@ begin
 
 
 		10'D40: begin
-			tb_i_rx_type 	= TYPE_S				;
-			tb_i_rx_type_next 	= TYPE_D			;
+			tb_i_r_type 	= TYPE_S				;
+			tb_i_r_type_next 	= TYPE_D			;
 			tb_i_rx_control = CGMII_START			;
 			tb_i_rx_data 	= START_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -186,8 +186,8 @@ begin
 		end
 
 		10'D45: begin
-			tb_i_rx_type 	= TYPE_D				;
-			tb_i_rx_type_next 	= TYPE_T			;
+			tb_i_r_type 	= TYPE_D				;
+			tb_i_r_type_next 	= TYPE_T			;
 			tb_i_rx_control = 8'h00					;
 			tb_i_rx_data 	= DATA_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -198,8 +198,8 @@ begin
 		end
 
 		10'D50: begin
-			tb_i_rx_type 	= TYPE_T				;
-			tb_i_rx_type_next 	= TYPE_T			;
+			tb_i_r_type 	= TYPE_T				;
+			tb_i_r_type_next 	= TYPE_T			;
 			tb_i_rx_control = CGMII_TERM			;
 			tb_i_rx_data 	= T2_BLOCK				;
 			tb_enable   	= 1'b1              	;
@@ -210,8 +210,8 @@ begin
 		end
 
 		10'D55: begin
-			tb_i_rx_type 	= TYPE_T				;
-			tb_i_rx_type_next 	= TYPE_S			;
+			tb_i_r_type 	= TYPE_T				;
+			tb_i_r_type_next 	= TYPE_S			;
 			tb_i_rx_control = CGMII_TERM			;
 			tb_i_rx_data 	= T7_BLOCK				;
 			tb_enable   	= 1'b1              	;
@@ -222,8 +222,8 @@ begin
 		end
 
 		10'D60: begin
-			tb_i_rx_type 	= TYPE_S				;
-			tb_i_rx_type_next 	= TYPE_E			;
+			tb_i_r_type 	= TYPE_S				;
+			tb_i_r_type_next 	= TYPE_E			;
 			tb_i_rx_control = CGMII_START			;
 			tb_i_rx_data 	= START_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -234,8 +234,8 @@ begin
 		end
 
 		10'D65: begin
-			tb_i_rx_type 	= TYPE_E				;	
-			tb_i_rx_type_next 	= TYPE_E			;
+			tb_i_r_type 	= TYPE_E				;	
+			tb_i_r_type_next 	= TYPE_E			;
 			tb_i_rx_control = CGMII_ERROR			;
 			tb_i_rx_data 	= ERROR_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -246,8 +246,8 @@ begin
 		end
 
 		10'D70: begin
-			tb_i_rx_type 	= TYPE_E				;
-			tb_i_rx_type_next 	= TYPE_T			;
+			tb_i_r_type 	= TYPE_E				;
+			tb_i_r_type_next 	= TYPE_T			;
 			tb_i_rx_control = CGMII_ERROR			;
 			tb_i_rx_data 	= ERROR_BLOCK			;
 			tb_enable   	= 1'b1              	;
@@ -258,8 +258,8 @@ begin
 		end
 
 		10'D75: begin
-			tb_i_rx_type 	= TYPE_T				;
-			tb_i_rx_type_next 	= TYPE_T			;
+			tb_i_r_type 	= TYPE_T				;
+			tb_i_r_type_next 	= TYPE_T			;
 			tb_i_rx_control = CGMII_TERM			;
 			tb_i_rx_data 	= T3_BLOCK				;
 			tb_enable   	= 1'b1              	;
@@ -270,8 +270,8 @@ begin
 		end
 
 		10'D80: begin
-			tb_i_rx_type 	= TYPE_T				;
-			tb_i_rx_type_next 	= TYPE_S			;
+			tb_i_r_type 	= TYPE_T				;
+			tb_i_r_type_next 	= TYPE_S			;
 			tb_i_rx_control = CGMII_TERM			;
 			tb_i_rx_data 	= T4_BLOCK				;
 			tb_enable   	= 1'b1              	;
@@ -286,7 +286,7 @@ end
 
 decoder_fsm 
 	#(	
-	.LEN_RX_DATA(LEN_RX_DATA)			,
+	.LEN_RX_DATA(LEN_RX_DATA)				,
 	.LEN_RX_CTRL(LEN_RX_CTRL)
 	)
 
@@ -295,8 +295,8 @@ decoder_fsm
 	.i_clock   	       (tb_clock)    		,
 	.i_reset   	       (tb_reset)    		,
 	.i_enable  	       (tb_enable)   		,
-	.i_r_type          (tb_i_rx_type)       ,
-	.i_r_type_next     (tb_i_rx_type_next)  ,	
+	.i_r_type          (tb_i_r_type)       ,
+	.i_r_type_next     (tb_i_r_type_next)  ,	
 	.i_rx_data	       (tb_i_rx_data)       ,
 	.i_rx_control	   (tb_i_rx_control)    ,
 	.o_rx_raw_data     (tb_o_rx_raw_data)   ,
