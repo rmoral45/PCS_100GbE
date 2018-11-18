@@ -1,7 +1,7 @@
 
 
 
-module dual_port_ram
+module fifo_memory
 #(
 	parameter NB_DATA = 72,
 	parameter NB_ADDR = 5
@@ -9,7 +9,7 @@ module dual_port_ram
  (
  	input wire  				i_clock,
  	input wire  				i_write_enb,
- 	//input wire  				i_rd_enb, // capas no lo necesito en este nivel
+ 	input wire  				i_read_enb, // capas no lo necesito en este nivel
  	input wire  [NB_DATA-1 : 0] i_data,
  	input wire  [NB_ADDR-1 : 0] i_write_addr,
  	input wire  [NB_ADDR-1 : 0] i_read_addr,
@@ -31,26 +31,24 @@ reg [NB_DATA-1 : 0]    output_data               ;
 //write
 always @ ( posedge i_clock )
 begin
-	if(i_wr_enb)
-		memory[i_wr_addr] <= i_data;
+	if(i_write_enb)
+		memory[i_write_addr] <= i_data;
 end
 
 //PORTS
 
-assign o_data = memory[i_rd_addr];
+//assign o_data = memory[i_read_addr];
 
 
-
-/*
 //read
 always @ (posedge i_clock)
 begin
-	if(i_rd_enb)
-		output_data <= memory[i_rd_addr];
+	if(i_read_enb)
+		output_data <= memory[i_read_addr];
 end
 
 //PORTS
 assign o_data = output_data;
-*/
+
 
 endmodule

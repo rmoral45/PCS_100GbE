@@ -22,14 +22,25 @@ module idle_insertion_top
  	output wire 					o_am_flag,
  	output wire						o_valid
 
- )
+ );
 
 //LOCALPARAMS
 localparam NB_DATA    = (LEN_TX_DATA + LEN_TX_CTRL);
 localparam NB_ADDR    = $clog2(N_IDLE); //[FIX] deberia ser suficiente para guardar N-IDLES + 1 ?
 localparam CGMII_IDLE = 8'h07;
 
-
+//Internal signals
+wire 				 idle_detected   ;
+wire 				 idle_enable     ;
+wire 				 idle_payload    ; 
+wire 				 block_count_done; //from am_mod_counter to idle_counter.<reset condition>
+wire 				 idle_count_done ;
+wire 				 insert_am_idle  ;
+wire 				 fifo_write_enb  ;
+wire [NB_DATA-1 : 0] fifo_input_data ;
+wire 				 fifo_read_enb   ;
+wire [NB_DATA-1 : 0] fifo_output_data;
+wire 				 fifo_empty      ;
 
 //Instancies
 idle_counter
@@ -49,7 +60,7 @@ idle_counter
 
 am_mod_counter
 	#(
-		.N_BLOCKS(N_BLOCKS)
+		.N_BLOCKS(N_BLOCKS),
 		.N_LANES (N_LANES)
 	 )
 	u_am_mod_counter
@@ -82,18 +93,7 @@ sync_fifo
 	 );
 
 
-//Internal signals
-wire 				 idle_detected   ;
-wire 				 idle_enable     ;
-wire 				 idle_payload    ; 
-wire 				 block_count_done; //from am_mod_counter to idle_counter.<reset condition>
-wire 				 idle_count_done ;
-wire 				 insert_am_idle  ;
-wire 				 fifo_write_enb  ;
-wire [NB_DATA-1 : 0] fifo_input_data ;
-wire 				 fifo_read_enb   ;
-wire [NB_DATA-1 : 0] fifo_output_data;
-wire 				 fifo_empty      ;
+
 
 //Idle detection
 assign idle_enable   = (i_tx_ctrl == 8'hFF)           ? 1'b1 : 1'b0;
@@ -101,16 +101,22 @@ assign idle_payload  = (i_tx_data == {8{CGMII_IDLE}}) ? 1'b1 : 1'b0;
 assign idle_detected = (idle_enable & idle_payload);
 
 //Fifo write logic 
-assign fifo_write_enb  = ~(idle_detected & idle_count_done); //[check]
+assign fifo_write_enb  = 
+	(idle_detected == 1'b1 && idle_count_done == 1'b0 ) ? 1'b0 : 1'b1;
 assign fifo_input_data = {i_tx_data,i_tx_ctrl};
 
 //Fifo read logic
-assign fifo_read_enb = ~insert_am_idle;
+/*
+	FIX : aplicar alguna condicion inicial,capas que en sync_fifo wr_ptr empieza en 1 y read pointer empieza en 0;
+	no genera problemas en integridad del dato creo en lectura/escritura,pero si genera la flag de fifo empty lo
+	cual esta medio choto
+*/
+assign fifo_read_enb = ~insert_am_idle; // debe ser  ~insert_am_idle
 
 //PORTS
 assign o_tx_data =  fifo_output_data[NB_DATA-1             -: LEN_TX_DATA];
-assign o_tx_ctrl =  fifo_output_data[NB_DATA-1-LEN_RX_CTRL -: LEN_TX_CTRL];
-assign o_valid   = (fifo_empty & fifo_read_enb); //dato valido si la fifo tiene algo y no debo insrtar idle
+assign o_tx_ctrl =  fifo_output_data[NB_DATA-1-LEN_TX_CTRL -: LEN_TX_CTRL];
+assign o_valid   =  (~fifo_empty & fifo_read_enb); //dato valido si la fifo tiene algo y no debo insrtar idle
 assign o_am_flag =  insert_am_idle;//redundante
 
 

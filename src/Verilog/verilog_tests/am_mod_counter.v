@@ -4,7 +4,7 @@
 module am_mod_counter
 #(
 	parameter N_BLOCKS = 16383, //[REVISAR] cantidad de bloquen entre am y am
-	parameter N_LANES  = 20,
+	parameter N_LANES  = 20
  )
  (
  	input  wire i_reset,
@@ -44,7 +44,7 @@ end
 
 
 //PORTS
-assign o_reset_idle_count = (counter == {NB_COUNT{1'b0}}) ? 1'b1 : 1'b0;
+assign o_block_count_done = (counter == {NB_COUNT{1'b0}}) ? 1'b1 : 1'b0;
 assign o_insert_am_idle   = (counter < N_LANES)			  ? 1'b1 : 1'b0;
 
 

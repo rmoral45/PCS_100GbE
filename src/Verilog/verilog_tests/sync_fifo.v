@@ -1,7 +1,4 @@
 
-/*
-	CAMBIAR NOMBRE DE ARCHIVO A SYNC_FIFO
-*/
 
 module  sync_fifo
 #(
@@ -27,21 +24,22 @@ module  sync_fifo
 
  //INTERNAL SIGNALS
  reg [NB_ADDR-1 : 0] write_ptr;
- reg [NB_ADDR-1 : 0] read_ptr ;
+ reg [NB_ADDR-1 : 0] read_ptr;
 
 
 
 //INSTANCIAS
 
-dual_port_ram
-	u_dual_port_ram
+fifo_memory
 	#(
 	  	.NB_DATA(NB_DATA),
 	  	.NB_ADDR(NB_ADDR)
 	 )
+	 u_fifo_memory
 	 (
 	 	.i_clock     (i_clock)    ,
 	 	.i_write_enb (i_write_enb),
+	 	.i_read_enb  (i_read_enb) ,
 	 	.i_write_addr(write_ptr)  ,
 	 	.i_read_addr (read_ptr)   ,
 	 	.i_data		 (i_data)     ,
@@ -72,7 +70,7 @@ begin
 		read_ptr <= 0;
 	else if (i_enable && i_read_enb)
 	begin
-		if(write_ptr == DEPTH-1 )
+		if(read_ptr == DEPTH-1 )
  			read_ptr <= 0;
  		else
  			read_ptr <= read_ptr + 1;
@@ -81,6 +79,6 @@ end
 
 //PORTS
 
-assign o_empty = (read_ptr >= write_ptr) ? 1'b1 : 1'b0;
+assign o_empty = (read_ptr == write_ptr) ? 1'b1 : 1'b0;
 
 endmodule

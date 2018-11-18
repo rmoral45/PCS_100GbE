@@ -28,7 +28,10 @@ begin
 	if ( i_reset || i_block_count_done )
 		counter <= 0;
 	else if ( i_enable && i_idle_detected)
-		counter <= counter + 1;
+		if (counter < N_IDLE)
+			counter <= counter + 1;
+		else
+			counter <= counter;
 end
 
 //PORTS
