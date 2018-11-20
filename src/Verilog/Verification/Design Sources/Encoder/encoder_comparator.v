@@ -7,7 +7,6 @@ module encoder_comparator
     parameter LEN_TX_CTRL = 8
  )
  (
-
   	input wire 						  	i_clock,
   	input wire 					      	i_reset,
   	input wire  [LEN_TX_DATA-1 : 0]     i_tx_data,
