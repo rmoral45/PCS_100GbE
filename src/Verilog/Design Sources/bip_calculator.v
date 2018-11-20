@@ -19,20 +19,20 @@ module bip_calculator
 
 //INTERNAL SIGNALS
 integer i;
-reg  [LEN_CODED_BLOCK-1 : 0] data;
-reg [7:0] bip,bip_next;
+reg  [0 : LEN_CODED_BLOCK-1] data;
+reg  [7:0] bip,bip_next;
 
 //PORTS
 assign o_bip3 = bip;
 assign o_bip7 = ~bip;
 
 
-//update state
+//Update state
 always @ (posedge i_clock)
  begin
     if(i_reset)
         bip <= {8{1'b1}};
-    else
+    else if (i_enable)
         bip <= bip_next;
  end
 

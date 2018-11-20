@@ -10,10 +10,10 @@ module idle_insertion_top
 	parameter N_LANES     = 20 // deberia ser siempre igual a N_IDLE 
  )
  (
- 	input  wire 					i_clock,
- 	input  wire 					i_reset,
- 	input  wire 					i_enable,
- 	input  wire 					i_valid,
+ 	input  wire 					i_clock  ,
+ 	input  wire 					i_reset  ,
+ 	input  wire 					i_enable ,
+ 	input  wire 					i_valid  ,
  	input  wire [LEN_TX_DATA-1 : 0] i_tx_data,
  	input  wire [LEN_TX_CTRL-1 : 0] i_tx_ctrl,
 
@@ -71,7 +71,8 @@ am_mod_counter
 	 	.i_valid		   (i_valid),
 	 	
 	 	.o_block_count_done(block_count_done),
-	 	.o_insert_am_idle  (insert_am_idle)
+	 	.o_insert_am_idle  (insert_am_idle),
+	 	.o_enable_fifo_read(fifo_read_enb)
 	 );
 
 sync_fifo
@@ -104,14 +105,6 @@ assign idle_detected = (idle_enable & idle_payload);
 assign fifo_write_enb  = 
 	(idle_detected == 1'b1 && idle_count_done == 1'b0 ) ? 1'b0 : 1'b1;
 assign fifo_input_data = {i_tx_data,i_tx_ctrl};
-
-//Fifo read logic
-/*
-	FIX : aplicar alguna condicion inicial,capas que en sync_fifo wr_ptr empieza en 1 y read pointer empieza en 0;
-	no genera problemas en integridad del dato creo en lectura/escritura,pero si genera la flag de fifo empty lo
-	cual esta medio choto
-*/
-assign fifo_read_enb = ~insert_am_idle; // debe ser  ~insert_am_idle
 
 //PORTS
 assign o_tx_data =  fifo_output_data[NB_DATA-1             -: LEN_TX_DATA];

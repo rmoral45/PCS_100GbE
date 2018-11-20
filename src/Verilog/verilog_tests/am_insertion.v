@@ -13,12 +13,14 @@ module am_insertion
  	input  wire 						i_am_insert,
  	input  wire [LEN_CODED_BLOCK-1 : 0] i_data,
 
- 	output wire 						o_data
+ 	output wire [LEN_CODED_BLOCK-1 : 0]	o_data
 
  );
 
 
 //Internal signals
+reg  [LEN_CODED_BLOCK-1 : 0] data;
+wire [7:0] bip3, bip7;
 
 
 always @ (posedge i_clock)
@@ -34,11 +36,23 @@ begin
  		data <= {CTRL_SH,AM_ENCODING_LOW,bip3,AM_ENCODING_HIGH,bip7};
 
 end
+//PORTS
+assign o_data = data;
 
 //instances
+bip_calculator
+#(
+	.LEN_CODED_BLOCK(LEN_CODED_BLOCK)
+ )
+	u_bip_calculator
+ 	(
+        .i_clock (i_clock)  ,
+        .i_reset (i_reset)  ,
+     	.i_data  (data)     , // data from internal reg. [FIX]
+        .i_enable(i_enable) ,
 
-/*
- INSTANCIAR BIP CALCULATOR
-*/
+        .o_bip3  (bip3),
+        .o_bip7  (bip7),
+ 	);
 
 endmodule

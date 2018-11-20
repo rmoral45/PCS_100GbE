@@ -52,11 +52,7 @@ fifo_memory
  always @ (posedge i_clock)
  begin
  	if(i_reset)
- 		/*
- 		   Empieza en 1 para que luego de deletear 20 idles no se pisen los puntros de lectura y escritura,
- 		   es la solucion mas simple que encontre ya que todo lo demas funciona correctamente
- 		*/
- 		write_ptr <= 1; 
+ 		write_ptr <= 0; 
  	else if (i_enable && i_write_enb)
  	begin
  		if(write_ptr == DEPTH-1 )

@@ -13,7 +13,8 @@ module am_mod_counter
  	input  wire i_valid, // coontrol de flujo de cgmii, puede estar siempre en 1
  	
  	output wire o_block_count_done,
- 	output wire o_insert_am_idle
+ 	output wire o_insert_am_idle,
+ 	output wire o_enable_fifo_read
  );
 
 
@@ -45,7 +46,8 @@ end
 
 //PORTS
 assign o_block_count_done = (counter == {NB_COUNT{1'b0}}) ? 1'b1 : 1'b0;
-assign o_insert_am_idle   = (counter < N_LANES)			  ? 1'b1 : 1'b0;
+assign o_insert_am_idle   = (counter <  N_LANES)		  ? 1'b1 : 1'b0;
+assign o_enable_fifo_read = (counter >  N_LANES)		  ? 1'b1 : 1'b0;
 
 
 

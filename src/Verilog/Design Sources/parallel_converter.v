@@ -1,7 +1,4 @@
 
-/*
-    Conversor de paralelismo 1 a N
-*/
 
 module parallel_converter
 #(
@@ -9,10 +6,10 @@ module parallel_converter
     parameter N_LANES = 20
  )
  (
-    input wire                                      i_clock,
-    input wire                                      i_reset,
-    input wire                                      i_enable,
-    input wire  [LEN_CODED_BLOCK-1 : 0]             i_data,
+    input wire                          i_clock,
+    input wire                          i_reset,
+    input wire                          i_enable,
+    input wire  [LEN_CODED_BLOCK-1 : 0] i_data,
 
     output wire                                     o_valid,
     output wire [(N_LANES*LEN_CODED_BLOCK)-1 : 0]   o_data
@@ -20,17 +17,17 @@ module parallel_converter
  );
 
 localparam NB_COUNTER = $clog2(N_LANES);
-//INTERNAL SIGNALS
+
 reg [NB_COUNTER-1 : 0]                counter;
 reg [(N_LANES*LEN_CODED_BLOCK)-1 : 0] output_data;
 reg                                   output_valid;
 
-//PORT ASSIGMENT
+///////////   PORT ASSIGMENT  ////////
 
 assign o_data  = output_data;
 assign o_valid = output_valid;
 
-//Update state
+
 always @ (posedge i_clock)
 begin
     
