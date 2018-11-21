@@ -20,7 +20,7 @@ def main():
 		
 		
 		tx_raw = cgmii_module.tx_raw #bloque recibido desde cgmii
-
+		
 		#codificacion
 		if tx_raw['block_name'] in tx.ENCODER : 
 			tx_coded = tx.ENCODER[ tx_raw['block_name'] ]
