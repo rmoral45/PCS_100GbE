@@ -33,11 +33,22 @@ begin
         data_prev <= {LEN_CODED_BLOCK{1'b0}};
     else if (i_valid)
         data_prev <= i_data;
+        //test_am <= 1;
     else
         data_prev <= data_prev;
+        //test_am <= 0;
 end
 
+always @ (posedge  i_clock)
+    if i_reset
 
+    else if i_valid
+        if(sh == 01 o 10)
+            sh_valid <= 1
+        else
+            sh_valid <= 0
+    else
+        sh_valid <= 0
 
 //Instancias
 /*

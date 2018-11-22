@@ -82,9 +82,9 @@ begin
 			sh_cnt_next 	  = 0;
 			sh_invld_cnt_next = 0;
 			//slip_done = 0; checkear si es necesari
-			if (i_test_sh && block_lock == 0 )
+			if (i_test_sh && !block_lock )
 				state_next = TEST_SH;
-			else if (i_test_sh && block_lock == 1)
+			else if (i_test_sh && block_lock )
 				state_next = TEST_SH2;
 		end
 		TEST_SH:
@@ -114,19 +114,39 @@ begin
 		end
 		TEST_SH2:
 		begin
-			
+			test_sh_next = 0; //[check]
+			if(i_sh_valid)begin //[check] sh_valid puede ser una senial intrna
+				sh_cnt_next = sh_cnt + 1;
+				state_next  = VALID_SH2; 
+			end
+			else begin //sh no valido
+				sh_cnt_next 	  = sh_cnt + 1;
+				sh_invld_cnt_next = sh_invld_cnt + 1;
+				state_next 		  = INVALID_SH; 
+			end
 		end
 		INVALID_SH:
 		begin
-			
+			if(i_test_sh && sh_cnt < 1024 && sh_invld_cnt < 65)
+				state_next = TEST_SH2;
+			else if (sh_cnt == 1024 && sh_invld_cnt < 65)
+				state_next = RESET_CNT;
+			else if (sh_invld_cnt == 65)
+				state_next = SLIP;
 		end
 		VALID_SH2:
 		begin
-			
+			if(sh_cnt == 1024)
+				state_next = RESET_CNT;
+			else if (i_test_sh && sh_cnt < 1024)
+				state_next = TEST_SH2;
 		end
 		SLIP:
 		begin
-			
+			block_lock_next = 0;
+			//increment or decrement index(top module)
+			//slip_done = 1;
+			state_next = RESET_CNT;
 		end
 
 	endcase
