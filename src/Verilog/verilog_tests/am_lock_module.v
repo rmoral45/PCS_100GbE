@@ -25,9 +25,8 @@ module am_lock_module
  );
 
 
- //LOCALPARAMS
+//LOCALPARAMS
 localparam LEN_AM    = 48;
-//localparam N_ALIGNER = 20;
 
 localparam AM_LANE_0  = 48'hC168213E97DE;
 localparam AM_LANE_1  = 48'h9D718E628E71;
@@ -61,66 +60,81 @@ localparam CTRL_SH = 2'b10; //[CHECK]
 		opcion 2: no checkearlo nunca
 		opcion 3: checkearlo siempre
 
-
-wire [1:0] 			sh;
-wire [LEN_AM-1 : 0] am_value;
-wire [N_ALIGNER-1 : 0] match_mask;   //salida de fsm,inicialmente todos los bits en 1,
-								     //luego de encontrar un am el bit de esa posicion permanece en 1 y el resto en 0
-wire [N_ALIGNER-1 : 0] match_vector; // salida de los comparadores de markers
 */
 integer i;
 
-wire [LEN_AM*N_ALIGNER-1 : 0] 	  aligners; 
-reg [N_ALIGNER-1 : 0] 			  match_mask,match_mask_reg;
-reg [N_ALIGNER-1 : 0] 			  match_vector,match_vector_reg;
-reg [N_ALIGNER-1 : 0] 			  match_expected_am,match_expected_am_reg;
-assign	aligners 	  = { AM_LANE_19, AM_LANE_18, AM_LANE_17, AM_LANE_16, AM_LANE_15, AM_LANE_14, AM_LANE_13
-					, AM_LANE_12, AM_LANE_11, AM_LANE_10, AM_LANE_9 , AM_LANE_8 , AM_LANE_7 , AM_LANE_6
-					, AM_LANE_5 , AM_LANE_4 , AM_LANE_3 , AM_LANE_2 , AM_LANE_1 , AM_LANE_0 };
-reg [LEN_AM-1 : 0] am_value;
-reg [LEN_CODED_BLOCK-1:0]data_aux,some_data;
+reg [LEN_AM*N_ALIGNER-1 : 0] 	  aligners; 
+reg [N_ALIGNER-1 : 0] 			  match_mask; //salida de fsm
+reg [N_ALIGNER-1 : 0] 			  match_vector;//salida de comparadores
+reg [N_ALIGNER-1 : 0] 			  match_expected_am;
+reg [LEN_AM-1 : 0] 				  am_value;// bits
+reg [LEN_CODED_BLOCK-1:0]		  data;
+//maybe in another module :P
+reg match_payload;
+reg enable;
+reg match;
+reg timer_done;
+reg enable_mask;
+
+
+
+//Update input
+always @ (posedge i_clock)
+begin
+	if(i_reset)
+		data <= {LEN_CODED_BLOCK{1'b0}};
+	else if (i_valid && i_enable)
+		data <= i_data;
+end
+/*
+//Compare input to am_markers
 always @ *
 begin
-	am_value 	  = {data_aux[65 -: (LEN_AM/2)], data_aux[40 -:(LEN_AM/2)]};//esta mal la concatenacion,solo para testear
-	match_mask 	  = 0;
+	aligners 	  = { AM_LANE_19, AM_LANE_18, AM_LANE_17, AM_LANE_16, AM_LANE_15, AM_LANE_14, AM_LANE_13
+					, AM_LANE_12, AM_LANE_11, AM_LANE_10, AM_LANE_9 , AM_LANE_8 , AM_LANE_7 , AM_LANE_6
+					, AM_LANE_5 , AM_LANE_4 , AM_LANE_3 , AM_LANE_2 , AM_LANE_1 , AM_LANE_0 };
+
+	am_value 	  = {data[LEN_CODED_BLOCK-3 -: (LEN_AM/2)], data_aux[ 31-:(LEN_AM/2)]}; //[check]
 	match_vector  = 0;
 
 	for(i=0;i<N_ALIGNER;i=i+1)
 	begin
 		if( aligners[i*LEN_AM  +: LEN_AM] == am_value && i_match_mask[i])
+		begin
 			match_expected_am[i] = 1;
 			match_vector[i]      = 1; 
+		end
 	end
-	/*
-	match_payload = | match_expected_am;
+
+	match_payload = | match_expected_am; // se encontro un match
 	enable 		  = (timer_done | enable_mask);
-	match 		  = match_payload & enable;
-	*/
+	match 		  = match_payload & enable;//input to fsm
 
 end 
+*/
 
+//Instances
+am_lock_error_counter
+#(
+ )
+ (
+ 	.i_clock(),
+ 	.i_reset(),
+ 	.i_enable(//match),
+ 	.i_rx_bip(),//bip calc from am
+ 	.i_self_bip() //bip calc from bip calculator
+ );
 
-always @ (posedge i_clock)
-begin
-	if(i_reset)
-	begin
-		match_vector_reg <= 0;
-		match_mask_reg <= 0;
-		match_expected_am_reg <= 0;
-		am_value <= 0;
-		data_aux <= {LEN_CODED_BLOCK{1'b0}};
-	end
-	else
-	begin
-		data_aux <= i_data;
-		match_expected_am_reg <= match_expected_am;
-		match_mask_reg <= match_mask;
-		match_vector_reg <= match_vector;
-	end
-end
+bip_calculator
+#(
+ )
+ (
+ );
 
-assign o_match_mask = match_mask_reg;
-assign o_match_vect = match_vector_reg;
-assign o_match_expected = match_expected_am_reg;
+am_timer
+#(
+ )
+ (
+ )
 
 endmodule
