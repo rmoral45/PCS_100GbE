@@ -16,12 +16,9 @@ module am_lock_module
  	input  wire i_data, //bloque recibido
  	input wire [N_ALIGNER-1 : 0] i_match_mask,
 
- 	output wire o_data,
+ 	output reg o_data,
 	output wire o_lane_id,
 	output wire o_am_lock,
-	output wire [N_ALIGNER-1 : 0] o_match_mask,
-	output wire [N_ALIGNER-1 : 0] o_match_vect,
-	output wire [N_ALIGNER-1 : 0] o_match_expected
  );
 
 
@@ -73,10 +70,12 @@ reg [LEN_CODED_BLOCK-1:0]		  data;
 reg match_payload;
 reg enable;
 reg match;
-reg timer_done;
 reg enable_mask;
 
-
+wire [7:0] bip3;
+wire [7:0] bip7;
+wire timer_done;
+wire timer_restart;
 
 //Update input
 always @ (posedge i_clock)
@@ -86,6 +85,68 @@ begin
 	else if (i_valid && i_enable)
 		data <= i_data;
 end
+
+//Output mux
+always @ *
+begin
+	if(match) //match es la salida del bloque comparador
+		o_data = { 2'b10, {8{PCS_IDLE}} };
+	else
+		o_data = data;
+ end
+
+//Instances
+/*
+am_lock_error_counter
+#(
+ )
+ (
+ 	.i_clock(),
+ 	.i_reset(),
+ 	.i_enable(//match),
+ 	.i_rx_bip3(),//bip calc from am
+ 	.i_rx_bip7(),
+ 	.i_self_bip3(bip3), //bip calc from bip calculator
+ 	.i_self_bip7(bip7)
+ );
+*/
+
+am_lock_comparator
+
+bip_calculator
+#(
+	.LEN_CODED_BLOCK(LEN_CODED_BLOCK)
+ )
+	u_bip_calculator
+	 (
+	 	.i_clock(i_clock),
+	 	.i_reset(i_reset),
+	 	.i_data(data),
+	 	.i_enable(i_enable),
+
+	 	.o_bip3(bip3),
+	 	.o_bip7(bip7)
+	 );
+
+am_timer
+#(
+	.N_BLOCKS(16383)
+ )
+	u_am_timer
+	 (
+	 	.i_clock(i_clock),
+		.i_reset(i_reset),
+	 	.i_restart(timer_restart),//input from fsm
+	 	.i_valid(i_valid),
+	 	.i_enable(i_enable),
+
+	 	.o_timer_done(timer_done)
+	 );
+
+endmodule
+
+
+
 /*
 //Compare input to am_markers
 always @ *
@@ -112,29 +173,3 @@ begin
 
 end 
 */
-
-//Instances
-am_lock_error_counter
-#(
- )
- (
- 	.i_clock(),
- 	.i_reset(),
- 	.i_enable(//match),
- 	.i_rx_bip(),//bip calc from am
- 	.i_self_bip() //bip calc from bip calculator
- );
-
-bip_calculator
-#(
- )
- (
- );
-
-am_timer
-#(
- )
- (
- )
-
-endmodule
