@@ -1,9 +1,9 @@
 module cgmii
-//	#(
-//	parameter		N_IDLE = 5,
-//	parameter		N_DATA = 5,
-//	parameter		N_ERROR = 5
-//	)
+	#(
+	parameter		N_IDLE = 5,
+	parameter		N_DATA = 5,
+	parameter		N_ERROR = 5
+	)
 	(
 	input 			i_clock,
 	input 			i_reset,
@@ -13,9 +13,6 @@ module cgmii
 	);
 
 //Bloques
-localparam          N_IDLE          = 3'b110;
-localparam          N_DATA          = 3'b110;
-localparam          N_ERROR         = 3'b110;
 localparam			ERROR_BLOCK 	= 64'hFEFEFEFEFEFEFEFE;
 localparam			START_BLOCK 	= 64'hFB6879736963616C;
 localparam			DATA_BLOCK 		= 64'h706879736963616C;
@@ -46,16 +43,11 @@ reg 		[7:0]	tx_ctrl_next;
 reg 		[4:0]	actual_state;
 reg 		[4:0]	next_state;
 reg 		[2:0]	idle_counter;
+reg 		[2:0]	idle_counter_next;
 reg 		[2:0]	data_counter;
+reg 		[2:0]	data_counter_next;
 reg 		[2:0]	error_counter;
-
-wire    idle_wire;
-wire    data_wire;
-wire    error_wire;
-
-//assign idle_wire = (idle_counter <= N_IDLE) ? 1 : 0;
-//assign data_wire = (data_counter <= N_DATA) ? 1 : 0;
-//assign error_wire = (error_counter <= N_ERROR) ? 1 : 0; 
+reg 		[2:0]	error_counter_next;
 
 //Asigns
 assign o_tx_data = tx_data;
@@ -68,13 +60,16 @@ always @ (posedge i_clock or posedge i_reset)begin
 		tx_data 		<= Q_ORD_BLOCK;
 		tx_ctrl 		<= 8'h80;
         actual_state     <= INIT;
+        data_counter    <= {N_DATA{1'b0}};
+        idle_counter    <= {N_IDLE{1'b0}};
+        error_counter    <= {N_ERROR{1'b0}};
 	end
 	else begin
 		tx_data 		<= tx_data_next;
-		tx_ctrl 		<= tx_ctrl_next;
-		idle_counter 	<= idle_counter;
-		data_counter 	<= data_counter;
-		error_counter 	<= error_counter;
+		tx_ctrl         <= tx_ctrl_next;
+		idle_counter 	<= idle_counter_next;
+		data_counter 	<= data_counter_next;
+		error_counter 	<= error_counter_next;
 		actual_state 	<= next_state;
 	end
 end
@@ -86,6 +81,9 @@ always @ * begin
 	tx_data_next = tx_data;
 	tx_ctrl_next = tx_ctrl;
 	next_state = actual_state;
+	idle_counter_next = idle_counter;
+	data_counter_next = data_counter;
+	error_counter_next = error_counter;
 
 	if(i_debug_pulse == 4'b0000)begin  					//Operacion normal
 
@@ -95,7 +93,7 @@ always @ * begin
 		begin
 			tx_data_next = IDLE_BLOCK;
 			tx_ctrl_next = 8'hFF;
-			idle_counter = idle_counter+1;
+			idle_counter_next = idle_counter+1;
 			next_state = TX_C;
 		end
 
@@ -104,13 +102,13 @@ always @ * begin
 		     if(idle_counter <= N_IDLE)begin
 			     tx_data_next = IDLE_BLOCK;
 			     tx_ctrl_next = 8'hFF;
-			     idle_counter = idle_counter+1;
+			     idle_counter_next = idle_counter+1;
 			     next_state = actual_state;
 			end
 			else begin
 			     tx_data_next = START_BLOCK;
 			     tx_ctrl_next = 8'h80;
-			     idle_counter = 3'b000;
+			     idle_counter_next = 3'b000;
 			     next_state = TX_D;
 			end
 		end
@@ -119,14 +117,14 @@ always @ * begin
 		begin
 			if(data_counter <= N_DATA)begin	
 				tx_data_next = DATA_BLOCK;
-				tx_ctrl = 8'h00;
-				data_counter = data_counter+1;
+				tx_ctrl_next = 8'h00;
+				data_counter_next = data_counter+1;
 				next_state = actual_state;
 			end
 			else begin
 				tx_data_next = T0_BLOCK;
 				tx_ctrl_next = 8'hFF;
-				data_counter = 3'b000;
+				data_counter_next = 3'b000;
 				next_state = TX_T;
 			end
 		end
@@ -135,9 +133,10 @@ always @ * begin
 		begin
 			tx_data_next = IDLE_BLOCK;
 			tx_ctrl_next = 8'hFF;
-			idle_counter = 3'b000;
-			data_counter = 3'b000;
-			error_counter = 3'b000;
+			idle_counter_next = 3'b000;
+			data_counter_next = 3'b000;
+			error_counter_next = 3'b000;
+//			next_state = INIT;
 		end
 
 		TX_E:
@@ -145,24 +144,24 @@ always @ * begin
 			if(error_counter <= N_ERROR)begin	
 				tx_data_next = ERROR_BLOCK;
 				tx_ctrl_next = 8'hFF;				
-				error_counter = error_counter+1;
+				error_counter_next = error_counter+1;
 				next_state = actual_state;
 			end
 			else begin
 				tx_data_next = IDLE_BLOCK;
 				tx_ctrl_next = 8'hFF;
-				error_counter = 3'b000;
+				error_counter_next = 3'b000;
 				next_state = TX_C;
 			end
 		end
 
 		default:										 //aca se genera la condicion de error
 		begin
-			idle_counter = idle_counter;
-			data_counter = data_counter;
+			idle_counter_next = idle_counter;
+			data_counter_next = data_counter;
+			error_counter_next = error_counter+1;
 			tx_data_next = ERROR_BLOCK;
 			tx_ctrl_next = 8'hFF;
-			error_counter = error_counter+1;
 			next_state = TX_E;
 		end
 		endcase
@@ -170,10 +169,10 @@ always @ * begin
 
 	else if(i_debug_pulse == 4'b0001)begin 				//Forzamos estado de error
 		next_state = TX_E;
-		idle_counter = 0;
-		data_counter = 0;
+		idle_counter_next = 0;
+		data_counter_next = 0;
+		error_counter_next = 1;
 		tx_data_next = ERROR_BLOCK;
-		error_counter = 1;
 		tx_ctrl_next = 8'hFF;
 	end
 
@@ -192,7 +191,7 @@ always @ * begin
 	else if(i_debug_pulse == 4'b1000)begin 				//Forzamos estado de envio de datos
 		tx_data_next = DATA_BLOCK;
 		tx_ctrl_next = 8'h00;
-		data_counter = 1;
+		data_counter_next = 1;
 	end
 
 	else if(i_debug_pulse == 4'b1111)begin 				//Forzamos estado de finalizacion de trama		

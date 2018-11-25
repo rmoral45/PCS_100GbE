@@ -34,9 +34,11 @@ begin
 	counter = counter + 1                       ;
 	case(counter)
 		10'D2: tb_reset = 1'b1                  ;
-		10'D3: tb_reset = 1'b0                  ;
+		10'D3: begin
+		       tb_reset = 1'b0                  ;
+		       tb_enable = 1'b1                 ;
+		       end
 		10'D4: tb_debug_pulse = 4'b000			;
-		10'D5: tb_enable = 1'b1;
 	endcase
 
 end
