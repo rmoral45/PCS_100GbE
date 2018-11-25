@@ -13,7 +13,7 @@ module encoder_comparator
   	input wire  [LEN_TX_CTRL-1 : 0] 	i_tx_ctrl,
   	input wire 					      	i_enable,
 
-  	output wire [3:0]                   o_t_type,
+  	output wire [3:0]                   o_tx_type,
   	output reg  [LEN_CODED_BLOCK-1 : 0] o_tx_coded
 
  );
@@ -341,7 +341,7 @@ end
 
 //Port assigment
 
-assign o_t_type = T_TYPE;
+assign o_tx_type = T_TYPE;
 
 always @ *
 begin
@@ -385,9 +385,6 @@ begin
 
 
     endcase
-
-    
-
 
 end
 

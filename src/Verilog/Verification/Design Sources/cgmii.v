@@ -1,61 +1,50 @@
 module cgmii
-//	#(
-//	parameter		N_IDLE = 5,
-//	parameter		N_DATA = 5,
-//	parameter		N_ERROR = 5
-//	)
+	#(
+	parameter			N_IDLE = 5,
+	parameter			N_DATA = 5,
+	parameter			N_ERROR = 5
+	)
 	(
-	input 			i_clock,
-	input 			i_reset,
-	input	[3:0]	i_debug_pulse,			//senial utilizada para forzar transiciones de estados
-	output	[7:0]	o_tx_ctrl,	
-	output	[63:0]	o_tx_data
+	input wire			i_clock,
+	input wire			i_reset,
+	input wire	[3:0]	i_debug_pulse,			//senial utilizada para forzar transiciones de estados
+	output wire	[7:0]	o_tx_ctrl,	
+	output wire [63:0]	o_tx_data
 	);
 
 //Bloques
-localparam          N_IDLE          = 3'b110;
-localparam          N_DATA          = 3'b110;
-localparam          N_ERROR         = 3'b110;
-localparam			ERROR_BLOCK 	= 64'hFEFEFEFEFEFEFEFE;
-localparam			START_BLOCK 	= 64'hFB6879736963616C;
-localparam			DATA_BLOCK 		= 64'h706879736963616C;
-localparam			Q_ORD_BLOCK 	= 64'h9C68797300000000;
-localparam			Fsig_ORD_BLOCK 	= 64'h5C68797300000000;
-localparam			IDLE_BLOCK 		= 64'h0707070707070707;
-localparam			T0_BLOCK 		= 64'hFD07070707070707;
-localparam			T1_BLOCK 		= 64'h70FD070707070707;
-localparam			T2_BLOCK 		= 64'h7068FD0707070707;
-localparam			T3_BLOCK 		= 64'h706879FD07070707;
-localparam			T4_BLOCK 		= 64'h70687973FD070707;
-localparam			T5_BLOCK 		= 64'h7068797369FD0707;
-localparam			T6_BLOCK 		= 64'h706879736963FD07;
-localparam			T7_BLOCK 		= 64'h70687973696361FD;
+localparam				ERROR_BLOCK 	= 64'hFEFEFEFEFEFEFEFE;
+localparam				START_BLOCK 	= 64'hFB6879736963616C;
+localparam				DATA_BLOCK 		= 64'h706879736963616C;
+localparam				Q_ORD_BLOCK 	= 64'h9C68797300000000;
+localparam				Fsig_ORD_BLOCK 	= 64'h5C68797300000000;
+localparam				IDLE_BLOCK 		= 64'h0707070707070707;
+localparam				T0_BLOCK 		= 64'hFD07070707070707;
+localparam				T1_BLOCK 		= 64'h70FD070707070707;
+localparam				T2_BLOCK 		= 64'h7068FD0707070707;
+localparam				T3_BLOCK 		= 64'h706879FD07070707;
+localparam				T4_BLOCK 		= 64'h70687973FD070707;
+localparam				T5_BLOCK 		= 64'h7068797369FD0707;
+localparam				T6_BLOCK 		= 64'h706879736963FD07;
+localparam				T7_BLOCK 		= 64'h70687973696361FD;
 
 //Estados
-localparam	[4:0] 	INIT 			= 5'b00001;
-localparam	[4:0] 	TX_C 			= 5'b00010;
-localparam	[4:0] 	TX_D 			= 5'b00100;
-localparam	[4:0] 	TX_T 			= 5'b01000;
-localparam	[4:0] 	TX_E 			= 5'b10000;
+localparam	[4:0] 		INIT 			= 5'b00001;
+localparam	[4:0] 		TX_C 			= 5'b00010;
+localparam	[4:0] 		TX_D 			= 5'b00100;
+localparam	[4:0] 		TX_T 			= 5'b01000;
+localparam	[4:0] 		TX_E 			= 5'b10000;
 
 //Registros
-reg 		[63:0]	tx_data;
-reg 		[63:0]	tx_data_next;
-reg 		[7:0]	tx_ctrl;
-reg 		[7:0]	tx_ctrl_next;
-reg 		[4:0]	actual_state;
-reg 		[4:0]	next_state;
-reg 		[2:0]	idle_counter;
-reg 		[2:0]	data_counter;
-reg 		[2:0]	error_counter;
-
-wire    idle_wire;
-wire    data_wire;
-wire    error_wire;
-
-//assign idle_wire = (idle_counter <= N_IDLE) ? 1 : 0;
-//assign data_wire = (data_counter <= N_DATA) ? 1 : 0;
-//assign error_wire = (error_counter <= N_ERROR) ? 1 : 0; 
+reg 		[63:0]		tx_data;
+reg 		[63:0]		tx_data_next;
+reg 		[7:0]		tx_ctrl;
+reg 		[7:0]		tx_ctrl_next;
+reg 		[4:0]		actual_state;
+reg 		[4:0]		next_state;
+reg 		[2:0]		idle_counter;
+reg 		[2:0]		data_counter;
+reg 		[2:0]		error_counter;
 
 //Asigns
 assign o_tx_data = tx_data;
@@ -67,7 +56,10 @@ always @ (posedge i_clock or posedge i_reset)begin
 	if(i_reset)begin
 		tx_data 		<= Q_ORD_BLOCK;
 		tx_ctrl 		<= 8'h80;
-        actual_state     <= INIT;
+		actual_state 	<= INIT;
+		idle_counter 	<= 0;
+		data_counter 	<= 0;
+		error_counter 	<= 0;
 	end
 	else begin
 		tx_data 		<= tx_data_next;
@@ -84,7 +76,7 @@ end
 always @ * begin
 	
 	tx_data_next = tx_data;
-	tx_ctrl_next = tx_ctrl;
+	tx_ctrl = tx_ctrl_next;
 	next_state = actual_state;
 
 	if(i_debug_pulse == 4'b0000)begin  					//Operacion normal
@@ -95,23 +87,23 @@ always @ * begin
 		begin
 			tx_data_next = IDLE_BLOCK;
 			tx_ctrl_next = 8'hFF;
-			idle_counter = idle_counter+1;
+			idle_counter = 1;
 			next_state = TX_C;
 		end
 
 		TX_C:
 		begin
-		     if(idle_counter <= N_IDLE)begin
-			     tx_data_next = IDLE_BLOCK;
-			     tx_ctrl_next = 8'hFF;
-			     idle_counter = idle_counter+1;
-			     next_state = actual_state;
+			if(idle_counter <= N_IDLE)begin
+				tx_data_next = IDLE_BLOCK;
+				tx_ctrl_next = 8'hFF;
+				idle_counter = idle_counter+1;
+				next_state = actual_state;
 			end
 			else begin
-			     tx_data_next = START_BLOCK;
-			     tx_ctrl_next = 8'h80;
-			     idle_counter = 3'b000;
-			     next_state = TX_D;
+				tx_data_next = START_BLOCK;
+				tx_ctrl_next = 8'h80;
+				idle_counter = 0;
+				next_state = TX_D;
 			end
 		end
 
@@ -126,7 +118,7 @@ always @ * begin
 			else begin
 				tx_data_next = T0_BLOCK;
 				tx_ctrl_next = 8'hFF;
-				data_counter = 3'b000;
+				data_counter = 0;
 				next_state = TX_T;
 			end
 		end
@@ -135,9 +127,9 @@ always @ * begin
 		begin
 			tx_data_next = IDLE_BLOCK;
 			tx_ctrl_next = 8'hFF;
-			idle_counter = 3'b000;
-			data_counter = 3'b000;
-			error_counter = 3'b000;
+			idle_counter = 0;
+			data_counter = 0;
+			error_counter = 0;
 		end
 
 		TX_E:
@@ -146,12 +138,11 @@ always @ * begin
 				tx_data_next = ERROR_BLOCK;
 				tx_ctrl_next = 8'hFF;				
 				error_counter = error_counter+1;
-				next_state = actual_state;
 			end
 			else begin
 				tx_data_next = IDLE_BLOCK;
 				tx_ctrl_next = 8'hFF;
-				error_counter = 3'b000;
+				error_counter = 0;
 				next_state = TX_C;
 			end
 		end
