@@ -92,11 +92,9 @@ end
 
 always @ *
 begin // etapa 3
-	///***revisar indices
 	out_3 ={NB_STAGE_THREE{1'b0}};
 	for(k=0; k<NB_STAGE_THREE; k=k+1)
-		out_3[(NB_STAGE_THREE-1)-k] = (i_data[7-k] ^ out_1[(NB_STAGE_ONE-1) - k] ^ out_1[(NB_STAGE_ONE-20-1)-k]);
-		//out_3[(NB_STAGE_THREE-1)-k] = (i_data[5-k] ^ out_1[(NB_STAGE_ONE-1) - k] ^ out_1[(NB_STAGE_ONE-20-1)-k]);
+		out_3[(NB_STAGE_THREE-1)-k] = (i_data[5-k] ^ out_1[(NB_STAGE_ONE-1) - k] ^ out_1[(NB_STAGE_ONE-20-1)-k])
 
 	scrambled_data = {sync_header,out_1,out_2,out_3};
 end

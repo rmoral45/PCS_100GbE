@@ -57,6 +57,7 @@ begin
 	aligners 	  = { AM_LANE_19, AM_LANE_18, AM_LANE_17, AM_LANE_16, AM_LANE_15, AM_LANE_14, AM_LANE_13
 					, AM_LANE_12, AM_LANE_11, AM_LANE_10, AM_LANE_9 , AM_LANE_8 , AM_LANE_7 , AM_LANE_6
 					, AM_LANE_5 , AM_LANE_4 , AM_LANE_3 , AM_LANE_2 , AM_LANE_1 , AM_LANE_0 };
+
 	match_vector  = 0;
 	match_expected_am = 0;
 	match_payload = 0;
@@ -65,7 +66,8 @@ begin
 
 	for(i=0;i<N_ALIGNER;i=i+1)
 	begin
-		if( aligners[i*LEN_AM  +: LEN_AM] == i_am_value && i_match_mask[i])
+	 // if( aligners[i*LEN_AM  +: LEN_AM] == i_am_value && i_match_mask[i])
+        if( (aligners[i*LEN_AM  +: LEN_AM] == i_am_value) && i_match_mask[i])   //***
 		begin
 			match_expected_am[i] = 1;
 			match_vector[i]      = 1;
