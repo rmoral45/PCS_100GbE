@@ -26,8 +26,8 @@ module tb_shiftleds_file();
 
    integer               fid_reset;
    integer               fid_switch;
-   integer               code_error;
-   integer               code_error1;
+   integer               code_error_ctrl;
+   integer               code_error_data;
    integer               ptr_switch;
    
    initial begin
