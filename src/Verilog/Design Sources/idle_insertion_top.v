@@ -26,14 +26,14 @@ module idle_insertion_top
 
 //LOCALPARAMS
 localparam NB_DATA    = (LEN_TX_DATA + LEN_TX_CTRL);
-localparam NB_ADDR    = $clog2(N_IDLE); //[FIX] deberia ser suficiente para guardar N-IDLES + 1 ?
+localparam NB_ADDR    = $clog2(N_IDLE); 
 localparam CGMII_IDLE = 8'h07;
 
 //Internal signals
 wire 				 idle_detected   ;
 wire 				 idle_enable     ;
 wire 				 idle_payload    ; 
-wire 				 block_count_done; //from am_mod_counter to idle_counter.<reset condition>
+wire 				 block_count_done; 
 wire 				 idle_count_done ;
 wire 				 insert_am_idle  ;
 wire 				 fifo_write_enb  ;
@@ -109,7 +109,7 @@ assign fifo_input_data = {i_tx_data,i_tx_ctrl};
 //PORTS
 assign o_tx_data =  fifo_output_data[NB_DATA-1             -: LEN_TX_DATA];
 assign o_tx_ctrl =  fifo_output_data[NB_DATA-1-LEN_TX_CTRL -: LEN_TX_CTRL];
-assign o_valid   =  (~fifo_empty & fifo_read_enb); //dato valido si la fifo tiene algo y no debo insrtar idle
+assign o_valid   =  (~fifo_empty & fifo_read_enb); 
 assign o_am_flag =  insert_am_idle;//redundante
 
 
