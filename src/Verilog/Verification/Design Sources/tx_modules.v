@@ -1,17 +1,18 @@
 module tx_modules
   #(
-		parameter                           LEN_CODED_BLOCK    = 66,
+	parameter                           LEN_CODED_BLOCK    = 66,
     parameter                           LEN_TX_DATA        = 64,
-    parameter                           LEN_TX_CTRL 		   = 8
+    parameter                           LEN_TX_CTRL 	   = 8
 	 )
 	 (
-		input wire                          i_clock,
+	input wire                          i_clock,
   	input wire                          i_reset,
 
   	/*----ENCODER INPUTS & OUTPUTS----*/
+  	input wire                          i_enable_cgmii,
   	input wire                          i_enable_encoder,
   	output wire [3:0]                   o_tx_type,
-  	output wire  [LEN_CODED_BLOCK-1 : 0] o_tx_coded
+  	output wire [LEN_CODED_BLOCK-1 : 0] o_tx_coded
   	/*--------------------------------*/
 	 );
 
@@ -31,6 +32,7 @@ cgmii
     u_cgmii( 
       .i_clock(i_clock),
       .i_reset(i_reset),
+      .i_enable(i_enable_cgmii),
       .i_debug_pulse(debug_pulse),
       .o_tx_data(tx_data),
       .o_tx_ctrl(tx_ctrl)

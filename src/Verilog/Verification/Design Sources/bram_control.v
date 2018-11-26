@@ -10,16 +10,16 @@ module bram_control
 	  parameter								                RAM_ADDR_NBIT 			= 5
  )
  (				 
-	  input	wire								              i_clock,
+    input wire								              i_clock,
     input wire									            i_reset,
     input wire									            i_run,
- //   input wire									            i_read_enb,
- //   input wire  [RAM_ADDR_NBIT-1 : 0] 	    i_read_addr,
+    input wire									            i_read_enb,
+    input wire  [RAM_ADDR_NBIT-1 : 0] 	    i_read_addr,
     input wire  [RAM_WIDTH_ENCODER-1 : 0]	  i_data_coded,
     input wire  [RAM_WIDTH_TYPE-1 : 0]	    i_data_type,
 
- //   output wire [RAM_WIDTH_ENCODER-1 : 0]   o_data_coded,
- //   output wire [RAM_WIDTH_TYPE-1 : 0]      o_data_type,
+    output wire [RAM_WIDTH_ENCODER-1 : 0]   o_data_coded,
+    output wire [RAM_WIDTH_TYPE-1 : 0]      o_data_type,
     output reg                              o_mem_full
 );
 
@@ -31,7 +31,7 @@ module bram_control
     reg [RAM_ADDR_NBIT-1 : 0] 				        addr_counter;
     reg 									                  write_enable;
     reg 									                  run;
-   // wire 									                  read_enable = i_read_enb && o_mem_full;
+   wire 									                  read_enable = i_read_enb && o_mem_full;
     
 
     always@(posedge i_clock) 
@@ -43,15 +43,15 @@ module bram_control
         begin
             addr_counter	<= 0;
             write_enable 	<= 0;
-            run         <= 0;
-            o_mem_full    <= 1;
+            run             <= 0;
+            o_mem_full      <= 0;
         end
         else if (!run && i_run) 
         begin 
     
           addr_counter 	 	<= 0;
           write_enable 	 	<= 0;
-         	o_mem_full		  <= 0;
+         	o_mem_full		<= 0;
         end
         else if(!o_mem_full) 
         begin
@@ -62,16 +62,16 @@ module bram_control
                 end
                 else if(addr_counter==RAM_DEPTH) 
                 begin
-            		o_mem_full    		   <= 1; 
+                o_mem_full               <= 1; 
                 write_enable 		     <= 0;
                 addr_counter 		     <= addr_counter;
                 end
             end
         else 
         begin
-          write_enable 		       <= write_enable;
-          o_mem_full       	     <= o_mem_full;
-          addr_counter 		       <= addr_counter;
+          write_enable 		<= write_enable;
+          o_mem_full       	<= o_mem_full;
+          addr_counter 		<= addr_counter;
         end
 
     end
@@ -84,11 +84,11 @@ bram #(
 bram_encoder_u(
        		.i_clock(i_clock),
        		.i_write_enable(write_enable),
-//       		.i_read_enb_enable(read_enable),
+       		.i_read_enable(read_enable),
        		.i_write_addr(addr_counter),
-//       		.i_read_addr(i_read_addr),
-       		.i_data(i_data_coded)
-//       		.o_data(o_data_coded)
+      		.i_read_addr(i_read_addr),
+       		.i_data(i_data_coded),
+      		.o_data(o_data_coded)
    			);
 
 bram #(
@@ -98,11 +98,11 @@ bram #(
 bram_type_u(
        		.i_clock(i_clock),
        		.i_write_enable(write_enable),
-//       		.i_read_enb_enable(read_enable),
+       		.i_read_enable(read_enable),
        		.i_write_addr(addr_counter),
-//       		.i_read_addr(i_read_addr),
-       		.i_data(i_data_type)
-//       		.o_data(o_data_type)
+       		.i_read_addr(i_read_addr),
+       		.i_data(i_data_type),
+       		.o_data(o_data_type)
    		   );
     
 endmodule
