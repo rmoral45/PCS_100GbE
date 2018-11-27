@@ -8,51 +8,51 @@ parameter LEN_TX_CODED   	= 66;
 parameter LEN_TX_TYPE		= 4;
 
 
-reg tb_clock  ;
-reg tb_reset  ;
-reg tb_enable ;
+reg tb_clock;
+reg tb_reset;
+reg tb_enable;
+reg  [LEN_TX_CTRL-1:0]      tb_tx_ctrl;
+reg  [LEN_TX_DATA-1:0]      tb_tx_data;
+reg  [0 : LEN_TX_CTRL-1]    temp_tx_ctrl;
+reg  [0 : LEN_TX_DATA-1]    temp_tx_data;
+reg  [0 : LEN_TX_CODED-1]   temp_tx_coded;
 
-reg  [LEN_TX_CTRL-1:0]      tb_tx_ctrl    ;
-reg  [LEN_TX_DATA-1:0]      tb_tx_data    ;
-wire [LEN_TX_CODED-1:0]  tb_tx_coded   ;
-reg  [0 : LEN_TX_CTRL-1]    temp_tx_ctrl  ;
-reg  [0 : LEN_TX_DATA-1]    temp_tx_data  ;
-reg  [0 : LEN_TX_CODED-1]  temp_tx_coded ;
-wire [3:0] 				    tb_o_type     ;
+wire [LEN_TX_CODED-1:0]     tb_tx_coded;
+wire [LEN_TX_CODED-1:0]     tb_fsm_tx_coded;
+wire [3:0] 				    tb_o_type;
 
-
-integer                     fid_tx_data ;
-integer                     fid_tx_ctrl ;
+integer                     fid_tx_data;
+integer                     fid_tx_ctrl;
 integer                     fid_tx_coded;
-integer                     code_error_data   ;
-integer                     code_error_ctrl   ;
-integer                     code_error_coded  ;
-integer                     ptr_data  ;
-integer                     ptr_ctrl  ;
-integer                     ptr_coded ;
+integer                     code_error_data;
+integer                     code_error_ctrl;
+integer                     code_error_coded;
+integer                     ptr_data;
+integer                     ptr_ctrl;
+integer                     ptr_coded;
 
 initial
 begin
 	
-	fid_tx_ctrl= $fopen("/home/ramiro/Fundacion/PPS/src/Python/file_generator/encoder-input-ctrl.txt", "r");
+	fid_tx_ctrl= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-input-ctrl.txt", "r");
 		if(fid_tx_ctrl==0)
 		begin
 			$display("\n\nLa entrada para Tx-Ctrl no pudo ser abierta\n\n");
 			$stop;
 		end
-	fid_tx_data= $fopen("/home/ramiro/Fundacion/PPS/src/Python/file_generator/encoder-input-data.txt", "r");
+	fid_tx_data= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-input-data.txt", "r");
 		if(fid_tx_data==0)
 		begin
 			$display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
 			$stop;
 		end
 		
-	fid_tx_coded= $fopen("/home/ramiro/Fundacion/PPS/src/Python/file_generator/encoder-output.txt", "r");
-                if(fid_tx_coded==0)
-                begin
-                    $display("\n\nLa entrada para Tx-Coded no pudo ser abierta\n\n");
-                    $stop;
-                end
+	fid_tx_coded= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-output.txt", "r");
+        if(fid_tx_coded==0)
+        begin
+           $display("\n\nLa entrada para Tx-Coded no pudo ser abierta\n\n");
+           $stop;
+        end
 
 	tb_reset  = 1'b1 ;
 	tb_reset  = 1'b0 ;
@@ -125,5 +125,19 @@ u_encoder_comparator
 	.o_tx_type  (tb_o_type)  ,
 	.o_tx_coded(tb_tx_coded)
 	);
+
+encoder_fsm
+    #(
+    .LEN_TX_CODED(LEN_TX_CODED)
+    )
+u_encoder_fsm
+    (
+    .i_clock   (tb_clock)    ,
+    .i_reset   (tb_reset)    ,
+    .i_enable  (tb_enable)   ,
+    .i_tx_type (tb_o_type)   ,
+    .i_tx_coded(tb_tx_coded) ,
+    .o_tx_coded(tb_fsm_tx_coded)
+    );
 	
 endmodule

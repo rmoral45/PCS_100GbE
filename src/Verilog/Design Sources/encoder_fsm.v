@@ -8,7 +8,7 @@ module encoder_fsm
   input  wire                       i_clock,
   input  wire                       i_reset,
   input  wire                       i_enable,
-  input  wire [3:0]                 i_t_type,
+  input  wire [3:0]                 i_tx_type,
   input  wire [LEN_TX_CODED-1 : 0]  i_tx_coded, //recibida desde el bloque comparador/codificador
   output wire [LEN_TX_CODED-1 : 0]  o_tx_coded // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  );
@@ -31,7 +31,9 @@ localparam [LEN_TX_CODED-1 : 0] EBLOCK_T = 66'h21E1E1E1E1E1E1E; // !!!!FIX!!!! e
 
 //INTERNAL SIGNALS
 reg [4:0] state,state_next;
-reg [LEN_TX_CODED-1 : 0] tx_coded , tx_coded_next;
+reg [LEN_TX_CODED-1 : 0] tx_coded ; 
+reg [LEN_TX_CODED-1 : 0] tx_coded_next;
+
 //PORTS
 assign o_tx_coded = tx_coded;
 
@@ -42,6 +44,7 @@ begin
     if(i_reset)
     begin
         tx_coded <= LBLOCK_T;
+        tx_coded_next = {LEN_TX_CODED{1'b0}};
         state    <= TX_INIT;
     end
 
@@ -57,17 +60,18 @@ always @ *
 begin
     state_next = state;
     tx_coded_next = {LEN_TX_CODED{1'b0}};
+    //tx_coded_next = tx_coded;
     
 
     case(state)
         TX_INIT :
         begin
-            if(i_t_type == TYPE_C )
+            if(i_tx_type == TYPE_C )
             begin
                 state_next = TX_C;
                 tx_coded_next = i_tx_coded;
             end
-            else if (i_t_type == TYPE_S)
+            else if (i_tx_type == TYPE_S)
             begin
                 state_next = TX_D;
                 tx_coded_next = i_tx_coded;
@@ -80,15 +84,15 @@ begin
         end
         TX_C :
         begin
-            if(i_t_type == TYPE_C)
+            if(i_tx_type == TYPE_C)
             begin
                 state_next = TX_C;
                 tx_coded_next = i_tx_coded;
             end
-            else if(i_t_type == TYPE_S)
+            else if(i_tx_type == TYPE_S)
             begin
-                state_next = ;
-                tx_coded_next = ;
+                state_next = TX_D ;
+                tx_coded_next = i_tx_coded;
             end
             else
             begin 
@@ -98,12 +102,12 @@ begin
         end
         TX_D :
         begin
-            if(i_t_type == TYPE_D)
+            if(i_tx_type == TYPE_D)
             begin
                 state_next = TX_D ;
                 tx_coded_next = i_tx_coded;
             end
-            else if (i_t_type == TYPE_T)
+            else if (i_tx_type == TYPE_T)
             begin
                 state_next = TX_T ;
                 tx_coded_next = i_tx_coded ;
@@ -116,12 +120,12 @@ begin
         end
         TX_T :
         begin
-            if(i_t_type == TYPE_C)
+            if(i_tx_type == TYPE_C)
             begin
                 state_next = TX_C;
                 tx_coded_next = i_tx_coded;
             end
-            else if(i_t_type == TYPE_S)
+            else if(i_tx_type == TYPE_S)
             begin
                 state_next = TX_D;
                 tx_coded_next = i_tx_coded;
@@ -134,17 +138,17 @@ begin
         end
         TX_E :
         begin
-            if(i_t_type == TYPE_T)
+            if(i_tx_type == TYPE_T)
             begin
                 state_next = TX_T;
                 tx_coded_next = i_tx_coded;
             end
-            else if (i_t_type == TYPE_D)
+            else if (i_tx_type == TYPE_D)
             begin
                 state_next =TX_D ;
                 tx_coded_next = i_tx_coded;
             end
-            else if (i_t_type == TYPE_C)
+            else if (i_tx_type == TYPE_C)
             begin
                 state_next =TX_C ;
                 tx_coded_next = i_tx_coded;
