@@ -55,14 +55,14 @@ begin
         end
 
 	tb_reset  = 1'b1 ;
-	tb_reset  = 1'b0 ;
 	tb_clock  = 1'b0 ;
 	tb_enable = 1'b0 ;
 	tb_enable = 1'b1 ;
+#6	tb_reset  = 1'b0 ;
 end
 
 
-always #2.5 tb_clock = ~tb_clock;
+always #2 tb_clock = ~tb_clock;
 
 always @ (posedge tb_clock)
 begin

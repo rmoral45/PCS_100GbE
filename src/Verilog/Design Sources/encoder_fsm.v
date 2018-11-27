@@ -30,7 +30,8 @@ localparam [LEN_TX_CODED-1 : 0] LBLOCK_T = 66'h24B00001F000000; // !!!!FIX!!!!bl
 localparam [LEN_TX_CODED-1 : 0] EBLOCK_T = 66'h21E1E1E1E1E1E1E; // !!!!FIX!!!! error block
 
 //INTERNAL SIGNALS
-reg [4:0] state,state_next;
+reg [4:0] state;
+reg [4:0] state_next;
 reg [LEN_TX_CODED-1 : 0] tx_coded ; 
 reg [LEN_TX_CODED-1 : 0] tx_coded_next;
 
@@ -44,7 +45,6 @@ begin
     if(i_reset)
     begin
         tx_coded <= LBLOCK_T;
-        tx_coded_next = {LEN_TX_CODED{1'b0}};
         state    <= TX_INIT;
     end
 
@@ -59,14 +59,14 @@ end
 always @ * 
 begin
     state_next = state;
-    tx_coded_next = {LEN_TX_CODED{1'b0}};
+    tx_coded_next = {LEN_TX_CODED{1'b1}};
     //tx_coded_next = tx_coded;
     
 
     case(state)
         TX_INIT :
         begin
-            if(i_tx_type == TYPE_C )
+            if(i_tx_type == TYPE_C)
             begin
                 state_next = TX_C;
                 tx_coded_next = i_tx_coded;
