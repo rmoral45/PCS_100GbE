@@ -2,15 +2,15 @@
 
 module encoder_fsm
 #(
-   parameter LEN_TX_CODED = 66
+   parameter LEN_CODED_BLOCK = 66
  )
  (
   input  wire                       i_clock,
   input  wire                       i_reset,
   input  wire                       i_enable,
   input  wire [3:0]                 i_tx_type,
-  input  wire [LEN_TX_CODED-1 : 0]  i_tx_coded, //recibida desde el bloque comparador/codificador
-  output wire [LEN_TX_CODED-1 : 0]  o_tx_coded // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+  input  wire [LEN_CODED_BLOCK-1 : 0]  i_tx_coded, //recibida desde el bloque comparador/codificador
+  output wire [LEN_CODED_BLOCK-1 : 0]  o_tx_coded // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  );
 
 // T_TYPE
@@ -26,14 +26,14 @@ localparam [4:0] TX_D    = 5'b00100;
 localparam [4:0] TX_T    = 5'b00010;
 localparam [4:0] TX_E    = 5'b00001;
 localparam PCS_ERROR = 7'h1E;
-localparam [LEN_TX_CODED-1 : 0] LBLOCK_T = 66'h24B00001F000000; // !!!!FIX!!!!bloque signal ordered set
-localparam [LEN_TX_CODED-1 : 0] EBLOCK_T = 66'h21E1E1E1E1E1E1E; // !!!!FIX!!!! error block
+localparam [LEN_CODED_BLOCK-1 : 0] LBLOCK_T = 66'h24B00001F000000; // !!!!FIX!!!!bloque signal ordered set
+localparam [LEN_CODED_BLOCK-1 : 0] EBLOCK_T = 66'h21E1E1E1E1E1E1E; // !!!!FIX!!!! error block
 
 //INTERNAL SIGNALS
 reg [4:0] state;
 reg [4:0] state_next;
-reg [LEN_TX_CODED-1 : 0] tx_coded ; 
-reg [LEN_TX_CODED-1 : 0] tx_coded_next;
+reg [LEN_CODED_BLOCK-1 : 0] tx_coded ; 
+reg [LEN_CODED_BLOCK-1 : 0] tx_coded_next;
 
 //PORTS
 assign o_tx_coded = tx_coded;
@@ -59,7 +59,7 @@ end
 always @ * 
 begin
     state_next = state;
-    tx_coded_next = {LEN_TX_CODED{1'b1}};
+    tx_coded_next = {LEN_CODED_BLOCK{1'b1}};
     //tx_coded_next = tx_coded;
     
 

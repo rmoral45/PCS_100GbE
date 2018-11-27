@@ -2,34 +2,56 @@
 
 module tb_encoder_comparator   ;
 
-parameter LEN_TX_CTRL 		= 8;
-parameter LEN_TX_DATA 		= 64;
-parameter LEN_TX_CODED   	= 66;
-parameter LEN_TX_TYPE		= 4;
+parameter LEN_TX_CTRL 		    = 8;
+parameter LEN_TX_DATA 		    = 64;
+parameter LEN_TX_TYPE		    = 4;
+parameter LEN_CODED_BLOCK       = 66;
+parameter LEN_RX_DATA           = 64;
+parameter LEN_RX_CTRL           = 8;
+parameter LEN_TYPE              = 4;
 
 
-reg tb_clock;
-reg tb_reset;
-reg tb_enable;
-reg  [LEN_TX_CTRL-1:0]      tb_tx_ctrl;
-reg  [LEN_TX_DATA-1:0]      tb_tx_data;
-reg  [0 : LEN_TX_CTRL-1]    temp_tx_ctrl;
-reg  [0 : LEN_TX_DATA-1]    temp_tx_data;
-reg  [0 : LEN_TX_CODED-1]   temp_tx_coded;
+//REGISTROS GENERALES
+reg                             tb_clock;
+reg                             tb_reset;
+reg                             tb_enable;
 
-wire [LEN_TX_CODED-1:0]     tb_tx_coded;
-wire [LEN_TX_CODED-1:0]     tb_fsm_tx_coded;
-wire [3:0] 				    tb_o_type;
+//REGISTROS PARA ENCODER FROM FILE
+reg  [LEN_TX_CTRL-1:0]          tb_tx_ctrl;
+reg  [LEN_TX_DATA-1:0]          tb_tx_data;
+reg  [0 : LEN_TX_CTRL-1]        temp_tx_ctrl;
+reg  [0 : LEN_TX_DATA-1]        temp_tx_data;
+reg  [0 : LEN_CODED_BLOCK-1]    temp_tx_coded;
 
-integer                     fid_tx_data;
-integer                     fid_tx_ctrl;
-integer                     fid_tx_coded;
-integer                     code_error_data;
-integer                     code_error_ctrl;
-integer                     code_error_coded;
-integer                     ptr_data;
-integer                     ptr_ctrl;
-integer                     ptr_coded;
+//REGISTROS PARA ENCODER_FSM
+wire [LEN_CODED_BLOCK-1:0]      tb_tx_coded;
+wire [LEN_CODED_BLOCK-1:0]      tb_fsm_tx_coded;
+wire [LEN_TYPE-1 : 0] 	        tb_o_type;
+
+//REGISTROS PARA DECODER
+wire [LEN_CODED_BLOCK-1 : 0]    tb_rx_coded;
+wire [LEN_CODED_BLOCK-1 : 0]    tb_rx_coded_next;
+wire [LEN_RX_DATA-1 : 0]        tb_rx_data;
+wire [LEN_RX_CTRL-1 : 0]        tb_rx_ctrl;
+wire [LEN_TYPE-1:0]             tb_rx_type;
+
+//REGISTROS PARA DECODER_FSM
+wire [LEN_TYPE-1:0]             tb_rtype_out;
+wire [LEN_TYPE-1:0]             tb_rtype_next_out;
+
+//REGISTROS DE SALIDA DEL DECODER (TO CGMII)
+wire [LEN_RX_DATA-1 : 0]        tb_rx_raw_data;
+wire [LEN_RX_CTRL-1 : 0]        tb_rx_raw_ctrl;
+
+integer                         fid_tx_data;
+integer                         fid_tx_ctrl;
+integer                         fid_tx_coded;
+integer                         code_error_data;
+integer                         code_error_ctrl;
+integer                         code_error_coded;
+integer                         ptr_data;
+integer                         ptr_ctrl;
+integer                         ptr_coded;
 
 initial
 begin
@@ -88,7 +110,7 @@ begin
             end
         end
         
-        for(ptr_coded = 0; ptr_coded < LEN_TX_CODED ; ptr_coded = ptr_coded+1)
+        for(ptr_coded = 0; ptr_coded < LEN_CODED_BLOCK ; ptr_coded = ptr_coded+1)
         begin
             code_error_coded <= $fscanf(fid_tx_coded, "%b\n", temp_tx_coded[ptr_coded]);
             if(code_error_coded != 1)
@@ -112,7 +134,7 @@ end
 encoder_comparator
 	#(
 	.LEN_TX_CTRL    (LEN_TX_CTRL)     ,
-	.LEN_CODED_BLOCK(LEN_TX_CODED) ,
+	.LEN_CODED_BLOCK(LEN_CODED_BLOCK) ,
 	.LEN_TX_DATA    (LEN_TX_DATA)
  	)
 u_encoder_comparator
@@ -128,8 +150,8 @@ u_encoder_comparator
 
 encoder_fsm
     #(
-    .LEN_TX_CODED(LEN_TX_CODED)
-    )
+    .LEN_CODED_BLOCK(LEN_CODED_BLOCK)
+     )
 u_encoder_fsm
     (
     .i_clock   (tb_clock)    ,
@@ -139,5 +161,53 @@ u_encoder_fsm
     .i_tx_coded(tb_tx_coded) ,
     .o_tx_coded(tb_fsm_tx_coded)
     );
-	
+
+decoder_comparator
+    #(
+	.LEN_RX_CTRL    (LEN_RX_CTRL)     ,
+    .LEN_CODED_BLOCK(LEN_CODED_BLOCK) ,
+    .LEN_RX_DATA    (LEN_RX_DATA)
+    )
+u_decoder_comparator
+    (
+    .i_clock    (tb_clock)          ,
+    .i_reset    (tb_reset)          ,
+    .i_enable   (tb_enable)         ,
+    .i_rx_coded (tb_fsm_tx_coded)   ,
+    .o_rx_data  (tb_rx_data)        ,
+    .o_rx_ctrl  (tb_rx_ctrl)        ,
+    .o_rx_type  (tb_rx_type)
+    );
+    
+    
+decoder_fsm_interface
+    #(
+    .LEN_TYPE(LEN_TYPE)
+    )
+    (
+    .i_clock        (tb_clock)          ,
+    .i_reset        (tb_reset)          ,
+    .i_enable       (tb_enable)         ,
+    .i_r_type       (tb_rx_type)        ,
+    .o_r_type       (tb_rtype_out)      ,
+    .o_r_type_next  (tb_rtype_next_out) 
+    );
+    
+decoder_fsm
+    #(
+    .LEN_RX_DATA(LEN_RX_DATA),
+    .LEN_RX_CTRL(LEN_RX_CTRL)
+    )
+    (
+    .i_clock        (tb_clock)          ,
+    .i_reset        (tb_reset)          ,
+    .i_enable       (tb_enable)         ,
+    .i_r_type       (tb_rtype_out)      ,
+    .i_r_type_mext  (tb_rtype_next_out) ,
+    .i_rx_data      (tb_rx_data)        ,
+    .i_rx_ctrl      (tb_rx_ctrl)        ,
+    .o_rx_raw_data  (tb_rx_raw_data)    ,
+    .o_rx_raw_ctrl  (tb_rx_raw_ctrl)
+    );
+   
 endmodule

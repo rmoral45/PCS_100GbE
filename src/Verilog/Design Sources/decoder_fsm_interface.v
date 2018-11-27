@@ -4,21 +4,21 @@ y como salida el r_type del bloque actual y del bloque previo,
 es decir, el r_type y el r_type_next
 */
 
-module decoder_interface
+module decoder_fsm_interface
 #(
-	parameter LEN_R_TYPE = 4
+	parameter LEN_TYPE = 4
  )
  (
  	input wire  					i_clock,
  	input wire  					i_reset,
  	input wire  					i_enable,
- 	input wire  [LEN_R_TYPE-1 : 0]	i_r_type,
- 	output wire [LEN_R_TYPE-1 : 0] 	o_r_type,
- 	output wire [LEN_R_TYPE-1 : 0] 	o_r_type_next
+ 	input wire  [LEN_TYPE-1 : 0]	i_r_type,
+ 	output wire [LEN_TYPE-1 : 0] 	o_r_type,
+ 	output wire [LEN_TYPE-1 : 0] 	o_r_type_next
  );
 
- reg [LEN_R_TYPE-1 : 0]	r_type 	   ;
- reg [LEN_R_TYPE-1 : 0]	r_type_next;
+ reg [LEN_TYPE-1 : 0]	r_type 	   ;
+ reg [LEN_TYPE-1 : 0]	r_type_next;
 
  assign o_r_type	  =	r_type     ;
  assign o_r_type_next = r_type_next;
@@ -28,8 +28,8 @@ module decoder_interface
 
  	if(i_reset)
  	begin
- 		r_type 		<= {LEN_R_TYPE{1'b0}};
- 		r_type_next <= {LEN_R_TYPE{1'b0}};
+ 		r_type 		<= {LEN_TYPE{1'b0}};
+ 		r_type_next <= {LEN_TYPE{1'b0}};
  	end
  	else if(i_enable)
  	begin
@@ -38,4 +38,4 @@ module decoder_interface
  	end
  end
 
- 
+endmodule

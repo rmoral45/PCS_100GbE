@@ -12,8 +12,8 @@ module decoder_fsm
  	input wire  					i_enable,
  	input wire 	[3 : 0] 			i_r_type,
  	input wire 	[3 : 0] 			i_r_type_next,
- 	input wire  [LEN_RX_DATA-1 : 0] i_rx_data,   //recibida desde el bloque comparador/decodificador
- 	input wire  [LEN_RX_CTRL-1 : 0] i_rx_control,//recibida desde el bloque comparador/decodificador
+ 	input wire  [LEN_RX_DATA-1 : 0] i_rx_data,       //recibida desde el bloque comparador/decodificador
+ 	input wire  [LEN_RX_CTRL-1 : 0] i_rx_control,    //recibida desde el bloque comparador/decodificador
  	output wire	[LEN_RX_DATA-1 : 0] o_rx_raw_data,   // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  	output wire	[LEN_RX_CTRL-1 : 0] o_rx_raw_control // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  );

@@ -22,7 +22,7 @@ module decoder_comparator
     input wire  [LEN_CODED_BLOCK-1 : 0] i_rx_coded,
     output reg  [LEN_RX_DATA-1 : 0] 	o_rx_data,
     output reg  [LEN_RX_CTRL-1 : 0] 	o_rx_ctrl,
-    output wire [3:0] 					o_r_type
+    output wire [3:0] 					o_rx_type
  );
 
  //LOCALPARAMS
@@ -360,7 +360,7 @@ assign R_TYPE = {D_SIGNAL,S_SIGNAL,C_SIGNAL,T_SIGNAL};//si R_TYPE es 4'b0000 imp
 
 //PORT ASSIGMENTS   
 
-assign o_r_type = R_TYPE;
+assign o_rx_type = R_TYPE;
 
 
 always @ *
