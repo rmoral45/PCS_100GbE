@@ -29,8 +29,6 @@ wire [LEN_CODED_BLOCK-1:0]      tb_fsm_tx_coded;
 wire [LEN_TYPE-1 : 0] 	        tb_o_type;
 
 //REGISTROS PARA DECODER
-wire [LEN_CODED_BLOCK-1 : 0]    tb_rx_coded;
-wire [LEN_CODED_BLOCK-1 : 0]    tb_rx_coded_next;
 wire [LEN_RX_DATA-1 : 0]        tb_rx_data;
 wire [LEN_RX_CTRL-1 : 0]        tb_rx_ctrl;
 wire [LEN_TYPE-1:0]             tb_rx_type;
@@ -184,7 +182,7 @@ decoder_fsm_interface
     #(
     .LEN_TYPE(LEN_TYPE)
     )
-    (
+u_decoder_fsm_interface(
     .i_clock        (tb_clock)          ,
     .i_reset        (tb_reset)          ,
     .i_enable       (tb_enable)         ,
@@ -198,16 +196,16 @@ decoder_fsm
     .LEN_RX_DATA(LEN_RX_DATA),
     .LEN_RX_CTRL(LEN_RX_CTRL)
     )
-    (
-    .i_clock        (tb_clock)          ,
-    .i_reset        (tb_reset)          ,
-    .i_enable       (tb_enable)         ,
-    .i_r_type       (tb_rtype_out)      ,
-    .i_r_type_mext  (tb_rtype_next_out) ,
-    .i_rx_data      (tb_rx_data)        ,
-    .i_rx_ctrl      (tb_rx_ctrl)        ,
-    .o_rx_raw_data  (tb_rx_raw_data)    ,
-    .o_rx_raw_ctrl  (tb_rx_raw_ctrl)
+u_decoder_fsm(
+    .i_clock            (tb_clock)          ,
+    .i_reset            (tb_reset)          ,
+    .i_enable           (tb_enable)         ,
+    .i_r_type           (tb_rtype_out)      ,
+    .i_r_type_next      (tb_rtype_next_out) ,
+    .i_rx_data          (tb_rx_data)        ,
+    .i_rx_control       (tb_rx_ctrl)        ,
+    .o_rx_raw_data      (tb_rx_raw_data)    ,
+    .o_rx_raw_control   (tb_rx_raw_ctrl)
     );
    
 endmodule
