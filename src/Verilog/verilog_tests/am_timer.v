@@ -40,5 +40,5 @@ end
 /*
 	verificar cual de las dos
 */
-assign o_timer_done = (counter == {NB_COUNTER{1'b0}}) ? 1'b1 : 1'b0; // overflow
-//assign o_timer_done = (counter == {NB_COUNTER{1'b1}}) ? 1'b1 : 1'b0; // salida en 1 cuando counter alcanzo el valor maximo
+//assign o_timer_done = (counter == {NB_COUNTER{1'b0}}) ? 1'b1 : 1'b0; // overflow
+assign o_timer_done = (counter == {NB_COUNTER{1'b1}}) ? 1'b1 : 1'b0; // salida en 1 cuando counter alcanzo el valor maximo

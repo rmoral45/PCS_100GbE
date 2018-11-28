@@ -7,12 +7,14 @@ module am_lock_comparator
 	parameter LEN_AM 	= 48,
 	parameter N_ALIGNER = 20
  )
- (	input  wire 					i_enable_mask,
- 	input  wire 					i_timer_done,
- 	input  wire [LEN_AM-1 : 0] 	 	i_am_value,
- 	input  wire [N_ALIGNER-1 : 0] 	i_match_mask,
-
- 	output wire 					o_match,
+ (	input  wire 					i_enable_mask,// input from fsm
+ 	input  wire 					i_timer_done ,
+ 	input  wire [LEN_AM-1 : 0] 	 	i_am_value	 ,
+ 	input  wire [N_ALIGNER-1 : 0] 	i_match_mask ,
+ 	input  wire 					i_enable_mask,
+ 	input  wire 					i_timer_done ,
+ 	input  wire 					i_sh_valid   ,
+ 	output wire 					o_am_match	 ,
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector
  );
 
@@ -74,11 +76,11 @@ begin
 
 	match_payload = | match_expected_am; // se encontro un match
 	enable 		  = (i_timer_done | i_enable_mask);
-	match 		  = match_payload & enable;//input to fsm
+	match 		  = match_payload & enable & i_sh_valid;//input to fsm
 
 end 
 
-assign o_match = match;
+assign o_am_match = match;
 assign o_match_vector = match_vector;
 
 endmodule
