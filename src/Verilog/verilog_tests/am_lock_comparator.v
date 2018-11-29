@@ -12,7 +12,6 @@ module am_lock_comparator
  	input  wire [LEN_AM-1 : 0] 	 	i_am_value	 ,
  	input  wire [N_ALIGNER-1 : 0] 	i_match_mask ,
  	input  wire 					i_enable_mask,
- 	input  wire 					i_timer_done ,
  	input  wire 					i_sh_valid   ,
  	output wire 					o_am_match	 ,
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector
@@ -67,7 +66,7 @@ begin
 
 	for(i=0;i<N_ALIGNER;i=i+1)
 	begin
-		if( aligners[i*LEN_AM  +: LEN_AM] == i_am_value && i_match_mask[i])
+		if((aligners[i*LEN_AM  +: LEN_AM] == i_am_value) && i_match_mask[i])
 		begin
 			match_expected_am[i] = 1;
 			match_vector[i]      = 1;

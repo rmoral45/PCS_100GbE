@@ -58,7 +58,7 @@ reg restore_am 	 , rest_am_next;
 //PORTS
 assign o_match_mask  	= match_mask;
 assign o_ignore_sh   	= ignore_sh;
-assign o_enable_mask 	= (state == WAIT_1ST);
+assign o_enable_mask 	= (state == WAIT_1ST); // verificar si hace falta
 assign o_reset_count 	= reset_timer;
 assign o_am_lock     	= am_lock;
 assign o_resync		 	= resync;
@@ -160,14 +160,7 @@ begin
 		end
 		LOCKED:
 		begin
-			if(am_invalid_count >= i_am_invalid_limit)
-			begin
-				next_state 		= WAIT_1ST;
-				match_mask_next = {N_ALIGNERS{1'b1}};
-				sh_ignore_next  = 1'b0;
-				am_lock_next 	= 1'b0;				
-			end
-			else if (i_timer_done && i_am_valid)
+			if (i_timer_done && i_am_valid)
 			begin
 				am_invalid_count_next = 0;
 				reset_timer_next 	  = 1'b1;
@@ -176,12 +169,23 @@ begin
 			end
 			else if (i_timer_done && !i_am_valid)
 			begin
-				am_invalid_count_next = am_invalid_count + 1;
-				reset_timer_next 	  = 1'b1;
-				rest_am_next     	  = 1'b1;
-				sol_next		 	  = 1'b1;
+				if(am_invalid_count >= i_am_invalid_limit)
+				begin
+					next_state 		= WAIT_1ST;
+					match_mask_next = {N_ALIGNERS{1'b1}};
+					sh_ignore_next  = 1'b0;
+					am_lock_next 	= 1'b0;				
+				end
+				else
+				begin
+					am_invalid_count_next = am_invalid_count + 1;
+					reset_timer_next 	  = 1'b1;
+					rest_am_next     	  = 1'b1;
+					sol_next		 	  = 1'b1;
+				end
 			end
 		end
+
 	endcase
 end
 

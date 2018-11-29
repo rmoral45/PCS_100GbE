@@ -29,10 +29,7 @@ begin
 		counter <= 0;
 	else if(i_enable && i_valid)
 	begin
-		if(counter < N_BLOCKS - 1)
-			counter <= counter + 1;
-		else
-			counter <= 0;
+		counter <= counter + 1;
 	end
 end
 
