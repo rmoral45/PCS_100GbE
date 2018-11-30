@@ -9,7 +9,7 @@ parameter LEN_CODED_BLOCK       = 66;
 parameter LEN_RX_DATA           = 64;
 parameter LEN_RX_CTRL           = 8;
 parameter LEN_TYPE              = 4;
-parameter SEED                      = 58'd0;
+parameter SEED                  = 58'd0;
 
 
 //REGISTROS GENERALES
@@ -22,7 +22,7 @@ reg  [LEN_TX_CTRL-1:0]          tb_tx_ctrl;
 reg  [LEN_TX_DATA-1:0]          tb_tx_data;
 reg  [0 : LEN_TX_CTRL-1]        temp_tx_ctrl;
 reg  [0 : LEN_TX_DATA-1]        temp_tx_data;
-reg  [0 : LEN_CODED_BLOCK-1]    temp_tx_coded;
+//reg  [0 : LEN_CODED_BLOCK-1]    temp_tx_coded;
 
 //REGISTROS PARA ENCODER_FSM
 wire [LEN_CODED_BLOCK-1:0]      tb_tx_coded;
@@ -30,8 +30,8 @@ wire [LEN_CODED_BLOCK-1:0]      tb_fsm_tx_coded;
 wire [LEN_TYPE-1 : 0]           tb_o_type;
 
 //REGISTROS PARA DECODER
-wire [LEN_CODED_BLOCK-1 : 0]    tb_rx_coded;
-wire [LEN_CODED_BLOCK-1 : 0]    tb_rx_coded_next;
+//wire [LEN_CODED_BLOCK-1 : 0]    tb_rx_coded;
+//wire [LEN_CODED_BLOCK-1 : 0]    tb_rx_coded_next;
 wire [LEN_RX_DATA-1 : 0]        tb_rx_data;
 wire [LEN_RX_CTRL-1 : 0]        tb_rx_ctrl;
 wire [LEN_TYPE-1:0]             tb_rx_type;
@@ -53,35 +53,86 @@ wire [LEN_CODED_BLOCK-1 : 0]    tb_descrambled_data;
 integer                         fid_tx_data;
 integer                         fid_tx_ctrl;
 integer                         fid_tx_coded;
+integer                         fid_tx_coded_out;
+integer                         fid_tx_scrambled_out;
+integer                         fid_tx_descrambled_out;
+integer                         fid_tx_decoded_data_out;
+integer                         fid_tx_decoded_ctrl_out;
 integer                         code_error_data;
 integer                         code_error_ctrl;
-integer                         code_error_coded;
+/*integer                         code_error_coded;
+integer                         code_error_coded_out;
+integer                         code_error_decoded_out;
+integer                         code_error_scrambled_out;
+integer                         code_error_descrambled_out;*/
 integer                         ptr_data;
 integer                         ptr_ctrl;
-integer                         ptr_coded;
+//integer                         ptr_coded;
+integer                         ptr_coded_out;
+integer                         ptr_scrambled_out;
+integer                         ptr_descrambled_out;
+integer                         ptr_decoded_data_out;
+integer                         ptr_decoded_ctrl_out;
+
 
 initial
 begin
+
     
-    fid_tx_ctrl= $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/encoder-input-ctrl.txt", "r");
+    fid_tx_ctrl= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-input-ctrl.txt", "r");
         if(fid_tx_ctrl==0)
         begin
             $display("\n\nLa entrada para Tx-Ctrl no pudo ser abierta\n\n");
             $stop;
         end
-    fid_tx_data= $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/encoder-input-data.txt", "r");
+    fid_tx_data= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-input-data.txt", "r");
         if(fid_tx_data==0)
         begin
             $display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
             $stop;
         end
         
-    fid_tx_coded= $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/encoder-output.txt", "r");
+    fid_tx_coded= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-output.txt", "r");
         if(fid_tx_coded==0)
         begin
            $display("\n\nLa entrada para Tx-Coded no pudo ser abierta\n\n");
            $stop;
         end
+        
+    fid_tx_coded_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-coded-output.txt", "w");
+        if(fid_tx_coded_out==0)
+        begin
+           $display("\n\nLa entrada para Tx-Coded-Output no pudo ser abierta\n\n");
+           $stop;
+        end
+
+    fid_tx_scrambled_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-scrambled-output.txt", "w");
+        if(fid_tx_scrambled_out==0)
+        begin
+           $display("\n\nLa entrada para Tx-Scrambled-Output no pudo ser abierta\n\n");
+           $stop;
+        end           
+
+    fid_tx_descrambled_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-descrambled-output.txt", "w");
+        if(fid_tx_descrambled_out==0)
+        begin
+           $display("\n\nLa entrada para Tx-Descrambled-Output no pudo ser abierta\n\n");
+           $stop;
+        end
+
+    fid_tx_decoded_data_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-output.txt", "w");
+        if(fid_tx_decoded_data_out==0)
+        begin
+           $display("\n\nLa entrada para Tx-Decoded-Data-Output no pudo ser abierta\n\n");
+           $stop;
+        end
+ 
+     fid_tx_decoded_ctrl_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-ctrl-output.txt", "w");
+        if(fid_tx_decoded_ctrl_out==0)
+        begin
+           $display("\n\nLa entrada para Tx-Decoded-Ctrl-Output no pudo ser abierta\n\n");
+           $stop;
+        end       
 
     tb_reset  = 1'b1 ;
     tb_clock  = 1'b0 ;
@@ -100,10 +151,10 @@ begin
     for(ptr_ctrl = 0; ptr_ctrl < LEN_TX_CTRL ; ptr_ctrl = ptr_ctrl+1)
         begin
             code_error_ctrl <= $fscanf(fid_tx_ctrl, "%b\n", temp_tx_ctrl[ptr_ctrl]);
-            if(code_error_ctrl != 1)
+            if(code_error_ctrl != 1 )
             begin
                 $display("\n\nTx-Ctrl: El caracter leido no es valido..\n\n");
-                $stop;
+//                $stop;
             end
         end
     
@@ -111,14 +162,14 @@ begin
         for(ptr_data = 0; ptr_data < LEN_TX_DATA ; ptr_data = ptr_data+1)
         begin
             code_error_data <= $fscanf(fid_tx_data, "%b\n", temp_tx_data[ptr_data]);
-            if(code_error_data != 1)
+            if(code_error_data != 1 )
             begin
                 $display("Tx-Data: El caracter leido no es valido..");
-                $stop;
+ //               $stop;
             end
         end
         
-        for(ptr_coded = 0; ptr_coded < LEN_CODED_BLOCK ; ptr_coded = ptr_coded+1)
+        /*for(ptr_coded = 0; ptr_coded < LEN_CODED_BLOCK ; ptr_coded = ptr_coded+1)
         begin
             code_error_coded <= $fscanf(fid_tx_coded, "%b\n", temp_tx_coded[ptr_coded]);
             if(code_error_coded != 1)
@@ -128,8 +179,38 @@ begin
             end
         end
         
+        for(ptr_coded_out = 0; ptr_coded_out < LEN_CODED_BLOCK; ptr_coded_out = ptr_coded_out + 1)
+            $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded[ptr_coded_out]);
+            
+        for(ptr_scrambled_out = 0; ptr_scrambled_out < LEN_CODED_BLOCK; ptr_scrambled_out = ptr_scrambled_out + 1)
+            $fwrite(fid_tx_scrambled_out, "%b\n", tb_scrambled_data[ptr_scrambled_out]);
+            
+        for(ptr_descrambled_out = 0; ptr_descrambled_out < LEN_CODED_BLOCK; ptr_descrambled_out = ptr_descrambled_out + 1)
+            $fwrite(fid_tx_descrambled_out, "%b\n", tb_descrambled_data[ptr_descrambled_out]);
         
-   
+        for(ptr_decoded_data_out = 0; ptr_decoded_data_out < LEN_RX_DATA; ptr_decoded_data_out = ptr_decoded_data_out + 1)
+            $fwrite(fid_tx_decoded_data_out, "%b\n", tb_rx_raw_data[ptr_decoded_data_out]);      
+                        
+        for(ptr_decoded_ctrl_out = 0; ptr_decoded_ctrl_out < LEN_RX_CTRL; ptr_decoded_ctrl_out = ptr_decoded_ctrl_out + 1)
+            $fwrite(fid_tx_decoded_ctrl_out, "%b\n", tb_rx_raw_ctrl[ptr_decoded_ctrl_out]);      */                                  
+        
+          
+
+       // for(ptr_coded_out = 0; ptr_coded_out < LEN_CODED_BLOCK; ptr_coded_out = ptr_coded_out + 1)
+            $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded);
+            
+       // for(ptr_scrambled_out = 0; ptr_scrambled_out < LEN_CODED_BLOCK; ptr_scrambled_out = ptr_scrambled_out + 1)
+            $fwrite(fid_tx_scrambled_out, "%b\n", tb_scrambled_data);
+            
+      //  for(ptr_descrambled_out = 0; ptr_descrambled_out < LEN_CODED_BLOCK; ptr_descrambled_out = ptr_descrambled_out + 1)
+            $fwrite(fid_tx_descrambled_out, "%b\n", tb_descrambled_data);
+        
+      //  for(ptr_decoded_data_out = 0; ptr_decoded_data_out < LEN_RX_DATA; ptr_decoded_data_out = ptr_decoded_data_out + 1)
+            $fwrite(fid_tx_decoded_data_out, "%b\n", tb_rx_raw_data);      
+                        
+       // for(ptr_decoded_ctrl_out = 0; ptr_decoded_ctrl_out < LEN_RX_CTRL; ptr_decoded_ctrl_out = ptr_decoded_ctrl_out + 1)
+            $fwrite(fid_tx_decoded_ctrl_out, "%b\n", tb_rx_raw_ctrl); 
+
 
     tb_tx_ctrl <= temp_tx_ctrl;
     tb_tx_data <= temp_tx_data;
@@ -144,7 +225,7 @@ encoder_comparator
     .LEN_TX_CTRL    (LEN_TX_CTRL)     ,
     .LEN_CODED_BLOCK(LEN_CODED_BLOCK) ,
     .LEN_TX_DATA    (LEN_TX_DATA)
-    )
+     )
 u_encoder_comparator
     (
     .i_clock   (tb_clock)    ,
@@ -171,79 +252,78 @@ u_encoder_fsm
     );
 scrambler
     #(
-        .SEED(SEED)
+     .SEED(SEED)
      )
-        u_scrambler
-        (
-            .i_clock   (tb_clock)    ,
-            .i_reset   (tb_reset)    ,
-            .i_enable  (tb_enable)   ,
-            .i_bypass   (tb_bypass)  ,
-            .i_data    (tb_fsm_tx_coded),
-            .o_data     (tb_scrambled_data)
-        );
+u_scrambler
+     (
+     .i_clock   (tb_clock)    ,
+     .i_reset   (tb_reset)    ,
+     .i_enable  (tb_enable)   ,
+     .i_bypass   (tb_bypass)  ,
+     .i_data    (tb_fsm_tx_coded),
+     .o_data     (tb_scrambled_data)
+     );
 descrambler
     #(
-        .SEED(SEED) 
+     .SEED(SEED) 
      )
-    u_descrambler
-    (
-            .i_clock   (tb_clock)    ,
-            .i_reset   (tb_reset)    ,
-            .i_enable  (tb_enable)   ,
-            .i_bypass   (tb_bypass)  ,
-            .i_data    (tb_scrambled_data),
-            .o_data     (tb_descrambled_data)
-    );
+u_descrambler
+     (
+     .i_clock   (tb_clock)              ,
+     .i_reset   (tb_reset)              ,
+     .i_enable  (tb_enable)             ,
+     .i_bypass  (tb_bypass)             ,
+     .i_data    (tb_scrambled_data)     ,
+     .o_data    (tb_descrambled_data)
+     );
 
 decoder_comparator
     #(
-    .LEN_RX_CTRL    (LEN_RX_CTRL)     ,
-    .LEN_CODED_BLOCK(LEN_CODED_BLOCK) ,
-    .LEN_RX_DATA    (LEN_RX_DATA)
-    )
+     .LEN_RX_CTRL    (LEN_RX_CTRL)     ,
+     .LEN_CODED_BLOCK(LEN_CODED_BLOCK) ,
+     .LEN_RX_DATA    (LEN_RX_DATA)
+     )
 u_decoder_comparator
-    (
-    .i_clock    (tb_clock)          ,
-    .i_reset    (tb_reset)          ,
-    .i_enable   (tb_enable)         ,
-    .i_rx_coded (tb_descrambled_data)   ,
-    .o_rx_data  (tb_rx_data)        ,
-    .o_rx_ctrl  (tb_rx_ctrl)        ,
-    .o_rx_type  (tb_rx_type)
-    );
-    
+     (
+     .i_clock    (tb_clock)             ,
+     .i_reset    (tb_reset)             ,
+     .i_enable   (tb_enable)            ,
+     .i_rx_coded (tb_descrambled_data)  ,
+     .o_rx_data  (tb_rx_data)           ,
+     .o_rx_ctrl  (tb_rx_ctrl)           ,  
+     .o_rx_type  (tb_rx_type)
+     );
     
 decoder_fsm_interface
     #(
     .LEN_TYPE(LEN_TYPE)
-    )
-    u_decoder_interface
-    (
-    .i_clock        (tb_clock)          ,
-    .i_reset        (tb_reset)          ,
-    .i_enable       (tb_enable)         ,
-    .i_r_type       (tb_rx_type)        ,
-    .o_r_type       (tb_rtype_out)      ,
-    .o_r_type_next  (tb_rtype_next_out) 
-    );
+     )
+u_decoder_interface
+     (
+     .i_clock        (tb_clock)          ,
+     .i_reset        (tb_reset)          ,
+     .i_enable       (tb_enable)         ,
+     .i_r_type       (tb_rx_type)        ,
+     .o_r_type       (tb_rtype_out)      ,
+     .o_r_type_next  (tb_rtype_next_out) 
+     );
     
 decoder_fsm
     #(
-    .LEN_RX_DATA(LEN_RX_DATA),
-    .LEN_RX_CTRL(LEN_RX_CTRL)
-    )
-    u_decoder_fsm
-    (
-    .i_clock        (tb_clock)          ,
-    .i_reset        (tb_reset)          ,
-    .i_enable       (tb_enable)         ,
-    .i_r_type       (tb_rtype_out)      ,
-    .i_r_type_next  (tb_rtype_next_out) ,
-    .i_rx_data      (tb_rx_data)        ,
-    .i_rx_control      (tb_rx_ctrl)        ,
-    .o_rx_raw_data  (tb_rx_raw_data)    ,
-    .o_rx_raw_control  (tb_rx_raw_ctrl)
-    );
+     .LEN_RX_DATA(LEN_RX_DATA),
+     .LEN_RX_CTRL(LEN_RX_CTRL)
+     )
+u_decoder_fsm
+     (
+     .i_clock        (tb_clock)          ,
+     .i_reset        (tb_reset)          ,
+     .i_enable       (tb_enable)         ,
+     .i_r_type       (tb_rtype_out)      ,
+     .i_r_type_next  (tb_rtype_next_out) ,
+     .i_rx_data      (tb_rx_data)        ,
+     .i_rx_control      (tb_rx_ctrl)     ,
+     .o_rx_raw_data  (tb_rx_raw_data)    ,
+     .o_rx_raw_control  (tb_rx_raw_ctrl)
+     );
    
 endmodule
