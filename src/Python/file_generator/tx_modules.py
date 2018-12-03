@@ -264,10 +264,6 @@ CGMII_TRANSMIT = {
 
 
 
-
-
-
-
 def align_marker_insertion(lanes,block_counter):
 	"""Inserta los marcadores correspondientes a cada lane solo si
    	   ya fueron enviados 16383 bloques por cada lane (AM_BLOCK_GAP - 1).	

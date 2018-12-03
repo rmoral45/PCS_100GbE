@@ -22,7 +22,6 @@ reg  [LEN_TX_CTRL-1:0]          tb_tx_ctrl;
 reg  [LEN_TX_DATA-1:0]          tb_tx_data;
 reg  [0 : LEN_TX_CTRL-1]        temp_tx_ctrl;
 reg  [0 : LEN_TX_DATA-1]        temp_tx_data;
-//reg  [0 : LEN_CODED_BLOCK-1]    temp_tx_coded;
 
 //REGISTROS PARA ENCODER_FSM
 wire [LEN_CODED_BLOCK-1:0]      tb_tx_coded;
@@ -51,6 +50,7 @@ wire [LEN_CODED_BLOCK-1 : 0]    tb_descrambled_data;
 
 
 integer                         fid_tx_data;
+integer                         fid_tx_data1;
 integer                         fid_tx_ctrl;
 integer                         fid_tx_coded;
 integer                         fid_tx_coded_out;
@@ -60,19 +60,13 @@ integer                         fid_tx_decoded_data_out;
 integer                         fid_tx_decoded_ctrl_out;
 integer                         code_error_data;
 integer                         code_error_ctrl;
-/*integer                         code_error_coded;
-integer                         code_error_coded_out;
-integer                         code_error_decoded_out;
-integer                         code_error_scrambled_out;
-integer                         code_error_descrambled_out;*/
 integer                         ptr_data;
 integer                         ptr_ctrl;
-//integer                         ptr_coded;
-integer                         ptr_coded_out;
+/*integer                         ptr_coded_out;
 integer                         ptr_scrambled_out;
 integer                         ptr_descrambled_out;
 integer                         ptr_decoded_data_out;
-integer                         ptr_decoded_ctrl_out;
+integer                         ptr_decoded_ctrl_out;*/
 
 
 initial
@@ -119,6 +113,7 @@ begin
            $display("\n\nLa entrada para Tx-Descrambled-Output no pudo ser abierta\n\n");
            $stop;
         end
+        
 
     fid_tx_decoded_data_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-output.txt", "w");
         if(fid_tx_decoded_data_out==0)
@@ -127,15 +122,24 @@ begin
            $stop;
         end
  
-     fid_tx_decoded_ctrl_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-ctrl-output.txt", "w");
-        if(fid_tx_decoded_ctrl_out==0)
-        begin
-           $display("\n\nLa entrada para Tx-Decoded-Ctrl-Output no pudo ser abierta\n\n");
-           $stop;
-        end       
 
+     fid_tx_decoded_ctrl_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-ctrl-output.txt", "w");
+           if(fid_tx_decoded_ctrl_out==0)
+           begin
+              $display("\n\nLa entrada para Tx-Decoded-Ctrl-Output no pudo ser abierta\n\n");
+              $stop;
+           end
+           
+     fid_tx_data1= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/para_comparar.txt", "w");
+           if(fid_tx_data1==0)
+           begin
+              $display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
+              $stop;
+           end     
+           
+  
     tb_reset  = 1'b1 ;
-    tb_clock  = 1'b0 ;
+    tb_clock  = 1'b1 ;
     tb_enable = 1'b0 ;
     tb_bypass = 1'b0 ;
 #6  tb_reset  = 1'b0 ;
@@ -167,49 +171,21 @@ begin
                 $display("Tx-Data: El caracter leido no es valido..");
  //               $stop;
             end
-        end
-        
-        /*for(ptr_coded = 0; ptr_coded < LEN_CODED_BLOCK ; ptr_coded = ptr_coded+1)
-        begin
-            code_error_coded <= $fscanf(fid_tx_coded, "%b\n", temp_tx_coded[ptr_coded]);
-            if(code_error_coded != 1)
-            begin
-                $display("Tx-Coded: El caracter leido no es valido..");
-                $stop;
-            end
-        end
-        
-        for(ptr_coded_out = 0; ptr_coded_out < LEN_CODED_BLOCK; ptr_coded_out = ptr_coded_out + 1)
-            $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded[ptr_coded_out]);
-            
-        for(ptr_scrambled_out = 0; ptr_scrambled_out < LEN_CODED_BLOCK; ptr_scrambled_out = ptr_scrambled_out + 1)
-            $fwrite(fid_tx_scrambled_out, "%b\n", tb_scrambled_data[ptr_scrambled_out]);
-            
-        for(ptr_descrambled_out = 0; ptr_descrambled_out < LEN_CODED_BLOCK; ptr_descrambled_out = ptr_descrambled_out + 1)
-            $fwrite(fid_tx_descrambled_out, "%b\n", tb_descrambled_data[ptr_descrambled_out]);
-        
-        for(ptr_decoded_data_out = 0; ptr_decoded_data_out < LEN_RX_DATA; ptr_decoded_data_out = ptr_decoded_data_out + 1)
-            $fwrite(fid_tx_decoded_data_out, "%b\n", tb_rx_raw_data[ptr_decoded_data_out]);      
-                        
-        for(ptr_decoded_ctrl_out = 0; ptr_decoded_ctrl_out < LEN_RX_CTRL; ptr_decoded_ctrl_out = ptr_decoded_ctrl_out + 1)
-            $fwrite(fid_tx_decoded_ctrl_out, "%b\n", tb_rx_raw_ctrl[ptr_decoded_ctrl_out]);      */                                  
-        
-          
+        end                                
+ 
 
-       // for(ptr_coded_out = 0; ptr_coded_out < LEN_CODED_BLOCK; ptr_coded_out = ptr_coded_out + 1)
-            $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded);
+        $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded);
+          
+        $fwrite(fid_tx_scrambled_out, "%b\n", tb_scrambled_data);
             
-       // for(ptr_scrambled_out = 0; ptr_scrambled_out < LEN_CODED_BLOCK; ptr_scrambled_out = ptr_scrambled_out + 1)
-            $fwrite(fid_tx_scrambled_out, "%b\n", tb_scrambled_data);
-            
-      //  for(ptr_descrambled_out = 0; ptr_descrambled_out < LEN_CODED_BLOCK; ptr_descrambled_out = ptr_descrambled_out + 1)
-            $fwrite(fid_tx_descrambled_out, "%b\n", tb_descrambled_data);
-        
-      //  for(ptr_decoded_data_out = 0; ptr_decoded_data_out < LEN_RX_DATA; ptr_decoded_data_out = ptr_decoded_data_out + 1)
-            $fwrite(fid_tx_decoded_data_out, "%b\n", tb_rx_raw_data);      
+        $fwrite(fid_tx_descrambled_out, "%b\n", tb_descrambled_data);
+       
+        $fwrite(fid_tx_decoded_data_out, "%b\n", tb_rx_raw_data);      
                         
-       // for(ptr_decoded_ctrl_out = 0; ptr_decoded_ctrl_out < LEN_RX_CTRL; ptr_decoded_ctrl_out = ptr_decoded_ctrl_out + 1)
-            $fwrite(fid_tx_decoded_ctrl_out, "%b\n", tb_rx_raw_ctrl); 
+        $fwrite(fid_tx_decoded_ctrl_out, "%b\n", tb_rx_raw_ctrl);
+         
+
+        $fwrite(fid_tx_data1, "%b\n", tb_tx_data); 
 
 
     tb_tx_ctrl <= temp_tx_ctrl;
