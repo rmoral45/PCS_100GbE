@@ -8,10 +8,10 @@
 
 module lane_reorder
 #(
-	LEN_CODED_BLOCK = 66,
-	N_LANES 		= 20,
-	NB_ID  			= $clog2(N_LANES),
-	NB_BUS_ID		= N_LANES*NB_ID  
+	parameter LEN_CODED_BLOCK 	= 66,
+	parameter N_LANES 			= 20,
+	parameter NB_ID  			= $clog2(N_LANES),
+	parameter NB_BUS_ID			= N_LANES*NB_ID  
  )
  (
  	input wire i_clock,
@@ -24,10 +24,11 @@ module lane_reorder
  	output wire [NB_BUS_ID-1 : 0] o_lane_select
  );
 
- reg [NB_ID-1 : 0] reordered_lanes[0 : N_LANES-1];
- reg [NB_ID-1 : 0] reordered_lanes_next[0 : N_LANES-1];
- reg [NB_BUS_ID-1 : 0] lane_select;
- reg [NB_ID-1 : 0] lane_n_id;
+ reg [NB_ID-1 : 0] 		reordered_lanes 		[0 : N_LANES-1];
+ reg [NB_ID-1 : 0] 		reordered_lanes_next	[0 : N_LANES-1];
+
+ reg [NB_BUS_ID-1 : 0] 	lane_select;
+// reg [NB_ID-1 : 0] 		lane_n_id;
 
 
 integer i;
@@ -38,12 +39,12 @@ always @ (posedge i_clock)
 begin
 	if(i_reset)
 	begin
-		for(i=N_LANES-1; i>0; i=i-1)
+		for(i=0; i<N_LANES; i=i+1)
 			reordered_lanes[i] <= {NB_ID{1'b0}};
 	end
 	else if (i_lanes_deskewed && i_enable)
 	begin
-		for(i=N_LANES-1; i>=0; i=i-1)
+		for(i=0; i<N_LANES; i=i+1)
 			reordered_lanes[i] <= reordered_lanes_next[i];
 	end
 end
@@ -56,9 +57,8 @@ begin
 		lane_select <= {NB_BUS_ID{1'b0}};
 	end
 	else if (i_lanes_deskewed && i_enable && i_valid)
-		for(i=N_LANES; i>0; i=i-1)
-			lane_select[(i*NB_ID)-1 -: NB_ID] <= reordered_lanes[i];
-			
+		for(i=0; i<N_LANES; i=i+1)
+			lane_select[(i*NB_ID) +: NB_ID] <= reordered_lanes[i];
 end
 
 
@@ -67,14 +67,12 @@ end
 
 always @ *
 begin
-	lane_n_id = {NB_ID{1'b0}};
-	for(i=N_LANES; i>0; i=i-1)
+	for(i=0; i<N_LANES; i=i+1)
 		reordered_lanes_next[i] = reordered_lanes[i];
 
-	for(i=N_LANES; i>0; i=i-1)
+	for(i=0; i<N_LANES; i=i+1)
 	begin
-		//lane_n_id = i_lane_id[((i*NB_ID)-1) -: NB_ID];
-		reordered_lanes_next [i] = i_lane_id[((i*NB_ID)-1) -: NB_ID];
+		reordered_lanes_next [i_lane_id [(i*NB_ID) +: NB_ID]] = i ;
 	end
 
 end

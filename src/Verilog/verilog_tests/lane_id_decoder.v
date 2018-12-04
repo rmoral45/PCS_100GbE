@@ -1,4 +1,7 @@
 
+/*
+   conversion de one hot  a binario
+*/
 
 module lane_id_decoder
 #(
