@@ -145,11 +145,9 @@ begin
     tb_enable_files = 1'b0 ;
 #6  tb_reset        = 1'b0 ;
     tb_enable       = 1'b1 ;
-<<<<<<< HEAD
 #10 tb_enable_files = 1'b1 ;
-=======
     tb_enable_files = 1'b1 ;
->>>>>>> ab3123313e6cf182ffc10a2431e06eadfaceee02
+
     
 end
 
