@@ -200,37 +200,37 @@ TB_CGMII_TRANSMIT = {
 							},
 
 			'T1_BLOCK':{				'block_name'		: 'T1_BLOCK',
-		    							'TXC'				: 0xFF,
+		    							'TXC'				: 0x7F,
 		    							'TXD'				: D0+T+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII		
 							},
 
 			'T2_BLOCK':{				'block_name'		: 'T2_BLOCK',
-		    							'TXC'				: 0xFF,
-		    							'TXD'				: D0+D1+T+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII		
+		    							'TXC'				: 0x3F,
+		    							'TXD'				: D0+D1+T+I_CGMII+I_CGMII+I_CGMII+I_CGMII+I_CGMII	
 							},
 
 			'T3_BLOCK':{				'block_name'		: 'T3_BLOCK',
-		    							'TXC'				: 0xFF,
+		    							'TXC'				: 0x1F,
 		    							'TXD'				: D0+D1+D2+T+I_CGMII+I_CGMII+I_CGMII+I_CGMII		
 							},
 
 			'T4_BLOCK':{				'block_name'		: 'T4_BLOCK',
-		    							'TXC'				: 0xFF,
+		    							'TXC'				: 0x0F,
 		    							'TXD'				: D0+D1+D2+D3+T+I_CGMII+I_CGMII+I_CGMII		
 							},
 
 			'T5_BLOCK':{				'block_name'		: 'T5_BLOCK',
-		    							'TXC'				: 0xFF,
+		    							'TXC'				: 0x07,
 		    							'TXD'				: D0+D1+D2+D3+D4+T+I_CGMII+I_CGMII	
 							},
 
 			'T6_BLOCK':{				'block_name'		: 'T6_BLOCK',
-		    							'TXC'				: 0xFF,
+		    							'TXC'				: 0x03,
 		    							'TXD'				: D0+D1+D2+D3+D4+D5+T+I_CGMII		
 							},
 
 			'T7_BLOCK':{				'block_name'		: 'T7_BLOCK',
-		    							'TXC'				: 0xFF,
+		    							'TXC'				: 0x01,
 		    							'TXD'				: D0+D1+D2+D3+D4+D5+D6+T		
 							},
 		   

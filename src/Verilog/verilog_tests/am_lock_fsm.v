@@ -160,14 +160,7 @@ begin
 		end
 		LOCKED:
 		begin
-			if(am_invalid_count >= i_am_invalid_limit)
-			begin
-				next_state 		= WAIT_1ST;
-				match_mask_next = {N_ALIGNERS{1'b1}};
-				sh_ignore_next  = 1'b0;
-				am_lock_next 	= 1'b0;				
-			end
-			else if (i_timer_done && i_am_valid)
+			 if (i_timer_done && i_am_valid)
 			begin
 				am_invalid_count_next = 0;
 				reset_timer_next 	  = 1'b1;
@@ -176,12 +169,22 @@ begin
 			end
 			else if (i_timer_done && !i_am_valid)
 			begin
+
+				if(am_invalid_count >= i_am_invalid_limit)
+				begin
+					next_state 		= WAIT_1ST;
+					match_mask_next = {N_ALIGNERS{1'b1}};
+					sh_ignore_next  = 1'b0;
+					am_lock_next 	= 1'b0;				
+				end
+
 				am_invalid_count_next = am_invalid_count + 1;
 				reset_timer_next 	  = 1'b1;
 				rest_am_next     	  = 1'b1;
 				sol_next		 	  = 1'b1;
 			end
 		end
+		
 	endcase
 end
 

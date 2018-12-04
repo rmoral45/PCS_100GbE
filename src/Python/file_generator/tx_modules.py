@@ -1,16 +1,11 @@
 
 import random
 import numpy as np
+import random
 from pdb import set_trace as bp
 from common_variables import *
 from common_functions import *
 
-
-
-################# VARIABLES ####################
-NIDLE = 5
-NDATA = 16
-NLANES = 20
 
 ################################################
 
@@ -264,6 +259,10 @@ CGMII_TRANSMIT = {
 
 
 
+
+
+
+
 def align_marker_insertion(lanes,block_counter):
 	"""Inserta los marcadores correspondientes a cada lane solo si
    	   ya fueron enviados 16383 bloques por cada lane (AM_BLOCK_GAP - 1).	
@@ -328,16 +327,26 @@ class Scrambler(object) :
 
 
 class CgmiiFSM(object) :
-	def __init__(self):
+	def __init__(self,NDATA,NIDLE):
 		self.state = TX_INIT
 		self.tx_raw = CGMII_TRANSMIT['Q_ORD_BLOCK']
 		self.data_counter = 0
 		self.idle_counter = 0
 		self.state_sequence =[]
+		self.terminate_type = ['T0_BLOCK','T1_BLOCK','T2_BLOCK','T3_BLOCK','T4_BLOCK','T5_BLOCK','T6_BLOCK','T7_BLOCK']
+		self.tx_terminate = 'T0_BLOCK'
+		self.NIDLE = NIDLE
+		self.NDATA = NDATA
 		
 	def print_state_seq(self):
 		for i in self.state_sequence:
 			print '\n\n',i
+	def change_transmision_parameters(self):
+		self.NIDLE = random.randint(1,45)
+		self.NDATA = random.randint(15,60)
+		self.tx_terminate = self.terminate_type[random.randint(0,6)]
+
+
 
 	def change_state(self,force_error = False):
 		# en self.variables voy a almacenar en el siguiente orden: [estado actual,prox estado,bloque enviado]
@@ -368,7 +377,7 @@ class CgmiiFSM(object) :
 
 				########funcionalidad#########
 				
-				if self.idle_counter < NIDLE:
+				if self.idle_counter < self.NIDLE:
 					self.tx_raw = CGMII_TRANSMIT['IDLE_BLOCK']
 					self.idle_counter+=1
 					self.state = TX_C
@@ -387,12 +396,13 @@ class CgmiiFSM(object) :
 				self.variables.append( state_name[self.state] ) # LOGEO
 
 				######funcionalidad###########
-				if self.data_counter < NDATA:
+				if self.data_counter < self.NDATA:
 					self.tx_raw = CGMII_TRANSMIT['DATA_BLOCK']
 					self.state = TX_D
 					self.data_counter+=1
 				else:
-					self.tx_raw = CGMII_TRANSMIT['T0_BLOCK']
+					self.change_transmision_parameters()
+					self.tx_raw = CGMII_TRANSMIT[self.tx_terminate]
 					self.state = TX_T
 				#############################
 

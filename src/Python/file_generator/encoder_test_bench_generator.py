@@ -4,7 +4,7 @@ import tx_modules as tx
 import test_bench_functions as tb
 
 
-NCLOCK = 80
+NCLOCK = 700
 
 def main():
 	#--------------open files---------------------------
@@ -14,7 +14,7 @@ def main():
 
 	#------------- sim starts ---------------------------
 
-	cgmii_module = tx.CgmiiFSM()
+	cgmii_module = tx.CgmiiFSM(16,5)
 
 	for clock in range (0,NCLOCK): # MAIN LOOP
 		
@@ -28,7 +28,6 @@ def main():
 			tx_coded = tx.ENCODER['ERROR_BLOCK']
 		
 		cgmii_module.change_state(0)
-
 		(bin_tx_data , bin_tx_ctrl) = tb.cgmii_block_to_bin(tx_raw)
 		bin_tx_coded = tb.encoder_block_to_bin(tx_coded)
 
