@@ -1,5 +1,6 @@
 /*
 	CHECKEAR TIMING
+	AGREGAR PUERTOS QUE FALTEN(max_invaklid_am por ej)
 	AGREGAR LOGICA DE SALIDA
 */
 
@@ -131,6 +132,17 @@ am_timer
 
 	 	.o_timer_done	(timer_done)
 	 );
+
+lane_id_decoder
+#(
+	.N_ALIGNER(N_ALIGNER)
+ )
+	u_lane_id_decoder
+	(
+		.i_match_mask	(match_mask),
+
+		.o_lane_id		(o_lane_id)
+	);
 
 
 am_error_counter

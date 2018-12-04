@@ -1,5 +1,8 @@
 
+/*
 
+	REVISAR LOGICA PARA EVITAR OVERFLOW
+*/
 
 module am_error_counter
 #(
@@ -59,7 +62,7 @@ reg 						 overflow_flag;
  	error_counter_next = 0;
  	for(integer i=0; i<NB_BIP; i=i+1)
  	begin
- 		if(i_recibed_bip[i] != i_calculated_bip)
+ 		if(i_recibed_bip[i] != i_calculated_bip[i])
  			error_counter_next  = error_counter_next + 1'b1;
  	end
 
