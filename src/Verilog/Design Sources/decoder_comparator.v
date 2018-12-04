@@ -400,14 +400,14 @@ begin
 		RAW_T1 :
 		begin
 			o_rx_data = 
-			{byte_0,CGMII_TERMINATE,cgmii_char_2,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+			{byte_1,CGMII_TERMINATE,cgmii_char_2,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
 		  //{  D0 ,       /T/     , /I/ o /E/  , /I/ o /E/  ,  /I/ o /E/ ,  /I/ o /E/ , /I/ o /E/  , /I/ o /E/  }
 			o_rx_ctrl = RX_CTRL_T1;
 		end
 		RAW_T2 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,CGMII_TERMINATE,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+			{byte_1,byte_2,CGMII_TERMINATE,cgmii_char_3,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
 		  //{   D0 ,  D1  ,      /T/      , /I/ o /E/  , /I/ o /E/  ,  /I/ o /E/ ,  /I/ o /E/ , /I/ o /E/  }
 
 			o_rx_ctrl = RX_CTRL_T2;
@@ -415,31 +415,31 @@ begin
 		RAW_T3 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,byte_2,CGMII_TERMINATE,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+			{byte_1,byte_2,byte_3,CGMII_TERMINATE,cgmii_char_4,cgmii_char_5,cgmii_char_6,cgmii_char_7};
 			o_rx_ctrl = RX_CTRL_T3;
 		end
 		RAW_T4 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,byte_2,byte_3,CGMII_TERMINATE,cgmii_char_5,cgmii_char_6,cgmii_char_7};
+			{byte_1,byte_2,byte_3,byte_4,CGMII_TERMINATE,cgmii_char_5,cgmii_char_6,cgmii_char_7};
 			o_rx_ctrl = RX_CTRL_T4;
 		end
 		RAW_T5 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,byte_2,byte_3,byte_4,CGMII_TERMINATE,cgmii_char_6,cgmii_char_7};
+			{byte_1,byte_2,byte_3,byte_4,byte_5,CGMII_TERMINATE,cgmii_char_6,cgmii_char_7};
 			o_rx_ctrl = RX_CTRL_T5;
 		end
 		RAW_T6 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,byte_2,byte_3,byte_4,byte_5,CGMII_TERMINATE,cgmii_char_7};
+			{byte_1,byte_2,byte_3,byte_4,byte_5,byte_6,CGMII_TERMINATE,cgmii_char_7};
 			o_rx_ctrl = RX_CTRL_T6;
 		end
 		RAW_T7 :
 		begin
 			o_rx_data = 
-			{byte_0,byte_1,byte_2,byte_3,byte_4,byte_5,byte_6,CGMII_TERMINATE};
+			{byte_1,byte_2,byte_3,byte_4,byte_5,byte_6,byte_7,CGMII_TERMINATE};
 			o_rx_ctrl = RX_CTRL_T7;
 		end
 	endcase

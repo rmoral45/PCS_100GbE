@@ -74,41 +74,41 @@ initial
 begin
 
     
-    fid_tx_ctrl= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-input-ctrl.txt", "r");
+    fid_tx_ctrl= $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/encoder-input-ctrl.txt", "r");
         if(fid_tx_ctrl==0)
         begin
             $display("\n\nLa entrada para Tx-Ctrl no pudo ser abierta\n\n");
             $stop;
         end
-    fid_tx_data= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-input-data.txt", "r");
+    fid_tx_data= $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/encoder-input-data.txt", "r");
         if(fid_tx_data==0)
         begin
             $display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
             $stop;
         end
         
-    fid_tx_coded= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-output.txt", "r");
+    fid_tx_coded= $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/encoder-output.txt", "r");
         if(fid_tx_coded==0)
         begin
            $display("\n\nLa entrada para Tx-Coded no pudo ser abierta\n\n");
            $stop;
         end
         
-    fid_tx_coded_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-coded-output.txt", "w");
+    fid_tx_coded_out = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-coded-output.txt", "w");
         if(fid_tx_coded_out==0)
         begin
            $display("\n\nLa entrada para Tx-Coded-Output no pudo ser abierta\n\n");
            $stop;
         end
 
-    fid_tx_scrambled_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-scrambled-output.txt", "w");
+    fid_tx_scrambled_out = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-scrambled-output.txt", "w");
         if(fid_tx_scrambled_out==0)
         begin
            $display("\n\nLa entrada para Tx-Scrambled-Output no pudo ser abierta\n\n");
            $stop;
         end           
 
-    fid_tx_descrambled_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-descrambled-output.txt", "w");
+    fid_tx_descrambled_out = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-descrambled-output.txt", "w");
         if(fid_tx_descrambled_out==0)
         begin
            $display("\n\nLa entrada para Tx-Descrambled-Output no pudo ser abierta\n\n");
@@ -116,7 +116,7 @@ begin
         end
         
 
-    fid_tx_decoded_data_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-output.txt", "w");
+    fid_tx_decoded_data_out = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-output.txt", "w");
         if(fid_tx_decoded_data_out==0)
         begin
            $display("\n\nLa entrada para Tx-Decoded-Data-Output no pudo ser abierta\n\n");
@@ -124,14 +124,14 @@ begin
         end
  
 
-     fid_tx_decoded_ctrl_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-ctrl-output.txt", "w");
+     fid_tx_decoded_ctrl_out = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-ctrl-output.txt", "w");
            if(fid_tx_decoded_ctrl_out==0)
            begin
               $display("\n\nLa entrada para Tx-Decoded-Ctrl-Output no pudo ser abierta\n\n");
               $stop;
            end
            
-     fid_tx_data1= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/para_comparar.txt", "w");
+     fid_tx_data1= $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog_outputs/para_comparar.txt", "w");
            if(fid_tx_data1==0)
            begin
               $display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
@@ -144,8 +144,8 @@ begin
     tb_enable       = 1'b0 ;
     tb_enable_files = 1'b0 ;
 #6  tb_reset        = 1'b0 ;
-#10 tb_enable       = 1'b1 ;
-#10 tb_enable_files = 1'b1 ;
+    tb_enable       = 1'b1 ;
+    tb_enable_files = 1'b1 ;
     
 end
 
