@@ -1,7 +1,6 @@
 
 
 
-
 module am_lock_comparator
 #(
 	parameter LEN_AM 	= 48,

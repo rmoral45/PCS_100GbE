@@ -26,8 +26,8 @@ localparam [4:0] TX_D    = 5'b00100;
 localparam [4:0] TX_T    = 5'b00010;
 localparam [4:0] TX_E    = 5'b00001;
 localparam PCS_ERROR = 7'h1E;
-localparam [LEN_CODED_BLOCK-1 : 0] LBLOCK_T = 66'h24B00001F000000; // !!!!FIX!!!!bloque signal ordered set
-localparam [LEN_CODED_BLOCK-1 : 0] EBLOCK_T = 66'h21E1E1E1E1E1E1E; // !!!!FIX!!!! error block
+localparam [LEN_CODED_BLOCK-1 : 0] LBLOCK_T = 66'h2_4B_00_00_01_F_0_00_00_00; // !!!!FIX!!!!bloque signal ordered set
+localparam [LEN_CODED_BLOCK-1 : 0] EBLOCK_T = 66'h21E1E1E1E1E1E1E1E; // !!!!FIX!!!! error block
 
 //INTERNAL SIGNALS
 reg [4:0] state;
