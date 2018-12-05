@@ -1,14 +1,10 @@
 
 from pdb import set_trace as bp
+import texttable as tt
+
 
 
 def main():
-
-	#verilog_decoded_output = open("./verilog_outputs/verilog-decoded-data-output.txt","r")
-	#verilog_cgmii_input = open("./verilog_outputs/para_comparar.txt","r")
-
-	match_counter = 0
-	no_match_counter = 0
 
 	with open("./verilog_outputs/verilog-decoded-data-output.txt") as verilog_decoded_output:
 		decoded_output = verilog_decoded_output.readlines()
@@ -16,24 +12,40 @@ def main():
 	with open("./verilog_outputs/para_comparar.txt") as verilog_cgmii_input:
 		cgmii_input = verilog_cgmii_input.readlines()
 
+	result = []
+	no_matches = []
 
+	
 	decoded_output = [x.strip() for x in decoded_output] 
 	cgmii_input = [x.strip() for x in cgmii_input] 
 
-	bp()
+
+	table = tt.Texttable()
+	columns = ('Encoder_Input', 'Decoder_Output', 'Match' )
+	table.header(columns)
+	table.set_cols_width([64,64,8])
+	table.set_cols_dtype(['t', 't', 't'])
+	table.set_cols_align(['c', 'c', 'c'])
 
 
-	for i in cgmii_input:
-		for j in decoded_output:
-			if i == j:
-				#print "match"
-				match_counter = match_counter + 1
-			else:
-				#print "no match"
-				no_match_counter = no_match_counter + 1
+	for x in range(len(cgmii_input)):		 
+		aux = decoded_output[x] == cgmii_input[x]
+	
+		if(not aux):
+		 	no_matches.append(x)
 
-	print "match_counter", match_counter
-	print "no_match_counter", no_match_counter
+		result.append(aux)
+
+	
+	for row in zip(cgmii_input, decoded_output, result):
+		table.add_row(row)
+		 
+	plot = table.draw()
+	print plot
+
+	print "No_matches: ", len(no_matches)
+	print 'No_match_vector', no_matches
+    
 
 if __name__ == '__main__':
     main()
