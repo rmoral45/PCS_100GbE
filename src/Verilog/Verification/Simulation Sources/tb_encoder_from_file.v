@@ -128,6 +128,7 @@ begin
               $stop;
            end     
            
+<<<<<<< HEAD
       tb_reset        = 1'b1 ;
       tb_clock        = 1'b1 ;
       tb_bypass       = 1'b0 ;
@@ -138,6 +139,19 @@ begin
       tb_enable_files = 1'b1 ;
       tb_enable_files = 1'b1 ;       
 #1400 $finish;
+=======
+    tb_reset        = 1'b1 ;
+    tb_clock        = 1'b1 ;
+    tb_bypass       = 1'b0 ;
+    tb_enable       = 1'b0 ;
+    tb_enable_files = 1'b0 ;
+#6  tb_reset        = 1'b0 ;
+    tb_enable       = 1'b1 ;
+     tb_enable_files = 1'b1 ;
+    tb_enable_files = 1'b1 ;
+
+#700 $finish;
+>>>>>>> 3ed7cc46ba52d183e7611f290f3f84bab65b9817
     
 end
 
@@ -149,13 +163,22 @@ begin
     
     if(tb_enable_files)
     begin
+<<<<<<< HEAD
     
+=======
+>>>>>>> 3ed7cc46ba52d183e7611f290f3f84bab65b9817
         for(ptr_ctrl = 0; ptr_ctrl < LEN_TX_CTRL ; ptr_ctrl = ptr_ctrl+1)
         begin
                 code_error_ctrl <= $fscanf(fid_tx_ctrl, "%b\n", temp_tx_ctrl[ptr_ctrl]);
                 if(code_error_ctrl != 1 )
                     $display("\n\nTx-Ctrl: El caracter leido no es valido..\n\n");
+<<<<<<< HEAD
         end
+=======
+               $stop;
+                end
+            end
+>>>>>>> 3ed7cc46ba52d183e7611f290f3f84bab65b9817
     
     
         for(ptr_data = 0; ptr_data < LEN_TX_DATA ; ptr_data = ptr_data+1)
@@ -163,7 +186,14 @@ begin
                 code_error_data <= $fscanf(fid_tx_data, "%b\n", temp_tx_data[ptr_data]);
                 if(code_error_data != 1 )
                     $display("Tx-Data: El caracter leido no es valido..");
+<<<<<<< HEAD
         end 
+=======
+               $stop;
+                end
+            end                                
+ 
+>>>>>>> 3ed7cc46ba52d183e7611f290f3f84bab65b9817
 
         $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded);
           
