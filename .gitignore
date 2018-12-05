@@ -1,2 +1,4 @@
 #Ignoring .pyc files
 *.pyc
+*.txt
+tb_encoder_from_file.v

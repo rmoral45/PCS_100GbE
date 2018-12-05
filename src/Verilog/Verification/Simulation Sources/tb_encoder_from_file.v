@@ -145,9 +145,10 @@ begin
     tb_enable_files = 1'b0 ;
 #6  tb_reset        = 1'b0 ;
     tb_enable       = 1'b1 ;
-#10 tb_enable_files = 1'b1 ;
+     tb_enable_files = 1'b1 ;
     tb_enable_files = 1'b1 ;
 
+#700 $finish;
     
 end
 
@@ -157,15 +158,15 @@ always #1 tb_clock = ~tb_clock;
 always @ (posedge tb_clock)
 begin
     
-    //if(tb_enable_files)
-//begin
+    if(tb_enable_files)
+    begin
         for(ptr_ctrl = 0; ptr_ctrl < LEN_TX_CTRL ; ptr_ctrl = ptr_ctrl+1)
             begin
                 code_error_ctrl <= $fscanf(fid_tx_ctrl, "%b\n", temp_tx_ctrl[ptr_ctrl]);
                 if(code_error_ctrl != 1 )
                 begin
                     $display("\n\nTx-Ctrl: El caracter leido no es valido..\n\n");
-//                $stop;
+               $stop;
                 end
             end
     
@@ -176,8 +177,8 @@ begin
                 if(code_error_data != 1 )
                 begin
                     $display("Tx-Data: El caracter leido no es valido..");
- //               $stop;
- //               end
+               $stop;
+                end
             end                                
  
 

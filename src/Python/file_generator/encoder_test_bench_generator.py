@@ -40,6 +40,7 @@ def main():
 		enco_output_file.write(bin_tx_coded    + '\n')
 
 	#-------------close files-----------------------
+	bp()
 	enco_input_data_file.close()
 	enco_input_ctrl_file.close()
 	enco_output_file.close()
