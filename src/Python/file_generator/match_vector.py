@@ -28,52 +28,92 @@ def convert_vect_to_hex(python_vector,verilog_vector):
 
 def main():
 
-	result = []
-	no_matches = []
+	result_data = []
+	result_ctrl = []
+	no_matches_ctrl = []
+	no_matches_data = []
 
-	with open("./verilog_outputs/verilog-decoded-data-output.txt") as verilog_decoded_output:
-		decoded_output = verilog_decoded_output.readlines()
+	with open("./verilog_outputs/verilog-decoded-data-output.txt") as verilog_decoded_data_output:
+		decoded_data_output = verilog_decoded_data_output.readlines()
 
-	with open("./encoder-input-data.txt") as verilog_cgmii_input:
-		cgmii_input = verilog_cgmii_input.readlines()
+	with open("./verilog_outputs/verilog-decoded-ctrl-output.txt") as verilog_decoded_ctrl_output:
+		decoded_ctrl_output = verilog_decoded_ctrl_output.readlines()
+
+	with open("./encoder-input-ctrl.txt") as verilog_cgmii_ctrl_input:
+		cgmii_ctrl_input = verilog_cgmii_ctrl_input.readlines()
+
+	with open("./encoder-input-data.txt") as verilog_cgmii_data_input:
+		cgmii_data_input = verilog_cgmii_data_input.readlines()
 
 	
-	for i in range(len(cgmii_input)):
-		cgmii_input[i]=filter(lambda x: x!=' ',cgmii_input[i])
+	for i in range(len(cgmii_data_input)):
+		cgmii_data_input[i]=filter(lambda x: x!=' ',cgmii_data_input[i])
+
+	for i in range(len(cgmii_ctrl_input)):
+		cgmii_ctrl_input[i]=filter(lambda x: x!=' ',cgmii_ctrl_input[i])
 	
-	decoded_output = [x.strip() for x in decoded_output] 
-	cgmii_input = [x.strip() for x in cgmii_input] 
-	cgmii_input, decoded_output = allign_vector(cgmii_input, decoded_output)
-	cgmii_input, decoded_output = convert_vect_to_hex(cgmii_input, decoded_output)
+	decoded_data_output = [x.strip() for x in decoded_data_output] 
+	decoded_ctrl_output = [x.strip() for x in decoded_ctrl_output]
+	cgmii_data_input = [x.strip() for x in cgmii_data_input] 
+	cgmii_ctrl_input = [x.strip() for x in cgmii_ctrl_input]
+
+	cgmii_data_input, decoded_data_output = allign_vector(cgmii_data_input, decoded_data_output)
+	cgmii_ctrl_input, decoded_ctrl_output = allign_vector(cgmii_ctrl_input, decoded_ctrl_output)
+	cgmii_data_input, decoded_data_output = convert_vect_to_hex(cgmii_data_input, decoded_data_output)
+	cgmii_ctrl_input, decoded_ctrl_output = convert_vect_to_hex(cgmii_ctrl_input, decoded_ctrl_output)
 
 	bp()
+#-----------------------------------------------------------------------
+	table_data = tt.Texttable()
+	columns = ('Encoder-data-input', 'Decoder-data-output', 'Match' )
+	table_data.header(columns)
+	table_data.set_cols_width([64,64,8])
+	table_data.set_cols_dtype(['t', 't', 't'])
+	table_data.set_cols_align(['c', 'c', 'c'])
 
-	table = tt.Texttable()
-	columns = ('Encoder_Input', 'Decoder_Output', 'Match' )
-	table.header(columns)
-	table.set_cols_width([64,64,8])
-	table.set_cols_dtype(['t', 't', 't'])
-	table.set_cols_align(['c', 'c', 'c'])
-
-
-	for x in range(len(cgmii_input)):		 
-		aux = decoded_output[x] == cgmii_input[x]
+	for x in range(len(cgmii_data_input)):		 
+		aux = decoded_data_output[x] == cgmii_data_input[x]
 	
 		if(not aux):
-		 	no_matches.append(x)
+		 	no_matches_data.append(x)
 
-		result.append(aux)
+		result_data.append(aux)
 
 	
-	for row in zip(cgmii_input, decoded_output, result):
-		table.add_row(row)
+	for row in zip(cgmii_data_input, decoded_data_output, result_data):
+		table_data.add_row(row)
 		 
-	plot = table.draw()
+	plot = table_data.draw()
+	print plot
+#-----------------------------------------------------------------------
+	table_ctrl = tt.Texttable()
+	columns1 = ('Encoder-data-input', 'Decoder-data-output', 'Match' )
+	table_ctrl.header(columns1)
+	table_ctrl.set_cols_width([20,20,8])
+	table_ctrl.set_cols_dtype(['t', 't', 't'])
+	table_ctrl.set_cols_align(['c', 'c', 'c'])
+
+	for x in range(len(cgmii_ctrl_input)):		 
+		aux1 = decoded_ctrl_output[x] == cgmii_ctrl_input[x]
+	
+		if(not aux1):
+		 	no_matches_ctrl.append(x)
+
+		result_ctrl.append(aux1)
+
+	
+	for row in zip(cgmii_ctrl_input, decoded_ctrl_output, result_ctrl):
+		table_ctrl.add_row(row)
+		 
+	plot = table_ctrl.draw()
 	print plot
 
-	print "No_matches: ", len(no_matches)
-	print 'No_match_vector', no_matches
+	print "No_matches_data: ", len(no_matches_data)
+	print 'No_match_data_vector', no_matches_data
     
+	print "no_matches_ctrl: ", len(no_matches_ctrl)
+	print 'No_match_ctrl_vector', no_matches_ctrl
+
 
 if __name__ == '__main__':
     main()
