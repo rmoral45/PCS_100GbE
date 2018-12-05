@@ -17,6 +17,7 @@ reg                             tb_reset;
 reg                             tb_enable;
 reg                             tb_bypass;
 reg                             tb_enable_files;
+reg  [LEN_TX_DATA-1 : 0]        counter;
 //REGISTROS PARA ENCODER FROM FILE
 reg  [LEN_TX_CTRL-1:0]          tb_tx_ctrl;
 reg  [LEN_TX_DATA-1:0]          tb_tx_data;
@@ -106,7 +107,7 @@ begin
         end
         
 
-    fid_tx_decoded_data_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-output.txt", "w");
+    fid_tx_decoded_data_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-outputgggggg.txt", "w");
         if(fid_tx_decoded_data_out==0)
         begin
            $display("\n\nLa entrada para Tx-Decoded-Data-Output no pudo ser abierta\n\n");
@@ -115,44 +116,31 @@ begin
  
 
      fid_tx_decoded_ctrl_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-ctrl-output.txt", "w");
-           if(fid_tx_decoded_ctrl_out==0)
-           begin
-              $display("\n\nLa entrada para Tx-Decoded-Ctrl-Output no pudo ser abierta\n\n");
-              $stop;
-           end
+         if(fid_tx_decoded_ctrl_out==0)
+         begin
+            $display("\n\nLa entrada para Tx-Decoded-Ctrl-Output no pudo ser abierta\n\n");
+            $stop;
+         end
            
      fid_tx_data1= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/para_comparar.txt", "w");
-           if(fid_tx_data1==0)
-           begin
-              $display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
-              $stop;
-           end     
+         if(fid_tx_data1==0)
+         begin
+            $display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
+            $stop;
+         end     
            
-<<<<<<< HEAD
       tb_reset        = 1'b1 ;
       tb_clock        = 1'b1 ;
       tb_bypass       = 1'b0 ;
       tb_enable       = 1'b0 ;
+      counter         = {LEN_TX_DATA{1'b0}};
       tb_enable_files = 1'b0 ;
 #6    tb_reset        = 1'b0 ;
       tb_enable       = 1'b1 ;
       tb_enable_files = 1'b1 ;
       tb_enable_files = 1'b1 ;       
-#1400 $finish;
-=======
-    tb_reset        = 1'b1 ;
-    tb_clock        = 1'b1 ;
-    tb_bypass       = 1'b0 ;
-    tb_enable       = 1'b0 ;
-    tb_enable_files = 1'b0 ;
-#6  tb_reset        = 1'b0 ;
-    tb_enable       = 1'b1 ;
-     tb_enable_files = 1'b1 ;
-    tb_enable_files = 1'b1 ;
+#100000 $finish;
 
-#700 $finish;
->>>>>>> 3ed7cc46ba52d183e7611f290f3f84bab65b9817
-    
 end
 
 
@@ -163,38 +151,21 @@ begin
     
     if(tb_enable_files)
     begin
-<<<<<<< HEAD
-    
-=======
->>>>>>> 3ed7cc46ba52d183e7611f290f3f84bab65b9817
+
         for(ptr_ctrl = 0; ptr_ctrl < LEN_TX_CTRL ; ptr_ctrl = ptr_ctrl+1)
         begin
                 code_error_ctrl <= $fscanf(fid_tx_ctrl, "%b\n", temp_tx_ctrl[ptr_ctrl]);
                 if(code_error_ctrl != 1 )
                     $display("\n\nTx-Ctrl: El caracter leido no es valido..\n\n");
-<<<<<<< HEAD
         end
-=======
-               $stop;
-                end
-            end
->>>>>>> 3ed7cc46ba52d183e7611f290f3f84bab65b9817
-    
     
         for(ptr_data = 0; ptr_data < LEN_TX_DATA ; ptr_data = ptr_data+1)
         begin
                 code_error_data <= $fscanf(fid_tx_data, "%b\n", temp_tx_data[ptr_data]);
                 if(code_error_data != 1 )
                     $display("Tx-Data: El caracter leido no es valido..");
-<<<<<<< HEAD
-        end 
-=======
-               $stop;
-                end
-            end                                
+        end                                
  
->>>>>>> 3ed7cc46ba52d183e7611f290f3f84bab65b9817
-
         $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded);
           
         $fwrite(fid_tx_scrambled_out, "%b\n", tb_scrambled_data);
@@ -209,6 +180,8 @@ begin
 
         tb_tx_ctrl <= temp_tx_ctrl;
         tb_tx_data <= temp_tx_data;
+        
+        counter <= counter + 1;
 
     end
 end
