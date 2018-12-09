@@ -20,7 +20,7 @@ class IdleDeletionModule(object):
 
 
 	def add_block(self,block):
-		self.block_counter = self.block_counter + 1
+
 		if(self.block_counter == (self.N_LANES * self.N_BLOCKS) ):
 			self.block_counter = 0
 
@@ -32,9 +32,11 @@ class IdleDeletionModule(object):
 			return
 
 	def get_block(self):
-		if(self.block_counter <= self.N_LANES): #insert idle
+		if(self.block_counter < self.N_LANES): #insert idle
 			block = copy.deepcopy(tx.CGMII_TRANSMIT['IDLE_BLOCK'])
 			block['block_name'] = 'INSERTED'
+			self.block_counter = self.block_counter + 1
 			return block
 		else:
+			self.block_counter = self.block_counter + 1
 			return self.fifo.pop()

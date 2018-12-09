@@ -5,9 +5,9 @@ import tx_modules as tx
 import idle_deletion as iddel
 import copy
 #import rx_modules as rx
-NCLOCK  = 12
+NCLOCK  = 45
 NBLOCKS = 10
-NLANES  = 1
+NLANES  = 3
 
 
 
