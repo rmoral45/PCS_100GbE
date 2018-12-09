@@ -2,20 +2,20 @@ from common_variables import *
 from common_functions import *
 import copy
 
-ALIGN_LOCK_STATES = ['AM_LOCK_INIT','AM_RESET_CNT','FIND_1ST','COUNT_1','COMP_2ND','2_GOOD','COMP_AM','GOOD_AM','INVALID_AM','COUNT_2','SLIP']
+ALIGN_LOCK_STATES = ['INIT', 'WAIT_1ST', 'WAIT_2ND', 'LOCKED']
 
 
 class AlignMarkerLockModule(object):
 	
-	def __init__(self):
-		self.state = 'AM_LOCK_INIT'
+	def __init__(self,AM_BLOCK_GAP,AM_INV_LIMIT):
+		self.state = 'INIT'
 		self.am_lock = False
-		self.test_am = False
 		self.am_invld_cnt = 0
-		self.am_slip_done = False
 		self.first_am = 0x0
 		self.am_valid = False
+		self.am_invalid_limit = AM_INV_LIMIT
 		self.BLOCKS_BETWEEN_AM = AM_BLOCK_GAP  # var definida en common_variables
+		self.block_counter = 0
 		self.lane_id = 0
 		self.block = {
 						'block_name' : '',
@@ -24,7 +24,7 @@ class AlignMarkerLockModule(object):
 		self._dbg_seq = []
 
 
-	def  FSM_change_state(block_lock_x,block_ready,recv_block):
+	def  FSM_change_state(self,block_lock_x,recv_block):
 		"""
 			Vars:
 				- block_ready : funciona como enable,es un flag que se recibe desde el modulo
@@ -34,113 +34,41 @@ class AlignMarkerLockModule(object):
 			agregar funcion de bypass para bloques quie no son AM	
 		"""
 		
-		if block_lock_x == False:
-			self.state = 'AM_LOCK_INIT'
+		if self.state == 'INIT' :
 			self.am_lock = False
-			self.test_am = False
-			self.am_counter = 0
-			self.first_am = 0x0
+			self.state = 'WAIT_1ST'
 
-		elif self.state == 'AM_LOCK_INIT' :
-			self._dbg_seq.append(self.state) 
-			self.am_lock = False
-			self.test_am = False
-			self.state = 'AM_RESET_CNT' #transcision incondicional
-			self._dbg_seq.append(self.state)
+		elif self.state == 'WAIT_1ST' :
+			self.am_valid = self.search_valid_am(recv_block)
+			if (self.am_valid):
+				self.first_am = recv_block
+				self.state = 'WAIT_2ND'
+				self.block_counter = 0
 
+		elif self.state == 'WAIT_2ND':
+			self.am_valid = self.search_valid_am(recv_block)
+			if (self.am_valid and (self.block_counter == self.BLOCKS_BETWEEN_AM )):
+				self.am_lock = True
+				self.block_counter = 0
+				self.state = 'LOCKED'
+			elif ( (self.am_valid==False) and (self.block_counter == self.BLOCKS_BETWEEN_AM ) ):
+				self.state = 'WAIT_1ST'
 
-		elif self.state == 'AM_RESET_CNT' : 
-			self.am_invld_cnt = 0
-			self.am_slip_done = False
-			self.test_am = block_ready
-
-			if  self.test_am == True  : 
-				self.state = 'FIND_1ST'
-				self._dbg_seq.append(self.state)
-
-
-		elif self.state == 'FIND_1ST' : 
-			self.test_am = False
-			self.first_am = self.block['payload']
-			self.am_valid = search_valid_am(self.block)
-
-			if  self.am_valid  : 
-				self.state = 'COUNT_1'
-				self.am_counter = 0 #!!!!!!!!!!!! revisar este seteo  !!!!!!!!!!!!!
-				self._dbg_seq.append(self.state)
-
-			else  :	
-				self.state = 'SLIP'
-				self._dbg_seq.append(self.state)
-
-		elif self.state == 'COUNT_1' : 
-
-			if self.am_counter == self.BLOCKS_BETWEEN_AM  : 
-				self.state = 'COMP_2ND'
-				self._dbg_seq.append(self.state)
-
-		elif self.state == 'COMP_2ND' : 
-			"""
-				habra que considerar el SH al hacer la comparacion?
-			"""
-			#self.am_counter = 0 # RESETEO CONTADOR DE BLOQUES
-			if  self.first_am == self.block['payload']  : 
-				self.state = '2_GOOD'
-				self._dbg_seq.append(self.state)
-			else  :	
-				self.state = 'SLIP'
-				self._dbg_seq.append(self.state) 
-
-		elif self.state == '2_GOOD' : 
-			self.am_lock = True
-			self.lane_id = align_marker_list.index(self.first_am)
-			self.state = 'COUNT_2'
-			self.am_counter = 0  #!!!!!!!!!!!! revisar este seteo  !!!!!!!!!!!!!
-			self._dbg_seq.append(self.state) 
-
-		elif self.state == 'COUNT_2' : #estado 6
-			#self.am_counter += 1
-
-			if self.am_counter == self.BLOCKS_BETWEEN_AM  : 
-				self.state = 'COMP_AM'
-				self._dbg_seq.append(self.state)
-
-		elif self.state == 'COMP_AM':
-			"""
-				habra que considerar el SH al hacer la comparacion?
-			"""
-			##self.am_counter = 0 # RESETEO CONTADOR DE BLOQUES#No xq reseteo cuando paso a los stados count
-			if  self.first_am == self.block['payload']  : 
-				self.state = 'GOOD_AM'
+		elif self.state == 'LOCKED':
+			self.am_valid = self.search_valid_am(recv_block)
+			if (self.am_valid and (self.block_counter == self.BLOCKS_BETWEEN_AM )):
 				self.am_invld_cnt = 0
-				self._dbg_seq.append(self.state)
-			else  :	
-				self.state = 'INVALID_AM'
-				self.am_invld_cnt += 1
-				self._dbg_seq.append(self.state)
+				self.block_counter = 0
+			elif ( (self.am_valid==False) and (self.block_counter == self.BLOCKS_BETWEEN_AM ) ):
+				if(self.am_invld_cnt >= self.am_invalid_limit):
+					self.state = 'WAIT_1ST'
+					self.am_lock = False
+				else:
+					self.am_invld_cnt += 1
+					self.block_counter = 0
 
-		elif self.state == 'GOOD_AM':
-			
-			#self.am_invld_cnt = 0
-			self.state = 'COUNT_2'
-			self.am_counter = 0
-			self._dbg_seq.append(self.state)
 
-		elif self.state == 'INVALID_AM':
 
-			#self.am_invld_cnt += 1
-			if self.am_invld_cnt < 4 :
-				self.state = 'COUNT_2'
-				self.am_counter = 0
-				self._dbg_seq.append(self.state)
-			elif self.am_invld_cnt == 4 :
-				self.state = 'SLIP'
-				self._dbg_seq.append(self.state)
-
-		elif self.state == 'SLIP' :
-			self.am_lock = False
-			##revisar implementacion de AM_SLIP	
-			self._dbg_seq.append(self.state)
 
 
 	def search_valid_am(self,block):
@@ -158,27 +86,14 @@ class AlignMarkerLockModule(object):
 			Sets :
 				-<type bool> tesh_am : indica que se recibio un nuevo bloque,es usada por la FSM
 		"""
-		self.am_counter += 1
-		self.test_am = True
+		self.block_counter += 1
 		self.block = copy.deepcopy(recv_block)
 	
 	def get_block(self):
-		"""
-			Quizas aca se pueda implementar devolver un bloque idle cuando el bloque
-			actual es un AM,el cual hay que eliminar
-		"""
-		"""
-		La insercion de idles para compensar la remocion de am debe hacerse quizas entre medio del decoder y CGMII
-		para no shitear el estado interno del scrambler
-		block = {	
-					'block_name' :'',
-					'payload'    : 0
-
-				}
+		
 		if self.block['payload'] in align_marker_list:
-			block['block_name'] = 'Clock_Compensation_Idle_Block'
-			block['payload']    =
-		"""
+			self.block['block_name'] = 'Clock_Compensation_Idle_Block'
+			self.block['payload']    = 0x20000000000000000
 			
 		return copy.deepcopy(self.block)
 

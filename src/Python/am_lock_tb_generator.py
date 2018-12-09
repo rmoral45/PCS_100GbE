@@ -4,27 +4,33 @@ from pdb import set_trace as bp
 from common_variables import * 
 import am_lock as am
 import copy
-N_LANES = 20
+N_CLOCK = 10000
 MAX_DELAY = 10
-AM_PERIOD = 16384
-
-def add_block(lanes):
-
-	fill_block = {'block_name' : 'Fill Block' , 'payload' : 0 }
-	for lane in lanes :
-		lane.insert(0,copy.deepcopy(fill_block))
-		lane.pop()
-
-
+AM_PERIOD = 10 # seteo asi por la sim,el bloque 16384 es un marker
+AM_INV = 4
+PHY_LANE_ID = 0
 
 def main():
 #Init
-	init_block = {'block_name' : 'Init Block', 'payload' : 0 }
-	lanes      = [[copy.deepcopy(init_block) for i in range(MAX_DELAY)] for j in range(N_LANES)]
-	delay_vect = [1]*N_LANES
+	Am_Lock_Module = am.AlignMarkerLockModule(AM_PERIOD,AM_INV)
+	tx_block = []
+	rx_block = []
 
-
-
+	for clock in range(N_CLOCK):
+		block = {
+					'block_name' : 'ASD',
+					'sh'		 : 1 ,
+					'payload'    : 0
+				}
+		if (clock % AM_PERIOD) == 0 and clock > 0:
+			block['block_name'] = 'ALIGNER'
+			block['payload'] = align_marker_list[PHY_LANE_ID]
+			bp()
+		tx_block.append(block)
+		Am_Lock_Module.receive_block(block)
+		Am_Lock_Module.FSM_change_state(True,block)
+		recv_block =Am_Lock_Module.get_block()
+		rx_block.append(recv_block)
 
 
 

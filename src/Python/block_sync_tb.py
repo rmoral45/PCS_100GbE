@@ -25,42 +25,66 @@ def break_sh(block,break_flag,sh_index):
 
 def gen_block(sh_index):
 	rand = random.randint(1,19)
-	block= { 'block_name': 'SH_TEST_BLOCK', 'payload' : 125}
+	block= { 'block_name': 'SH_TEST_BLOCK', 'payload' : 0}
 
 	if(rand % 2):
 		block['payload'] |= 2 << sh_index
 		return block
 	else:
 		block['payload'] |= 1 << sh_index
-		return block	
+		return block
 
+def block_to_bin(block):
+	N_BITS = 66
+	binary = (bin(block['payload'])[2:].zfill(N_BITS))
+	return binary
 
 def main():
 
 #Init
-	sh_index = 64 #3con 64 se engancha en ciclos de clock 
+	#Simulation variables
+	sh_index = 0 #con 64 se engancha en 64 ciclos de clock 
 	break_flag = False
 	#sh_cnt_limit   = 64 parametro para la fsm
 	#sh_invld_limit = 32 parametro para la fsm
 	Block_Sync_Module = bs.BlockSyncModule(0)
 	Block_Sync_Module.reset()
+	random_change = random.randint(70,233)
+
+	#Files
+	block_sync_input  = open( "block-sync-input.txt"  , "w" )
+	block_sync_output = open( "block-sync-output.txt" , "w" )
+	block_lock_flag   = open( "block-lock-flag.txt"   , "w" )
+
 
 #main loop
 	for clock in range(NCLOCK):
 
-		block = gen_block(sh_index)
-		block = break_sh(block,break_flag,sh_index)
-
-		Block_Sync_Module.receive_block(block)
+		in_block = gen_block(sh_index)
+		in_block = break_sh(block,break_flag,sh_index)
+		bp()
+		Block_Sync_Module.receive_block(in_block)
 
 		for i in range(5):
 			Block_Sync_Module.FSM_change_state()
 
-		block = Block_Sync_Module.get_block()
-		if Block_Sync_Module.block_lock and clock < 65:
-			bp()
-			break_flag = True
-		if clock > 70 and Block_Sync_Module.block_lock == False :
+		out_block   = Block_Sync_Module.get_block()
+
+		bin_input   = block_to_bin(in_block)
+		bin_output  = block_to_bin(out_block)
+		bin_flag    = bin(Block_Sync_Module.block_lock)[2:]
+
+		#format
+		bin_input   = ''.join(map(lambda x: x+' ' ,  bin_input  ))
+		bin_output  = ''.join(map(lambda x: x+' ' ,  bin_output ))
+
+		block_sync_input.write(bin_input   + '\n')
+		block_sync_output.write(bin_output + '\n')
+		block_lock_flag.write(bin_flag     + '\n')
+		
+		if((clock % random_change) == 0):
+			sh_index -=1
+		if(sh_index < 0)
 			bp()
 
 
