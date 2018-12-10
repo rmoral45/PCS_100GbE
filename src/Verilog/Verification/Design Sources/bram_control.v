@@ -5,8 +5,8 @@
 
 module bram_control
 #(
-    parameter								                RAM_WIDTH_ENCODER 	= 66,
-	  parameter							                  RAM_WIDTH_TYPE			= 4,
+      parameter								                RAM_WIDTH_ENCODER 	= 66,
+	  parameter        					                  RAM_WIDTH_TYPE			= 4,
 	  parameter								                RAM_ADDR_NBIT 			= 5
  )
  (				 

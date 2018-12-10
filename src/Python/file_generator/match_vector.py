@@ -11,8 +11,10 @@ def allign_vector(python_vector, verilog_vector):
 	py_index_left   = 2
 	py_index_right  = 6
 
-	new_pyvector = cp.deepcopy(python_vector[py_index_left:-py_index_right])
+	#new_pyvector = cp.deepcopy(python_vector[py_index_left:-py_index_right])
+	new_pyvector = cp.deepcopy(python_vector[py_index_left:])
 	new_vevector = cp.deepcopy(verilog_vector[ver_index_left:-ver_index_right])
+
 
 	return new_pyvector, new_vevector
 
@@ -32,7 +34,7 @@ def main():
 	result_ctrl = []
 	no_matches_ctrl = []
 	no_matches_data = []
-
+#-----------------------------------------------------------------------
 	with open("./verilog_outputs/verilog-decoded-data-output.txt") as verilog_decoded_data_output:
 		decoded_data_output = verilog_decoded_data_output.readlines()
 
@@ -62,7 +64,6 @@ def main():
 	cgmii_data_input, decoded_data_output = convert_vect_to_hex(cgmii_data_input, decoded_data_output)
 	cgmii_ctrl_input, decoded_ctrl_output = convert_vect_to_hex(cgmii_ctrl_input, decoded_ctrl_output)
 
-	bp()
 #-----------------------------------------------------------------------
 	table_data = tt.Texttable()
 	columns = ('Encoder-data-input', 'Decoder-data-output', 'Match' )
@@ -87,7 +88,7 @@ def main():
 	print plot
 #-----------------------------------------------------------------------
 	table_ctrl = tt.Texttable()
-	columns1 = ('Encoder-data-input', 'Decoder-data-output', 'Match' )
+	columns1 = ('Encoder-ctrl-input', 'Decoder-ctrl-output', 'Match' )
 	table_ctrl.header(columns1)
 	table_ctrl.set_cols_width([20,20,8])
 	table_ctrl.set_cols_dtype(['t', 't', 't'])
@@ -105,15 +106,18 @@ def main():
 	for row in zip(cgmii_ctrl_input, decoded_ctrl_output, result_ctrl):
 		table_ctrl.add_row(row)
 		 
-	plot = table_ctrl.draw()
-	print plot
-
+	plot1 = table_ctrl.draw()
+	print plot1
+#-----------------------------------------------------------------------
 	print "No_matches_data: ", len(no_matches_data)
 	print 'No_match_data_vector', no_matches_data
     
 	print "no_matches_ctrl: ", len(no_matches_ctrl)
 	print 'No_match_ctrl_vector', no_matches_ctrl
 
+
+	print "Length Cgmii Input Data:", len(cgmii_data_input)
+	print "Length Cgmii Input Ctrl:", len(cgmii_ctrl_input)
 
 if __name__ == '__main__':
     main()

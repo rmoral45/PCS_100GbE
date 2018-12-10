@@ -1,0 +1,36 @@
+11:42:11 INFO  : Registering command handlers for SDK TCF services
+11:42:12 INFO  : Launching XSCT server: xsct -n -interactive /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/SDK/temp_xsdb_launch_script.tcl
+11:42:15 INFO  : XSCT server has started successfully.
+11:42:15 INFO  : Successfully done setting XSCT server connection channel  
+11:42:16 INFO  : Successfully done setting SDK workspace  
+11:42:16 INFO  : Processing command line option -hwspec /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/Export.
+11:42:16 ERROR : Hardware specification file doesn't exist at the specified location '/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/Export'
+11:42:16 ERROR : Unable to create Hardware Specification Project with specification file: /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/Export
+11:48:00 INFO  : Registering command handlers for SDK TCF services
+11:48:02 INFO  : Launching XSCT server: xsct -n -interactive /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/SDK/temp_xsdb_launch_script.tcl
+11:48:04 INFO  : XSCT server has started successfully.
+11:48:04 INFO  : Successfully done setting XSCT server connection channel  
+11:48:04 INFO  : Processing command line option -hwspec /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/Export.
+11:48:04 INFO  : Successfully done setting SDK workspace  
+11:48:04 ERROR : Hardware specification file doesn't exist at the specified location '/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/Export'
+11:48:04 ERROR : Unable to create Hardware Specification Project with specification file: /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/Export
+11:48:51 INFO  : Registering command handlers for SDK TCF services
+11:48:53 INFO  : Launching XSCT server: xsct -n -interactive /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/SDK/temp_xsdb_launch_script.tcl
+11:48:55 INFO  : XSCT server has started successfully.
+11:48:55 INFO  : Successfully done setting XSCT server connection channel  
+11:48:55 INFO  : Successfully done setting SDK workspace  
+11:48:55 INFO  : Processing command line option -hwspec /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/MicroGPIO/fpga.hdf.
+12:16:02 INFO  : Launching XSCT server: xsct -n -interactive /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/SDK/temp_xsdb_launch_script.tcl
+12:16:04 INFO  : XSCT server has started successfully.
+12:16:04 INFO  : Successfully done setting XSCT server connection channel  
+12:16:06 INFO  : Successfully done setting SDK workspace  
+12:16:06 INFO  : Registering command handlers for SDK TCF services
+12:16:07 INFO  : Processing command line option -hwspec /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/MicroGPIO/fpga.hdf.
+12:16:08 INFO  : Checking for hwspec changes in the project fpga_hw_platform_0.
+12:16:08 INFO  : SDK has detected change in the last modified timestamps for source hardware specification file Source:1544195695000,  Project:1544193552000
+12:16:08 INFO  : The hardware specification for project 'fpga_hw_platform_0' is different from /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/MicroGPIO/fpga.hdf.
+12:16:09 INFO  : Copied contents of /media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/MicroGPIO/MicroGPIO/fpga.hdf into /fpga_hw_platform_0/system.hdf.
+12:16:09 INFO  : Synchronizing projects in the workspace with the hardware platform specification changes.
+12:16:09 INFO  : Clearing existing target manager status.
+12:16:09 INFO  : Workspace synchronized with the new hardware specification file. Cleaning dependent projects...
+12:16:09 WARN  : Linker script will not be updated automatically. Users need to update it manually.
