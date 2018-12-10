@@ -6,8 +6,8 @@ import idle_deletion as iddel
 import test_bench_functions as tb
 import copy
 #import rx_modules as rx
-NCLOCK  = (16384*20)
-NBLOCKS = 16384
+NCLOCK  = 10000
+NBLOCKS = 100
 NLANES  = 20
 
 
