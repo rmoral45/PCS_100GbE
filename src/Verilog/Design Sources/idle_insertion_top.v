@@ -1,12 +1,16 @@
 
-
+/*
+	CUIDADO !!!!!!!
+	Explicacion: en cada lane deben insertarse Nbloques entre AM.
+	en cada linea el flujo es 16383bloques + 1AM periodicamente
+*/
 
 module idle_insertion_top
 #(
 	parameter LEN_TX_DATA = 64,
 	parameter LEN_TX_CTRL = 8 ,
 	parameter N_IDLE 	  = 20,
-	parameter N_BLOCKS    = 16383,
+	parameter N_BLOCKS    = 16384,
 	parameter N_LANES     = 20 // deberia ser siempre igual a N_IDLE 
  )
  (

@@ -6,6 +6,11 @@
    	-Mapear caracteres de PCS(100GBASE-R) a caracteres CGMII.<tabla 82-1 pag 157 standard>
    	-Realizar decoding 66/64b
    	-Aplicar funcion R_TYPE.<pag 168 estandar> 
+
+
+
+
+   	REVISAR !!!! que pasa si sh = 00
 */
 
 

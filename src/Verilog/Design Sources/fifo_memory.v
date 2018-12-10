@@ -37,20 +37,22 @@ begin
 		memory[i_write_addr] <= i_data;
 end
 
-
+/*
 //read
+
 always @ (posedge i_clock)
 begin
 	if(i_read_enb)
 		output_data <= memory[i_read_addr];
-		/*
+		
 		out <= output_data; //registro auxiliar usado p mejorar el timing de la memoria,es eliminado en la sintesis pero
 							//la herramienta interpreta que quiero una BRAM con la salida registrada y deja de dar advertencias
 							//de timing en la sintesis
-		*/
+		
 end
+*/
 
 //PORTS
-//assign o_data = out;
-assign o_data = output_data;
+assign o_data = memory[i_read_addr];
+//assign o_data = output_data;
 endmodule

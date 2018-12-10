@@ -173,7 +173,7 @@ class BlockSyncModule(object):
 									o un bloque con basura si esta se encuentra en False
 		"""
 		block = {	
-					'block_name' : ''
+					'block_name' : '',
 					'payload' : 0
 
 				}

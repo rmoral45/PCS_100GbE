@@ -154,17 +154,13 @@ begin
 			begin
 				match_mask_next  = {N_ALIGNERS{1'b1}};
 				sh_ignore_next   = 1'b0;
-				rest_am_next     = 1'b1; // check
+				// NO rest_am_next     = 1'b1; // check
 				next_state 		 = WAIT_1ST;
 			end
 		end
 		LOCKED:
 		begin
-<<<<<<< HEAD
 			if (i_timer_done && i_am_valid)
-=======
-			 if (i_timer_done && i_am_valid)
->>>>>>> 55153e958f1b69c2364df22b450457bd2664b48a
 			begin
 				am_invalid_count_next = 0;
 				reset_timer_next 	  = 1'b1;
@@ -173,10 +169,7 @@ begin
 			end
 			else if (i_timer_done && !i_am_valid)
 			begin
-<<<<<<< HEAD
-=======
 
->>>>>>> 55153e958f1b69c2364df22b450457bd2664b48a
 				if(am_invalid_count >= i_am_invalid_limit)
 				begin
 					next_state 		= WAIT_1ST;
@@ -184,7 +177,6 @@ begin
 					sh_ignore_next  = 1'b0;
 					am_lock_next 	= 1'b0;				
 				end
-<<<<<<< HEAD
 				else
 				begin
 					am_invalid_count_next = am_invalid_count + 1;
@@ -195,16 +187,6 @@ begin
 			end
 		end
 
-=======
-
-				am_invalid_count_next = am_invalid_count + 1;
-				reset_timer_next 	  = 1'b1;
-				rest_am_next     	  = 1'b1;
-				sol_next		 	  = 1'b1;
-			end
-		end
-		
->>>>>>> 55153e958f1b69c2364df22b450457bd2664b48a
 	endcase
 end
 
