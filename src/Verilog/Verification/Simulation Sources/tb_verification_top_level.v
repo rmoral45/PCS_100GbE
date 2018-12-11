@@ -37,8 +37,9 @@ always @(posedge tb_clock) begin
 	10'D2:	tb_reset	= 1'b1;
 	10'D3:	tb_reset	= 1'b0;
 	10'D5: 	begin
-			tb_gpio_in = 32'b10000000010000000000000000000111;		
+			tb_gpio_in = 32'b10000000010000000000000000000111;	
 	        end
+    10'D10:	tb_gpio_in = 32'b10000000010000000000000000000000;		
 	endcase
 	
 end

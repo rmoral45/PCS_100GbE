@@ -27,8 +27,8 @@ wire 								run_bram;
 wire 								read_enb;
 wire [RAM_ADDR_NBIT-1 : 0]          read_addr;
 wire								mem_full;
-wire [RAM_WIDTH_ENCODER-1 : 0]      o_data_type;
-wire [RAM_WIDTH_TYPE-1 : 0]         o_data_coded;
+wire [RAM_WIDTH_TYPE-1 : 0]           o_data_type;
+wire [RAM_WIDTH_ENCODER-1 : 0]         o_data_coded;
 
 register_file
 	#(
@@ -43,7 +43,7 @@ register_file
 	.i_reset(i_reset),
 	.i_gpio_in(i_gpio_in),
 	//.o_gpio_out(),
-	.o_read_enb(read_enb),
+	.o_enable_read(read_enb),
 	.o_read_address(read_addr),
 	.o_enable_bram(enable_bram),
 	.o_enable_encoder(enable_encoder),

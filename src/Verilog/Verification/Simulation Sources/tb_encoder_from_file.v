@@ -107,7 +107,7 @@ begin
         end
         
 
-    fid_tx_decoded_data_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-outputgggggg.txt", "w");
+    fid_tx_decoded_data_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-output.txt", "w");
         if(fid_tx_decoded_data_out==0)
         begin
            $display("\n\nLa entrada para Tx-Decoded-Data-Output no pudo ser abierta\n\n");
@@ -156,14 +156,20 @@ begin
         begin
                 code_error_ctrl <= $fscanf(fid_tx_ctrl, "%b\n", temp_tx_ctrl[ptr_ctrl]);
                 if(code_error_ctrl != 1 )
+                begin
                     $display("\n\nTx-Ctrl: El caracter leido no es valido..\n\n");
+                    $stop;
+                end
         end
     
         for(ptr_data = 0; ptr_data < LEN_TX_DATA ; ptr_data = ptr_data+1)
         begin
                 code_error_data <= $fscanf(fid_tx_data, "%b\n", temp_tx_data[ptr_data]);
                 if(code_error_data != 1 )
+                begin
                     $display("Tx-Data: El caracter leido no es valido..");
+                    $stop;
+                end
         end                                
  
         $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded);

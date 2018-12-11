@@ -4,7 +4,7 @@ import tx_modules as tx
 import test_bench_functions as tb
 
 
-NCLOCK = 700
+NCLOCK = 1000
 
 def main():
 	#--------------open files---------------------------
