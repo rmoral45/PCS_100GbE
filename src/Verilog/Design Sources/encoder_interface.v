@@ -32,7 +32,7 @@ localparam CGMII_ERROR = 8'hFE;
  	case( {i_am_flag,i_valid} )
  		2'b00:begin//CONDICION DE ERROR
  			o_am_flag = 0; 
- 			o_tx_data = {8{CGMII_ERROR}};
+ 			o_tx_data = {8{CGMII_IDLE}};
  			o_tx_ctrl = 8'hFF;
  		end
  		2'b01:begin//BYPASS
