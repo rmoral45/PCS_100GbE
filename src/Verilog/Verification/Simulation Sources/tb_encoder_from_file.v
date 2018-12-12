@@ -77,35 +77,7 @@ begin
             $display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
             $stop;
         end
-        
-    fid_tx_coded= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/encoder-output.txt", "r");
-        if(fid_tx_coded==0)
-        begin
-           $display("\n\nLa entrada para Tx-Coded no pudo ser abierta\n\n");
-           $stop;
-        end
-        
-    fid_tx_coded_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-coded-output.txt", "w");
-        if(fid_tx_coded_out==0)
-        begin
-           $display("\n\nLa entrada para Tx-Coded-Output no pudo ser abierta\n\n");
-           $stop;
-        end
 
-    fid_tx_scrambled_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-scrambled-output.txt", "w");
-        if(fid_tx_scrambled_out==0)
-        begin
-           $display("\n\nLa entrada para Tx-Scrambled-Output no pudo ser abierta\n\n");
-           $stop;
-        end           
-
-    fid_tx_descrambled_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-descrambled-output.txt", "w");
-        if(fid_tx_descrambled_out==0)
-        begin
-           $display("\n\nLa entrada para Tx-Descrambled-Output no pudo ser abierta\n\n");
-           $stop;
-        end
-        
 
     fid_tx_decoded_data_out = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/verilog-decoded-data-output.txt", "w");
         if(fid_tx_decoded_data_out==0)
@@ -122,12 +94,6 @@ begin
             $stop;
          end
            
-     fid_tx_data1= $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/file_generator/verilog_outputs/para_comparar.txt", "w");
-         if(fid_tx_data1==0)
-         begin
-            $display("\n\nLa entrada para Tx-Data no pudo ser abierta\n\n");
-            $stop;
-         end     
            
       tb_reset        = 1'b1 ;
       tb_clock        = 1'b1 ;
@@ -171,19 +137,11 @@ begin
                     $stop;
                 end
         end                                
- 
-        $fwrite(fid_tx_coded_out, "%b\n", tb_fsm_tx_coded);
-          
-        $fwrite(fid_tx_scrambled_out, "%b\n", tb_scrambled_data);
-            
-        $fwrite(fid_tx_descrambled_out, "%b\n", tb_descrambled_data);
-     
+      
         $fwrite(fid_tx_decoded_data_out, "%b\n", tb_rx_raw_data);      
                        
         $fwrite(fid_tx_decoded_ctrl_out, "%b\n", tb_rx_raw_ctrl);
          
-        $fwrite(fid_tx_data1, "%b\n", tb_tx_data); 
-
         tb_tx_ctrl <= temp_tx_ctrl;
         tb_tx_data <= temp_tx_data;
         
@@ -191,8 +149,6 @@ begin
 
     end
 end
-
-
 
 
 encoder_comparator
@@ -300,5 +256,5 @@ u_decoder_fsm
      .o_rx_raw_data  (tb_rx_raw_data)    ,
      .o_rx_raw_control  (tb_rx_raw_ctrl)
      );
-   
+      
 endmodule

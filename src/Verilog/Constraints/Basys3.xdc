@@ -108,8 +108,8 @@ set_property PACKAGE_PIN L1 [get_ports {out_leds[15]}]
 
 
 ##Buttons
-#set_property PACKAGE_PIN U18 [get_ports reset]						
-	#set_property IOSTANDARD LVCMOS33 [get_ports reset]
+set_property PACKAGE_PIN U18 [get_ports in_reset]						
+	set_property IOSTANDARD LVCMOS33 [get_ports in_reset]
 #set_property PACKAGE_PIN T18 [get_ports btnU]						
 	#set_property IOSTANDARD LVCMOS33 [get_ports btnU]
 #set_property PACKAGE_PIN W19 [get_ports btnL]						

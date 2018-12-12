@@ -4,34 +4,33 @@
 */
 
 module bram_control
-#(
-      parameter								                RAM_WIDTH_ENCODER 	= 66,
-	  parameter        					                  RAM_WIDTH_TYPE			= 4,
-	  parameter								                RAM_ADDR_NBIT 			= 5
- )
- (				 
-    input wire								              i_clock,
-    input wire									            i_reset,
-    input wire									            i_run,
-    input wire									            i_read_enb,
+  #(
+    parameter								LEN_RX_DATA 	    = 64,
+	parameter        					    LEN_RX_CTRL		    = 8,
+	parameter								RAM_ADDR_NBIT 		= 5
+    )
+    (				 
+    input wire								i_clock,
+    input wire								i_reset,
+    input wire								i_run,
+    input wire								i_read_enb,
     input wire  [RAM_ADDR_NBIT-1 : 0] 	    i_read_addr,
-    input wire  [RAM_WIDTH_ENCODER-1 : 0]	  i_data_coded,
-    input wire  [RAM_WIDTH_TYPE-1 : 0]	    i_data_type,
-
-    output wire [RAM_WIDTH_ENCODER-1 : 0]   o_data_coded,
-    output wire [RAM_WIDTH_TYPE-1 : 0]      o_data_type,
+    input wire  [RAM_WIDTH_ENCODER-1 : 0]	i_data_decoded,
+    input wire  [RAM_WIDTH_TYPE-1 : 0]	    i_ctrl_decoded,
+    output wire [RAM_WIDTH_ENCODER-1 : 0]   o_data_decoded,
+    output wire [RAM_WIDTH_TYPE-1 : 0]      o_ctrl_decoded,
     output reg                              o_mem_full
-);
+    );
 
-	localparam 								                RAM_DEPTH = 2**RAM_ADDR_NBIT;
+	localparam 								RAM_DEPTH = 2**RAM_ADDR_NBIT;
 
 	//La logica de escritura es la misma, se habilitan y deshabilitan ambas memorias al mismo tiempo
 	//y se escribe y se lee sobre la misma direccion en las dos memorias al mismo tiempo.
 
-    reg [RAM_ADDR_NBIT-1 : 0] 				        addr_counter;
-    reg 									                  write_enable;
-    reg 									                  run;
-   wire 									                  read_enable = i_read_enb && o_mem_full;
+    reg         [RAM_ADDR_NBIT-1 : 0]	    addr_counter;
+    reg 									write_enable;
+    reg 									run;
+    wire 									read_enable = i_read_enb && o_mem_full;
     
 
     always@(posedge i_clock) 
@@ -77,32 +76,34 @@ module bram_control
     end
 
 
-bram #(
-      .RAM_WIDTH(RAM_WIDTH_ENCODER),
-      .RAM_ADDR_NBIT(RAM_ADDR_NBIT)
-   	  ) 
-bram_encoder_u(
-       		.i_clock(i_clock),
-       		.i_write_enable(write_enable),
-       		.i_read_enable(read_enable),
-       		.i_write_addr(addr_counter),
-      		.i_read_addr(i_read_addr),
-       		.i_data(i_data_coded),
-      		.o_data(o_data_coded)
-   			);
-
-bram #(
-    	.RAM_WIDTH(RAM_WIDTH_TYPE),
-    	.RAM_ADDR_NBIT(RAM_ADDR_NBIT)
+bram#(
+    .RAM_WIDTH(LEN_RX_DATA),
+    .RAM_ADDR_NBIT(RAM_ADDR_NBIT)
    	) 
-bram_type_u(
-       		.i_clock(i_clock),
-       		.i_write_enable(write_enable),
-       		.i_read_enable(read_enable),
-       		.i_write_addr(addr_counter),
-       		.i_read_addr(i_read_addr),
-       		.i_data(i_data_type),
-       		.o_data(o_data_type)
-   		   );
+u_data_bram
+    (
+    .i_clock(i_clock),
+    .i_write_enable(write_enable),
+    .i_read_enable(read_enable),
+    .i_write_addr(addr_counter),
+    .i_read_addr(i_read_addr),
+    .i_data(i_data_decoded),
+    .o_data(o_data_decoded)
+   	);
+
+bram#(
+    .RAM_WIDTH(LEN_RX_CTRL),
+    .RAM_ADDR_NBIT(RAM_ADDR_NBIT)
+   	) 
+u_ctrl_bram
+    (
+    .i_clock(i_clock),
+    .i_write_enable(write_enable),
+    .i_read_enable(read_enable),
+    .i_write_addr(addr_counter),
+    .i_read_addr(i_read_addr),
+    .i_data(i_ctrl_decoded),
+    .o_data(o_ctrl_decoded)
+   	);
     
 endmodule
