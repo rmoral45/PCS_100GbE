@@ -42,13 +42,13 @@ def main():
 		tx_block = idle_del_module.get_block()
 		(bin_output_data , bin_output_ctrl) = tb.cgmii_block_to_bin(tx_block)
 		#tx_encoder_input.append(tx_block)
+		print '\n\n NAME:', tx_block['block_name']
 
 		#format 
 		bin_input_data  = ''.join(map(lambda x: x+' ' ,  bin_input_data  ))
 		bin_input_ctrl  = ''.join(map(lambda x: x+' ' ,  bin_input_ctrl  ))
 		bin_output_data = ''.join(map(lambda x: x+' ' ,  bin_output_data ))
 		bin_output_ctrl = ''.join(map(lambda x: x+' ' ,  bin_output_ctrl ))
-
 		#write
 		idle_del_input_data_file.write(bin_input_data + '\n')
 		idle_del_input_ctrl_file.write(bin_input_ctrl + '\n')
