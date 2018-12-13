@@ -1,7 +1,8 @@
 /*
-	CHECKEAR TIMING
 	AGREGAR PUERTOS QUE FALTEN(max_invaklid_am por ej)
-	AGREGAR LOGICA DE SALIDA
+	VER POR QUE CARAJOS LA SINTESIS ME DICE :
+		design lane_id_decoder has unconnected port i_match_mask[0]
+
 */
 
 
@@ -13,7 +14,9 @@ module am_lock_module
 	parameter NB_ERROR_COUNTER  = 32,
 	parameter N_ALIGNER 		= 20,
 	parameter NB_LANE_ID		= $clog2(N_ALIGNER),
-	parameter N_BLOCKS 		 	= 16383
+	parameter N_BLOCKS 		 	= 16383, //***FIX cambiar a 16384 p q incluya el am en el periodo
+	parameter MAX_INV_AM        = 8,
+	parameter NB_INV_AM			= $clog2(MAX_INV_AM)
  )
  (
  	input  wire 							i_clock,
@@ -21,7 +24,8 @@ module am_lock_module
  	input  wire 							i_enable,
  	input  wire 							i_valid,//significa que hay un nuevo bloque listo para testear
  	input  wire 							i_block_lock,
- 	input  wire [LEN_CODED_BLOCK-1 : 0] 	i_data, 
+ 	input  wire [LEN_CODED_BLOCK-1 : 0] 	i_data,
+ 	input  wire [NB_INV_AM-1 : 0]			i_max_invalid_am,  
  
  	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data,
 	output wire [NB_LANE_ID-1 : 0]			o_lane_id,
@@ -33,9 +37,10 @@ module am_lock_module
 
 
 //LOCALPARAMS
-localparam LEN_AM    = 48;
-localparam CTRL_SH 	 = 2'b10; //[CHECK]
-localparam PCS_IDLE  = 7'h00;
+localparam LEN_AM    		= 48;
+localparam CTRL_SH 	 		= 2'b10; 
+localparam PCS_IDLE  		= 7'h00;
+localparam BLOCK_TYPE_CTRL 	= 8'h1E; //[CHECK]
 
 
 //INTERNAL SIGNALS
@@ -67,15 +72,19 @@ end
 //Output mux
 always @ (posedge i_clock)
 begin
-	if(i_enable && i_valid && restore_am)
-		output_data <= { CTRL_SH,{8{PCS_IDLE}} };
-	else if(i_enable && i_valid && !restore_am)
+	//if(i_enable && i_valid && restore_am)
+	if(i_enable && i_valid && am_match)
+		output_data <= { CTRL_SH,BLOCK_TYPE_CTRL,{8{PCS_IDLE}} }; //CHECK
+	//else if(i_enable && i_valid && !restore_am)
+	else if(i_enable && i_valid && !am_match)
 		output_data <= input_data;
 end
 
 
 
 assign sh_valid = ( (input_data[LEN_CODED_BLOCK-1 -: NB_SH] == CTRL_SH) | ignore_sh );
+assign am_value = {input_data[LEN_CODED_BLOCK-3 -: 24], input_data[31 -: 24]}; //PARAMETRIZAR
+assign o_data = output_data;
 //Instances
 
 am_lock_comparator
@@ -86,16 +95,17 @@ am_lock_comparator
 	u_am_lock_comparator
 	(
 		.i_enable_mask	(enable_mask),
-		.i_timer_done	(),
-		.i_am_value		(),
+		.i_timer_done	(timer_done),
+		.i_am_value		(am_value),
 		.i_match_mask	(match_mask),
-		.i_sh_valid		(sh_valid)
-		.o_am_match		(am_match)
+		.i_sh_valid		(sh_valid),
+		.o_am_match		(am_match),
 		.o_match_vector	(match_vector)
-	)
+	);
 
 am_lock_fsm
 #(
+	.N_BLOCKS(N_BLOCKS)
  )
  	u_am_lock_fsm
  	(
@@ -105,22 +115,23 @@ am_lock_fsm
 	 	.i_valid		(i_valid),
 	 	.i_block_lock	(i_block_lock),
 	 	.i_am_valid		(am_match),
-	 	//.i_am_invalid_limit(), entrada del top
+	 	.i_timer_done	(timer_done),
+	 	.i_am_invalid_limit(i_max_invalid_am), 
 	 	.i_match_vector (match_vector),
 
 	 	.o_match_mask	(match_mask),
 	 	.o_ignore_sh	(ignore_sh),
-	 	.o_enable_mask	(enable_mask)
+	 	.o_enable_mask	(enable_mask),
 	 	.o_reset_count  (timer_restart),
 	 	.o_restore_am	(restore_am),
 	 	.o_am_lock		(o_am_lock),
 	 	.o_resync		(o_resync),
 	 	.o_start_of_lane(o_start_of_lane)
- 	)
+ 	);
 
 am_timer
 #(
-	.N_BLOCKS(16383)
+	.N_BLOCKS(N_BLOCKS)
  )
 	u_am_timer
 	 (
@@ -144,7 +155,7 @@ lane_id_decoder
 		.o_lane_id		(o_lane_id)
 	);
 
-
+/*
 am_error_counter
 #(
 	.NB_BIP(NB_BIP),
@@ -160,7 +171,7 @@ am_error_counter
 	 	.i_calculated_bip(calculated_bip),
 	 	.o_error_count	 (bip_error_count)
 	 );
-
+*/
 /**checkear puertos y logica
 bip_calculator
 #(

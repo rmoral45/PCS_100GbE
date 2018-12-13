@@ -10,7 +10,6 @@ module am_lock_comparator
  	input  wire 					i_timer_done ,
  	input  wire [LEN_AM-1 : 0] 	 	i_am_value	 ,
  	input  wire [N_ALIGNER-1 : 0] 	i_match_mask ,
- 	input  wire 					i_enable_mask,
  	input  wire 					i_sh_valid   ,
  	output wire 					o_am_match	 ,
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector

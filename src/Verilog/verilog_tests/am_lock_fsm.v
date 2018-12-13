@@ -47,12 +47,12 @@ reg [N_STATE-1 : 0] 		state 			, next_state;
 reg [NB_INVALID_CNT-1 : 0] 	am_invalid_count, am_invalid_count_next;
 
 
-reg match_mask 	 , match_mask_next ;
-reg ignore_sh 	 , ignore_sh_next ;
-reg am_lock   	 , am_lock_next ;
-reg resync 		 , resync_next ;
-reg start_of_lane, sol_next	;
-reg restore_am 	 , rest_am_next;
+reg [N_ALIGNERS-1 : 0] 	match_mask 	 , match_mask_next ;
+reg 					ignore_sh 	 , ignore_sh_next ;
+reg 					am_lock   	 , am_lock_next ;
+reg 					resync 		 , resync_next ;
+reg 					start_of_lane, sol_next	;
+reg 					restore_am 	 , rest_am_next;
 
 
 //PORTS
@@ -69,8 +69,8 @@ assign o_restore_am		= restore_am;
 
 //Update state and signaling
 always @ (posedge i_clock)
-begin/
-	if(i_reset)
+begin
+	if(i_reset || !i_block_lock)
 	begin
 		state 			 <= INIT;
 		start_of_lane    <= 0;
@@ -89,7 +89,7 @@ end
 //Update control registers
 always @ (posedge i_clock)
 begin
-	if(i_reset)
+	if(i_reset || !i_block_lock)
 	begin
 		ignore_sh   	 <= 0;
 		reset_timer 	 <= 0;
@@ -132,7 +132,7 @@ begin
 		begin
 			if(i_am_valid)
 			begin
-				o_ignore_sh  	  = 1'b1;
+				ignore_sh_next    = 1'b1;
 				reset_timer_next  = 1'b1;
 				rest_am_next	  = 1'b1;
 				match_mask_next   = i_match_vector;
@@ -153,7 +153,7 @@ begin
 			else if(i_timer_done && !i_am_valid)
 			begin
 				match_mask_next  = {N_ALIGNERS{1'b1}};
-				sh_ignore_next   = 1'b0;
+				ignore_sh_next   = 1'b0;
 				// NO rest_am_next     = 1'b1; // check
 				next_state 		 = WAIT_1ST;
 			end
@@ -174,7 +174,7 @@ begin
 				begin
 					next_state 		= WAIT_1ST;
 					match_mask_next = {N_ALIGNERS{1'b1}};
-					sh_ignore_next  = 1'b0;
+					ignore_sh_next  = 1'b0;
 					am_lock_next 	= 1'b0;				
 				end
 				else
