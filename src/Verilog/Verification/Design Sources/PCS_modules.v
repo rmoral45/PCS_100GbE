@@ -28,6 +28,15 @@ module PCS_modules
     output wire   [LEN_CTRL_BLOCK-1 : 0] o_rx_raw_ctrl
     );
 
+// ROM STUFF
+localparam DATA_FILE = "/home/diego/fundacion/PPS/src/Verilog/Verification/test/encoder-input-data.txt" ;
+localparam CTRL_FILE = "/home/diego/fundacion/PPS/src/Verilog/Verification/test/encoder-input-ctrl.txt";
+
+wire [LEN_DATA_BLOCK-1 : 0] o_rom_data;
+wire [LEN_CTRL_BLOCK-1 : 0] o_rom_ctrl;
+
+
+
 
 
 //REGISTROS Y WIRES SETEADOS LOCALMENTE
@@ -42,7 +51,33 @@ wire            [LEN_TYPE-1 : 0]          o_rx_type;
 wire            [LEN_TYPE-1 : 0]          o_rx_type_fsm;
 wire            [LEN_TYPE-1 : 0]          o_rx_typenext_fsm;
 
+rom_mem_ctrl#(
+    .LEN_DATA_BLOCK(LEN_DATA_BLOCK),
+    .NB_ADDR_ROM(10),
+    .FILE(DATA_FILE)
+    )
+u_rom_data
+    (
+        .i_clock(i_clock),
+        .i_reset(i_reset),
+        .i_enable(i_enable_encoder),
 
+        .o_data(o_rom_data)
+    );
+
+rom_mem_ctrl#(
+    .LEN_DATA_BLOCK(LEN_CTRL_BLOCK),
+    .NB_ADDR_ROM(10),
+    .FILE(CTRL_FILE)
+    )
+u_rom_ctrl
+    (
+        .i_clock(i_clock),
+        .i_reset(i_reset),
+        .i_enable(i_enable_encoder),
+
+        .o_data(o_rom_ctrl)
+    );
 encoder_comparator#(
     .LEN_CODED_BLOCK(LEN_CODED_BLOCK),
     .LEN_DATA_BLOCK(LEN_DATA_BLOCK),
