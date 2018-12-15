@@ -25,8 +25,8 @@ wire [1 : 0]				 sync_header;
 reg  [LEN_CODED_BLOCK-1 : 0] output_data;
 reg  [LEN_CODED_BLOCK-1 : 0] scrambled_data; 
 
-// (* keep = "true" *)reg  [LEN_SCRAMBLER-1   : 0] scrambler_state;
-reg  [LEN_SCRAMBLER-1   : 0] scrambler_state;
+(* keep = "true" *) reg  [LEN_SCRAMBLER-1   : 0] scrambler_state;
+//reg  [LEN_SCRAMBLER-1   : 0] scrambler_state;
 reg  [LEN_SCRAMBLER-1   : 0] scrambler_state_next;
 reg out_bit_N;
 

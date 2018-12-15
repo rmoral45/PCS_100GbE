@@ -40,34 +40,34 @@ integer ptr_ctrl;
 initial
 begin
 
-	fid_input_data = $fopen("/home/dj/fundacion/PPS/src/Python/file_generator/idle-deletion-input-data.txt","r");
+	fid_input_data = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/idle-deletion-input-data.txt","r");
 	if(fid_input_data==0)
 	begin
 		$display("\n\n La entrada de datos no pudo ser abierta");
 		$stop;
 	end
 
-	fid_input_ctrl = $fopen("/home/dj/fundacion/PPS/src/Python/file_generator/idle-deletion-input-ctrl.txt","r");
+	fid_input_ctrl = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/idle-deletion-input-ctrl.txt","r");
 	if(fid_input_ctrl==0)
 	begin
 		$display("\n\n La entrada de control no pudo ser abierta");
 		$stop;
 	end
 
-	fid_output_data = $fopen("/home/dj/fundacion/PPS/src/Python/file_generator/verilog-output-data.txt","w");
+	fid_output_data = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog-output-data.txt","w");
 	if(fid_output_data==0)
 	begin
 		$display("\n\n La salida de datos no pudo ser abierta");
 		$stop;
 	end
 
-	fid_output_ctrl = $fopen("/home/dj/fundacion/PPS/src/Python/file_generator/verilog-output-ctrl.txt","w");
+	fid_output_ctrl = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog-output-ctrl.txt","w");
 	if(fid_output_ctrl==0)
 	begin
 		$display("\n\n La salida de control no pudo ser abierta");
 		$stop;
 	end
-	fid_output_flag = $fopen("/home/dj/fundacion/PPS/src/Python/file_generator/verilog-output-flag.txt","w");
+	fid_output_flag = $fopen("/home/diego/fundacion/PPS/src/Python/file_generator/verilog-output-flag.txt","w");
 	if(fid_output_flag==0)
 	begin
 		$display("\n\n La salida de control no pudo ser abierta");

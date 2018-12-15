@@ -1,4 +1,6 @@
-
+/*
+    AGREGAR ENABLE
+*/
 
 module block_sync_module
 #( 

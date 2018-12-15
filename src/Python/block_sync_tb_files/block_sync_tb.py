@@ -6,7 +6,7 @@ import block_sync as bs
 import copy
 
 #CONSTANTS
-NCLOCK = 200
+NCLOCK = 10000
 
 #FUNCT
 def break_sh(block,break_flag,sh_index):
@@ -43,7 +43,7 @@ def main():
 
 #Init
 	#Simulation variables
-	sh_index = 0 #con 64 se engancha en 64 ciclos de clock 
+	sh_index = 65 #con 64 se engancha en 64 ciclos de clock 
 	break_flag = False
 	#sh_cnt_limit   = 64 parametro para la fsm
 	#sh_invld_limit = 32 parametro para la fsm
@@ -61,8 +61,7 @@ def main():
 	for clock in range(NCLOCK):
 
 		in_block = gen_block(sh_index)
-		in_block = break_sh(block,break_flag,sh_index)
-		bp()
+		in_block = break_sh(in_block,break_flag,sh_index)
 		Block_Sync_Module.receive_block(in_block)
 
 		for i in range(5):
@@ -84,8 +83,9 @@ def main():
 		
 		if((clock % random_change) == 0):
 			sh_index -=1
-		if(sh_index < 0)
+		if(sh_index < 0):
 			bp()
+			break
 
 
 

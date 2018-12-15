@@ -92,7 +92,7 @@ u_descrambler
     (
     .i_clock (i_clock)           ,
     .i_reset (i_reset)           ,
-    .i_enable(i_enable_scrambler),
+    .i_enable(i_enable_descrambler),
     .i_bypass(i_bypass)          ,
     .i_data  (o_scrambled_data)  ,
     .o_data  (o_descrambled_data)
