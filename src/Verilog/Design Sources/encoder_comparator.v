@@ -12,16 +12,16 @@
 
 module encoder_comparator
 #(
-    parameter LEN_CODED_BLOCK = 66,
-    parameter LEN_TX_DATA = 64,
-    parameter LEN_TX_CTRL = 8
+  parameter 						  LEN_CODED_BLOCK = 66,
+  parameter 						  LEN_DATA_BLOCK = 64,
+  parameter						      LEN_CTRL_BLOCK = 8
  )
  (
 
   input wire 						  i_clock,
   input wire 					      i_reset,
-  input wire  [LEN_TX_DATA-1 : 0]     i_tx_data,
-  input wire  [LEN_TX_CTRL-1 : 0] 	  i_tx_ctrl,
+  input wire  [LEN_DATA_BLOCK-1 : 0]  i_tx_data,
+  input wire  [LEN_CTRL_BLOCK-1 : 0]  i_tx_ctrl,
   input wire 					      i_enable,
   output wire [3:0]                   o_tx_type,
   output reg  [LEN_CODED_BLOCK-1 : 0] o_tx_coded
@@ -63,14 +63,14 @@ localparam [7:0] BTYPE_T6    = 8'hE1;
 localparam [7:0] BTYPE_T7    = 8'hFF;
 
 //Byte positions
-localparam BYTE_0 = LEN_TX_DATA-1;
-localparam BYTE_1 = LEN_TX_DATA-1-8;
-localparam BYTE_2 = LEN_TX_DATA-1-16;
-localparam BYTE_3 = LEN_TX_DATA-1-24;
-localparam BYTE_4 = LEN_TX_DATA-1-32;
-localparam BYTE_5 = LEN_TX_DATA-1-40;
-localparam BYTE_6 = LEN_TX_DATA-1-48;
-localparam BYTE_7 = LEN_TX_DATA-1-56;
+localparam BYTE_0 = LEN_DATA_BLOCK-1;
+localparam BYTE_1 = LEN_DATA_BLOCK-1-8;
+localparam BYTE_2 = LEN_DATA_BLOCK-1-16;
+localparam BYTE_3 = LEN_DATA_BLOCK-1-24;
+localparam BYTE_4 = LEN_DATA_BLOCK-1-32;
+localparam BYTE_5 = LEN_DATA_BLOCK-1-40;
+localparam BYTE_6 = LEN_DATA_BLOCK-1-48;
+localparam BYTE_7 = LEN_DATA_BLOCK-1-56;
 
 
 //DECODIFICACION 
@@ -192,16 +192,16 @@ reg [6:0] pcs_char_7;
 
 
 //Update input
-reg [LEN_TX_DATA-1 : 0] tx_data;
-reg [LEN_TX_CTRL-1 : 0] tx_ctrl;
+reg [LEN_DATA_BLOCK-1 : 0] tx_data;
+reg [LEN_CTRL_BLOCK-1 : 0] tx_ctrl;
 
 always @(posedge i_clock)
 begin
 
 	if(i_reset)
 	begin
-		tx_data    <= {LEN_TX_DATA{1'b0}};
-		tx_ctrl    <= {LEN_TX_CTRL{1'b0}}; 
+		tx_data    <= {LEN_DATA_BLOCK{1'b0}};
+		tx_ctrl    <= {LEN_CTRL_BLOCK{1'b0}}; 
 	end
 	else if(i_enable)
 	begin

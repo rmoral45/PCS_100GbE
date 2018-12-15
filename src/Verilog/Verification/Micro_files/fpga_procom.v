@@ -30,31 +30,11 @@ module fpga
     );
     
     
-   ///////////////////////////////////////////
-   // Vars
-   ///////////////////////////////////////////
-   wire          [NB_GPIOS-1 : 0]   gpo0;
-   wire          [NB_GPIOS-1 : 0]   gpi0;
-   wire                             locked;
-   wire                             soft_reset;
-   wire                             clockdsp;
-
-   ///////////////////////////////////////////
-   // MicroBlaze
-   ///////////////////////////////////////////
-   //design_1
-MicroGPIO
-u_micro
-   (
-   .clock100        (clockdsp)     ,  // Clock aplicacion
-   .gpio_rtl_tri_i  (gpo0)       ,  // GPIO
-   .gpio_rtl_tri_o  (gpi0)       ,  // GPIO
-   .reset           (in_reset)   ,  // Hard Reset
-   .sys_clock       (clk100)     ,  // Clock de FPGA
-   .o_lock_clock    (locked)     ,  // Senal Lock Clock
-   .usb_uart_rxd    (in_rx_uart ),  // UART
-   .usb_uart_txd    (out_tx_uart)   // UART
-   );
+wire          [NB_GPIOS-1 : 0]   gpo0;
+wire          [NB_GPIOS-1 : 0]   gpi0;
+wire                             locked;
+wire                             soft_reset;
+wire                             clockdsp;
 
    ///////////////////////////////////////////
    // Leds
@@ -80,12 +60,22 @@ u_micro
    assign out_leds[14] = gpo0[10];
    assign out_leds[15] = gpo0[11];
    
-   assign gpi0[3  : 0] = i_sw;
-   assign gpi0[31 : 4] = {28{1'b0}};
+   
+   
+   
+MicroGPIO
+   u_micro
+      (
+      .clock100        (clockdsp)     ,  // Clock aplicacion
+      .gpio_rtl_tri_i  (gpo0)       ,  // GPIO
+      .gpio_rtl_tri_o  (gpi0)       ,  // GPIO
+      .reset           (in_reset)   ,  // Hard Reset
+      .sys_clock       (clk100)     ,  // Clock de FPGA
+      .o_lock_clock    (locked)     ,  // Senal Lock Clock
+      .usb_uart_rxd    (in_rx_uart ),  // UART
+      .usb_uart_txd    (out_tx_uart)   // UART
+      );
 
-   ///////////////////////////////////////////
-   // Register File
-   ///////////////////////////////////////////
 
    //.out_rf_to_micro_data  (gpi0),
 

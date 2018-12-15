@@ -3,24 +3,24 @@
 */
 module decoder_fsm
 #(
-    parameter LEN_RX_DATA = 64,
-    parameter LEN_RX_CTRL = 8
+    parameter 							LEN_DATA_BLOCK = 64,
+    parameter 							LEN_CTRL_BLOCK = 8
  )
  (
- 	input wire  					i_clock,
- 	input wire  					i_reset,
- 	input wire  					i_enable,
- 	input wire 	[3 : 0] 			i_r_type,
- 	input wire 	[3 : 0] 			i_r_type_next,
- 	input wire  [LEN_RX_DATA-1 : 0] i_rx_data,       //recibida desde el bloque comparador/decodificador
- 	input wire  [LEN_RX_CTRL-1 : 0] i_rx_control,    //recibida desde el bloque comparador/decodificador
- 	output wire	[LEN_RX_DATA-1 : 0] o_rx_raw_data,   // solo difiere de lo recibido del comparador si la secuencia es incorrecta
- 	output wire	[LEN_RX_CTRL-1 : 0] o_rx_raw_control // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+ 	input wire  						i_clock,
+ 	input wire  						i_reset,
+ 	input wire  						i_enable,
+ 	input wire 	[3 : 0] 				i_r_type,
+ 	input wire 	[3 : 0] 				i_r_type_next,
+ 	input wire  [LEN_DATA_BLOCK-1 : 0] 	i_rx_data,       //recibida desde el bloque comparador/decodificador
+ 	input wire  [LEN_CTRL_BLOCK-1 : 0] 	i_rx_control,    //recibida desde el bloque comparador/decodificador
+ 	output wire	[LEN_DATA_BLOCK-1 : 0] 	o_rx_raw_data,   // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+ 	output wire	[LEN_CTRL_BLOCK-1 : 0] 	o_rx_raw_control // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  );
 
 reg [4 : 0]				state,state_next;
-reg [LEN_RX_DATA-1 : 0] rx_raw_data, rx_raw_data_next;
-reg [LEN_RX_CTRL-1 : 0] rx_raw_control, rx_raw_control_next;
+reg [LEN_DATA_BLOCK-1 : 0] rx_raw_data, rx_raw_data_next;
+reg [LEN_CTRL_BLOCK-1 : 0] rx_raw_control, rx_raw_control_next;
 
 assign o_rx_raw_data 	 = rx_raw_data;
 assign o_rx_raw_control  = rx_raw_control;
@@ -43,13 +43,13 @@ localparam [4:0] RX_E    = 5'b00001;
 
 AGREGARR 
 
-localparam [LEN_RX_DATA-1 : 0] LBLOCK_R_DATA = local fault orderer set en clausula 81.2.3    //0x5c00000100000000 ESE ES EL FORMATO DE BLOQUE
-localparam [LEN_RX_CTRL-1 : 0] LBLOCK_R_CTRL
+localparam [LEN_DATA_BLOCK-1 : 0] LBLOCK_R_DATA = local fault orderer set en clausula 81.2.3    //0x5c00000100000000 ESE ES EL FORMATO DE BLOQUE
+localparam [LEN_CTRL_BLOCK-1 : 0] LBLOCK_R_CTRL
 
 */
 
-localparam [LEN_RX_DATA-1 : 0] EBLOCK_R_DATA = 64'h1E1E1E1E1E1E1E1E;
-localparam [LEN_RX_CTRL-1 : 0] EBLOCK_R_CTRL = 8'h1E;
+localparam [LEN_DATA_BLOCK-1 : 0] EBLOCK_R_DATA = 64'h1E1E1E1E1E1E1E1E;
+localparam [LEN_CTRL_BLOCK-1 : 0] EBLOCK_R_CTRL = 8'h1E;
 
 //Update state
 always @ (posedge i_clock, posedge i_reset)
@@ -60,9 +60,9 @@ begin
 	begin	
 		//rx_raw_data <= LBLOCK_R_DATA;  
 		//rx_raw_control <= LBLOCK_R_CTRL;
-		rx_raw_data <= {LEN_RX_DATA{1'b0}};  
-        rx_raw_control <= {LEN_RX_CTRL{1'b0}};
-		state_next <= RX_INIT;
+		rx_raw_data <= {LEN_DATA_BLOCK{1'b0}};  
+        rx_raw_control <= {LEN_CTRL_BLOCK{1'b0}};
+		state <= RX_INIT;
 
 	end
 	else if(i_enable)
@@ -80,8 +80,8 @@ always @ *
 begin
 
 	state_next 			= state;
-	rx_raw_control_next = {LEN_RX_CTRL{1'b0}};
-	rx_raw_data_next 	= {LEN_RX_DATA{1'b0}};
+	rx_raw_control_next = {LEN_CTRL_BLOCK{1'b0}};
+	rx_raw_data_next 	= {LEN_DATA_BLOCK{1'b0}};
 
 	case(state)
 		

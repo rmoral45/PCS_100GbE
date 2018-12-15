@@ -2,13 +2,13 @@
 
 module encoder_fsm
 #(
-   parameter LEN_CODED_BLOCK = 66
+   parameter                           LEN_CODED_BLOCK = 66
  )
  (
-  input  wire                       i_clock,
-  input  wire                       i_reset,
-  input  wire                       i_enable,
-  input  wire [3:0]                 i_tx_type,
+  input  wire                          i_clock,
+  input  wire                          i_reset,
+  input  wire                          i_enable,
+  input  wire [3:0]                    i_tx_type,
   input  wire [LEN_CODED_BLOCK-1 : 0]  i_tx_coded, //recibida desde el bloque comparador/codificador
   output wire [LEN_CODED_BLOCK-1 : 0]  o_tx_coded // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  );

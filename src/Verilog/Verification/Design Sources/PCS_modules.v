@@ -1,33 +1,31 @@
-module tx_modules
+module PCS_modules
   #(
-	parameter                         LEN_CODED_BLOCK = 66,            //HABRIA QUE TENER PARAMETROS PARA DATA y CTRL y no dividirlos en TX/RX
-    parameter                         LEN_TX_DATA     = 64,
-    parameter                         LEN_TX_CTRL 	  = 8,
-    parameter                         LEN_TYPE        = 4,
-    parameter                         LEN_RX_DATA     = 64,
-    parameter                         LEN_RX_CTRL     = 8,
-    parameter                         SEED            = 58'd0
+	parameter                            LEN_CODED_BLOCK = 66,            //HABRIA QUE TENER PARAMETROS PARA DATA y CTRL y no dividirlos en TX/RX
+    parameter                            LEN_DATA_BLOCK  = 64,
+    parameter                            LEN_CTRL_BLOCK  = 8,
+    parameter                            LEN_TYPE        = 4,
+    parameter                            SEED            = 58'd0
     )
 	(
-	input wire                        i_clock,
-    input wire                        i_reset,
+	input wire                           i_clock,
+    input wire                           i_reset,
 
  	/*--------------------ENCODER INPUTS & OUTPUTS-------------------*/
- 	input wire                        i_enable_encoder,               //bit to enable encoder and encoder_fsm
- 	input wire    [LEN_TX_CTRL-1 : 0] i_tx_data,
- 	input wire    [LEN_TX_DATA-1 : 0] i_tx_ctrl,
+ 	input wire                           i_enable_encoder,               //bit to enable encoder and encoder_fsm
+ 	input wire    [LEN_DATA_BLOCK-1 : 0] i_tx_data,
+ 	input wire    [LEN_CTRL_BLOCK-1 : 0] i_tx_ctrl,
  	
     /*-------------------SCRAMBLER INPUTS & OUTPUTS------------------*/
-    input wire                        i_enable_scrambler,
-    input wire                        i_bypass,              
+    input wire                           i_enable_scrambler,
+    input wire                           i_bypass,              
 
     /*-----------------DESCRAMBLER INPUTS & OUTPUTS------------------*/
-    input wire                        i_enable_descrambler,         
+    input wire                           i_enable_descrambler,         
 
     /*--------------------DECODER INPUTS & OUTPUTS-------------------*/
-    input wire                        i_enable_decoder,
-    output wire   [LEN_TX_DATA-1 : 0] o_rx_raw_data,
-    output wire   [LEN_TX_CTRL-1 : 0] o_rx_raw_ctrl
+    input wire                           i_enable_decoder,
+    output wire   [LEN_DATA_BLOCK-1 : 0] o_rx_raw_data,
+    output wire   [LEN_CTRL_BLOCK-1 : 0] o_rx_raw_ctrl
     );
 
 
@@ -38,8 +36,8 @@ wire            [LEN_CODED_BLOCK-1 : 0]   o_tx_coded;
 wire            [LEN_CODED_BLOCK-1 : 0]   o_fsm_tx_coded;
 wire            [LEN_CODED_BLOCK-1 : 0]   o_scrambled_data;
 wire            [LEN_CODED_BLOCK-1 : 0]   o_descrambled_data;
-wire            [LEN_RX_DATA-1 : 0]       o_rx_data;
-wire            [LEN_RX_CTRL-1 : 0]       o_rx_ctrl;
+wire            [LEN_DATA_BLOCK-1 : 0]    o_rx_data;
+wire            [LEN_CTRL_BLOCK-1 : 0]    o_rx_ctrl;
 wire            [LEN_TYPE-1 : 0]          o_rx_type;
 wire            [LEN_TYPE-1 : 0]          o_rx_type_fsm;
 wire            [LEN_TYPE-1 : 0]          o_rx_typenext_fsm;
@@ -47,8 +45,8 @@ wire            [LEN_TYPE-1 : 0]          o_rx_typenext_fsm;
 
 encoder_comparator#(
     .LEN_CODED_BLOCK(LEN_CODED_BLOCK),
-    .LEN_TX_DATA(LEN_TX_DATA),
-    .LEN_TX_CTRL(LEN_TX_CTRL)
+    .LEN_DATA_BLOCK(LEN_DATA_BLOCK),
+    .LEN_CTRL_BLOCK(LEN_CTRL_BLOCK)
     )
 u_encoder_comparator
     (
@@ -101,9 +99,9 @@ u_descrambler
     );
 
 decoder_comparator#(
-    .LEN_RX_CTRL    (LEN_RX_CTRL)    ,
+    .LEN_CTRL_BLOCK(LEN_CTRL_BLOCK)  ,
     .LEN_CODED_BLOCK(LEN_CODED_BLOCK),
-    .LEN_RX_DATA    (LEN_RX_DATA)
+    .LEN_DATA_BLOCK(LEN_DATA_BLOCK)
     )
 u_decoder_comparator
     (
@@ -130,8 +128,8 @@ u_decoder_fsm_interface
     );
     
 decoder_fsm#(
-    .LEN_RX_DATA(LEN_RX_DATA),
-    .LEN_RX_CTRL(LEN_RX_CTRL)
+    .LEN_DATA_BLOCK(LEN_DATA_BLOCK),
+    .LEN_CTRL_BLOCK(LEN_CTRL_BLOCK)
     )
 u_decoder_fsm
     (

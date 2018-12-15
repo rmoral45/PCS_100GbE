@@ -6,7 +6,7 @@ es decir, el r_type y el r_type_next
 
 module decoder_fsm_interface
 #(
-	parameter LEN_TYPE = 4
+	parameter 						LEN_TYPE = 4
  )
  (
  	input wire  					i_clock,

@@ -17,16 +17,16 @@
 module decoder_comparator
 #(
     parameter LEN_CODED_BLOCK = 66,
-    parameter LEN_RX_DATA = 64,
-    parameter LEN_RX_CTRL = 8
+    parameter LEN_DATA_BLOCK = 64,
+    parameter LEN_CTRL_BLOCK = 8
  )
  (
     input wire 							i_clock,
     input wire 							i_reset,
     input wire 							i_enable,
     input wire  [LEN_CODED_BLOCK-1 : 0] i_rx_coded,
-    output reg  [LEN_RX_DATA-1 : 0] 	o_rx_data,
-    output reg  [LEN_RX_CTRL-1 : 0] 	o_rx_ctrl,
+    output reg  [LEN_DATA_BLOCK-1 : 0] 	o_rx_data,
+    output reg  [LEN_CTRL_BLOCK-1 : 0] 	o_rx_ctrl,
     output wire [3:0] 					o_rx_type
  );
 

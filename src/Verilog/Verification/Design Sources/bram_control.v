@@ -5,29 +5,31 @@
 
 module bram_control
   #(
-    parameter								LEN_RX_DATA 	    = 64,
-	parameter        					    LEN_RX_CTRL		    = 8,
-	parameter								RAM_ADDR_NBIT 		= 5
+    parameter                               LEN_CODED_BLOCK     = 66,
+    parameter								LEN_DATA_BLOCK 	    = 64,
+	parameter        					    LEN_CTRL_BLOCK		= 8,
+	parameter                               LEN_TYPE            = 4,
+	parameter								NB_ADDR_RAM 		= 5
     )
     (				 
     input wire								i_clock,
     input wire								i_reset,
     input wire								i_run,
     input wire								i_read_enb,
-    input wire  [RAM_ADDR_NBIT-1 : 0] 	    i_read_addr,
-    input wire  [RAM_WIDTH_ENCODER-1 : 0]	i_data_decoded,
-    input wire  [RAM_WIDTH_TYPE-1 : 0]	    i_ctrl_decoded,
-    output wire [RAM_WIDTH_ENCODER-1 : 0]   o_data_decoded,
-    output wire [RAM_WIDTH_TYPE-1 : 0]      o_ctrl_decoded,
+    input wire  [NB_ADDR_RAM-1 : 0] 	    i_read_addr,
+    input wire  [LEN_CODED_BLOCK-1 : 0]	    i_data_decoded,
+    input wire  [LEN_TYPE-1 : 0]	        i_ctrl_decoded,
+    output wire [LEN_CODED_BLOCK-1 : 0]     o_data_decoded,
+    output wire [LEN_TYPE-1 : 0]            o_ctrl_decoded,
     output reg                              o_mem_full
     );
 
-	localparam 								RAM_DEPTH = 2**RAM_ADDR_NBIT;
+	localparam 								RAM_DEPTH = 2**NB_ADDR_RAM;
 
 	//La logica de escritura es la misma, se habilitan y deshabilitan ambas memorias al mismo tiempo
 	//y se escribe y se lee sobre la misma direccion en las dos memorias al mismo tiempo.
 
-    reg         [RAM_ADDR_NBIT-1 : 0]	    addr_counter;
+    reg         [NB_ADDR_RAM-1 : 0]	    addr_counter;
     reg 									write_enable;
     reg 									run;
     wire 									read_enable = i_read_enb && o_mem_full;
@@ -77,8 +79,8 @@ module bram_control
 
 
 bram#(
-    .RAM_WIDTH(LEN_RX_DATA),
-    .RAM_ADDR_NBIT(RAM_ADDR_NBIT)
+    .NB_WORD_RAM(LEN_DATA_BLOCK),
+    .NB_ADDR_RAM(NB_ADDR_RAM)
    	) 
 u_data_bram
     (
@@ -92,8 +94,8 @@ u_data_bram
    	);
 
 bram#(
-    .RAM_WIDTH(LEN_RX_CTRL),
-    .RAM_ADDR_NBIT(RAM_ADDR_NBIT)
+    .NB_WORD_RAM(LEN_TYPE),
+    .NB_ADDR_RAM(NB_ADDR_RAM)
    	) 
 u_ctrl_bram
     (

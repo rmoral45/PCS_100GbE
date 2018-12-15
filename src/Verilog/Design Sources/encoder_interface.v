@@ -7,19 +7,18 @@
 
 module encoder_interface
 #(
-	parameter LEN_TX_DATA = 64,
-	parameter LEN_TX_CTRL = 8 
+	parameter 						   LEN_DATA_BLOCK = 64,
+	parameter 						   LEN_CTRL_BLOCK = 8 
  )
  (
- 	input  wire 					i_valid, // valid signal from idle_insertion block
- 	input  wire 					i_am_flag,
- 	input  wire [LEN_TX_DATA-1 : 0] i_tx_data,
- 	input  wire [LEN_TX_CTRL-1 : 0] i_tx_ctrl,
+ 	input  wire 					   i_valid, // valid signal from idle_insertion block
+ 	input  wire 					   i_am_flag,
+ 	input  wire [LEN_DATA_BLOCK-1 : 0] i_tx_data,
+ 	input  wire [LEN_CTRL_BLOCK-1 : 0] i_tx_ctrl,
 
- 	output reg						o_am_flag,
- 	output reg  [LEN_TX_DATA-1 : 0] o_tx_data,
- 	output reg  [LEN_TX_CTRL-1 : 0] o_tx_ctrl
-
+ 	output reg						   o_am_flag,
+ 	output reg  [LEN_DATA_BLOCK-1 : 0] o_tx_data,
+ 	output reg  [LEN_CTRL_BLOCK-1 : 0] o_tx_ctrl
  );
 
 //LOCALPARAMS
