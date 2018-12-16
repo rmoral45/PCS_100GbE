@@ -8,5 +8,5 @@
 -- Autor         : Abratte, Diego
 				   Moral, Ramiro
 -------------------------------------------------------------------------------*/
-`include "/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/Micro_files/basys_include.v"
+`include "/home/diego/fundacion/PPS/src/Verilog/Verification/Micro_files/basys_include.v"
 

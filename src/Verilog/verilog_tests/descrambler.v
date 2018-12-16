@@ -23,7 +23,7 @@ localparam NB_SH = 2;
 
 integer i;
 wire [NB_SH-1 : 0]			 sync_header;
-reg  [LEN_CODED_BLOCK-1 : 0] output_data;
+(* keep = "true" *) reg  [LEN_CODED_BLOCK-1 : 0] output_data;
 reg  [LEN_CODED_BLOCK-1 : 0] descrambled_data;
 
 (* keep = "true" *)reg  [LEN_SCRAMBLER-1   : 0] descrambler_state;

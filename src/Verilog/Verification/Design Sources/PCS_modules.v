@@ -12,8 +12,6 @@ module PCS_modules
 
  	/*--------------------ENCODER INPUTS & OUTPUTS-------------------*/
  	input wire                           i_enable_encoder,               //bit to enable encoder and encoder_fsm
- 	input wire    [LEN_DATA_BLOCK-1 : 0] i_tx_data,
- 	input wire    [LEN_CTRL_BLOCK-1 : 0] i_tx_ctrl,
  	
     /*-------------------SCRAMBLER INPUTS & OUTPUTS------------------*/
     input wire                           i_enable_scrambler,
@@ -87,8 +85,8 @@ u_encoder_comparator
     (
     .i_clock    (i_clock)         ,
     .i_reset    (i_reset)         ,
-    .i_tx_data  (i_tx_data)       ,
-    .i_tx_ctrl  (i_tx_ctrl)       ,
+    .i_tx_data  (o_rom_data)       ,
+    .i_tx_ctrl  (o_rom_ctrl)       ,
     .i_enable   (i_enable_encoder),
     .o_tx_type  (o_tx_type)       ,
     .o_tx_coded (o_tx_coded)

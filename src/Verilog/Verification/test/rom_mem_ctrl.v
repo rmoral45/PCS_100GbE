@@ -3,7 +3,8 @@
 module rom_mem_ctrl
 #(
  	parameter LEN_DATA_BLOCK = 64,
-   	parameter NB_ADDR_ROM = 5,
+ 	parameter ROM_DEPTH      = 1024,
+   	parameter NB_ADDR_ROM    = $clog2(ROM_DEPTH),
    	parameter FILE = ""
  )
  (
@@ -13,9 +14,6 @@ module rom_mem_ctrl
 
  	output wire [LEN_DATA_BLOCK-1 : 0] 	o_data
  );
-
- localparam ROM_DEPTH = (2**NB_ADDR_ROM);
-
 
  reg [NB_ADDR_ROM-1 : 0] read_ptr;
  reg					 rom_enable;
@@ -51,6 +49,7 @@ rom_memory
 	(
 		.i_clock(i_clock),
 		.i_read_addr(read_ptr),
+		.i_enable(rom_enable),
 
 		.o_data(o_data)
 	);

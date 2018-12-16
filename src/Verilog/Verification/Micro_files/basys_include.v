@@ -1,7 +1,7 @@
-`define INIT_FILE           "/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/Micro_files"
+`define INIT_FILE           "/home/diego/fundacion/PPS/src/Verilog/Verification/Micro_files"
 `define NB_GPIOS 			32
 `define NB_LEDS 			16
-`define NB_ADDR_RAM     	5
+`define RAM_DEPTH			1024
 `define NB_OPCODE			9
 `define NB_DATA				22
 `define N_MODULES			5

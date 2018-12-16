@@ -6,7 +6,7 @@
 ## Clock signal
 set_property PACKAGE_PIN W5 [get_ports i_clock]							
 	set_property IOSTANDARD LVCMOS33 [get_ports i_clock]
-	create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports i_clock]
+	create_clock -add -name sys_clk_pin -period 20.00 -waveform {0 5} [get_ports i_clock]
  
 ## Switches
 #set_property PACKAGE_PIN V17 [get_ports {i_sw[0]}]					
@@ -108,8 +108,8 @@ set_property PACKAGE_PIN L1 [get_ports {o_leds[15]}]
 
 
 ##Buttons
-set_property PACKAGE_PIN U18 [get_ports in_reset]						
-	set_property IOSTANDARD LVCMOS33 [get_ports in_reset]
+set_property PACKAGE_PIN U18 [get_ports i_reset]						
+	set_property IOSTANDARD LVCMOS33 [get_ports i_reset]
 #set_property PACKAGE_PIN T18 [get_ports btnU]						
 	#set_property IOSTANDARD LVCMOS33 [get_ports btnU]
 #set_property PACKAGE_PIN W19 [get_ports btnL]						
@@ -264,10 +264,10 @@ set_property PACKAGE_PIN U18 [get_ports in_reset]
 
 
 ##USB-RS232 Interface
-set_property PACKAGE_PIN B18 [get_ports in_rx_uart]						
-	set_property IOSTANDARD LVCMOS33 [get_ports in_rx_uart]
-set_property PACKAGE_PIN A18 [get_ports out_tx_uart]						
-    set_property IOSTANDARD LVCMOS33 [get_ports out_tx_uart]
+set_property PACKAGE_PIN B18 [get_ports i_rx_uart]						
+	set_property IOSTANDARD LVCMOS33 [get_ports i_rx_uart]
+set_property PACKAGE_PIN A18 [get_ports o_tx_uart]						
+    set_property IOSTANDARD LVCMOS33 [get_ports o_tx_uart]
 
 
 ##USB HID (PS/2)

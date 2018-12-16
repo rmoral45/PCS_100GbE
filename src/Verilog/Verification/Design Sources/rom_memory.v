@@ -1,10 +1,10 @@
 
 
 
-module rom_memory
+module rom_memory;
 #(
-   parameter ROM_WIDTH = 64,
-   parameter ROM_ADDR_BITS = 5,
+   parameter ROM_WIDTH = 64;
+   parameter ROM_ADDR_BITS = 5;
    parameter FILE = ""
  )
 
@@ -17,9 +17,7 @@ module rom_memory
  );
  
    reg [ROM_WIDTH-1:0] ROM [(2**ROM_ADDR_BITS)-1:0];
-  (* keep = "true" *) reg [ROM_WIDTH-1:0] output_data;
-
-assign o_data = output_data;
+   reg [ROM_WIDTH-1:0] output_data;
 
    initial
       $readmemb(FILE, ROM, 0, (2**ROM_ADDR_BITS)-1);
@@ -28,4 +26,3 @@ assign o_data = output_data;
       if(i_enable)
          output_data <= ROM [i_read_addr];
 				
-endmodule

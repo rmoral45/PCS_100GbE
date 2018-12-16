@@ -29,7 +29,12 @@ PCS_modules
 	(
 		.i_clock(clock),
 		.i_reset(reset),
-		.i_enable_encoder(enable)
+		.i_enable_encoder(enable),
+		.i_enable_scrambler(enable),
+		.i_bypass(0),
+		.i_enable_descrambler(enable),
+		.i_enable_decoder(enable)
+
 	);
 
 

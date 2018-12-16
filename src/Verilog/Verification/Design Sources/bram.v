@@ -1,7 +1,8 @@
 module bram
 #(
 	parameter                           NB_WORD_RAM        = 66,
-	parameter 							NB_ADDR_RAM 	   = 5
+    parameter                           RAM_DEPTH          = 1024,
+	parameter 							NB_ADDR_RAM 	   = $clog2(RAM_DEPTH)
  )
  (				 
 	input wire							i_clock,
@@ -12,8 +13,6 @@ module bram
 	input wire 	[NB_WORD_RAM-1 : 0]     i_data,
 	output reg 	[NB_WORD_RAM-1 : 0]     o_data
 );
-
-	localparam 							RAM_DEPTH = 2**NB_ADDR_RAM;
 
     reg			[NB_WORD_RAM-1 : 0]     bram [RAM_DEPTH-1 : 0];
 
