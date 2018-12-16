@@ -75,6 +75,7 @@ wire [8 : 0] opcode;
    	assign o_leds[12] = opcode[8];
 
    	assign o_leds[13] = gpo0[9];
+   	
    	assign o_leds[14] = gpo0[10];
    	assign o_leds[15] = gpo0[11];
    
@@ -120,7 +121,8 @@ u_register_file
 	.o_enable_scrambler 	(enable_scrambler),
 	.o_enable_descrambler	(enable_descrambler),
 	.o_invalid_opcode 		(invalid_opcode),
-	.o_opcode 				(opcode)
+	.o_opcode 				(opcode),
+	.o_reset 				(soft_reset)
 	);
 
 PCS_modules
@@ -128,8 +130,8 @@ PCS_modules
 	)
 u_PCS_modules
 	(
-	.i_clock				(clock_u)			,
-	.i_reset				(i_reset)			,
+	.i_clock				(i_clock)			,
+	.i_reset				(soft_reset)		,
 	.i_enable_encoder		(enable_encoder)	,
 	.i_bypass 				(bypass)			,
 	.i_enable_scrambler 	(enable_scrambler)	,
@@ -147,8 +149,8 @@ log_memory
  	)
 	u_log_data_mem
 		(
-			.i_clock(clock_u),
-			.i_reset(i_reset),
+			.i_clock(i_clock),
+			.i_reset(soft_reset),
 			.i_run(enable_bram),
 			.i_read_addr(read_addr),
 			.i_data(rx_raw_data),
@@ -164,8 +166,8 @@ log_memory
  	)
 	u_log_ctrl_mem
 		(
-			.i_clock(clock_u),
-			.i_reset(i_reset),
+			.i_clock(i_clock),
+			.i_reset(soft_reset),
 			.i_run(enable_bram),
 			.i_read_addr(read_addr),
 			.i_data(rx_raw_ctrl),

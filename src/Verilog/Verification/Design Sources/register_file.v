@@ -19,6 +19,7 @@ module register_file
 
     output reg  [NB_GPIOS-1 : 0]        o_gpio_out, // connected in top
     output reg  [NB_ADDR_RAM-1 : 0]     o_read_address, // connected in top
+    output reg                          o_reset,
     output wire                         o_enable_read, // connected in top
     output wire                         o_enable_encoder,// connected in top
     output wire                         o_enable_scrambler,// connected in top
@@ -36,6 +37,7 @@ localparam                              OP_READ_ADDR        = 9'd2;
 localparam                              OP_READ_DATA_LOW    = 9'd3;
 localparam                              OP_READ_DATA_HIGH   = 9'd4;
 localparam                              OP_READ_CTRL        = 9'd5;
+localparam                              OP_RESET            = 9'd6;
 
 
 
@@ -101,6 +103,10 @@ begin
                 OP_READ_CTRL :
                 begin
                     o_gpio_out <= {{24{1'b0}},i_decoder_ctrl};
+                end
+                OP_RESET:
+                begin
+                    o_reset <= data[0];
                 end
                 default:
                 begin
