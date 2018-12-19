@@ -1,5 +1,5 @@
 
-`include "/home/diego/fundacion/PPS/src/Verilog/Verification/Micro_files/verification_files.v"
+`include "/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/Micro_files/verification_files.v"
 
 module verification_top_level
   #(

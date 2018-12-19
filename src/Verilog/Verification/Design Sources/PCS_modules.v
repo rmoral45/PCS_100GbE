@@ -27,8 +27,8 @@ module PCS_modules
     );
 
 // ROM STUFF
-localparam DATA_FILE = "/home/diego/fundacion/PPS/src/Verilog/Verification/test/encoder-input-data.txt" ;
-localparam CTRL_FILE = "/home/diego/fundacion/PPS/src/Verilog/Verification/test/encoder-input-ctrl.txt";
+localparam DATA_FILE = "/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/test/encoder-input-data.txt" ;
+localparam CTRL_FILE = "/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/test/encoder-input-ctrl.txt";
 
 wire [LEN_DATA_BLOCK-1 : 0] o_rom_data;
 wire [LEN_CTRL_BLOCK-1 : 0] o_rom_ctrl;

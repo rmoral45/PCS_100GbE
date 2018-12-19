@@ -1,18 +1,17 @@
 
 
 
-
 module am_lock_comparator
 #(
 	parameter LEN_AM 	= 48,
 	parameter N_ALIGNER = 20
  )
- (	input  wire 					i_enable_mask,
- 	input  wire 					i_timer_done,
- 	input  wire [LEN_AM-1 : 0] 	 	i_am_value,
- 	input  wire [N_ALIGNER-1 : 0] 	i_match_mask,
-
- 	output wire 					o_match,
+ (	input  wire 					i_enable_mask,// input from fsm
+ 	input  wire 					i_timer_done ,
+ 	input  wire [LEN_AM-1 : 0] 	 	i_am_value	 ,
+ 	input  wire [N_ALIGNER-1 : 0] 	i_match_mask ,
+ 	input  wire 					i_sh_valid   ,
+ 	output wire 					o_am_match	 ,
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector
  );
 
@@ -57,7 +56,6 @@ begin
 	aligners 	  = { AM_LANE_19, AM_LANE_18, AM_LANE_17, AM_LANE_16, AM_LANE_15, AM_LANE_14, AM_LANE_13
 					, AM_LANE_12, AM_LANE_11, AM_LANE_10, AM_LANE_9 , AM_LANE_8 , AM_LANE_7 , AM_LANE_6
 					, AM_LANE_5 , AM_LANE_4 , AM_LANE_3 , AM_LANE_2 , AM_LANE_1 , AM_LANE_0 };
-
 	match_vector  = 0;
 	match_expected_am = 0;
 	match_payload = 0;
@@ -66,7 +64,7 @@ begin
 
 	for(i=0;i<N_ALIGNER;i=i+1)
 	begin
-		if( aligners[i*LEN_AM  +: LEN_AM] == i_am_value && i_match_mask[i])
+		if((aligners[i*LEN_AM  +: LEN_AM] == i_am_value) && i_match_mask[i])
 		begin
 			match_expected_am[i] = 1;
 			match_vector[i]      = 1;
@@ -75,11 +73,11 @@ begin
 
 	match_payload = | match_expected_am; // se encontro un match
 	enable 		  = (i_timer_done | i_enable_mask);
-	match 		  = match_payload & enable;//input to fsm
+	match 		  = match_payload & enable & i_sh_valid;//input to fsm
 
 end 
 
-assign o_match = match;
+assign o_am_match = match;
 assign o_match_vector = match_vector;
 
 endmodule

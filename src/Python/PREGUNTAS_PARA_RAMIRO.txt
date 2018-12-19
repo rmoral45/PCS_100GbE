@@ -1,9 +1,0 @@
-En AM_LOCK_MODULE que pasa si encontramos un alineador valido con un sh invalido, en estado de regimen block_sync permite N sh invalidos antes de considerar que perdio sincronizacion.
-
-Testear maquinas de estado.
-
-Simular skew.
-
-!!!!importante!!!!
-resetear el estado del scrambler desp de hacer el scrambling de un bloque,tanto en tx como rx
-

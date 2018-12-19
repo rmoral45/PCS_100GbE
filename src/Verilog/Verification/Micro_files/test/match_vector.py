@@ -6,13 +6,13 @@ import numpy as np
 
 def allign_vector(python_vector, verilog_vector):
 
-	ver_index_left  = 5
-	ver_index_right = 18
-	py_index_left   = 0
-	py_index_right  = 0
+	ver_index_left  = 7
+	ver_index_right = 8
+	py_index_left   = 1
+	py_index_right  = 5
 
-	#new_pyvector = cp.deepcopy(python_vector[py_index_left:-py_index_right])
-	new_pyvector = cp.deepcopy(python_vector[py_index_left:])
+	new_pyvector = cp.deepcopy(python_vector[py_index_left:-py_index_right])
+	#new_pyvector = cp.deepcopy(python_vector[py_index_left:])
 	new_vevector = cp.deepcopy(verilog_vector[ver_index_left:-ver_index_right])
 
 
@@ -60,17 +60,17 @@ def main():
 	cgmii_data_input = [x.strip() for x in cgmii_data_input] 
 	#cgmii_ctrl_input = [x.strip() for x in cgmii_ctrl_input]
 
-	#cgmii_data_input, decoded_data_output = allign_vector(cgmii_data_input, decoded_data_output)
+	cgmii_data_input, decoded_data_output = allign_vector(cgmii_data_input, decoded_data_output)
 	#cgmii_ctrl_input, decoded_ctrl_output = allign_vector(cgmii_ctrl_input, decoded_ctrl_output)
 	cgmii_data_input, decoded_data_output = convert_vect_to_hex(cgmii_data_input, decoded_data_output)
 	#cgmii_ctrl_input, decoded_ctrl_output = convert_vect_to_hex(cgmii_ctrl_input, decoded_ctrl_output)
 
-	print 'Entradas en tabla de cgmii: ', len(cgmii_data_input)
-	print 'Entradas en tabla de verilog: ', len(decoded_data_output)
+	#print 'Entradas en tabla de cgmii: ', len(cgmii_data_input)
+	#print 'Entradas en tabla de verilog: ', len(decoded_data_output)
 
 #-----------------------------------------------------------------------
 
-	bp()
+	#bp()
 	table_data = tt.Texttable()
 	columns = ('Encoder-data-input', 'Decoder-data-output', 'Match' )
 	table_data.header(columns)

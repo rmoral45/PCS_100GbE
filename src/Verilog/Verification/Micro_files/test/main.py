@@ -7,7 +7,7 @@ import copy
 import matplotlib.pyplot as plt
 
 from uart_manager import UartManager
-from tool._fixedInt import *
+#from tool._fixedInt import *
 
 def clear(ack):
     system('clear')

@@ -1,22 +1,12 @@
 
-/*
-	REVISAR TODO EL MODULO,la escritura en la fifo debe
-	realizarse SI o SI mientras inserto los idles para alineadores,independientemente
-	si lo recibido desde cgmii son idles o no,luego de haber insertado los alineadores puedo
-	comenzar el proceso de eliminar idles.
-	agregar interfaz a la salida dle decoder,para que si el bit de insersion
-	de alineadores es 1 se pisen los bloques con un bloque idle,ya que por la FSM del
-	encoder si se recibe un idle al medio del flujo de datos eso generaria un error
-	lo que ocasionaria que el bloque idle se p[ise con uno de error y el estado del scrambler en rx
-	quedaria inconsistente con el tx
-*/
+
 
 module idle_insertion_top
 #(
 	parameter LEN_TX_DATA = 64,
 	parameter LEN_TX_CTRL = 8 ,
 	parameter N_IDLE 	  = 20,
-	parameter N_BLOCKS    = 16384,
+	parameter N_BLOCKS    = 16383,
 	parameter N_LANES     = 20 // deberia ser siempre igual a N_IDLE 
  )
  (
@@ -61,7 +51,7 @@ idle_counter
 	 (
 	 	.i_clock           (i_clock),
 	 	.i_reset           (i_reset),
-	 	.i_enable          (i_enable & (!insert_am_idle) ), //REVISAR
+	 	.i_enable          (i_enable),
 	 	.i_block_count_done(block_count_done),
 	 	.i_idle_detected   (idle_detected),
 
@@ -111,14 +101,9 @@ assign idle_enable   = (i_tx_ctrl == 8'hFF)           ? 1'b1 : 1'b0;
 assign idle_payload  = (i_tx_data == {8{CGMII_IDLE}}) ? 1'b1 : 1'b0;
 assign idle_detected = (idle_enable & idle_payload);
 
-//Fifo write logic
-
-/*assign fifo_write_enb  = 
-	((idle_detected == 1'b1 && idle_count_done == 1'b0 )) ? 1'b0 : 1'b1;
-*/
+//Fifo write logic 
 assign fifo_write_enb  = 
-	(idle_detected == 1'b0 || idle_count_done == 1'b1 || insert_am_idle == 1'b1 ) ? 1'b1 : 1'b0;
-
+	(idle_detected == 1'b1 && idle_count_done == 1'b0 ) ? 1'b0 : 1'b1;
 assign fifo_input_data = {i_tx_data,i_tx_ctrl};
 
 //PORTS

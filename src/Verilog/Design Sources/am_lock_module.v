@@ -1,110 +1,91 @@
 /*
-	Falta FSM y contador de errores.
-	Faltan agregar salidas del modulo(resync,)
+	AGREGAR PUERTOS QUE FALTEN(max_invaklid_am por ej)
+	VER POR QUE CARAJOS LA SINTESIS ME DICE :
+		design lane_id_decoder has unconnected port i_match_mask[0]
 
 */
 
 
 module am_lock_module
 #(
-	parameter LEN_CODED_BLOCK = 66,
-	parameter N_ALIGNER = 20
+	parameter LEN_CODED_BLOCK 	= 66,
+	parameter NB_BIP 			= 8,
+	parameter NB_SH				= 2,
+	parameter NB_ERROR_COUNTER  = 32,
+	parameter N_ALIGNER 		= 20,
+	parameter NB_LANE_ID		= $clog2(N_ALIGNER),
+	parameter N_BLOCKS 		 	= 16383, //***FIX cambiar a 16384 p q incluya el am en el periodo
+	parameter MAX_INV_AM        = 8,
+	parameter NB_INV_AM			= $clog2(MAX_INV_AM)
  )
  (
- 	input  wire i_clock,
- 	input  wire i_reset,
- 	input  wire i_enable,
- 	input  wire i_valid,//significa que hay un nuevo bloque listo para testear
- 	input  wire i_data, //bloque recibido
- 	input wire [N_ALIGNER-1 : 0] i_match_mask,
-
- 	output reg o_data,
-	output wire o_lane_id,
-	output wire o_am_lock
+ 	input  wire 							i_clock,
+ 	input  wire 							i_reset,
+ 	input  wire 							i_enable,
+ 	input  wire 							i_valid,//significa que hay un nuevo bloque listo para testear
+ 	input  wire 							i_block_lock,
+ 	input  wire [LEN_CODED_BLOCK-1 : 0] 	i_data,
+ 	input  wire [NB_INV_AM-1 : 0]			i_max_invalid_am,  
+ 
+ 	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data,
+	output wire [NB_LANE_ID-1 : 0]			o_lane_id,
+	output wire [NB_ERROR_COUNTER-1 : 0]	o_error_counter,
+	output wire 							o_am_lock,
+	output wire 							o_resync,
+	output wire 							o_start_of_lane
  );
 
 
 //LOCALPARAMS
-localparam LEN_AM    = 48;
+localparam LEN_AM    		= 48;
+localparam CTRL_SH 	 		= 2'b10; 
+localparam PCS_IDLE  		= 7'h00;
+localparam BLOCK_TYPE_CTRL 	= 8'h1E; //[CHECK]
 
-localparam AM_LANE_0  = 48'hC168213E97DE;
-localparam AM_LANE_1  = 48'h9D718E628E71;
-localparam AM_LANE_2  = 48'h594BE8A6B417;
-localparam AM_LANE_3  = 48'h4D957BB26A84;
-localparam AM_LANE_4  = 48'hF507090AF8F6;
-localparam AM_LANE_5  = 48'hDD14C222EB3D;
-localparam AM_LANE_6  = 48'h9A4A2665B5D9;
-localparam AM_LANE_7  = 48'h7B456684BA99;
-localparam AM_LANE_8  = 48'hA024765FDB89;
-localparam AM_LANE_9  = 48'h68C9FB973604;
-localparam AM_LANE_10 = 48'hFD6C99029366; //check
-localparam AM_LANE_11 = 48'hB99155466EAA;
-localparam AM_LANE_12 = 48'h5CB9B2A3464D;
-localparam AM_LANE_13 = 48'h1AF8BDE50742;
-localparam AM_LANE_14 = 48'h83C7CA7C3835;
-localparam AM_LANE_15 = 48'h3536CDCAC932;
-localparam AM_LANE_16 = 48'hC4314C3BCEB3;
-localparam AM_LANE_17 = 48'hADD6B7522948;
-localparam AM_LANE_18 = 48'h5F662AA099D5;
-localparam AM_LANE_19 = 48'hC0F0E53F0F1A;
 
-localparam CTRL_SH = 2'b10; //[CHECK]
-
-localparam PCS_IDLE = 7'h00;
 //INTERNAL SIGNALS
+reg  [LEN_CODED_BLOCK-1:0]	input_data,output_data;
+wire sh_valid;
+//Module connect wires
+wire [N_ALIGNER-1 : 0]		match_mask; 	//done
+wire [N_ALIGNER-1 : 0]		match_vector; 	//done
+//wire [TAMANIO DEL CONTADOR : 0]			bip_error_count;//asignar a puerto
+wire [LEN_AM-1 : 0] 		am_value;		//done
+wire [NB_BIP-1:0] 			calculated_bip, recived_bip;
+wire 						timer_done;
+wire 						timer_restart;
+wire 						am_match; 		//done
+wire 						ignore_sh; 		//done
+wire 						enable_mask;	//done
+wire 						restore_am;		//done
 
-integer i;
 
-reg [LEN_AM*N_ALIGNER-1 : 0] 	  aligners; 
-reg [N_ALIGNER-1 : 0] 			  match_mask; //salida de fsm
-reg [N_ALIGNER-1 : 0] 			  match_vector;//salida de comparadores
-reg [N_ALIGNER-1 : 0] 			  match_expected_am;
-reg [LEN_AM-1 : 0] 				  am_value;// bits
-reg [LEN_CODED_BLOCK-1:0]		  data;
-//maybe in another module :P
-reg match_payload;
-reg enable;
-reg match;
-reg enable_mask;
 
-wire [7:0] bip3;
-wire [7:0] bip7;
-wire timer_done;
-wire timer_restart;
 
 //Update input
 always @ (posedge i_clock)
 begin
-	if(i_reset)
-		data <= {LEN_CODED_BLOCK{1'b0}};
-	else if (i_valid && i_enable)
-		data <= i_data;
+	if (i_valid && i_enable)
+		input_data <= i_data;
 end
 
 //Output mux
-always @ *
+always @ (posedge i_clock)
 begin
-	if(match) //match es la salida del bloque comparador
-		o_data = { 2'b10, {8{PCS_IDLE}} };
-	else
-		o_data = data;
- end
+	//if(i_enable && i_valid && restore_am)
+	if(i_enable && i_valid && am_match)
+		output_data <= { CTRL_SH,BLOCK_TYPE_CTRL,{8{PCS_IDLE}} }; //CHECK
+	//else if(i_enable && i_valid && !restore_am)
+	else if(i_enable && i_valid && !am_match)
+		output_data <= input_data;
+end
 
+
+
+assign sh_valid = ( (input_data[LEN_CODED_BLOCK-1 -: NB_SH] == CTRL_SH) | ignore_sh );
+assign am_value = {input_data[LEN_CODED_BLOCK-3 -: 24], input_data[31 -: 24]}; //PARAMETRIZAR
+assign o_data = output_data;
 //Instances
-/*
-am_lock_error_counter
-#(
- )
- (
- 	.i_clock(),
- 	.i_reset(),
- 	.i_enable(//match),
- 	.i_rx_bip3(),//bip calc from am
- 	.i_rx_bip7(),
- 	.i_self_bip3(bip3), //bip calc from bip calculator
- 	.i_self_bip7(bip7)
- );
-*/
 
 am_lock_comparator
 #(
@@ -113,14 +94,85 @@ am_lock_comparator
  )
 	u_am_lock_comparator
 	(
-		.i_enable_mask(),
-		.i_timer_done(),
-		.i_am_value(),
-		.i_match_mask(),
+		.i_enable_mask	(enable_mask),
+		.i_timer_done	(timer_done),
+		.i_am_value		(am_value),
+		.i_match_mask	(match_mask),
+		.i_sh_valid		(sh_valid),
+		.o_am_match		(am_match),
+		.o_match_vector	(match_vector)
+	);
 
-		.o_match()
-		.o_match_vector()
-	)
+am_lock_fsm
+#(
+	.N_BLOCKS(N_BLOCKS)
+ )
+ 	u_am_lock_fsm
+ 	(
+ 		.i_clock		(i_clock),
+		.i_reset  		(i_reset),
+		.i_enable 		(i_enable),
+	 	.i_valid		(i_valid),
+	 	.i_block_lock	(i_block_lock),
+	 	.i_am_valid		(am_match),
+	 	.i_timer_done	(timer_done),
+	 	.i_am_invalid_limit(i_max_invalid_am), 
+	 	.i_match_vector (match_vector),
+
+	 	.o_match_mask	(match_mask),
+	 	.o_ignore_sh	(ignore_sh),
+	 	.o_enable_mask	(enable_mask),
+	 	.o_reset_count  (timer_restart),
+	 	.o_restore_am	(restore_am),
+	 	.o_am_lock		(o_am_lock),
+	 	.o_resync		(o_resync),
+	 	.o_start_of_lane(o_start_of_lane)
+ 	);
+
+am_timer
+#(
+	.N_BLOCKS(N_BLOCKS)
+ )
+	u_am_timer
+	 (
+	 	.i_clock		(i_clock),
+		.i_reset  		(i_reset),
+	 	.i_restart		(timer_restart),//input from fsm
+	 	.i_valid		(i_valid),
+	 	.i_enable 		(i_enable),
+
+	 	.o_timer_done	(timer_done)
+	 );
+
+lane_id_decoder
+#(
+	.N_ALIGNER(N_ALIGNER)
+ )
+	u_lane_id_decoder
+	(
+		.i_match_mask	(match_mask),
+
+		.o_lane_id		(o_lane_id)
+	);
+
+/*
+am_error_counter
+#(
+	.NB_BIP(NB_BIP),
+	.NB_COUNTER(NB_ERROR_COUNTER)
+ )
+	u_am_error_counter
+	 (
+	 	.i_clock 		 (i_clock),
+	 	.i_reset 		 (i_reset),
+	 	.i_enable 		 (i_enable),
+	 	.i_match 		 (am_match),
+	 	.i_recived_bip 	 (recived_bip),
+	 	.i_calculated_bip(calculated_bip),
+	 	.o_error_count	 (bip_error_count)
+	 );
+*/
+/**checkear puertos y logica
 bip_calculator
 #(
 	.LEN_CODED_BLOCK(LEN_CODED_BLOCK)
@@ -129,27 +181,13 @@ bip_calculator
 	 (
 	 	.i_clock(i_clock),
 	 	.i_reset(i_reset),
-	 	.i_data(data),
+	 	.i_data(input_data),
 	 	.i_enable(i_enable),
 
 	 	.o_bip3(bip3),
 	 	.o_bip7(bip7)
 	 );
-
-am_timer
-#(
-	.N_BLOCKS(16383)
- )
-	u_am_timer
-	 (
-	 	.i_clock(i_clock),
-		.i_reset(i_reset),
-	 	.i_restart(timer_restart),//input from fsm
-	 	.i_valid(i_valid),
-	 	.i_enable(i_enable),
-
-	 	.o_timer_done(timer_done)
-	 );
+*/
 
 endmodule
 
