@@ -62,8 +62,6 @@ def main():
     reorder_vect = [[] for y in range(1024)]
     main_menu  =   "reset             - 1 \n"\
                  + "enable/disable    - 2 \n"\
-                 + "set phase         - 3 \n"\
-                 + "read ber          - 4 \n"\
                  + "read tx/rx log    - 5 \n"\
                  + "Input: "
     enable_disable_menu =  "Enable Tx    - 1\n"\
