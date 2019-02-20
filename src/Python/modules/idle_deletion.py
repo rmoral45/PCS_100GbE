@@ -4,9 +4,6 @@ from pdb import set_trace as bp
 import copy
 
 
-'''
-el block coounter pasarselo desde afuera xq sino se arma bardo
-'''
 
 class IdleDeletionModule(object):
 	def __init__(self,NBLOCKS,NLANES):
