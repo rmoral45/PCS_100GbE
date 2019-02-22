@@ -3,23 +3,24 @@ module cgmiiFSM
 	parameter						DATA_NBIT	= 8,
 	parameter						IDLE_NBIT	= 5,
 	parameter						TERM_NBIT	= 3,
+	parameter						DEBUG_NBIT	= 4,
+	parameter						N_STATES	= 5
 	)
 	(
 	input 							i_clock,
 	input 							i_reset,
-	input		[3:0]				i_debug_pulse,			//senial utilizada para forzar transiciones de estados
+	input		[DEBUG_NBIT - 1:0]	i_debug_pulse,			//senial utilizada para forzar transiciones de estados
 	input wire 	[DATA_NBIT - 1:0]	i_ndata,
 	input wire 	[IDLE_NBIT - 1:0]	i_nidle,
-	output wire [4:0]				o_actual_state
+	output wire [N_STATES - 1:0]	o_actual_state
 	);
 
 //Estados
-localparam							N_STATES	= 5;
-localparam	[4:0] 					INIT 		= 5'b00001;
-localparam	[4:0] 					TX_C 		= 5'b00010;
-localparam	[4:0] 					TX_D 		= 5'b00100;
-localparam	[4:0] 					TX_T 		= 5'b01000;
-localparam	[4:0] 					TX_E 		= 5'b10000;
+localparam	[N_STATES-1:0]			INIT 		= 5'b00001;
+localparam	[N_STATES-1:0]			TX_C 		= 5'b00010;
+localparam	[N_STATES-1:0]			TX_D 		= 5'b00100;
+localparam	[N_STATES-1:0]			TX_T 		= 5'b01000;
+localparam	[N_STATES-1:0]			TX_E 		= 5'b10000;
 
 //Registros
 reg 		[N_STATES - 1:0]	actual_state;
