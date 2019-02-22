@@ -17,14 +17,19 @@ Programa para hacer el testing del modulo de insecion/eliminacion de idles
 '''
 
 import sys
+sys.path.insert(0, '../file_generator')
 sys.path.insert(0, '../modules')
 
 import random
 import numpy as np
 from pdb import set_trace as bp
 import tx_modules as tx
+import test_bench_functions as tb
 import idle_deletion as idl
+import useful_functions
 
+useful_functions.create_filedump_dir(__file__)
+bp()
 NCLOCK 		= 1000
 NIDLE  		= 10
 NDATA  		= 25
@@ -53,6 +58,7 @@ def main():
 		if TEST_CASE == 1 :
 			cgmii_output = cgmii_module.tx_raw
 			cgmii_module.change_state(0)
+			cgmii_output = tb.TB_CGMII_TRANSMIT[cgmii_output['block_name']] # mapeo de bloque del sim a su forma binaria
 			cgmii_vector.append(cgmii_output) #debug only
 
 			idle_del_module.add_block(cgmii_output)
@@ -73,20 +79,20 @@ def generate_stimulus_vector():
 		if NLANES <= 2 :
 			raise ValueError('no es posible realizar este test para una cantidad de lineas menor a 3')
 		n_idle = random.randint(1,NLANES-1)
-		vect =  [tx.CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NLANES)]
-		vect += [tx.CGMII_TRANSMIT['IDLE_BLOCK'] for y in range(n_idle)]
+		vect =  [tb.TB_CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NLANES)]
+		vect += [tb.TB_CGMII_TRANSMIT['IDLE_BLOCK'] for y in range(n_idle)]
 	elif TEST_CASE == 3:
-		vect =  [tx.CGMII_TRANSMIT['IDLE_BLOCK'] for y in range(NLANES)]
-		vect += [tx.CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NCLOCK - NLANES)]
+		vect =  [tb.TB_CGMII_TRANSMIT['IDLE_BLOCK'] for y in range(NLANES)]
+		vect += [tb.TB_CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NCLOCK - NLANES)]
 	elif TEST_CASE == 4:
-		vect =  [tx.CGMII_TRANSMIT['IDLE_BLOCK'] for y in range(NLANES+EXTRA_TIME)]
-		vect += [tx.CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NLANES)]
+		vect =  [tb.TB_CGMII_TRANSMIT['IDLE_BLOCK'] for y in range(NLANES+EXTRA_TIME)]
+		vect += [tb.TB_CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NLANES)]
 	elif TEST_CASE == 5:
 		if NLANES <= 2 :
 			raise ValueError('no es posible realizar este test para una cantidad de lineas menor a 3')
 		n_idle = random.randint(1,NLANES-1)
-		vect =  [tx.CGMII_TRANSMIT['IDLE_BLOCK'] for y in range(n_idle)]
-		vect += [tx.CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NCLOCK - n_idle)]
+		vect =  [tb.TB_CGMII_TRANSMIT['IDLE_BLOCK'] for y in range(n_idle)]
+		vect += [tb.TB_CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NCLOCK - n_idle)]
 	return  vect
 
 
