@@ -15,12 +15,13 @@ Programa para hacer el testing del modulo de insecion/eliminacion de idles
 		5) se reciben M ( < NLANES ) idles mientras clock < 20
 			pass : la entrada al encoder debe tener solo NLANES idles
 '''
-
+import os
 import sys
 sys.path.insert(0, '../file_generator')
 sys.path.insert(0, '../modules')
 
 import random
+import copy
 import numpy as np
 from pdb import set_trace as bp
 import tx_modules as tx
@@ -28,8 +29,6 @@ import test_bench_functions as tb
 import idle_deletion as idl
 import useful_functions
 
-useful_functions.create_filedump_dir(__file__)
-bp()
 NCLOCK 		= 1000
 NIDLE  		= 10
 NDATA  		= 25
@@ -51,25 +50,33 @@ def main():
 	cgmii_vector  	  = []
 	idle_del_vector   = []
 	test_input_vector = generate_stimulus_vector()
-	bp()
+	#File ops
+	path = useful_functions.create_dump_dir(__file__)
+	input_file   = open(path +'/input.txt' , "w")
+	output_file  = open(path +'/output.txt', "w")
+
 
 	for clock in range(NCLOCK):
 
 		if TEST_CASE == 1 :
 			cgmii_output = cgmii_module.tx_raw
 			cgmii_module.change_state(0)
-			cgmii_output = tb.TB_CGMII_TRANSMIT[cgmii_output['block_name']] # mapeo de bloque del sim a su forma binaria
+			cgmii_output = copy.deepcopy(tb.TB_CGMII_TRANSMIT[cgmii_output['block_name']]) # mapeo de bloque del sim a su forma binaria
 			cgmii_vector.append(cgmii_output) #debug only
 
 			idle_del_module.add_block(cgmii_output)
 			idle_del_output = idle_del_module.get_block()
+			idle_del_output = copy.deepcopy(tb.TB_CGMII_TRANSMIT[idle_del_output['block_name']])
 			idle_del_vector.append(idle_del_output)
 		else :
-			cgmii_output = copy.deepcopy(test_input_vector[clock])
+			cgmii_output = test_input_vector[clock]
+			cgmii_output = copy.deepcopy(tb.TB_CGMII_TRANSMIT[cgmii_output['block_name']]) # mapeo de bloque del sim a su forma binaria
 			idle_del_module.add_block(cgmii_output)
 			idle_del_output = idle_del_module.get_block()
+			idle_del_output = copy.deepcopy(tb.TB_CGMII_TRANSMIT[idle_del_output['block_name']])
 			idle_del_vector.append(idle_del_output)
 
+	write_test_results(input_file,idle_del_vector,'TXC',8)
 
 
 def generate_stimulus_vector():
@@ -95,7 +102,15 @@ def generate_stimulus_vector():
 		vect += [tb.TB_CGMII_TRANSMIT['DATA_BLOCK'] for y in range(NCLOCK - n_idle)]
 	return  vect
 
+def write_test_results(file,block_vect,data_name,data_nbit):
+	for block in block_vect :
+		data = block[data_name]
+		#conversion a binario
+		if not isinstance(data,str):
+			data = bin(data)[2:].zfill(data_nbit)
 
+		data = ''.join(map(lambda x: x+' ', data))
+		file.write(data + '\n')
 
 if __name__ == '__main__' : 
 	main()
