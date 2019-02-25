@@ -44,11 +44,34 @@ localparam	[N_STATES-1:0]			TX_E 			= 5'b10000;
 //Registros y parametros de debug
 localparam							DEBUG_PULSE = 4'b0000;
 wire								enable_dataGenerator;
+wire                                valid;
+
+//Registros y parametros para parametrizacion y generacion de ruido
+localparam							LEN_GNG			= 16;
+localparam							NB_TERM			= 3;
+localparam							NB_DATA			= 8;
+localparam							NB_IDLE			= 6;
+wire								noise_enable;
+wire                                noise_valid;
+wire [LEN_GNG-1:0]					noise_data;
+wire [NB_TERM-1:0]					nterm;
+wire [NB_TERM-1:0]					ndata;
+wire [NB_TERM-1:0]					nidle;
 
 
 reg  [LEN_TX_DATA-1 :0]				data_block;
 reg	 [LEN_TX_DATA-1 :0] 			tx_data;
 reg	 [LEN_TX_CTRL-1 :0] 			tx_ctrl;
+reg  [LEN_TX_DATA*8-1 :0]           t_ctrls;
+reg  [LEN_TX_DATA*8-1 :0]           t_blocks;
+reg  [LEN_TX_DATA-1 :0]				t0_block;
+reg  [LEN_TX_DATA-1 :0]				t1_block;
+reg  [LEN_TX_DATA-1 :0]				t2_block;
+reg  [LEN_TX_DATA-1 :0]				t3_block;
+reg  [LEN_TX_DATA-1 :0]				t4_block;
+reg  [LEN_TX_DATA-1 :0]				t5_block;
+reg  [LEN_TX_DATA-1 :0]				t6_block;
+reg  [LEN_TX_DATA-1 :0]				t7_block;
 wire [N_STATES-1:0]					state;
 wire [LEN_TX_CTRL-1 :0]				data0;
 wire [LEN_TX_CTRL-1 :0]				data1;
@@ -58,6 +81,11 @@ wire [LEN_TX_CTRL-1 :0]				data4;
 wire [LEN_TX_CTRL-1 :0]				data5;
 wire [LEN_TX_CTRL-1 :0]				data6;
 wire [LEN_TX_CTRL-1 :0]				data7;
+
+assign 								noise_enable 	= 1'b1;
+assign  							nterm 			= noise_data[LEN_GNG-8 -: NB_TERM];	//3 bits mas significativos para establecer el numero de terminate
+assign  							ndata 			= noise_data[LEN_GNG-4 -: NB_DATA]; //8 bits siguientes para data
+assign  							nidle 			= noise_data[LEN_GNG-8 -: NB_IDLE]; //6 bits menos significativos para idle
 
 assign 								data0 			= data_block[LEN_TX_CTRL -: 8];
 assign 								data1 			= data_block[LEN_TX_CTRL*2 -: 8];
@@ -70,6 +98,8 @@ assign 								data7 			= data_block[LEN_TX_CTRL*8 -: 8];
 assign 								o_tx_data 		= tx_data;
 assign 								o_tx_ctrl 		= tx_ctrl;
 assign  							enable_dataGenerator = 1'b1;
+assign                              valid           = 1'b1;
+
 
 always @ * begin
 
@@ -110,10 +140,16 @@ always @ * begin
 
 	TX_T:
 	begin
-		tx_data = t_blocks[nterm*LEN_TX_DATA -: LEN_TX_DATA];
-		tx_ctrl = t_ctrls[nterm*LEN_TX_CTRL -: LEN_TX_CTRL];
+		tx_data = t_blocks[nterm*LEN_TX_DATA -: LEN_TX_DATA]; //n_term salida de la awgn
+		tx_ctrl = t_ctrls[nterm*LEN_TX_CTRL -: LEN_TX_CTRL]; //n_term salida de la awgn
 	end
-
+	
+	default:
+	begin
+	    tx_data = tx_data;
+	    tx_ctrl = tx_ctrl;
+    end
+    endcase
 end
 
 
@@ -124,8 +160,8 @@ u_cgmiiFSM
 	.i_clock(i_clock),
 	.i_reset(i_reset),
 	.i_debug_pulse(DEBUG_PULSE),
-	.i_ndata(o_ndata),
-	.i_nidle(o_nidle),
+	.i_ndata(ndata),         //salida de la awgn
+	.i_nidle(nidle),         //salida de la awgn
 	.o_actual_state(state)
 	);
 
@@ -138,6 +174,17 @@ u_dataGenerator
 	.i_enable(enable_dataGenerator),
 	.i_valid(valid),
 	.o_data_block(data_block)
+	);
+
+gng#(
+	)
+u_GaussianNoiseGenerator
+	(
+	.clk(i_clock),
+	.rstn(~i_reset),
+	.ce(noise_enable),
+	.valid_out(noise_valid),
+	.data_out(noise_data)
 	);
 
 endmodule

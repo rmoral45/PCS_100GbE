@@ -23,25 +23,19 @@ localparam	[N_STATES-1:0]			TX_T 		= 5'b01000;
 localparam	[N_STATES-1:0]			TX_E 		= 5'b10000;
 
 //Registros
-reg 		[N_STATES - 1:0]	actual_state;
-reg 		[N_STATES - 1:0]	next_state;
-reg 		[IDLE_NBIT - 1:0]	idle_counter;
-reg 		[IDLE_NBIT - 1:0]	idle_counter_next;
-reg 		[IDLE_NBIT - 1:0]	data_counter;
-reg 		[IDLE_NBIT - 1:0]	data_counter_next; 
-
-
-reg 		[IDLE_NBIT - 1:0]	n_idle;
-reg 		[IDLE_NBIT - 1:0]	n_idle_next;
-reg 		[DATA_NBIT - 1:0]	n_data;
-reg 		[DATA_NBIT - 1:0]	n_data_next;
-
-
-
-
+reg 		[N_STATES - 1:0]		actual_state;
+reg 		[N_STATES - 1:0]		next_state;
+reg 		[IDLE_NBIT - 1:0]		idle_counter;
+reg 		[IDLE_NBIT - 1:0]		idle_counter_next;
+reg 		[IDLE_NBIT - 1:0]		data_counter;
+reg 		[IDLE_NBIT - 1:0]		data_counter_next; 
+reg 		[IDLE_NBIT - 1:0]		n_idle;
+reg 		[IDLE_NBIT - 1:0]		n_idle_next;
+reg 		[DATA_NBIT - 1:0]		n_data;
+reg 		[DATA_NBIT - 1:0]		n_data_next;
 
 //Asigns
-assign o_actual_state = actual_state;
+assign 								o_actual_state = actual_state;
 
 always @ (posedge i_clock)begin
 	
