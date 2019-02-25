@@ -107,7 +107,7 @@ u_data5_prbs11
 prbs#(
     .SEED(12'hDCA),
     .HIGH_LIM(12),
-    .LOW_LIM(4)
+    .LOW_LIM(5)
 	)
 u_data6_prbs11
 	(

@@ -43,7 +43,6 @@ always @ (posedge i_clock)begin
         actual_state    <= INIT;
         data_counter    <= {DATA_NBIT{1'b0}};
         idle_counter 	<= {IDLE_NBIT{1'b0}};
-        finish_counter 	<= {TERM_NBIT{1'b0}};
         n_idle 			<= i_nidle;
         n_data 			<= i_ndata;
 	end
@@ -62,7 +61,6 @@ always @ * begin
 	next_state 			= actual_state;
 	idle_counter_next 	= idle_counter;
 	data_counter_next 	= data_counter;
-	error_counter_next 	= error_counter;
 
 	if(i_debug_pulse == 4'b0000)begin  					//Operacion normal
 
@@ -106,21 +104,13 @@ always @ * begin
 
 		TX_E:
 		begin
-			if(error_counter <= n_error)begin					
-				error_counter_next 	= error_counter+1;
-				next_state 			= actual_state;
-			end
-			else begin
-				error_counter_next 	= {ERROR_NBIT{1'b0}};
 				next_state 			= TX_C;
-			end
 		end
 
 		default:										 //aca se genera la condicion de error
 		begin
 			idle_counter_next 		= idle_counter;
 			data_counter_next 		= data_counter;
-			error_counter_next 		= error_counter+1;
 			next_state 				= TX_E;
 		end
 		endcase
@@ -130,8 +120,6 @@ always @ * begin
 		next_state 			= TX_E;
 		idle_counter_next 	= 0;
 		data_counter_next 	= 0;
-		error_counter_next 	= 1;
-
 	end
 
 	else if(i_debug_pulse == 4'b0010)begin 				//Forzamos estado de control

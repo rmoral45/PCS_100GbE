@@ -50,16 +50,16 @@ wire                                valid;
 localparam							LEN_GNG			= 16;
 localparam							NB_TERM			= 3;
 localparam							NB_DATA			= 8;
-localparam							NB_IDLE			= 6;
+localparam							NB_IDLE			= 5;
 wire								noise_enable;
 wire                                noise_valid;
 wire [LEN_GNG-1:0]					noise_data;
 wire [NB_TERM-1:0]					nterm;
-wire [NB_TERM-1:0]					ndata;
-wire [NB_TERM-1:0]					nidle;
+wire [NB_DATA-1:0]					ndata;
+wire [NB_IDLE-1:0]					nidle;
 
 
-reg  [LEN_TX_DATA-1 :0]				data_block;
+
 reg	 [LEN_TX_DATA-1 :0] 			tx_data;
 reg	 [LEN_TX_CTRL-1 :0] 			tx_ctrl;
 reg  [LEN_TX_DATA*8-1 :0]           t_ctrls;
@@ -72,6 +72,7 @@ reg  [LEN_TX_DATA-1 :0]				t4_block;
 reg  [LEN_TX_DATA-1 :0]				t5_block;
 reg  [LEN_TX_DATA-1 :0]				t6_block;
 reg  [LEN_TX_DATA-1 :0]				t7_block;
+wire [LEN_TX_DATA-1 :0]			    data_block;
 wire [N_STATES-1:0]					state;
 wire [LEN_TX_CTRL-1 :0]				data0;
 wire [LEN_TX_CTRL-1 :0]				data1;
@@ -94,7 +95,7 @@ assign 								data3 			= data_block[LEN_TX_CTRL*4 -: 8];
 assign 								data4 			= data_block[LEN_TX_CTRL*5 -: 8];
 assign 								data5 			= data_block[LEN_TX_CTRL*6 -: 8];
 assign 								data6 			= data_block[LEN_TX_CTRL*7 -: 8];
-assign 								data7 			= data_block[LEN_TX_CTRL*8 -: 8];
+assign 								data7 			= data_block[LEN_TX_DATA-8 -: 8];
 assign 								o_tx_data 		= tx_data;
 assign 								o_tx_ctrl 		= tx_ctrl;
 assign  							enable_dataGenerator = 1'b1;
@@ -143,6 +144,12 @@ always @ * begin
 		tx_data = t_blocks[nterm*LEN_TX_DATA -: LEN_TX_DATA]; //n_term salida de la awgn
 		tx_ctrl = t_ctrls[nterm*LEN_TX_CTRL -: LEN_TX_CTRL]; //n_term salida de la awgn
 	end
+	
+	TX_T:
+	begin
+        tx_data = ERROR_BLOCK;
+        tx_ctrl = IDLE_CTRL;
+    end
 	
 	default:
 	begin
