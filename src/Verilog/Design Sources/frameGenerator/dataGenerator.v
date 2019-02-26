@@ -24,6 +24,8 @@ wire 			[DATA_BYTE_LEN-1 : 0]	data7;
 assign o_data_block	= {data0, data1, data2, data3, data4, data5, data6, data7};
 
 prbs#(
+    .HIGH_LIM(10),
+    .LOW_LIM(3)
 	)
 u_data0_prbs11
 	(
@@ -119,7 +121,9 @@ u_data6_prbs11
 	);
 
 prbs#(
-    .SEED(12'hADC)
+    .SEED(12'hADC),
+    .HIGH_LIM(9),
+    .LOW_LIM(2)
 	)
 u_data7_prbs11
 	(

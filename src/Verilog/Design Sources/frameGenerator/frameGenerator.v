@@ -1,11 +1,19 @@
 module frameGenerator
 	#(
 	parameter						LEN_TX_DATA 	= 64,
-	parameter						LEN_TX_CTRL 	= 8
+	parameter						LEN_TX_CTRL 	= 8,
+	parameter						LEN_GNG			= 16,
+	parameter						NB_TERM			= 3,
+	parameter						NB_DATA			= 8,
+	parameter						NB_IDLE			= 5
 	)
 	(
 	input							i_clock,
-	input							i_reset, 
+	input							i_reset,
+	input							i_enable,
+	input wire	[NB_DATA -1:0]		i_ndata,
+	input wire	[NB_IDLE -1:0]		i_nidle,
+	input wire	[NB_TERM -1:0]		i_nterm,
 	output wire [LEN_TX_DATA - 1:0]	o_tx_data,
 	output wire [LEN_TX_CTRL - 1:0]	o_tx_ctrl
 	);
@@ -41,25 +49,12 @@ localparam	[N_STATES-1:0]			TX_D 			= 5'b00100;
 localparam	[N_STATES-1:0]			TX_T 			= 5'b01000;
 localparam	[N_STATES-1:0]			TX_E 			= 5'b10000;
 
-//Registros y parametros de debug
+//Registros y parametros de debug del generador de datos
 localparam							DEBUG_PULSE = 4'b0000;
 wire								enable_dataGenerator;
 wire                                valid;
 
-//Registros y parametros para parametrizacion y generacion de ruido
-localparam							LEN_GNG			= 16;
-localparam							NB_TERM			= 3;
-localparam							NB_DATA			= 8;
-localparam							NB_IDLE			= 5;
-wire								noise_enable;
-wire                                noise_valid;
-wire [LEN_GNG-1:0]					noise_data;
-wire [NB_TERM-1:0]					nterm;
-wire [NB_DATA-1:0]					ndata;
-wire [NB_IDLE-1:0]					nidle;
-
-
-
+//Registros para uso local del generador de frames
 reg	 [LEN_TX_DATA-1 :0] 			tx_data;
 reg	 [LEN_TX_CTRL-1 :0] 			tx_ctrl;
 reg  [LEN_TX_DATA*8-1 :0]           t_ctrls;
@@ -83,10 +78,6 @@ wire [LEN_TX_CTRL-1 :0]				data5;
 wire [LEN_TX_CTRL-1 :0]				data6;
 wire [LEN_TX_CTRL-1 :0]				data7;
 
-assign 								noise_enable 	= 1'b1;
-assign  							nterm 			= noise_data[LEN_GNG-8 -: NB_TERM];	//3 bits mas significativos para establecer el numero de terminate
-assign  							ndata 			= noise_data[LEN_GNG-4 -: NB_DATA]; //8 bits siguientes para data
-assign  							nidle 			= noise_data[LEN_GNG-8 -: NB_IDLE]; //6 bits menos significativos para idle
 
 assign 								data0 			= data_block[LEN_TX_CTRL -: 8];
 assign 								data1 			= data_block[LEN_TX_CTRL*2 -: 8];
@@ -104,59 +95,62 @@ assign                              valid           = 1'b1;
 
 always @ * begin
 
-	t0_block =	{TERM_CHAR, {7{IDLE_CHAR}}};
-	t1_block =	{data0, TERM_CHAR, {6{IDLE_CHAR}}};
-	t2_block =	{data0, data1, TERM_CHAR, {5{IDLE_CHAR}}};
-	t3_block =	{data0, data1, data2, TERM_CHAR, {4{IDLE_CHAR}}};
-	t4_block =	{data0, data1, data2, data3, TERM_CHAR, {3{IDLE_CHAR}}};
-	t5_block =	{data0, data1, data2, data3, data4, TERM_CHAR, {2{IDLE_CHAR}}};
-	t6_block =	{data0, data1, data2, data3, data4, data5, TERM_CHAR, IDLE_CHAR};
-	t7_block =	{data0, data1, data2, data3, data4, data5, data6, TERM_CHAR};
+	if(i_enable)begin
+
+		t0_block =	{TERM_CHAR, {7{IDLE_CHAR}}};
+		t1_block =	{data0, TERM_CHAR, {6{IDLE_CHAR}}};
+		t2_block =	{data0, data1, TERM_CHAR, {5{IDLE_CHAR}}};
+		t3_block =	{data0, data1, data2, TERM_CHAR, {4{IDLE_CHAR}}};
+		t4_block =	{data0, data1, data2, data3, TERM_CHAR, {3{IDLE_CHAR}}};
+		t5_block =	{data0, data1, data2, data3, data4, TERM_CHAR, {2{IDLE_CHAR}}};
+		t6_block =	{data0, data1, data2, data3, data4, data5, TERM_CHAR, IDLE_CHAR};
+		t7_block =	{data0, data1, data2, data3, data4, data5, data6, TERM_CHAR};
 	
-	t_blocks =	{t0_block, t1_block, t2_block, t3_block, t4_block, t5_block, t6_block,
-				t7_block}; 
+		t_blocks =	{t0_block, t1_block, t2_block, t3_block, t4_block, t5_block, t6_block,
+					t7_block}; 
 
-	t_ctrls =	{T0_CTRL, T1_CTRL, T2_CTRL, T3_CTRL, T4_CTRL, T5_CTRL, T6_CTRL, 
-				T7_CTRL};
+		t_ctrls =	{T0_CTRL, T1_CTRL, T2_CTRL, T3_CTRL, T4_CTRL, T5_CTRL, T6_CTRL, 
+					T7_CTRL};
 
-	case(state)
+		case(state)
 
-	INIT:
-	begin
-		tx_data = Q_ORD_BLOCK;
-		tx_ctrl = ORD_CTRL;
-	end
+		INIT:
+		begin
+			tx_data = Q_ORD_BLOCK;
+			tx_ctrl = ORD_CTRL;
+		end
 
-	TX_C:
-	begin
-		tx_data = {8{IDLE_CHAR}};
-		tx_ctrl = IDLE_CTRL;
-	end
+		TX_C:
+		begin
+			tx_data = IDLE_BLOCK;
+			tx_ctrl = IDLE_CTRL;
+		end
 
-	TX_D:
-	begin
-		tx_data = data_block;
-		tx_ctrl = DATA_CTRL;
-	end
+		TX_D:
+		begin
+			tx_data = data_block;
+			tx_ctrl = DATA_CTRL;
+		end
 
-	TX_T:
-	begin
-		tx_data = t_blocks[nterm*LEN_TX_DATA -: LEN_TX_DATA]; //n_term salida de la awgn
-		tx_ctrl = t_ctrls[nterm*LEN_TX_CTRL -: LEN_TX_CTRL]; //n_term salida de la awgn
-	end
+		TX_T:
+		begin
+			tx_data = t_blocks[i_nterm*LEN_TX_DATA -: LEN_TX_DATA]; //n_term salida de la awgn
+			tx_ctrl = t_ctrls[i_nterm*LEN_TX_CTRL -: LEN_TX_CTRL]; //n_term salida de la awgn
+		end
 	
-	TX_T:
-	begin
-        tx_data = ERROR_BLOCK;
-        tx_ctrl = IDLE_CTRL;
-    end
+		TX_T:
+		begin
+        	tx_data = ERROR_BLOCK;
+	        tx_ctrl = IDLE_CTRL;
+    	end
 	
-	default:
-	begin
-	    tx_data = tx_data;
-	    tx_ctrl = tx_ctrl;
-    end
-    endcase
+		default:
+		begin
+		    tx_data = tx_data;
+		    tx_ctrl = tx_ctrl;
+    	end
+    	endcase
+	end
 end
 
 
@@ -167,8 +161,8 @@ u_cgmiiFSM
 	.i_clock(i_clock),
 	.i_reset(i_reset),
 	.i_debug_pulse(DEBUG_PULSE),
-	.i_ndata(ndata),         //salida de la awgn
-	.i_nidle(nidle),         //salida de la awgn
+	.i_ndata(i_ndata),         //salida de la awgn
+	.i_nidle(i_nidle),         //salida de la awgn
 	.o_actual_state(state)
 	);
 
@@ -181,17 +175,6 @@ u_dataGenerator
 	.i_enable(enable_dataGenerator),
 	.i_valid(valid),
 	.o_data_block(data_block)
-	);
-
-gng#(
-	)
-u_GaussianNoiseGenerator
-	(
-	.clk(i_clock),
-	.rstn(~i_reset),
-	.ce(noise_enable),
-	.valid_out(noise_valid),
-	.data_out(noise_data)
 	);
 
 endmodule
