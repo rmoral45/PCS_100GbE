@@ -20,13 +20,13 @@ module frameGenerator
 
 //Bloques
 localparam							ERROR_BLOCK 	= 64'hFEFEFEFEFEFEFEFE;
-localparam							START_BLOCK 	= 64'hFB6879736963616C;
 localparam							DATA_BLOCK 		= 64'h706879736963616C;
 localparam							Q_ORD_BLOCK 	= 64'h9C68797300000000;
 localparam							Fsig_ORD_BLOCK 	= 64'h5C68797300000000;
 localparam							IDLE_BLOCK 		= 64'h0707070707070707;
 localparam							TERM_CHAR		= 8'hFD;
-localparam							IDLE_CHAR		= 7'h07;
+localparam							IDLE_CHAR		= 8'h07;
+localparam                          START_CHAR      = 8'hFB;
 localparam							ORD_CTRL		= 8'h80;
 localparam							IDLE_CTRL		= 8'hFF;
 localparam							START_CTRL		= 8'h80;
@@ -67,7 +67,9 @@ reg  [LEN_TX_DATA-1 :0]				t4_block;
 reg  [LEN_TX_DATA-1 :0]				t5_block;
 reg  [LEN_TX_DATA-1 :0]				t6_block;
 reg  [LEN_TX_DATA-1 :0]				t7_block;
+reg  [LEN_TX_DATA-1 :0]             start_block;
 wire [LEN_TX_DATA-1 :0]			    data_block;
+wire                                start_flag;
 wire [N_STATES-1:0]					state;
 wire [LEN_TX_CTRL-1 :0]				data0;
 wire [LEN_TX_CTRL-1 :0]				data1;
@@ -105,6 +107,8 @@ always @ * begin
 		t5_block =	{data0, data1, data2, data3, data4, TERM_CHAR, {2{IDLE_CHAR}}};
 		t6_block =	{data0, data1, data2, data3, data4, data5, TERM_CHAR, IDLE_CHAR};
 		t7_block =	{data0, data1, data2, data3, data4, data5, data6, TERM_CHAR};
+		
+		start_block = {START_CHAR, data1, data2, data3, data4, data5, data6, data7};
 	
 		t_blocks =	{t0_block, t1_block, t2_block, t3_block, t4_block, t5_block, t6_block,
 					t7_block}; 
@@ -122,8 +126,14 @@ always @ * begin
 
 		TX_C:
 		begin
-			tx_data = IDLE_BLOCK;
-			tx_ctrl = IDLE_CTRL;
+			if(start_flag)begin
+			     tx_data = start_block;
+			     tx_ctrl = START_CTRL;
+			end
+			else begin
+			     tx_data = {8{IDLE_CHAR}};
+			     tx_ctrl = IDLE_CTRL;
+			end
 		end
 
 		TX_D:
@@ -134,8 +144,8 @@ always @ * begin
 
 		TX_T:
 		begin
-			tx_data = t_blocks[i_nterm*LEN_TX_DATA -: LEN_TX_DATA]; //n_term salida de la awgn
-			tx_ctrl = t_ctrls[i_nterm*LEN_TX_CTRL -: LEN_TX_CTRL]; //n_term salida de la awgn
+			tx_data = t_blocks[((LEN_TX_DATA*8-1) - (i_nterm*LEN_TX_DATA)) -: LEN_TX_DATA]; //n_term salida de la awgn
+			tx_ctrl = t_ctrls[((LEN_TX_CTRL*8-1) - (i_nterm*LEN_TX_CTRL)) -: LEN_TX_CTRL]; //n_term salida de la awgn
 		end
 	
 		TX_T:
@@ -160,9 +170,11 @@ u_cgmiiFSM
 	(
 	.i_clock(i_clock),
 	.i_reset(i_reset),
+	.i_enable(i_enable),
 	.i_debug_pulse(DEBUG_PULSE),
 	.i_ndata(i_ndata),         //salida de la awgn
 	.i_nidle(i_nidle),         //salida de la awgn
+	.o_start_flag(start_flag),
 	.o_actual_state(state)
 	);
 

@@ -9,9 +9,11 @@ module cgmiiFSM
 	(
 	input 							i_clock,
 	input 							i_reset,
+	input                           i_enable,
 	input		[DEBUG_NBIT - 1:0]	i_debug_pulse,			//senial utilizada para forzar transiciones de estados
 	input wire 	[DATA_NBIT - 1:0]	i_ndata,
 	input wire 	[IDLE_NBIT - 1:0]	i_nidle,
+	output wire                     o_start_flag,
 	output wire [N_STATES - 1:0]	o_actual_state
 	);
 
@@ -27,30 +29,37 @@ reg 		[N_STATES - 1:0]		actual_state;
 reg 		[N_STATES - 1:0]		next_state;
 reg 		[IDLE_NBIT - 1:0]		idle_counter;
 reg 		[IDLE_NBIT - 1:0]		idle_counter_next;
-reg 		[IDLE_NBIT - 1:0]		data_counter;
-reg 		[IDLE_NBIT - 1:0]		data_counter_next; 
+reg 		[DATA_NBIT - 1:0]		data_counter;
+reg 		[DATA_NBIT - 1:0]		data_counter_next; 
 reg 		[IDLE_NBIT - 1:0]		n_idle;
-reg 		[IDLE_NBIT - 1:0]		n_idle_next;
 reg 		[DATA_NBIT - 1:0]		n_data;
-reg 		[DATA_NBIT - 1:0]		n_data_next;
+reg                                 first_transition;
+reg                                 start_signal;
 
 //Asigns
 assign 								o_actual_state = actual_state;
+assign                              o_start_flag   = start_signal;
 
 always @ (posedge i_clock)begin
 	
 	if(i_reset)begin
-        actual_state    <= INIT;
         data_counter    <= {DATA_NBIT{1'b0}};
         idle_counter 	<= {IDLE_NBIT{1'b0}};
-        n_idle 			<= i_nidle;
-        n_data 			<= i_ndata;
+        first_transition<= 1'b1; 
+        start_signal    <= 1'b0;
 	end
-	else begin
+	else if(first_transition && i_enable)begin
+	    n_idle 			<= i_nidle;
+        n_data          <= i_ndata;
+        actual_state    <= INIT;
+        first_transition<= 1'b0;
+        start_signal    <= start_signal;
+    end    
+    else if(i_enable)begin
 		idle_counter 	<= idle_counter_next;
 		data_counter 	<= data_counter_next;
+		start_signal    <= start_signal;
 		actual_state 	<= next_state;
-		n_data			<= n_data_next;
 	end
 end
 
@@ -69,15 +78,17 @@ always @ * begin
 		INIT:
 		begin
 			next_state 				= TX_C;
+			start_signal            = 1'b0;
 		end
 
 		TX_C:
 		begin
-		     if(idle_counter <= n_idle)begin
+		     if(idle_counter < n_idle)begin
 			     idle_counter_next 	= idle_counter+1;
 			     next_state 		= actual_state;
 			end
 			else begin
+			     start_signal        = 1'b1;
 				 idle_counter_next 	= {IDLE_NBIT{1'b0}};
 			     next_state 		= TX_D;
 			end
@@ -85,13 +96,14 @@ always @ * begin
 
 		TX_D:
 		begin
-			if(data_counter <= n_data)begin	
+			if(data_counter < n_data)begin	
 				data_counter_next 	= data_counter+1;
 				next_state 			= actual_state;
 			end
 			else begin
 				data_counter_next 	= {DATA_NBIT{1'b0}};
 				next_state 			= TX_T;
+				
 			end
 		end
 

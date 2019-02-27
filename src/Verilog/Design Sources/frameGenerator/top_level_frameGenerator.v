@@ -25,7 +25,8 @@ wire [NB_IDLE-1:0]					nidle;
 
 assign 								noise_enable 	= 1'b1;
 assign  							nterm 			= noise_data[LEN_GNG-8 -: NB_TERM];	//3 bits mas significativos para establecer el numero de terminate
-assign  							ndata 			= noise_data[LEN_GNG-4 -: NB_DATA]; //8 bits siguientes para data
+assign  							ndata 			= (noise_data[LEN_GNG-4 -: NB_DATA] > 8'b1100100) ? 
+                                                        8'b11000110 : noise_data[LEN_GNG-4 -: NB_DATA]; //8 bits siguientes para data
 assign  							nidle 			= noise_data[LEN_GNG-8 -: NB_IDLE]; //6 bits menos significativos para idle
 
 
