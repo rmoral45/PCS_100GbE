@@ -1,5 +1,5 @@
 
-
+from operator import add
 
 class DeskewCalculator(object):
 	def __init__(self, nlanes):
@@ -46,4 +46,50 @@ class SSCounter(object):
 		elif self.start and not self.finish :
 			self.count += 1
 
+
+class DeskewFSM(object) :
+	'''
+		states = INIT, COUNT_START, COUNT_STOP
+	'''
+	def __init__(self,NLANES):
+		self.nlanes = NLANES
+		self.start_all_counters  = 0
+		self.stop_lane_counters  = [0]*NLANES
+		self.stop_common_counter = 0
+		self.state = 'INIT'
+		self.deskew_done  = 0
+		self.invalid_skew = 0
+	def change_state(self,sol_vect,resync_vect,am_lock):
+
+		if self.state == 'INIT' :
+			#self.restart_counters = 1
+			self.start_all_counters  = 0
+			self.stop_lane_counters  = [0]*NLANES
+			self.stop_common_counter = 0
+			self.deskew_done  = 0
+			self.invalid_skew = 0
+
+			if sum(resync_vect) :
+				self.state = 'INIT'
+			elif sum(sol_vect) :
+				self.start_all_counters = 1
+				self.stop_lane_counters = copy.copy(sol_vect)
+				self.state = 'COUNT_START'		
+
+		elif self.state == 'COUNT_START' :
+
+			self.stop_lane_counters = map(add,self.stop_lane_counters,sol_vect)#es lo mismo que hacer una xor
+			self.stop_common_counter = ( (sum(stop_lane_counters) == self.nlanes) *1)#igual que reduction &
+			if sum(resync_vect) :
+				self.state = 'INIT'
+			elif self.stop_common_counter :
+				self.state = 'DESKEW_DONE'
+
+		elif self.state == 'DESKEW_DONE' :
+
+		'''
+			En algun lado hay que revisar que el valor del common cunter
+			sea menor  que  MAX_SKEW
+		'''
+			self.deskew_done = 1
 
