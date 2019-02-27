@@ -38,4 +38,5 @@ module decoder_interface
  	end
  end
 
+endmodule
  

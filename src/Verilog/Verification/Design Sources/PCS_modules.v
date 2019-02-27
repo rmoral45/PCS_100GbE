@@ -27,11 +27,11 @@ module PCS_modules
     );
 
 // ROM STUFF
-localparam DATA_FILE = "/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/test/encoder-input-data.txt" ;
+/*localparam DATA_FILE = "/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/test/encoder-input-data.txt" ;
 localparam CTRL_FILE = "/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Verilog/Verification/test/encoder-input-ctrl.txt";
 
 wire [LEN_DATA_BLOCK-1 : 0] o_rom_data;
-wire [LEN_CTRL_BLOCK-1 : 0] o_rom_ctrl;
+wire [LEN_CTRL_BLOCK-1 : 0] o_rom_ctrl;*/
 
 
 
@@ -49,7 +49,7 @@ wire            [LEN_TYPE-1 : 0]          o_rx_type;
 wire            [LEN_TYPE-1 : 0]          o_rx_type_fsm;
 wire            [LEN_TYPE-1 : 0]          o_rx_typenext_fsm;
 
-rom_mem_ctrl#(
+/*rom_mem_ctrl#(
     .LEN_DATA_BLOCK(LEN_DATA_BLOCK),
     .NB_ADDR_ROM(10),
     .FILE(DATA_FILE)
@@ -75,7 +75,7 @@ u_rom_ctrl
         .i_enable(i_enable_encoder),
 
         .o_data(o_rom_ctrl)
-    );
+    );*/
 encoder_comparator#(
     .LEN_CODED_BLOCK(LEN_CODED_BLOCK),
     .LEN_DATA_BLOCK(LEN_DATA_BLOCK),
