@@ -3,7 +3,7 @@
 
 
 module scrambler
-	#(
+#(
 	parameter LEN_SCRAMBLER   = 58,
 	parameter LEN_CODED_BLOCK = 66,
 	parameter SEED			  = 0
@@ -69,7 +69,8 @@ begin // etapa 1
 	scrambler_state_next = scrambler_state;
 	for(i=LEN_CODED_BLOCK-3; i >= 0; i=i-1)
 	begin
-		out_bit_N = (i_data[i] ^ scrambler_state_next[38] ^ scrambler_state_next[57]);
+		//out_bit_N = (i_data[i] ^ scrambler_state_next[38] ^ scrambler_state_next[57]);
+		out_bit_N = (i_data[i] ^ scrambler_state_next[57-38] ^ scrambler_state_next[0]);
 		scrambled_data[i] = out_bit_N;
 		scrambler_state_next = {out_bit_N,scrambler_state_next[LEN_SCRAMBLER-1 : 1]} ;
 

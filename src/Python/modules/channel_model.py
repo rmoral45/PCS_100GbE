@@ -16,8 +16,8 @@ class ChannelModel(object):
 
 				-<type int> NLANES : cantidas de lanes de transmision/recepcion
 		"""
-		FIFO_LENGHT = 0
-		NLANES = 1
+		FIFO_LENGHT = 0 # !!!!!!??????
+		NLANES = 1 # !!!!!!??????
 		self.channel = [[0]*FIFO_LENGHT for y in range(NLANES)]
 		self.trash = [np.random.randint(0,2,FIFO_LENGHT) for y in range(NLANES)]
 		self.read_vector = lanes_read_vector

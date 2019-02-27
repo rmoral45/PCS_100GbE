@@ -68,7 +68,8 @@ begin
 	descrambler_state_next = descrambler_state;
 	for(i=LEN_CODED_BLOCK-3; i>=0; i=i-1)
 	begin
-		out_bit_N = (i_data[i] ^ descrambler_state_next[38] ^ descrambler_state_next[57]);
+		//out_bit_N = (i_data[i] ^ descrambler_state_next[38] ^ descrambler_state_next[57]);
+		out_bit_N = (i_data[i] ^ descrambler_state_next[57-38] ^ descrambler_state_next[0]);
 		descrambled_data[i] = out_bit_N;
 		descrambler_state_next = {i_data[i],descrambler_state_next[LEN_SCRAMBLER-1 : 1]};
 	end
