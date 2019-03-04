@@ -10,7 +10,7 @@ module deskew_fsm
  	input wire 					i_clock,
  	input wire 					i_reset,
  	input wire 					i_enable,
- 	input wire 					i_am_lock,
+ 	input wire 					i_am_lock, //[REVISAR] esta sin uso, deberia condicion de reset tmb, o no usarlo pero no encuento el motivo
  	input wire 					i_resync,
  	input wire [N_LANES-1 : 0]	i_start_of_lane,
  	input wire [NB_COUNT-1 : 0] i_common_counter,
@@ -19,11 +19,16 @@ module deskew_fsm
  	output reg 					o_enable_counters,
  	output reg					o_stop_common_counter,
  	output reg 					o_set_fifo_delay, //hace que las fifo recalculen el delay
- 	output wire [N_LANES-1 : 0] o_stop_lane_counters 
+ 	output wire [N_LANES-1 : 0] o_stop_lane_counters
+ 	/*
+
+		agregar valid_skew y align_statuus
+
+ 	*/
  );
 
  //LOCALPARAMS
- localparam N_STATES 	= 3
+ localparam N_STATES 	= 3;
  localparam INIT 	 	= 3'b001;
  localparam COUNT 	 	= 3'b010;
  localparam DESKEW_DONE = 3'b100;
@@ -80,7 +85,6 @@ module deskew_fsm
  			begin
  				state_next 		   = COUNT;
  				start_of_lane_next = i_start_of_lane;
- 				o_enable_counters  = 1;
  			end
  		end
  		COUNT :

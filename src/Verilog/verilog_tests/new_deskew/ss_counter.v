@@ -5,6 +5,7 @@ module ss_counter
 #(
 	parameter MAX_SKEW = 16,
 	parameter NB_COUNT = $clog2(MAX_SKEW), //AGREGAR MAS BITS !!!!!
+	parameter tt = 6'd0 //test param
  )
  (
  	input wire 					 i_clock,
