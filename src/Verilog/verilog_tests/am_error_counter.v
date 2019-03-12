@@ -29,7 +29,7 @@ localparam NB_CURRENT_ERROR = $clog2(NB_BIP);
 //INTERNAL SIGANLS
 
 reg [NB_CURRENT_ERROR-1 : 0] error_counter,error_counter_next;
-reg 						 overflow_flag;
+reg 			     overflow_flag;
 
 
 //Update counter
@@ -43,7 +43,7 @@ reg 						 overflow_flag;
  	end
 
  	else if (i_enable && i_match)
-
+	begin
  		if(error_counter[NB_COUNTER-1 : NB_CURRENT_ERROR] == {NB_COUNTER-NB_CURRENT_ERROR{1'b1}})//** check
  		begin//evitar overflow
  			error_counter <= {NB_COUNTER{1'b1}};
@@ -51,9 +51,10 @@ reg 						 overflow_flag;
  		end
  		else
  		begin
- 			error_counter <= error_counter + error_counter_next;
+ 			error_counter <= //(error_counter + error_counter_next); agrego un bit mas a esta suma y verifico overflow
  			overflow_flag <= 1'b0;
  		end
+	end
  end
 
 

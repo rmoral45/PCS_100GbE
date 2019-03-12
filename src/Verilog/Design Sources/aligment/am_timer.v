@@ -3,7 +3,8 @@
 
 module am_timer
 #(
-	parameter N_BLOCKS = 16383 //[check]
+	parameter N_BLOCKS = 16383, //[check]
+	parameter EXTRA_DELAY = 0 //depends on reset conditiones
  )
  (
  	input  wire i_clock,
@@ -39,7 +40,7 @@ end
 	1 ciclo de clock de delay para setear la flag que resetea el timer y el contador interno
 	demora 1 ciclo mas en volverse a cero.
 */
-assign o_timer_done = (counter == N_BLOCKS-2) ? 1'b1 : 1'b0; // salida en 1 cuando counter alcanzo el valor maximo
+assign o_timer_done = (counter == N_BLOCKS-EXTRA_DELAY) ? 1'b1 : 1'b0; // salida en 1 cuando counter alcanzo el valor maximo
 
 
 endmodule

@@ -131,7 +131,8 @@ am_lock_fsm
 
 am_timer
 #(
-	.N_BLOCKS(N_BLOCKS)
+	.N_BLOCKS(N_BLOCKS),
+	.EXTRA_DELAY(2)
  )
 	u_am_timer
 	 (
