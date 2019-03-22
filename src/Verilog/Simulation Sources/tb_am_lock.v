@@ -33,19 +33,19 @@ integer ptr_data;
 initial
 begin
 
-	fid_input_data = $fopen("/home/diego/fundacion/PPS/src/Python/am_lock_tb_files/am-lock-input-file.txt","r");
+	fid_input_data = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/run/am_lock_tb_files/para-tb/am-lock-input-file.txt","r");
 	if(fid_input_data == 0)
 	begin
 		$display("\n\n NO SE PUDO ABRIR ARCHIVO DE INPUT DATA");
 		$stop;
 	end
-	fid_output_data = $fopen("/home/diego/fundacion/PPS/src/Python/am_lock_tb_files/am-lock-output-file.txt","w");
+	fid_output_data = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/run/am_lock_tb_files/para-tb/am-lock-output-file.txt","w");
 	if(fid_output_data==0)
 	begin
 		$display("\n\n La salida de datos no pudo ser abierta");
 		$stop;
 	end
-	fid_output_lock =$fopen("/home/diego/fundacion/PPS/src/Python/am_lock_tb_files/am-lock-flag-file.txt","w");
+	fid_output_lock =$fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/run/am_lock_tb_files/para-tb/am-lock-flag-file.txt","w");
 	if(fid_output_lock==0)
 	begin
 		$display("\n\n La salida de control no pudo ser abierta");

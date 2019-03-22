@@ -16,7 +16,9 @@ module am_lock_module
 	parameter NB_LANE_ID		= $clog2(N_ALIGNER),
 	parameter N_BLOCKS 		 	= 16383, //***FIX cambiar a 16384 p q incluya el am en el periodo
 	parameter MAX_INV_AM        = 8,
-	parameter NB_INV_AM			= $clog2(MAX_INV_AM)
+	parameter NB_INV_AM			= $clog2(MAX_INV_AM),
+	parameter MAX_VAL_AM        = 20,
+    parameter NB_VAL_AM         = $clog2(MAX_VAL_AM)
  )
  (
  	input  wire 							i_clock,
@@ -26,6 +28,7 @@ module am_lock_module
  	input  wire 							i_block_lock,
  	input  wire [LEN_CODED_BLOCK-1 : 0] 	i_data,
  	input  wire [NB_INV_AM-1 : 0]			i_max_invalid_am,  
+ 	input  wire [NB_VAL_AM-1 : 0]           i_max_valid_am,
  
  	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data,
 	output wire [NB_LANE_ID-1 : 0]			o_lane_id,
@@ -53,6 +56,8 @@ wire [N_ALIGNER-1 : 0]		match_vector; 	//done
 wire [LEN_AM-1 : 0] 		am_value;		//done
 wire [NB_BIP-1:0] 			calculated_bip, recived_bip;
 wire 						timer_done;
+wire  						start_of_lane;
+wire 						reset_sol_count;
 wire 						timer_restart;
 wire 						am_match; 		//done
 wire 						ignore_sh; 		//done
@@ -114,21 +119,23 @@ am_lock_fsm
 		.i_enable 		(i_enable),
 	 	.i_valid		(i_valid),
 	 	.i_block_lock	(i_block_lock),
-	 	.i_am_valid		(am_match),
 	 	.i_timer_done	(timer_done),
-	 	.i_am_invalid_limit(i_max_invalid_am), 
+	 	.i_am_valid		(am_match),
+	 	.i_start_of_lane(start_of_lane),
 	 	.i_match_vector (match_vector),
+	 	.i_lock_trh     (i_max_valid_am),
+	 	.i_unlock_trh   (i_max_invalid_am),
 
 	 	.o_match_mask	(match_mask),
 	 	.o_ignore_sh	(ignore_sh),
 	 	.o_enable_mask	(enable_mask),
-	 	.o_reset_count  (timer_restart),
-	 	.o_restore_am	(restore_am),
 	 	.o_am_lock		(o_am_lock),
-	 	.o_resync		(o_resync),
-	 	.o_start_of_lane(o_start_of_lane)
+	 	.o_resyncby_am_start(o_resync),
+	 	.o_start_of_lane(o_start_of_lane),
+	 	.o_restore_am	(restore_am)
  	);
-
+ 	
+/*
 am_timer
 #(
 	.N_BLOCKS(N_BLOCKS),
@@ -148,9 +155,20 @@ am_timer
 am_sol_timer
 #(
 	.N_BLOCKS(N_BLOCKS),
-	.EXTRA_DELAY(0)
-	)
+	.EXTRA_DELAY(0) 		//en este caso no hay delay
+ )
+u_am_sol_timer
+ (
+ 	.i_clock 			(i_clock),
+ 	.i_reset 			(i_reset),
+ 	.i_restart 			(reset_sol_count),		//input from fsm
+ 	.i_valid 			(i_valid),
+ 	.i_enable 			(i_enable),
 
+ 	.o_start_of_lane	(start_of_lane)
+ );
+
+*/
 
 lane_id_decoder
 #(

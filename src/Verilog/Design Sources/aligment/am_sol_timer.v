@@ -14,12 +14,13 @@ module am_sol_timer
 
 //LOCALPARAMS
 localparam NB_COUNTER = $clog2(N_BLOCKS);
-localparam NSTATES 	  = 2;
-localparam INIT			2'b10;
-localparam LOCKED		2'b01;
+localparam N_STATES	    = 2;
+localparam INIT         = 2'b10;
+localparam LOCKED		= 2'b01;
 
 //INTERNAL SIGNALS
 reg [NB_COUNTER-1 : 0] counter;
+reg [NB_COUNTER-1 : 0] counter_next;
 reg [N_STATES-1	  : 0] state;
 
 reg [N_STATES-1	  : 0] state_next;
@@ -29,8 +30,10 @@ reg [N_STATES-1	  : 0] state_next;
 always @ (posedge i_clock)
 begin
 	if(i_reset || i_restart)
+	begin
 		counter <= 0;
 		state 	<= INIT;
+	end
 	else if(i_enable && i_valid)
 	begin
 		counter <= counter_next;
@@ -41,23 +44,25 @@ end
 always @ * begin 
 	state_next = state;
 	counter_next = counter + 1;
-	o_timer_done = 0;
+	o_start_of_lane = 0;
 	case(state)
 	INIT:
 	begin
 		if (counter == N_BLOCKS-EXTRA_DELAY)
 		begin
-			o_timer_done = 1;
-			counter_next = {NB_COUNTER{1'b0}}
+			o_start_of_lane = 1;
+			counter_next = {NB_COUNTER{1'b0}};
 			state_next = LOCKED;
 		end
 	end
 	LOCKED:
 	begin
 		if (counter == N_BLOCKS)
-		counter_next = {NB_COUNTER{1'b0}};
-			o_timer_done = 1;
-			state_next = LOCKED;			
+		begin
+		    counter_next = {NB_COUNTER{1'b0}};
+			o_start_of_lane = 1;
+			state_next = LOCKED;
+		end			
 	end
 	
 	endcase
