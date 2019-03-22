@@ -1,11 +1,11 @@
 module bram
 #(
 	parameter                           NB_WORD_RAM        = 66,
-    parameter                           RAM_DEPTH          = 1024,
+    parameter                           RAM_DEPTH          = 16,
 	parameter 							NB_ADDR_RAM 	   = $clog2(RAM_DEPTH)
  )
  (				 
-	input wire							i_clock,
+	input wire							i_clock,s
 	input wire							i_write_enable,
 	input wire							i_read_enable,
 	input wire	[NB_ADDR_RAM-1 : 0]	    i_write_addr,

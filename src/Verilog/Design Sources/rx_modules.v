@@ -22,7 +22,7 @@ module rx_modules
 
 	wire		[LEN_CODED_BLOCK-1 : 0]	o_descrambled_data;
 	wire		[LEN_DATA_BLOCK-1 : 0]	o_rx_data;
-	wire		[LEN_DATA_BLOCK-1 : 0]	o_rx_ctrl;
+	wire		[LEN_CTRL_BLOCK-1 : 0]	o_rx_ctrl;
 	wire		[LEN_TYPE-1 : 0]		o_rx_type;
 	wire		[LEN_TYPE-1 : 0]		o_rx_type_fsm;
 	wire		[LEN_TYPE-1 : 0]		o_rx_typenext_fsm;

@@ -17,6 +17,7 @@ module am_lock_fsm
  	input  wire 						i_block_lock ,
  	input  wire 						i_timer_done , 
  	input  wire 						i_am_valid  ,
+ 	input  wire							i_start_of_lane,
  	input  wire [NB_INVALID_CNT-1 : 0] 	i_am_invalid_limit ,
  	input  wire [N_ALIGNERS-1 : 0] 		i_match_vector ,
 
@@ -26,8 +27,9 @@ module am_lock_fsm
  	output wire							o_reset_count ,
  	output wire 						o_am_lock ,
  	output wire 						o_resync ,
- 	output wire 						o_start_of_lane ,
- 	output wire 						o_restore_am    
+// 	output wire 						o_start_of_lane ,
+ 	output wire 						o_restore_am,
+ 	output wire							o_reset_sol_count   
 
  );
 
@@ -56,14 +58,15 @@ reg 					restore_am 	 , rest_am_next;
 
 
 //PORTS
-assign o_match_mask  	= match_mask;
-assign o_ignore_sh   	= ignore_sh;
-assign o_enable_mask 	= (state == WAIT_1ST); // verificar si hace falta
-assign o_reset_count 	= reset_timer;
-assign o_am_lock     	= am_lock;
-assign o_resync		 	= resync;
-assign o_start_of_lane 	= start_of_lane;
-assign o_restore_am		= restore_am;
+assign o_match_mask  		= match_mask;
+assign o_ignore_sh   		= ignore_sh;
+assign o_enable_mask 		= (state == WAIT_1ST); // verificar si hace falta
+assign o_reset_count 		= reset_timer;
+assign o_am_lock     		= am_lock;
+assign o_resync		 		= resync;
+//assign o_start_of_lane 	= start_of_lane;
+assign o_restore_am			= restore_am;
+assign o_reset_sol_count 	= reset_sol_count; 
 
 
 
@@ -73,14 +76,14 @@ begin
 	if(i_reset || !i_block_lock)
 	begin
 		state 			 <= INIT;
-		start_of_lane    <= 0;
+	//	start_of_lane    <= 0;
 		resync			 <= 0;
 		am_lock 		 <= 0;
 	end
 	else if (i_enable && i_valid)
 	begin
 		state 			 <= next_state;
-		start_of_lane	 <= sol_next;
+	//	start_of_lane	 <= sol_next;
 		resync			 <= resync_next;
 		am_lock 		 <= am_lock_next;
 	end
@@ -116,7 +119,7 @@ begin
 	match_mask_next		  = match_mask;
 	ignore_sh_next		  = ignore_sh;
 	resync_next			  = 1'b0;
-	sol_next			  = 1'b0;
+	//sol_next			  = 1'b0;
 	reset_timer_next 	  = 1'b0;
 	rest_am_next		  = 1'b0;
 
@@ -146,8 +149,9 @@ begin
 				am_lock_next 	 = 1'b1;
 				reset_timer_next = 1'b1;
 				rest_am_next	 = 1'b1;
-				sol_next		 = 1'b1;
-				resync_next		 = 1'b1; // check
+//				sol_next		 = 1'b1;
+				reset_sol_count  = 1'b1;
+//				resync_next		 = 1'b1; // check
 				next_state 		 = LOCKED;
 			end
 			else if(i_timer_done && !i_am_valid)
@@ -164,7 +168,7 @@ begin
 			begin
 				am_invalid_count_next = 0;
 				reset_timer_next 	  = 1'b1;
-				sol_next		 	  = 1'b1;
+			//	sol_next		 	  = 1'b1;
 				rest_am_next     	  = 1'b1;
 			end
 			else if (i_timer_done && !i_am_valid)
@@ -182,7 +186,7 @@ begin
 					am_invalid_count_next = am_invalid_count + 1;
 					reset_timer_next 	  = 1'b1;
 					rest_am_next     	  = 1'b1;
-					sol_next		 	  = 1'b1;
+				//	sol_next		 	  = 1'b1;
 				end
 			end
 		end

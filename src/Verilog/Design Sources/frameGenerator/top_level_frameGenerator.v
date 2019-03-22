@@ -50,7 +50,6 @@ u_frameGenerator
 	.o_tx_ctrl(o_tx_ctrl)	
 	);
 
-
 gng#(
 	)
 u_GaussianNoiseGenerator
@@ -61,4 +60,5 @@ u_GaussianNoiseGenerator
 	.valid_out(noise_valid),
 	.data_out(noise_data)
 	);
+
 endmodule

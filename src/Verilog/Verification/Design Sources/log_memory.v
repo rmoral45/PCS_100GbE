@@ -4,7 +4,7 @@
 module log_memory
 #(
 	parameter NB_DATA = 64,
-	parameter DEPTH   = 1024,
+	parameter DEPTH   = 16,
 	parameter NB_ADDR = $clog2(DEPTH)
  )
  (
@@ -74,6 +74,7 @@ fifo_memory
 	(
 		.i_clock(i_clock),
 		.i_write_enb(wr_enable),
+		.i_read_enb(rd_enable),
 		.i_data(i_data),
 		.i_write_addr(wr_ptr),
 		.i_read_addr(i_read_addr),

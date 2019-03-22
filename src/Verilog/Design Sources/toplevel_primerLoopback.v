@@ -10,6 +10,7 @@ module toplevel_primerLoopback
 	input 								i_clock,
 	input 								i_reset,
 	input 								i_enable_frameGenerator,
+	input 								i_enable_frameChecker,
 	input		[TX_NMODULES-1 : 0]		i_enable_tx,
 	input		[RX_NMODULES-1 : 0]		i_enable_rx,
 	output wire	[LEN_DATA_BLOCK-1 : 0]	o_rx_raw_data,
@@ -19,6 +20,8 @@ module toplevel_primerLoopback
 	wire		[LEN_DATA_BLOCK-1 : 0]	encoder_data_input;
 	wire		[LEN_CTRL_BLOCK-1 : 0]	encoder_ctrl_input;
 	wire		[LEN_CODED_BLOCK-1 : 0]	scrambled_data;
+	wire								match_data;
+	wire								match_ctrl;
 
 top_level_frameGenerator
 	#(
@@ -58,6 +61,21 @@ u_rx_modules
 	.i_scrambled_data(scrambled_data),
 	.o_rx_raw_data(o_rx_raw_data),
 	.o_rx_raw_ctrl(o_rx_raw_ctrl)
+	);
+
+frameChecker#(
+	)
+u_frameChecker
+	(
+	.i_clock(i_clock),
+	.i_reset(i_reset),
+	.i_enable(i_enable_frameChecker),
+	.i_tx_data(encoder_data_input),
+	.i_tx_ctrl(encoder_ctrl_input),
+	.i_rx_raw_data(o_rx_raw_data),
+	.i_rx_raw_ctrl(o_rx_raw_ctrl),
+	.o_match_data(match_data),
+	.o_match_ctrl(match_ctrl)
 	);
 
 endmodule

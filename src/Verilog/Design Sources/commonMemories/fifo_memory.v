@@ -37,9 +37,8 @@ begin
 		memory[i_write_addr] <= i_data;
 end
 
-/*
-//read
 
+//read
 always @ (posedge i_clock)
 begin
 	if(i_read_enb)
@@ -50,9 +49,8 @@ begin
 							//de timing en la sintesis
 		
 end
-*/
+
 
 //PORTS
 assign o_data = memory[i_read_addr];
-//assign o_data = output_data;
 endmodule

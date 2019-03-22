@@ -32,7 +32,7 @@ initial begin
 		tb_enable_rx = 2'b00;
 #1		tb_reset	= 1'b1;
 #5		tb_reset	= 1'b0;
-        tb_enable   = 2'b11;
+#2      tb_enable   = 2'b11;
 #7		tb_enable_rx = 2'b11;
 #1000000 $finish;			
 end
@@ -60,6 +60,8 @@ frameChecker
 	)
 u_frameChecker
 	(
+	.i_clock(tb_clock),
+	.i_reset(tb_reset),
 	.i_enable(tb_enable[0]),
 	.i_tx_data(tb_o_tx_data),
 	.i_tx_ctrl(tb_o_tx_ctrl),

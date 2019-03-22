@@ -145,6 +145,13 @@ am_timer
 	 	.o_timer_done	(timer_done)
 	 );
 
+am_sol_timer
+#(
+	.N_BLOCKS(N_BLOCKS),
+	.EXTRA_DELAY(0)
+	)
+
+
 lane_id_decoder
 #(
 	.N_ALIGNER(N_ALIGNER)

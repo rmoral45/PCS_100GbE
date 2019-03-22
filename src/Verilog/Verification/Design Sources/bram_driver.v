@@ -6,7 +6,7 @@
 module bram_driver
   #(
     parameter                               NB_WORD_RAM         = 64,
-    parameter                               RAM_DEPTH           = 1024,
+    parameter                               RAM_DEPTH           = 16,
     parameter                               NB_ADDR_RAM         = $clog2(RAM_DEPTH)
     )
     (				 
@@ -26,40 +26,61 @@ module bram_driver
     reg         [NB_ADDR_RAM-1 : 0]	        addr_counter;
     reg 									write_enable;
     reg 									run;
+    reg                                     write_control;
     wire 									read_enable;
     assign read_enable = i_read_enb & o_mem_full;
     
 
+    always@(posedge i_clock)
+    begin
+        run <= i_run;
+        
+        if(i_reset)
+        begin
+            write_enable <= 0;
+            write_control <= 0;
+        end
+        else if(!run && i_run)
+        begin
+            write_enable <= 1;
+            write_control <= 1;
+        end
+        else if(!run && i_run && write_control)
+        begin
+            write_enable <= 0;
+            write_control <= write_control;
+        end
+    end
+   
+
     always@(posedge i_clock) 
     begin
-
-        run               <= i_run;               //detector de flanco de i_run 
-
         if(i_reset) 
         begin
             addr_counter	<= 0;
-            write_enable 	<= 0;
             o_mem_full      <= 0;
         end
-        else if (!run && i_run) 
+        /*else if (!run && i_run) 
         begin 
     
           addr_counter 	 	<= 0;
           write_enable 	 	<= 1;
-         	o_mem_full		<= 0;
-        end
-        else if(write_enable) 
+          o_mem_full		<= 0;
+        end*/
+        else if(!write_enable && write_control) 
         begin
                 if(addr_counter<RAM_DEPTH) 
                 begin
-                    write_enable 		 <= 1;
+                //    write_enable 		 <= 1;
                     addr_counter 		 <= addr_counter +1;
+                    write_control        <= write_control;
                 end
-                else if(addr_counter==RAM_DEPTH) 
+                else if(addr_counter==RAM_DEPTH-1) 
                 begin
                 o_mem_full               <= 1; 
-                write_enable 		     <= 0;
+          //      write_enable 		     <= 0;
                 addr_counter 		     <= addr_counter;
+                write_control           <= 0;
                 end
         end
        /* else 
@@ -74,6 +95,7 @@ module bram_driver
 
 bram#(
     .NB_WORD_RAM(NB_WORD_RAM),
+    .RAM_DEPTH(RAM_DEPTH),
     .NB_ADDR_RAM(NB_ADDR_RAM)
    	) 
 u_bram

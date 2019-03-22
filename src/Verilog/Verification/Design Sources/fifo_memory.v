@@ -9,7 +9,7 @@ module fifo_memory
  (
  	input wire  				i_clock,
  	input wire  				i_write_enb,
- 	//input wire  				i_read_enb, // capas no lo necesito en este nivel
+ 	input wire  				i_read_enb, // capas no lo necesito en este nivel
  	input wire  [NB_DATA-1 : 0] i_data,
  	input wire  [NB_ADDR-1 : 0] i_write_addr,
  	input wire  [NB_ADDR-1 : 0] i_read_addr,
@@ -37,7 +37,7 @@ begin
 		memory[i_write_addr] <= i_data;
 end
 
-/*
+
 //read
 
 always @ (posedge i_clock)
@@ -50,7 +50,7 @@ begin
 							//de timing en la sintesis
 		
 end
-*/
+
 
 //PORTS
 assign o_data = memory[i_read_addr];
