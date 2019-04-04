@@ -25,7 +25,7 @@ localparam DEPTH = 2**NB_ADDR;
 
 //INTERNAL SIGNALS
 
-reg [NB_DATA-1 : 0]    memory       [0 : DEPTH-1];
+reg [NB_DATA-1 : 0]    memory       [0 : DEPTH-2];
 reg [NB_DATA-1 : 0]    output_data               ;
 reg [NB_DATA-1 : 0]    out               		 ;
 
