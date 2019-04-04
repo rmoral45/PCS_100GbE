@@ -13,7 +13,7 @@ module am_lock_fsm
  	input  wire 						i_enable ,
  	input  wire 						i_valid ,
  	input  wire 						i_block_lock ,
- 	input  wire 						i_timer_done , 
+	input  wire 						i_timer_done , 
  	input  wire 						i_am_valid  ,
  	input  wire							i_start_of_lane,
  	input  wire [N_ALIGNERS-1 : 0] 		i_match_vector ,
@@ -114,7 +114,7 @@ begin
 	reset_timer_lock      = 1'b0;
 
 	case(state)
-		INIT:
+		INIT://Merge con wait 1st ?
 		begin
 			am_lock_next 	= 1'b0;
 			ignore_sh_next	= 1'b0;
@@ -140,7 +140,12 @@ begin
 			begin
 				am_lock_next 	 = 1'b1;
 				rest_am_next	 = 1'b1;
-				next_state 		 = LOCKED;
+				next_state 	 = LOCKED;
+				/*
+				* resetear tanto el  timer search como el
+				* timer lock
+				* 
+				*/
 			end
 			else if(timer_search_done && !i_am_valid)
 			begin
@@ -149,7 +154,8 @@ begin
 				next_state 		 = WAIT_1ST;
 			end
 		end
-		LOCKED:
+		LOCKED: //verificar que sucede con los contadore cuando se cumple 
+			//que el alineador  recibido es invalido pero no se alcanzo la cuenta max
 		begin
 		    confirmation_flag     = 1'b1;
 			if (timer_search_done && i_am_valid)
@@ -163,7 +169,8 @@ begin
 					next_state 		= WAIT_1ST;
 					match_mask_next = {N_ALIGNERS{1'b1}};
 					ignore_sh_next  = 1'b0;
-					am_lock_next 	= 1'b0;				
+					am_lock_next 	= 1'b0;
+					//reset  timer next				
 			end
 		end
 
@@ -174,17 +181,22 @@ end
 
     always @( posedge i_clock )
     begin
-        if ( i_reset || i_valid && reset_match_counter )
+        if ( i_reset || i_valid && reset_match_counter )//verificar correcta precedencia de los operadores
            am_invalid_count <= 0 ;
         else if ( i_timer_done && i_valid )
         begin
             if ( confirmation_flag && i_am_valid )
-                am_invalid_count <= am_invalid_count;
+                am_invalid_count <= am_invalid_count; //quizas no se cupla nuncaa,pero lo dejamos para revisar
             else if ( !i_am_valid )
                 am_invalid_count <= am_invalid_count + 1'b1 ;          
         end
     end
+    /*
+    FIX, match counter full debe depender de alguna cuenta de am validos,la cual no esta siendo realizada
+
     assign  match_counter_full = ( am_invalid_count == i_lock_thr ) ;       //coincide numero de am_valid con entrada --> LOCK
+
+    */
     assign  invalid_count_full = ( am_invalid_count == i_unlock_thr ) ;     //coincide numero de am_invalid con entrada --> WAIT_1ST
     
    
@@ -192,7 +204,7 @@ end
     
     always @( posedge i_clock )
     begin
-        if ( i_reset || i_valid && reset_timer_next )
+        if (i_reset || (i_valid && reset_timer_next))
             timer_search
                 <= 0 ;
         else if ( i_valid )
@@ -205,14 +217,15 @@ end
 //cuenta de timer para start of lane
     always @( posedge i_clock )
     begin
-        if ( i_reset || i_valid && reset_timer_lock )
+        if ( i_reset || i_valid && reset_timer_lock )//setear reset timer lock en algun lado !!!
             timer_lock
                 <= 1 ;  // FIXME: Use proper value to ensure both counters are equal after resync.
         else if ( i_valid )
-            timer_lock
+            timer_lock 
                 <= ( o_start_of_lane )? 0 : timer_lock+1'b1 ;
     end
-    assign o_start_of_lane = ( timer_search == N_BLOCKS ) ;
+    //assign o_start_of_lane = ( timer_search == N_BLOCKS ) ;//FIX, la cond de reset deberia ser timer_lock,no timer search
+    assign o_start_of_lane = ( timer_lock == N_BLOCKS ) ;
     assign o_resync_by_am_start = reset_timer_lock && ( timer_lock!=timer_search ) ;
 
 endmodule
