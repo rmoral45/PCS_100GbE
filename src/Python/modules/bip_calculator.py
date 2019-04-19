@@ -3,12 +3,12 @@ LEN_CODED_BLOCK = 66
 
 class bipCalculator(object):
 
-	def __init__(self):
+	def __init__(self, ):
 		self.bip = [1]*8
 		self.bip3 = [1]*8
 		self.bip7 = [0]*8
 
-	def calculateParity(self, data, alligner_flag):
+	def calculateParity(self, data):
 			
 
 		for i in range(0, ((LEN_CODED_BLOCK-2)/8)-1):		#le resto 2 LEN_CODED_BLOCK pq no contamos los sh
@@ -36,7 +36,7 @@ class bipCalculator(object):
 		return (self.bip3, self.bip7)
 
 
-	def reset(self):
+	def reset(self, phy_lane_id):
 		self.bip = [1]*8
 		self.bip3 = [1]*8
 		self.bip7 = [0]*8

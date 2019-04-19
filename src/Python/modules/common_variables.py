@@ -95,8 +95,8 @@ CODED_T7_BLOCK   = [0x02,0xFF, D0, D1, D2, D3, D4, D5, D6]
 
 
 
-AM_BLOCK_GAP = 16383 #cantidad de bloques entre un AM y otro
-
+#AM_BLOCK_GAP = 16383 #cantidad de bloques entre un AM y otro
+AM_BLOCK_GAP = 10
 
 align_marker_list = [ 0x2C16821003E97DEff ,
 					  0x29D718E00628E71ff ,
