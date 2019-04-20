@@ -1,27 +1,30 @@
 
 
-
-module block_sync_fsm   //*** realizar con menos estados y que reaccione sin necesidad de tener clocks extra.
+module block_sync_fsm
 #(
-	parameter LEN_CODED_BLOCK    = 66,
-	parameter MAX_INVALID_SH     = 6,
-	parameter MAX_WINDOW	     = 2048,
-	parameter NB_WINDOW_CNT      = $clog2(MAX_WINDOW),
-	parameter NB_INVALID_CNT 	 = $clog2(MAX_INVALID_AM)
+	parameter NB_CODED_BLOCK	= 66,
+	parameter MAX_INDEX_VALUE 	= (NB_CODED_BLOCK - 2),
+	parameter MAX_INVALID_SH    = 6,
+	parameter MAX_WINDOW	    = 2048,
+	parameter NB_WINDOW_CNT		= $clog2(MAX_WINDOW),
+	parameter NB_INVALID_CNT 	= $clog2(MAX_INVALID_SH),
+	parameter NB_INDEX 			= $clog2(NB_CODED_BLOCK)
 
  )
  (
- 	input  wire i_clock			   		,
- 	input  wire i_reset			   		,
- 	input  wire i_enable		   		,
- 	input  wire i_valid			   		,
- 	input  wire i_signal_ok 	   		,
- 	input  wire i_sh_valid  	   			,
- 	input  wire [NB_WINDOW_CNT -1 : 0] i_unlocked_count_limit  	, //usado por timer interno
- 	input  wire [NB_WINDOW_CNT -1 : 0] i_locked_count_limit   	, //usado por timer interno
- 	input  wire [NB_INVALID_CNT-1 : 0] i_sh_invalid_limit 		,
+ 	input  wire 						i_clock			   		,
+ 	input  wire 						i_reset			   		,
+ 	input  wire 						i_enable		   		,
+ 	input  wire 						i_valid			   		,
+ 	input  wire 						i_signal_ok 	   		,
+ 	input  wire 						i_sh_valid  	   		,
+ 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_unlocked_timer_limit  , //usado por timer interno
+ 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_locked_timer_limit   	, //usado por timer interno
+ 	input  wire [NB_INVALID_CNT-1 : 0] 	i_sh_invalid_limit 		,
 
- 	output wire o_index			     
+ 	output wire [NB_INDEX-1 : 0]		o_block_index 			,
+ 	output wire [NB_INDEX-1 : 0]		o_search_index 			,
+ 	output wire 						o_block_lock	     
  );
 
 
@@ -31,83 +34,119 @@ localparam N_STATES  = 2;
 
 localparam UNLOCKED  = 2'b10;
 localparam LOCKED  	 = 2'b01;
-localparam NB_INDEX = $clog2(LEN_CODED_BLOCK) ; //***
 
 //INTERNAL SIGNALS
 
-reg 			   					block_lock  , block_lock_next	;
-reg				   					test_sh     , test_sh_next		;
-reg 								reset_count , reset_count_next  ;
-reg [NB_CNT-1 : 0] 					sh_cnt      , sh_cnt_next 		;
-reg [NB_INVALID_CNT-1 : 0] 			sh_invld_cnt, sh_invld_cnt_next ;
-reg [N_STATES-1 : 0]				state 		, state_next		;
-reg [NB_INDEX-1 : 0]				index 		, index_next		;							
+reg 			   					block_lock;
+reg 								reset_count;
+reg [NB_INVALID_CNT-1 : 0]  		sh_invalid_count;
+reg [N_STATES-1 : 0]				state, next_state;
+reg [NB_INDEX-1 : 0]				search_index, next_search_index;
+reg [NB_INDEX-1 : 0]				block_index, next_block_index;
+reg [NB_WINDOW_CNT-1 : 0] 			timer_search;
+reg 								update_search_index;
+reg 								update_block_index;
+reg 								reset_search_index;
 
-wire locked_count_done;
-wire unlocked_count_done;
+				
+wire 								locked_timer_done;
+wire 								unlocked_timer_done;
+wire								invalid_counter_full;
 
-//Update state signals
+//Update state
 always @ (posedge i_clock)
 begin
+
 	if( i_reset || ~i_signal_ok)
-	begin
-		state 	   	 <= UNLOCKED;
-		block_lock 	 <= 0;
-		sh_invld_cnt <= 0;
-		index 		 <= 0;
-		reset_count  <= 0;
-	end
+		state <= UNLOCKED;
+
 	else if(i_enable && i_valid)
-	begin
-		block_lock 	 <= block_lock_next;
-		sh_invld_cnt <= sh_invld_cnt_next;
-		reset_count  <= reset_count_next;
-		state 	   	 <= state_next;
-		index 		 <= index_next;
-	end
+		state <= next_state;
+
 end
 
+//Update index used to search valid sync-headers in input stream
+always @ (posedge i_clock)
+begin
+
+	if (i_reset || ~i_signal_ok || reset_search_index)
+	begin
+		search_index <= {NB_INDEX{1'b0}};
+	end
+
+	else if (i_enable && i_valid && update_search_index)
+	begin
+		if (search_index == MAX_INDEX_VALUE)
+			search_index <= {NB_INDEX{1'b0}};
+		else
+			search_index <= search_index + 1'b1;
+	end
+
+end
+
+//Update index used to select data from input stream
+always @ (posedge i_clock)
+begin
+	
+	if (i_reset || ~i_signal_ok)
+		block_index <= {NB_INDEX{1'b0}};
+
+	else if (i_enable && i_valid && update_block_index)
+		block_index <= search_index;
+end
 
 
 always @ *
 begin
-	block_lock_next   = block_lock  ;
-	sh_invld_cnt_next = sh_invld_cnt;
-	state_next 		  = state;
-	index_next 		  = index;
-	reset_count_next  = 1'b0;
+	next_state			= state;
+	reset_count 		= 1'b0;
+	reset_timer			= 1'b0;
+	update_search_index	= 1'b0;
+	update_block_index	= 1'b0;
+	reset_search_index 	= 1'b0;
 
 	case(state)
 		UNLOCKED:
 		begin
+
+			block_lock 	= 1'b0;
 			if(!i_sh_valid)
-				reset_count_next = 1'b1;
-			else if(unlocked_count_done)
 			begin
-				state_next = LOCKED;
-				block_lock_next  = 1;
-				reset_count_next = 1'b1; 
+				reset_timer 		= 1'b1;
+				reset_count 		= 1'b1;
+				update_search_index = 1'b1;
 			end
+			else if(unlocked_timer_done)
+			begin
+				reset_count 		= 1'b1;
+				reset_timer 		= 1'b1;
+				update_block_index 	= 1'b1;
+				next_state  		= LOCKED;
+			end
+
 		end//end UNLOCKED state
 
 		LOCKED:begin
-			if(locked_count_done)
+
+			block_lock 	= 1'b1;
+			if(locked_timer_done)
 			begin
-				sh_invld_cnt_next = 0;
-				reset_count_next  = 1'b1;		
+				reset_count = 1'b1;
+				reset_timer = 1'b1;		
 			end
-			else if( sh_invld_cnt >= i_sh_invalid_limit )
+
+			else if(invalid_counter_full)
 			begin
-				block_lock_next   = 0;
-				index_next 		  = index + 1;
-				reset_count_next  = 1'b1;
-				sh_invld_cnt_next = 0;
-				state_next 		  = UNLOCKED;
+				block_lock_next		= 1'b0;
+				reset_count 		= 1'b1;
+				reset_timer 		= 1'b1;
+				/*
+					Aca tenemos dos opciones,o reseteamos search_index y comenzamos del inicio, o hacemos un update
+				*/
+				reset_search_index 	= 1'b1;
+				next_state			= UNLOCKED;
 			end
-			else if(!i_sh_valid)
-			begin
-				sh_invld_cnt_next = sh_invld_cnt + 1;
-			end
+			
 		end // end LOCKED state
 	endcase
 	
@@ -115,29 +154,39 @@ end
 
 
 
-//block window timer
 
-/*
-	La cuenta se resetea solo comandada por la FSM,sino cuenta hasta hacer overflow
-	al alcanzar el valor de ventana maximo,definbida por el parameter MAX_WINDOW
-*/
 
-block_sync_timer
-#(
-	.MAX_WINDOW(MAX_WINDOW)
- )
-	u_timer
-	(
-		.i_clock(i_clock),
-		.i_reset(reset),
-		.i_reset_count(reset_count),
-		.i_enable(i_enable),
-		.i_valid(i_valid),
-		.i_unlocked_count_limit(i_unlocked_count_limit),
-		.i_locked_count_limit(i_locked_count_limit),
-		.o_unlocked_count_done(unlocked_count_done),
-		.o_locked_count_done(locked_count_done)
-	);
+//cuenta de sh invalidos
+
+always @ (posedge i_clock)
+begin
+
+	if (i_reset || reset_count )
+		sh_invalid_count <= {NB_INVALID_CNT{1'b0}};
+
+	else if (i_valid && !i_sh_valid)
+		sh_invalid_count <= sh_invalid_count + 1'b1;
+	
+end
+
+assign invalid_counter_full = (sh_invalid_count >= i_sh_invalid_limit) ? 1'b1 : 1'b0;
+
+
+
+//cuenta de timer
+always @ (posedge i_clock)
+begin
+	
+	if (i_reset || reset_timer)
+		timer_search <= {NB_WINDOW_CNT{1'b0}};
+
+	else if (i_valid)
+		timer_search <= timer_search + 1'b1;
+
+end 
+
+assign unlocked_timer_done = (timer_search == i_unlocked_timer_limit);//time window to search for sh in unlocked state
+assign locked_timer_done = (timer_search == i_locked_timer_limit); 
 
 
 endmodule
