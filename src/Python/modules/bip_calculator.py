@@ -36,7 +36,7 @@ class bipCalculator(object):
 		return (self.bip3, self.bip7)
 
 
-	def reset(self, phy_lane_id):
+	def reset(self):
 		self.bip = [1]*8
 		self.bip3 = [1]*8
 		self.bip7 = [0]*8

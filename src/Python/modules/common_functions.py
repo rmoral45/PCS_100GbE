@@ -99,9 +99,15 @@ def block_to_bit_stream(block):
 	return bit_stream
 
 
-
-
-
+def hex_to_bit_list(long_hex):	#devuelve un long_hex como lista de bits
+	bit_list = []
+	
+	for index in range(0,len(bin(long_hex))-2):
+			bit = (long_hex & (1 << index)) >> index
+			bit_list.insert(index, int(bit))
+			
+	bit_list.reverse()	
+	return bit_list
 
 
 

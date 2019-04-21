@@ -1,6 +1,6 @@
 #Script destinado al testing del am_insertion y la calculadora de bip
 import sys
-sys.path.append('../../modules/')
+sys.path.append('../../modules')
 import common_variables as cv
 import common_functions as cf
 import am_insertion as am
@@ -15,29 +15,32 @@ LANEID = 0
 
 def main():
 
-	new_AmInsertionModule = am.AmInsertionModule(LANEID) #am insertion para lane 0
-	new_bip_calculator = bip.bipCalculator(LANEID) #calculadora de bip para lane 0
+
+	bip_input_data_file = open("bip-input-data.txt", "w")
+
+	am_insertion = am.AmInsertionModule(LANEID) #am insertion para lane 0
 
 	data = cv.data_dict['data']						#primer bloque que agregamos con todos 0
-	alignment_flag = cv.data_dict['alignment_flag'] #no es alineador, asi que esta flag va 0
 
 	for clock in range(0, NCLOCK):
 
-		#new_bip_calculator.reset()
+		for index in range(2, len(data)):
+			data[index] = random.randint(0,1)
 
-		new_AmInsertionModule.add_block(data)
-
-		if(~NCLOCK%2):
-			for index in range(2, len(data)):
-				data[index] = random.randint(0,1)
+		result = am_insertion.run(clock, data)
 
 
-		(bip3, bip7)  = new_bip_calculator.calculateParity(data, alignment_flag)
+		bin_data = map(str, data)
 
-		
-		print('data:', data)
-		print('bip3: ', bip3)
-		print('bip7: ', bip7)
+		bin_data = ''.join(map(lambda x: x+' ', bin_data))
+
+		bip_input_data_file.write(bin_data + '\n')
+
+		print data
+
+
+	bip_input_data_file.close()
+
 
 if __name__ == '__main__':
 	main()
