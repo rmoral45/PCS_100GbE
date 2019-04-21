@@ -57,6 +57,11 @@ wire								invalid_counter_full;
 	Realizar todas las asignaciones de puertos correspondientes
 */
 
+//PORTS
+assign o_search_index = search_index;
+assign o_block_index = block_index;
+assign o_block_lock =block_lock;
+
 //Update state
 always @ (posedge i_clock)
 begin
