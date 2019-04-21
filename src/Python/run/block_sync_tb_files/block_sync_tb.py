@@ -17,17 +17,21 @@ def break_sh(block,break_flag,sh_index):
 			block['payload'] |= 3 << sh_index
 			return block
 		else:
-
 			block['payload'] &= (~(3 << sh_index))
 			return block
 	else:
 		return block
 
 def gen_block(sh_index):
-	rand = random.randint(1,19)
+	'''
+		Esta funcion genera bloques con el sh en una determinada posicion dada por
+		sh_index, el tipo de sh generado depende de una variable aleatorioa 'rand'
+	'''
+	rand_sh = random.randint(1,19)
 	block= { 'block_name': 'SH_TEST_BLOCK', 'payload' : 0}
-
-	if(rand % 2):
+	block['payload'] = random.getrandbits(66)
+	block['payload'] &= ~(0x3 << sh_index) 
+	if(rand_sh % 2):
 		block['payload'] |= 2 << sh_index
 		return block
 	else:
@@ -43,7 +47,7 @@ def main():
 
 #Init
 	#Simulation variables
-	sh_index = 65 #con 64 se engancha en 64 ciclos de clock 
+	sh_index = 63 #con 64 se engancha en 64 ciclos de clock 
 	break_flag = False
 	#sh_cnt_limit   = 64 parametro para la fsm
 	#sh_invld_limit = 32 parametro para la fsm
@@ -63,15 +67,18 @@ def main():
 		in_block = gen_block(sh_index)
 		in_block = break_sh(in_block,break_flag,sh_index)
 		Block_Sync_Module.receive_block(in_block)
-
-		for i in range(5):
-			Block_Sync_Module.FSM_change_state()
+		Block_Sync_Module.FSM_change_state()
 
 		out_block   = Block_Sync_Module.get_block()
 
 		bin_input   = block_to_bin(in_block)
 		bin_output  = block_to_bin(out_block)
 		bin_flag    = bin(Block_Sync_Module.block_lock)[2:]
+
+		#print 'input block %s \n', bin_input
+		if ( Block_Sync_Module.block_lock == True) :
+			bp()
+		"""
 
 		#format
 		bin_input   = ''.join(map(lambda x: x+' ' ,  bin_input  ))
@@ -86,6 +93,8 @@ def main():
 		if(sh_index < 0):
 			bp()
 			break
+		"""
+		
 
 
 

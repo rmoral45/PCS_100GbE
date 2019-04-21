@@ -53,6 +53,10 @@ wire 								locked_timer_done;
 wire 								unlocked_timer_done;
 wire								invalid_counter_full;
 
+/*
+	Realizar todas las asignaciones de puertos correspondientes
+*/
+
 //Update state
 always @ (posedge i_clock)
 begin
@@ -137,7 +141,7 @@ begin
 
 			else if(invalid_counter_full)
 			begin
-				block_lock_next		= 1'b0;
+				//block_lock_next		= 1'b0;
 				reset_count 		= 1'b1;
 				reset_timer 		= 1'b1;
 				/*

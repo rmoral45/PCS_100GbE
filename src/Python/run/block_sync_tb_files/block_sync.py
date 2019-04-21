@@ -1,6 +1,7 @@
 from common_variables import *
 from common_functions import *
 import copy
+from pdb import set_trace as bp
 
 
 BLOCK_SYNC_STATES = ['LOCK_INIT','RESET_CNT','TEST_SH','VALID_SH','64_GOOD','TEST_SH2','INVALID_SH','VALID_SH2','SLIP']
@@ -9,11 +10,19 @@ BLOCK_SYNC_STATES = ['LOCK_INIT','RESET_CNT','TEST_SH','VALID_SH','64_GOOD','TES
 class BlockSyncModule(object):
 	
 	def __init__(self,phy_lane_id):
+
+		#Vars agregadas para matchear el nuevo disenio de fsm
+		self.search_index = 0
+		self.block_index = 0
+		self.locked_timer_limit = 2048 #ventana de tiempo al final de la cual se evalua si cumplo la cond p perder LOCK o continuo
+		self.unlocked_timer_limit = 64 #ventana de tiempo al final de la cual se evalua si cumplo la cond p pasar a LOCKED
+		self.timer_search = 0
+		self.sh_invalid_limit = 1024
+		self.NB_BLOCK = 66
+		#end 
 		self.phy_lane_id = phy_lane_id
-		self.state = 'LOCK_INIT'
+		self.state = 'UNLOCKED'
 		self.block_lock = False
-		self.test_sh = False #esta  variable esta en false hasta que el bloque haya acumulado 66bits
-		self.sh_cnt = 0
 		self.sh_invld_cnt = 0
 		self.shift = 0 #variable que se incrementa en el estado SLIP
 		self.recv_bit_cnt = 0
@@ -35,7 +44,7 @@ class BlockSyncModule(object):
 		
 
 	def reset(self):
-		self.state = 'RESET_CNT'
+		self.state = 'UNLOCKED'
 		self.block_lock = False
 		self.test_sh = False
 		self._dgb_seq.append('LOCK_INIT')
@@ -43,84 +52,35 @@ class BlockSyncModule(object):
 
 	def  FSM_change_state(self):
 		
-		if self.state == 'RESET_CNT' :
-
-			self.sh_cnt=0
-			self.sh_invld_cnt=0
-			if self.test_sh == True and self.block_lock == False :
-				self.state = 'TEST_SH'
-				self._dgb_seq.append(self.state)
-			elif self.test_sh == True and self.block_lock == True :	
-				self.state = 'TEST_SH2'
-				self._dgb_seq.append(self.state)
-
-		elif self.state == 'TEST_SH'	:
-
-			self.test_sh = False 
-			if self.check_sync_header() :
-				self.state = 'VALID_SH'
-				self._dgb_seq.append(self.state)
-			else : 
-				self.state = 'SLIP'	
-				self._dgb_seq.append(self.state)
-
-		elif self.state == 'VALID_SH':
-
-			if self.test_sh == True and self.sh_cnt < 64 :
-				self.state = 'TEST_SH'
-				self._dgb_seq.append(self.state)
-			elif self.sh_cnt == 64 :
-				self.state = '64_GOOD'
-				self._dgb_seq.append(self.state)
-
-		elif self.state == '64_GOOD' :
-			self.block_lock = True
-			self.state = 'RESET_CNT'
-			self._dgb_seq.append(self.state)
-
-		elif self.state == 'TEST_SH2' :
-			self.test_sh = False
-
-			if self.check_sync_header() :
-				self.state = 'VALID_SH2'
-				self._dgb_seq.append(self.state)
-			else:
-				self.state = 'INVALID_SH'
-				self._dgb_seq.append(self.state)
-
-		elif self.state == 'VALID_SH2':
-
-			if self.test_sh == True and self.sh_cnt < 1024 :
-				self.state = 'TEST_SH2'
-				self._dgb_seq.append(self.state)
-			elif self.sh_cnt == 1024 :
-				self.state = 'RESET_CNT'
-				self._dgb_seq.append(self.state)
-
-		elif self.state == 'INVALID_SH' :
-
-			if self.sh_invld_cnt == 65 :
-				self.state = 'SLIP'
-				self._dgb_seq.append(self.state)
-			elif self.sh_cnt == 1024 and self.sh_invld_cnt < 65 :
-				self.state = 'RESET_CNT'
-				self._dgb_seq.append(self.state)
-			elif self.test_sh == True and self.sh_cnt < 1024 and self.sh_invld_cnt < 65 :
-				self.state = 'TEST_SH2'
-				self._dgb_seq.append(self.state)
-
-		elif self.state == 'SLIP' :
-
+		if (self.state == 'UNLOCKED') :
 			self.block_lock = False
-			self.shift += 1
-			"""
-				if self.shift == 65
-					sacar alguna flag de error???
-					reset self.shift
 
-			"""
-			self.state = 'RESET_CNT'
-			self._dgb_seq.append(self.state)				
+			if (self.check_sync_header() == False) :
+				self.timer_search = 0
+				self.sh_invld_cnt = 0
+				if (self.search_index == self.NB_BLOCK):
+					self.search_index = 0
+				else :
+					self.search_index += 1
+
+			elif (self.timer_search == self.unlocked_timer_limit) :
+				self.timer_search = 0
+				self.sh_invld_cnt = 0
+				self.block_index = self.search_index
+				self.state = 'LOCKED'
+
+		elif (self.state == 'LOCKED'):
+			self.block_lock = True
+
+			if (self.timer_search == self.locked_timer_limit):
+				self.timer_search = 0
+				self.sh_invld_cnt = 0
+			elif (self.sh_invld_cnt == self.sh_invalid_limit):
+				self.timer_search = 0
+				self.sh_invld_cnt = 0
+				self.search_index = 0
+				self.state = 'UNLOCKED'
+				
 
 
 
@@ -154,13 +114,11 @@ class BlockSyncModule(object):
 				-<type int> sh_invld_cnt : incrementa en 1 si el sh testeado es invalido (0b00/0b11)
 		"""
 
-		sh_bit_0 = (self.extended_block['payload'] & (1<< (130 - self.shift)) ) >> (130 - self.shift)
-		sh_bit_1 = (self.extended_block['payload'] & (1<<(130 - self.shift + 1))) >> (130 - self.shift + 1)
+		sh_bit_0 = (self.extended_block['payload'] & (1<< (130 - self.search_index)) ) >> (130 - self.search_index)
+		sh_bit_1 = (self.extended_block['payload'] & (1<<(130 - self.search_index + 1))) >> (130 - self.search_index + 1)
 		if ( sh_bit_0 ^ sh_bit_1 ) :
-			self.sh_cnt += 1
 			return True
 		else :
-			self.sh_cnt += 1
 			self.sh_invld_cnt += 1
 			return False
 	
@@ -172,13 +130,14 @@ class BlockSyncModule(object):
 				-<type dict> block: Bloque correcto si la variable 'block_lock' se encuentra en True,
 									o un bloque con basura si esta se encuentra en False
 		"""
+		self.timer_search += 1
 		block = {	
 					'block_name' : '',
 					'payload' : 0
 
 				}
 		if self.block_lock == True :
-			payload = (self.extended_block['payload'] &  (0x3ffffffffffffffff << (66 - self.shift)) ) >> (66 - self.shift)
+			payload = (self.extended_block['payload'] &  (0x3ffffffffffffffff << (66 - self.block_index)) ) >> (66 - self.block_index)
 			name = 'locked_block_' + str(self.locked_bcount)
 			self.locked_bcount += 1
 		else :

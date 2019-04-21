@@ -64,8 +64,8 @@ block_sync_fsm
     (
         .i_clock(i_clock),
         .i_reset(i_reset),
+        .i_valid
         .i_signal_ok(i_signal_ok),
-        .i_test_sh(test_am),
         .i_sh_valid(sh_valid),
         .o_index(index)
     )
