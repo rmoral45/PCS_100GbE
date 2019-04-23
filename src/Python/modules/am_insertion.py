@@ -21,14 +21,14 @@ class AmInsertionModule(object):
 
 		(self._bip3, self._bip7) = self._bipCalculator.calculateParity(data)	
 
-		if(block_counter == AM_BLOCK_GAP): #si se cumple esto, tengo que retornar el am con la paridad insertada y resetar el bip
+		if(block_counter%AM_BLOCK_GAP == 0): #si se cumple esto, tengo que retornar el am con la paridad insertada y resetar el bip
 			tmp = self.insertParity()
 			tmp.insert(0,1)
 			tmp.insert(1,0)
-			return tmp
+			return (tmp, 1)
 
 		else:
-			return data
+			return (data, 0)
 	
 	def insertParity(self):
 

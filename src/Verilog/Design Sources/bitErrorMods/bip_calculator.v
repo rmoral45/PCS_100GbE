@@ -13,7 +13,7 @@ module bip_calculator
     input wire                          i_reset,
     input wire  [LEN_CODED_BLOCK-1 : 0] i_data,
     input wire                          i_enable,
-    input wire				i_am_insert,
+    input wire				                  i_am_insert,
 
     output wire [NB_BIP-1 : 0]          o_bip3,
     output wire [NB_BIP-1 : 0]          o_bip7
