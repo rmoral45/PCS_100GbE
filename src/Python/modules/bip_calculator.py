@@ -11,7 +11,7 @@ class bipCalculator(object):
 	def calculateParity(self, data):
 			
 
-		for i in range(0, ((LEN_CODED_BLOCK-2)/8)-1):		#le resto 2 LEN_CODED_BLOCK pq no contamos los sh
+		for i in range(0, int(((LEN_CODED_BLOCK-2)/8))-1):		#le resto 2 LEN_CODED_BLOCK pq no contamos los sh
 		
 			self.bip[0] = self.bip[0] ^ data[2 + 8*i]
 			self.bip[1] = self.bip[1] ^ data[3 + 8*i]

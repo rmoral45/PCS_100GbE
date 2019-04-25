@@ -29,7 +29,7 @@ def main():
 		block = genBlock(clock)
 
 		data = am_insertion.run(clock, block)
-
+		bp()
 		bin_am_insert_flag = str(block['flag'])
 		bin_input_data = map(str, [0,1]+block['data'])
 		bin_input_data = ''.join(map(lambda x: x+' ', bin_input_data))
@@ -40,8 +40,8 @@ def main():
 		bip_input_data_file.write(bin_input_data + '\n')
 		bip_input_aminsert_file.write(bin_am_insert_flag + '\n')
 
-		print "Data: ", data
-		print "am_insert: ", block['flag']
+		#print "Data: ", data
+		#print "am_insert: ", block['flag']
 
 	bip_output_data_file.close()
 
@@ -52,11 +52,15 @@ def genBlock(clock):
 			  'data':[0]*64 
 				}
 
-	for index in range(2, len(block['data'])):
+	for index in range(0, len(block['data'])):
 			block['data'][index] = random.randint(0,1)
 
 	if(clock%cv.AM_BLOCK_GAP == 0):
 		block['flag'] = 1
+		block['data'] = [1,0] + block['data']
+
+	else :
+		block['data'] = [0,1] + block['data']
 
 	return block
 

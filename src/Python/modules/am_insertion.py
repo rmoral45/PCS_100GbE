@@ -23,21 +23,23 @@ class AmInsertionModule(object):
 			tmp = self.insertParity()
 			self._bipCalculator.reset() #reseteamos los registros de bip calc
 			(self._bip3, self._bip7) = self._bipCalculator.calculateParity(tmp)
-			return ([1,0]+tmp)
+			return (tmp)
 
 		else:
 			self._bipCalculator.calculateParity(block['data'])	
-			return ([0,1]+block['data'])
+			return (block['data'])
 	
 	def insertParity(self):
 
 		#tmp = hex_to_bit_list(self._aligner_marker['payload'])
-		tmp = [0]*64
+		tmp = [0]*66
 
 		for index3 in range(0, NB_BIP):
 			tmp[BIP3_INDEX+index3] = self._bipCalculator.bip3[index3]
 
 		for index7 in range(0, NB_BIP):
 			tmp[BIP7_INDEX+index7] = self._bipCalculator.bip7[index7]
+		tmp[0] = 1
+		tmp[1] = 0
 
 		return tmp
