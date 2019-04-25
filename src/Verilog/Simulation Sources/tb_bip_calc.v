@@ -8,19 +8,24 @@ reg clock;
 reg reset;
 reg enable;
 reg [LEN_CODED_BLOCK-1 : 0] data;
+reg [LEN_CODED_BLOCK-1 : 0] py_out;
 reg							am_insert;
 reg [0 : LEN_CODED_BLOCK-1] temp_data;
+reg [0 : LEN_CODED_BLOCK-1] temp_data_output;
+wire [LEN_CODED_BLOCK-1 : 0] out_data;
 reg							temp_am_insert;
 wire [7:0] bip3, bip7;
 
 
 integer fid_bip_data_input;
+integer fid_bip_data_output;
 integer fid_bip_aminsert_input;
 integer fid_bip_calculator_output;
 integer ptr_data_input;
-integer ptr_aminsert_input;
+integer ptr_data_output;
 integer code_error_data_input;
 integer code_error_aminsert_input;
+integer code_error_data_output;
 
 initial 
 begin
@@ -28,6 +33,13 @@ begin
 
 	fid_bip_data_input = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/run/bip_calculator/bip-input-data.txt", "r");
     if(fid_bip_data_input==0)
+    begin
+        $display("\n\nLa entrada para bip-data-input no pudo ser abierta\n\n");
+        $stop;
+    end
+    
+	fid_bip_data_output = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/run/bip_calculator/bip-output-data.txt", "r");
+    if(fid_bip_data_output==0)
     begin
         $display("\n\nLa entrada para bip-data-input no pudo ser abierta\n\n");
         $stop;
@@ -93,11 +105,12 @@ begin
 	   data   = 66'b00_11111111_00000001_00000001_00000001_00000001_00000001_00000001_00000001;
 
 */
+#10000000 $finish;
 end
 
 always #2 clock = ~clock;
 
-always @(posedge clk) 
+always @(posedge clock) 
 begin
 	if(enable) 
 	begin
@@ -113,6 +126,19 @@ begin
 
 		end	
 		
+		
+		for(ptr_data_output = 0; ptr_data_output < LEN_CODED_BLOCK; ptr_data_output = ptr_data_output+1)
+        begin
+                    
+                    code_error_data_output <= $fscanf(fid_bip_data_output, "%b\n", temp_data_output[ptr_data_output]);
+                    if(code_error_data_output != 1)
+                    begin
+                        $display("bip_data_input: El caracter leido no es valido..");
+                        $stop;
+                    end
+        
+                end
+		
 		code_error_aminsert_input <= $fscanf(fid_bip_aminsert_input, "%b\n", temp_am_insert);
 		if(code_error_aminsert_input != 1)
 		begin
@@ -120,28 +146,27 @@ begin
             $stop;			
 		end
 
-		$fwrite(fid_bip_calculator_output, "%b\n", o_bip3);
+		$fwrite(fid_bip_calculator_output, "%b\n", out_data);
 
 		data <= temp_data;
-		am_insert <= temp_am_insert
-		
+		py_out <= temp_data_output;
+		am_insert <= temp_am_insert;
 	end
 end
 
 
-bip_calculator
+am_insertion
 #(
-	.LEN_CODED_BLOCK(LEN_CODED_BLOCK)
+  .LEN_CODED_BLOCK(LEN_CODED_BLOCK)
  )
-	u_bip_calculator
+	u_am_insertion
 	(
 		.i_clock(clock)   		,
 		.i_reset(reset)   		,
 		.i_enable(enable) 		,
 		.i_data(data)     		,
 		.i_am_insert(am_insert)	,
-		.o_bip3(bip3)     		,
-		.o_bip7(bip7)
+		.o_data(out_data)
 	);
 
 endmodule

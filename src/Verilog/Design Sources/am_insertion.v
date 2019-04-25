@@ -18,16 +18,19 @@ module am_insertion
 
  );
 
+localparam CTRL_SH = 2'b10;
 
 //Internal signals
 reg  [LEN_CODED_BLOCK-1 : 0] data;
-wire [NB_BIT-1 : 0] bip3, bip7;
+wire [NB_BIP-1 : 0] bip3, bip7;
 
 
 always @ (posedge i_clock)
 begin
- 	if (i_enable && ~i_am_insert)
- 		data <= i_data
+    if (i_reset)
+        data <= {LEN_CODED_BLOCK{1'b0}};
+ 	else if (i_enable && ~i_am_insert)
+ 		data <= i_data;
 
  	else if (i_enable && i_am_insert)
  		data <= {CTRL_SH,AM_ENCODING_LOW,bip3,AM_ENCODING_HIGH,bip7};
@@ -46,10 +49,9 @@ bip_calculator
         .i_reset (i_reset)  ,
      	.i_data  (data)     , // data from internal reg. [FIX]
         .i_enable(i_enable) ,
-	.i_am_insert(i_am_insert),
-
-        .o_bip3  (bip3),
-        .o_bip7  (bip7)
+	    .i_am_insert(i_am_insert),
+        .o_bip3(bip3),
+        .o_bip7(bip7)
  	);
 
 endmodule
