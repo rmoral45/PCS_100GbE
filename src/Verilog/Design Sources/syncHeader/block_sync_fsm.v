@@ -4,27 +4,27 @@ module block_sync_fsm
 #(
 	parameter NB_CODED_BLOCK	= 66,
 	parameter MAX_INDEX_VALUE 	= (NB_CODED_BLOCK - 2),
-	parameter MAX_INVALID_SH    = 6,
-	parameter MAX_WINDOW	    = 2048,
+	parameter MAX_INVALID_SH   	= 6,
+	parameter MAX_WINDOW	    	= 2048,
 	parameter NB_WINDOW_CNT		= $clog2(MAX_WINDOW),
 	parameter NB_INVALID_CNT 	= $clog2(MAX_INVALID_SH),
-	parameter NB_INDEX 			= $clog2(NB_CODED_BLOCK)
+	parameter NB_INDEX 		= $clog2(NB_CODED_BLOCK)
 
  )
  (
- 	input  wire 						i_clock			   		,
- 	input  wire 						i_reset			   		,
- 	input  wire 						i_enable		   		,
- 	input  wire 						i_valid			   		,
- 	input  wire 						i_signal_ok 	   		,
- 	input  wire 						i_sh_valid  	   		,
- 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_unlocked_timer_limit  , //usado por timer interno
- 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_locked_timer_limit   	, //usado por timer interno
- 	input  wire [NB_INVALID_CNT-1 : 0] 	i_sh_invalid_limit 		,
+ 	input  wire 				i_clock,
+ 	input  wire 				i_reset,
+ 	input  wire 				i_enable,
+ 	input  wire 				i_valid,
+ 	input  wire 				i_signal_ok,
+ 	input  wire 				i_sh_valid,
+ 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_unlocked_timer_limit, //usado por timer interno
+ 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_locked_timer_limit, //usado por timer interno
+ 	input  wire [NB_INVALID_CNT-1 : 0] 	i_sh_invalid_limit,
 
- 	output wire [NB_INDEX-1 : 0]		o_block_index 			,
- 	output wire [NB_INDEX-1 : 0]		o_search_index 			,
- 	output wire 						o_block_lock	     
+ 	output wire [NB_INDEX-1 : 0]		o_block_index,
+ 	output wire [NB_INDEX-1 : 0]		o_search_index,
+ 	output wire 				o_block_lock	     
  );
 
 
@@ -107,9 +107,9 @@ end
 
 always @ *
 begin
-	next_state			= state;
+	next_state		= state;
 	reset_count 		= 1'b0;
-	reset_timer			= 1'b0;
+	reset_timer		= 1'b0;
 	update_search_index	= 1'b0;
 	update_block_index	= 1'b0;
 	reset_search_index 	= 1'b0;
@@ -121,9 +121,9 @@ begin
 			block_lock 	= 1'b0;
 			if(!i_sh_valid)
 			begin
-				reset_timer 		= 1'b1;
+			        reset_timer 		= 1'b1;
 				reset_count 		= 1'b1;
-				update_search_index = 1'b1;
+				update_search_index 	= 1'b1;
 			end
 			else if(unlocked_timer_done)
 			begin
@@ -150,7 +150,8 @@ begin
 				reset_count 		= 1'b1;
 				reset_timer 		= 1'b1;
 				/*
-					Aca tenemos dos opciones,o reseteamos search_index y comenzamos del inicio, o hacemos un update
+					Aca tenemos dos opciones,o reseteamos search_index 
+					y comenzamos del inicio, o hacemos un update
 				*/
 				reset_search_index 	= 1'b1;
 				next_state			= UNLOCKED;
