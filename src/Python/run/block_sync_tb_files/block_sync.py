@@ -4,56 +4,55 @@ import copy
 from pdb import set_trace as bp
 
 
-BLOCK_SYNC_STATES = ['LOCK_INIT','RESET_CNT','TEST_SH','VALID_SH','64_GOOD','TEST_SH2','INVALID_SH','VALID_SH2','SLIP']
+BLOCK_SYNC_STATES = ['UNLOCKED', 'LOCKED']
 
 
 class BlockSyncModule(object):
 	
-	def __init__(self,phy_lane_id):
+	def __init__(self,phy_lane_id,i_locked_timer_lim, i_unlocked_timer_lim, i_sh_invalid_max):
 
 		#Vars agregadas para matchear el nuevo disenio de fsm
-		self.search_index = 0
-		self.block_index = 0
-		self.locked_timer_limit = 2048 #ventana de tiempo al final de la cual se evalua si cumplo la cond p perder LOCK o continuo
-		self.unlocked_timer_limit = 64 #ventana de tiempo al final de la cual se evalua si cumplo la cond p pasar a LOCKED
-		self.timer_search = 0
-		self.sh_invalid_limit = 1024
-		self.NB_BLOCK = 66
+		self.search_index 			= 0
+		self.block_index 			= 0
+		self.timer_search 			= 0
+		self.locked_timer_limit 	= i_locked_timer_lim #ventana de tiempo al final de la cual se evalua si cumplo la cond p perder LOCK o continuo
+		self.unlocked_timer_limit 	= i_unlocked_timer_lim #ventana de tiempo al final de la cual se evalua si cumplo la cond p pasar a LOCKED
+		self.sh_invalid_limit	  	= i_sh_invalid_max
+		self.NB_BLOCK 				= 66
 		#end 
-		self.phy_lane_id = phy_lane_id
-		self.state = 'UNLOCKED'
-		self.block_lock = False
-		self.sh_invld_cnt = 0
-		self.shift = 0 #variable que se incrementa en el estado SLIP
-		self.recv_bit_cnt = 0
-		self.locked_bcount = 0 # solo se incrementa al llamar get_block
+		self.phy_lane_id 	= phy_lane_id
+		self.state 			= 'UNLOCKED'
+		self.block_lock 	= 0
+		self.sh_invld_cnt 	= 0
+		self.locked_bcount 	= 0 # solo se incrementa al llamar get_block
+
 		self.previous_block = {
 								'block_name'  : 'Initial previous block',
 								'payload' 	  :  0x20000000000000000 #66bits
-							 }
-		self.extended_block= {
+							  }
+
+		self.extended_block = {
 								'block_name'  : 'Initial extended block',
 								'payload' 	  : 0x0 
-							 }
-		self.new_block  = {
+							  }
+
+		self.new_block      = {
 								'block_name'  : 'New block',
 								'payload' 	  :  0x0 
-							 }
+							  }
+
 		self._dgb_seq = []				 
 
 		
 
 	def reset(self):
 		self.state = 'UNLOCKED'
-		self.block_lock = False
-		self.test_sh = False
-		self._dgb_seq.append('LOCK_INIT')
-		self._dgb_seq.append(self.state)
+		self.block_lock = 0
 
 	def  FSM_change_state(self):
 		
 		if (self.state == 'UNLOCKED') :
-			self.block_lock = False
+			self.block_lock = 0
 
 			if (self.check_sync_header() == False) :
 				self.timer_search = 0
@@ -70,7 +69,7 @@ class BlockSyncModule(object):
 				self.state = 'LOCKED'
 
 		elif (self.state == 'LOCKED'):
-			self.block_lock = True
+			self.block_lock = 1
 
 			if (self.timer_search == self.locked_timer_limit):
 				self.timer_search = 0
@@ -136,7 +135,7 @@ class BlockSyncModule(object):
 					'payload' : 0
 
 				}
-		if self.block_lock == True :
+		if self.block_lock == 1 :
 			payload = (self.extended_block['payload'] &  (0x3ffffffffffffffff << (66 - self.block_index)) ) >> (66 - self.block_index)
 			name = 'locked_block_' + str(self.locked_bcount)
 			self.locked_bcount += 1
@@ -154,8 +153,8 @@ class BlockSyncModule(object):
 		"""
 		for i in BLOCK_SYNC_STATES :
 			if i not in self._dgb_seq :
-				print ' Estado no alcanzado :  ' , i
-				print '\n\n\n'
+				print (' Estado no alcanzado :  ' , i)
+				print ('\n\n\n')
 
 
 
