@@ -14,6 +14,7 @@ module bip_calculator
     input wire  [LEN_CODED_BLOCK-1 : 0] i_data,
     input wire                          i_enable,
     input wire				            i_am_insert,
+    input wire [NB_BIP-1 : 0]           i_bip,
 
     output wire [NB_BIP-1 : 0]          o_bip3,
     output wire [NB_BIP-1 : 0]          o_bip7
@@ -25,7 +26,8 @@ reg  [0 : LEN_CODED_BLOCK-1] data;
 reg  [NB_BIP-1 : 0] bip,bip_next;
 
 //PORTS
-assign o_bip3 = bip;
+//assign o_bip3 = bip;
+assign o_bip3 = bip_next;
 assign o_bip7 = ~bip;
 
 
@@ -41,7 +43,13 @@ always @ (posedge i_clock)
 //Parity calculation
 always @ *
 begin
-    bip_next = bip[NB_BIP-1 : 0];
+
+    //bip_next = bip[NB_BIP-1 : 0];
+    if (i_am_insert)
+        bip_next = {NB_BIP{1'b1}};
+    else
+        bip_next = i_bip;
+
     data = i_data;
     for(i=0; i<((LEN_CODED_BLOCK-2)/8); i=i+1)
     begin
@@ -54,7 +62,8 @@ begin
            bip_next[6] = bip_next[6] ^ data[8+(8*i)] ;
            bip_next[7] = bip_next[7] ^ data[9+(8*i)] ;
    end
-   bip_next[3] =bip_next[3] ^ data[0];
+   
+   bip_next[3] =bip_next[3] ^ data[0]; 
    bip_next[4] =bip_next[4] ^ data[1];
     /*
     if(i_enable)

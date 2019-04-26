@@ -2,27 +2,32 @@
 
 module tb_bip_calc;
 
+
 localparam LEN_CODED_BLOCK = 66;
+localparam LEN_PARITY = 8;
 reg [9:0] counter;
 reg clock;
 reg reset;
 reg enable;
 reg [LEN_CODED_BLOCK-1 : 0] data;
 reg [LEN_CODED_BLOCK-1 : 0] py_out;
+reg [LEN_PARITY-1 : 0]      temp_parity;
+reg [LEN_PARITY-1 : 0]      py_parity;        
 reg							am_insert;
 reg [0 : LEN_CODED_BLOCK-1] temp_data;
 reg [0 : LEN_CODED_BLOCK-1] temp_data_output;
 wire [LEN_CODED_BLOCK-1 : 0] out_data;
 reg							temp_am_insert;
-wire [7:0] bip3, bip7;
-
 
 integer fid_bip_data_input;
 integer fid_bip_data_output;
 integer fid_bip_aminsert_input;
 integer fid_bip_calculator_output;
+integer fid_bip_python_parity;
 integer ptr_data_input;
 integer ptr_data_output;
+integer ptr_python_parity;
+integer code_error_python_parity;
 integer code_error_data_input;
 integer code_error_aminsert_input;
 integer code_error_data_output;
@@ -30,6 +35,13 @@ integer code_error_data_output;
 initial 
 begin
 
+
+    fid_bip_python_parity = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/run/bip_calculator/bip-output-parity.txt", "r");
+    if(fid_bip_python_parity==0)
+    begin
+        $display("\n\nLa entrada para bip-output-parity no pudo ser abierta\n\n");
+        $stop;
+    end
 
 	fid_bip_data_input = $fopen("/media/ramiro/1C3A84E93A84C16E/Fundacion/PPS/src/Python/run/bip_calculator/bip-input-data.txt", "r");
     if(fid_bip_data_input==0)
@@ -58,53 +70,13 @@ begin
         $stop;
     end
 
-
-
 	clock = 0;
 	reset = 1;
 	counter = 0;
 	enable = 0;
 	data = {LEN_CODED_BLOCK{1'b0}};
 	#6 reset  = 0;
-	#4 enable = 1;
-/*	   data   = 66'b00_11111111_10000000_10000000_10000000_10000000_10000000_10000000_10000000;
-	#4 reset  = 1;
-	   enable = 0;
-	#4 reset  = 0;
 	   enable = 1;
-	   data   = 66'b00_11111111_01000000_01000000_01000000_01000000_01000000_01000000_01000000;
-	#4 reset  = 1;
-	   enable = 0;
-	#4 reset  = 0;
-	   enable = 1;
-	   data   = 66'b00_11111111_00100000_00100000_00100000_00100000_00100000_00100000_00100000;
-	#4 reset  = 1;
-	   enable = 0;
-	#4 reset  = 0;
-	   enable = 1;
-	   data   = 66'b00_11111111_00010000_00010000_00010000_00010000_00010000_00010000_00010000;
-	#4 reset  = 1;
-	   enable = 0;
-	#4 reset  = 0;
-	   enable = 1;
-	   data   = 66'b00_11111111_00001000_00001000_00001000_00001000_00001000_00001000_00001000;
-	#4 reset  = 1;
-	   enable = 0;
-	#4 reset  = 0;
-	   enable = 1;
-	   data   = 66'b00_11111111_00000100_00000100_00000100_00000100_00000100_00000100_00000100;
-	#4 reset  = 1;
-	   enable = 0;
-	#4 reset  = 0;
-	   enable = 1;
-	   data   = 66'b00_11111111_00000010_00000010_00000010_00000010_00000010_00000010_00000010;
-	#4 reset  = 1;
-	   enable = 0;
-	#4 reset  = 0;
-	   enable = 1;
-	   data   = 66'b00_11111111_00000001_00000001_00000001_00000001_00000001_00000001_00000001;
-
-*/
 #10000000 $finish;
 end
 
@@ -114,6 +86,17 @@ always @(posedge clock)
 begin
 	if(enable) 
 	begin
+	
+	   for(ptr_python_parity = 0; ptr_python_parity < LEN_PARITY; ptr_python_parity = ptr_python_parity+1)
+       begin       
+            code_error_python_parity <= $fscanf(fid_bip_python_parity, "%b\n", temp_parity[ptr_python_parity]);
+            if(code_error_python_parity != 1)
+            begin
+                 $display("python_parity: El caracter leido no es valido..");
+                 $stop;
+            end
+        end 
+		
 		for(ptr_data_input = 0; ptr_data_input < LEN_CODED_BLOCK; ptr_data_input = ptr_data_input+1)
 		begin
 			
@@ -124,20 +107,19 @@ begin
                 $stop;
 			end
 
-		end	
-		
+		end	   		
 		
 		for(ptr_data_output = 0; ptr_data_output < LEN_CODED_BLOCK; ptr_data_output = ptr_data_output+1)
         begin
                     
-                    code_error_data_output <= $fscanf(fid_bip_data_output, "%b\n", temp_data_output[ptr_data_output]);
-                    if(code_error_data_output != 1)
-                    begin
-                        $display("bip_data_input: El caracter leido no es valido..");
-                        $stop;
-                    end
+            code_error_data_output <= $fscanf(fid_bip_data_output, "%b\n", temp_data_output[ptr_data_output]);
+            if(code_error_data_output != 1)
+            begin
+                $display("bip_data_input: El caracter leido no es valido..");
+                $stop;
+            end
         
-                end
+        end
 		
 		code_error_aminsert_input <= $fscanf(fid_bip_aminsert_input, "%b\n", temp_am_insert);
 		if(code_error_aminsert_input != 1)
@@ -150,6 +132,7 @@ begin
 
 		data <= temp_data;
 		py_out <= temp_data_output;
+		py_parity <= temp_parity;
 		am_insert <= temp_am_insert;
 	end
 end
