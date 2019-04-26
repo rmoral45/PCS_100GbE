@@ -23,17 +23,24 @@ localparam CTRL_SH = 2'b10;
 //Internal signals
 reg  [LEN_CODED_BLOCK-1 : 0] data;
 wire [NB_BIP-1 : 0] bip3, bip7;
+reg [7: 0] br;
 
 
 always @ (posedge i_clock)
 begin
-    if (i_reset)
+    if (i_reset)begin
         data <= {LEN_CODED_BLOCK{1'b0}};
- 	else if (i_enable && ~i_am_insert)
+        br <= {NB_BIP{1'b1}};
+    end
+ 	else if (i_enable && ~i_am_insert)begin
  		data <= i_data;
+ 		br <= bip3;
+ 	end
 
- 	else if (i_enable && i_am_insert)
- 		data <= {CTRL_SH,AM_ENCODING_LOW,bip3,AM_ENCODING_HIGH,bip7};
+ 	else if (i_enable && i_am_insert)begin
+ 		data <= {CTRL_SH,AM_ENCODING_LOW,br,AM_ENCODING_HIGH,(~br)};
+ 		br <= bip3;
+ 	end
 end
 //PORTS
 assign o_data = data;
@@ -51,7 +58,8 @@ bip_calculator
         .i_enable(i_enable) ,
 	    .i_am_insert(i_am_insert),
         .o_bip3(bip3),
-        .o_bip7(bip7)
+        .o_bip7(bip7),
+        .i_bip(br)
  	);
 
 endmodule
