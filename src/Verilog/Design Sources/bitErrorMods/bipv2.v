@@ -29,7 +29,7 @@ integer i;
 reg  [0 : LEN_CODED_BLOCK-1] data;
 reg  [NB_BIP-1 : 0] bip,bip_next,bip_rst;
 reg  [0 : LEN_CODED_BLOCK-1] am_inv;
-reg  [LEN_CODED_BLOCK-1] am_block;
+reg  [LEN_CODED_BLOCK-1: 0] am_block;
 
 
 //PORTS
@@ -53,7 +53,8 @@ always @ *
 begin
     bip_next 	= bip[NB_BIP-1 : 0];
     bip_rst 	= {NB_BIP{1'b1}};
-    am_block 	= data <= {CTRL_SH,AM_ENCODING_LOW,bip3,AM_ENCODING_HIGH,bip7};
+    //am_block 	= data <= {CTRL_SH,AM_ENCODING_LOW,bip,AM_ENCODING_HIGH,~bip};
+    am_block 	= {CTRL_SH,AM_ENCODING_LOW,bip,AM_ENCODING_HIGH,~bip};
     am_inv 		= am_block;
 
     data = i_data;

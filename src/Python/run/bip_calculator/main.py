@@ -10,7 +10,7 @@ from pdb import set_trace as bp
 import random
 
 #NCLOCK = 2^14
-NCLOCK = 2000
+NCLOCK = 31
 LANEID = 0
 
 def main():
@@ -19,7 +19,7 @@ def main():
 	bip_input_data_file = open("bip-input-data.txt", "w")
 	bip_output_data_file = open("bip-output-data.txt", "w")
 	bip_input_aminsert_file = open("bip-input-aminsert.txt", "w")
-	bip_output_parity_file = open("bip-output-parity.txt", "w")
+	bip_output_parity_file = open("bip-output-parity.txt", "w")	
 
 	am_insertion = am.AmInsertionModule(LANEID) #am insertion para lane 0
 
