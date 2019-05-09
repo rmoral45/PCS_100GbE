@@ -1,6 +1,8 @@
+import sys
+sys.path.append("../../modules/")
+from pdb import set_trace as bp
 import random
 import numpy as np
-from pdb import set_trace as bp
 from common_variables import * 
 import am_lock as am
 import copy
@@ -32,6 +34,7 @@ def main():
 		if (clock % AM_PERIOD) == 0 and clock > 0:
 			block['block_name'] = 'ALIGNER'
 			block['payload'] = align_marker_list[PHY_LANE_ID]
+
 		tx_block.append(block)
 		Am_Lock_Module.receive_block(block)
 		Am_Lock_Module.FSM_change_state(True,block)
