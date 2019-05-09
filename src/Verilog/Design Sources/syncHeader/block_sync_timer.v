@@ -12,7 +12,7 @@ module block_sync_timer
  	input  wire i_enable,
  	input  wire i_valid,
  	input  wire i_unlocked_count_limit,
- 	input  wire i_locked_count_limit
+ 	input  wire i_locked_count_limit,
 
  	output wire o_unlocked_count_done,
  	output wire o_locked_count_done

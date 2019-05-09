@@ -47,6 +47,7 @@ reg [NB_WINDOW_CNT-1 : 0] 			timer_search;
 reg 								update_search_index;
 reg 								update_block_index;
 reg 								reset_search_index;
+reg                                 reset_timer;
 
 				
 wire 								locked_timer_done;

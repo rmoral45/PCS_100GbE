@@ -139,7 +139,7 @@ def main():
 		if Block_Sync_Module.block_lock == 1:
 			print 'in  : ' , bin_input
 			print 'out : ', bin_output
-			bp()
+			#bp()
 
 		'''
 		if (clock == next_param_change) :
@@ -154,7 +154,7 @@ def main():
 			sh_index = random.randint(0,64)
 		'''
 
-		"""
+		
 
 		#format
 		bin_input   = ''.join(map(lambda x: x+' ' ,  bin_input  ))
@@ -164,6 +164,7 @@ def main():
 		block_sync_output.write(bin_output + '\n')
 		block_lock_flag.write(bin_flag     + '\n')
 		
+		"""
 		if((clock % random_change) == 0):
 			sh_index -=1
 		if(sh_index < 0):

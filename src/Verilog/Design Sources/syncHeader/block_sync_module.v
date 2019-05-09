@@ -27,7 +27,7 @@ module block_sync_module
 
 //LOCALPARAMS
 localparam NB_EXTENDED_BLOCK 	= NB_CODED_BLOCK*2;
-localparam NB_INDEX 			= $clog2(NB_CODED_BLOCK);
+//localparam NB_INDEX 			= $clog2(NB_CODED_BLOCK);
 
 //INTERNAL SIGNALS
 reg  [NB_CODED_BLOCK-1 : 0]    	data_prev;
@@ -107,7 +107,7 @@ block_sync_fsm
 
         .o_block_index(block_index),
         .o_search_index(search_index),
-        .o_block_lock(block_lock)
+        .o_block_lock(block_lock));
 
 
 
