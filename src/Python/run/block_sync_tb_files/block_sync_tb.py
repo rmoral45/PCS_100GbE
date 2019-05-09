@@ -59,7 +59,7 @@ def gen_block_v2():
 						}
 	data_list 	= []
 	N_TRASH 	= 3333
-	N_BLOCKS 	= 256
+	N_BLOCKS 	= 2500
 	data 		= bin(random.getrandbits(N_TRASH))[2:].zfill(N_TRASH)
 	payload 	= list(map(ord,'physical'))
 	payload 	= list(map(lambda x : bin(x)[2:].zfill(8), payload))
@@ -80,6 +80,7 @@ def gen_block_v2():
 	NB_BLOCK = 66
 	data_list = [data[i:i+NB_BLOCK] for i in range(0, len(data), NB_BLOCK)]
 	data_list.pop() # eliminamos el ultimo valor xq puede tener menos de 66 bits
+	return data_list
 
 def block_to_bin(block):
 	N_BITS = 66
@@ -87,7 +88,6 @@ def block_to_bin(block):
 	return binary
 
 def main():
-	bp()
 
 #Init
 
@@ -115,13 +115,18 @@ def main():
 	block_sync_output = open( "block-sync-output.txt" , "w" )
 	block_lock_flag   = open( "block-lock-flag.txt"   , "w" )
 
+	charamasca=[] 
+	charamasca= gen_block_v2()
 
 #main loop
-	for clock in range(NCLOCK):
+	#for clock in range(NCLOCK):
+	for clock in range(len(charamasca)):
 
-		in_block = gen_block(sh_index)
-		print 'clock :' ,clock
-		in_block = break_sh(in_block,break_flag,sh_index)
+		#in_block = gen_block(sh_index)
+		#print 'clock :' ,clock
+		#in_block = break_sh(in_block,break_flag,sh_index)
+		in_block = {'block_name' : 'asd', 'payload' : 0}
+		in_block['payload'] = int(charamasca[clock],2)
 		Block_Sync_Module.receive_block(in_block)
 		Block_Sync_Module.FSM_change_state()
 
@@ -134,6 +139,7 @@ def main():
 		if Block_Sync_Module.block_lock == 1:
 			print 'in  : ' , bin_input
 			print 'out : ', bin_output
+			bp()
 
 		'''
 		if (clock == next_param_change) :
