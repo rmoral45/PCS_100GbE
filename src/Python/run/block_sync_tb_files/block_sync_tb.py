@@ -41,12 +41,53 @@ def gen_block(sh_index):
 		block['payload'] |= 1 << sh_index
 		return block
 
+def gen_block_v2():
+	'''
+		Genera un bloque con el siguiente formato
+
+		|   random-bits  |    sh    |    'physical' |
+
+				^			  ^				^
+				|			  |				|
+		[66,sh_index]	  sh_index		 toma  tantos caracteres caracteres 
+										 como entren entre [sh_index, 0]
+	'''
+
+	block 			 = { 
+							'block_name': 'SH_TEST_BLOCK',
+						 	'payload'   : 0
+						}
+	data_list 	= []
+	N_TRASH 	= 3333
+	N_BLOCKS 	= 256
+	data 		= bin(random.getrandbits(N_TRASH))[2:].zfill(N_TRASH)
+	payload 	= list(map(ord,'physical'))
+	payload 	= list(map(lambda x : bin(x)[2:].zfill(8), payload))
+	payload 	= ''.join(payload)
+
+	for i in range(0,N_BLOCKS):
+		sh = ''
+		rand_sh = random.randint(1,19)
+
+		if(rand_sh % 2):
+			sh = '10'
+		else:
+			sh = '01'
+
+		data += sh
+		data += payload
+
+	NB_BLOCK = 66
+	data_list = [data[i:i+NB_BLOCK] for i in range(0, len(data), NB_BLOCK)]
+	data_list.pop() # eliminamos el ultimo valor xq puede tener menos de 66 bits
+
 def block_to_bin(block):
 	N_BITS = 66
 	binary = (bin(block['payload'])[2:].zfill(N_BITS))
 	return binary
 
 def main():
+	bp()
 
 #Init
 
