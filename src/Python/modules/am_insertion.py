@@ -1,29 +1,52 @@
 
+from common_functions import *
 from common_variables import *
 import copy
+import bip_calculator as bip
 
+NB_BIP	   = 8
+BIP3_INDEX = 26
+BIP7_INDEX = 58
 
 class AmInsertionModule(object):
 	
-	def __init__(self,phy_lane_id):
-		self._block_fifo = []
+	def __init__(self, phy_lane_id):
 		self._phy_lane_id = phy_lane_id
-		self._aligner_marker = align_marker_dict[phy_lane_id]
+		self._aligner_marker = [align_marker_dict[phy_lane_id]]
+		self._bip3 = [0]*8
+		self._bip7 = [0]*8
+		self._tmp  = [0]*66
+		self._bipCalculator = bip.bipCalculator()
 
-	def add_block(self,block):
-		self._block_fifo.insert(0,block) #inserto en pos 0 xq saco con pop()
-		
-	def get_block(self,block_counter):
-		if block_counter == AM_BLOCK_GAP:
-			return copy.deepcopy(self._aligner_marker)
+	def run(self, block_counter, block):	 #funcion destinada a correr la bip calculator e insertar la paridad en caso de ser necesario
+
+		if(block['flag'] == 1): 			 #si se cumple esto, tengo que retornar el am con la paridad insertada y resetar el bip
+			self._tmp = self.insertParity()
+
+			
+			self._bipCalculator.reset() 	 #reseteamos los registros de bip calc
+			(self._bip3, self._bip7) = self._bipCalculator.calculateParity(self._tmp)
+			return (self._tmp)
+
 		else:
-			return self._block_fifo.pop()
+			self._bipCalculator.calculateParity(block['data'])
+			#bp()
+			return (block['data'])
+	
+	def insertParity(self):
 
-	"""
-	def calculate_bip(self,block):
-		self._bip_index = [ 
-						[2,10,18....]
-						[3,11,19....]
-					]
-		self.BIP3 = [bit0,bit1,.....]
-	"""
+		#tmp = hex_to_bit_list(self._aligner_marker['payload'])
+		tmp = [0]*66
+
+		for index3 in range(NB_BIP):
+			tmp[BIP3_INDEX+index3] = self._bipCalculator.bip3[index3]
+
+		for index7 in range(NB_BIP):
+			tmp[BIP7_INDEX+index7] = self._bipCalculator.bip7[index7]
+		
+		tmp[0] = 1
+		tmp[1] = 0
+
+		#bp()
+
+		return tmp
