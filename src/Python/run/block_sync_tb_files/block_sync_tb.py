@@ -1,10 +1,13 @@
 import random
+import string
+import binascii
 from pdb import set_trace as bp
 import block_sync as bs
 import copy
 
 #CONSTANTS
 NCLOCK = 10000
+NB_BLOCK = 66
 
 #FUNCT
 def break_sh(block,break_flag,sh_index):
@@ -31,6 +34,7 @@ def gen_block(sh_index):
 	rand_sh 		 = random.randint(1,19)
 	block 			 = { 'block_name': 'SH_TEST_BLOCK', 'payload' : 0}
 	block['payload'] = random.getrandbits(66)
+	#block['payload'] = 0
 	block['payload'] &= ~(0x3 << sh_index)
 
 	if(rand_sh % 2):
@@ -58,28 +62,28 @@ def gen_block_v2():
 						 	'payload'   : 0
 						}
 	data_list 	= []
-	N_TRASH 	= 3333
-	N_BLOCKS 	= 2500
-	data 		= bin(random.getrandbits(N_TRASH))[2:].zfill(N_TRASH)
-	payload 	= list(map(ord,'physical'))
-	payload 	= list(map(lambda x : bin(x)[2:].zfill(8), payload))
-	payload 	= ''.join(payload)
-
-	for i in range(0,N_BLOCKS):
-		sh = ''
-		rand_sh = random.randint(1,19)
-
-		if(rand_sh % 2):
-			sh = '10'
-		else:
-			sh = '01'
-
-		data += sh
-		data += payload
-
-	NB_BLOCK = 66
-	data_list = [data[i:i+NB_BLOCK] for i in range(0, len(data), NB_BLOCK)]
+	N_BLOCKS 	= 1000
+	N_TRASH_BLOCKS = random.randint(0,300)
+	SH_POS = random.randint(0,65)
+	bp()
+	N_TRASH_BITS 	= NB_BLOCK*N_TRASH_BLOCKS+SH_POS
+	data 		= bin(random.getrandbits(N_TRASH_BITS))[2:].zfill(N_TRASH_BITS)
+	for i in range(0,N_BLOCKS) :
+		payload = '01' + bin(random.getrandbits(64))[2:].zfill(64)
+		data    += payload
+	"""
+	VER VALORES QUE TOMA i cuado parseo
+	"""
+	data_list = [data[i*NB_BLOCK:i*NB_BLOCK+NB_BLOCK] for i in range(0, len(data)/NB_BLOCK)]
 	data_list.pop() # eliminamos el ultimo valor xq puede tener menos de 66 bits
+	'''
+	for index ,block in enumerate(data_list):
+		if (block[0:2] != '10' or len(block) != 66):
+			print "Block Error"
+			print "Len ", len(block)
+			print "data " , block
+			print "indice " , index
+	'''
 	return data_list
 
 def block_to_bin(block):
@@ -93,11 +97,11 @@ def main():
 
 	#fsm config params
 	sh_invld_limit 		= 64
-	locked_time_limit 	= 64
-	unlocked_time_limit = 2048
+	locked_time_limit 	= 1024
+	unlocked_time_limit = 64
 
 	#Simulation variables
-	sh_index 			= 64 #con 64 se engancha en 64 ciclos de clock 
+	sh_index 			= 22 #con 64 se engancha en 64 ciclos de clock 
 	break_flag 			= False
 	'''
 		En el peor de los casos va a demorar NB_BLOCK*locked_time_limit en engarcharse,es decir va
@@ -123,12 +127,19 @@ def main():
 	for clock in range(len(charamasca)):
 
 		#in_block = gen_block(sh_index)
-		#print 'clock :' ,clock
 		#in_block = break_sh(in_block,break_flag,sh_index)
 		in_block = {'block_name' : 'asd', 'payload' : 0}
 		in_block['payload'] = int(charamasca[clock],2)
 		Block_Sync_Module.receive_block(in_block)
 		Block_Sync_Module.FSM_change_state()
+		'''
+		print ' search index ', Block_Sync_Module.search_index
+		print ' block_index index ', Block_Sync_Module.block_index
+		print ' state ', Block_Sync_Module.state
+		print ' timer_search ', Block_Sync_Module.timer_search
+		print ' invalid count ', Block_Sync_Module.sh_invld_cnt
+		print ' nn'
+		'''
 
 		out_block   = Block_Sync_Module.get_block()
 
@@ -139,11 +150,13 @@ def main():
 		if Block_Sync_Module.block_lock == 1:
 			print 'in  : ' , bin_input
 			print 'out : ', bin_output
-			#bp()
+			print binascii.unhexlify('%x' % int(bin_output[2:-1],2))
+			print 'n INDICE DE BLOQUE ',Block_Sync_Module.block_index
+			bp()
 
 		'''
 		if (clock == next_param_change) :
-			print ' Current  params :\n'
+			print ' Current  params :n'
 
 			print 'clock : '		,clock
 			print 'sh_index : '		,sh_index
@@ -160,9 +173,9 @@ def main():
 		bin_input   = ''.join(map(lambda x: x+' ' ,  bin_input  ))
 		bin_output  = ''.join(map(lambda x: x+' ' ,  bin_output ))
 
-		block_sync_input.write(bin_input   + '\n')
-		block_sync_output.write(bin_output + '\n')
-		block_lock_flag.write(bin_flag     + '\n')
+		block_sync_input.write(bin_input   + 'n')
+		block_sync_output.write(bin_output + 'n')
+		block_lock_flag.write(bin_flag     + 'n')
 		
 		"""
 		if((clock % random_change) == 0):
@@ -171,8 +184,6 @@ def main():
 			bp()
 			break
 		"""
-		
-
 
 
 

@@ -57,7 +57,7 @@ class BlockSyncModule(object):
 			if (self.check_sync_header() == False) :
 				self.timer_search = 0
 				self.sh_invld_cnt = 0
-				if (self.search_index == self.NB_BLOCK):
+				if (self.search_index == self.NB_BLOCK-1):
 					self.search_index = 0
 				else :
 					self.search_index += 1
