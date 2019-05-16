@@ -10,17 +10,18 @@ module am_error_counter
 	parameter NB_COUNTER = 32
  )
  (
- 	input wire 						i_clock,
- 	input wire 						i_reset,
- 	input wire 						i_enable,
- 	input wire 						i_match,
+ 	input wire 				i_clock,
+ 	input wire 				i_reset,
+ 	input wire 				i_enable,
+ 	input wire 				i_match,
  	input wire [NB_BIP-1 : 0] 		i_recived_bip,
  	input wire [NB_BIP-1 : 0] 		i_calculated_bip,
 
- 	output wire [NB_COUNTER-1 : 0] 	o_error_count,
- 	output wire 				  	o_overflow_flag
+ 	output wire [NB_COUNTER-1 : 0] 		o_error_count,
+ 	output wire 				o_overflow_flag
 
  );
+
 //LOCALPARAM
 
 localparam NB_CURRENT_ERROR = $clog2(NB_BIP);
@@ -40,8 +41,7 @@ reg 			     overflow_flag;
  	begin
  		error_counter <= {NB_COUNTER{1'b0}};
  		overflow_flag <= 1'b0;
- 	end
-
+ 	end 
  	else if (i_enable && i_match)
 	begin
  		if(error_counter[NB_COUNTER-1 : NB_CURRENT_ERROR] == {NB_COUNTER-NB_CURRENT_ERROR{1'b1}})//** check
@@ -68,3 +68,6 @@ reg 			     overflow_flag;
  	end
 
  end
+
+
+ endmodule

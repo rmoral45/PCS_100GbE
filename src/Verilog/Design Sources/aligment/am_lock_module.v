@@ -8,40 +8,40 @@
 
 module am_lock_module
 #(
-	parameter LEN_CODED_BLOCK 	= 66,
-	parameter NB_BIP 			= 8,
-	parameter NB_SH				= 2,
+	parameter LEN_CODED_BLOCK   = 66,
+	parameter NB_BIP 	    = 8,
+	parameter NB_SH		    = 2,
 	parameter NB_ERROR_COUNTER  = 32,
-	parameter N_ALIGNER 		= 20,
-	parameter NB_LANE_ID		= $clog2(N_ALIGNER),
-	parameter N_BLOCKS 		 	= 16383, //***FIX cambiar a 16384 p q incluya el am en el periodo
+	parameter N_ALIGNER 	    = 20,
+	parameter NB_LANE_ID	    = $clog2(N_ALIGNER),
+	parameter N_BLOCKS 	    = 16383, //***FIX cambiar a 16384 p q incluya el am en el periodo
 	parameter MAX_INV_AM        = 8,
-	parameter NB_INV_AM			= $clog2(MAX_INV_AM),
+	parameter NB_INV_AM	    = $clog2(MAX_INV_AM),
 	parameter MAX_VAL_AM        = 20,
-    parameter NB_VAL_AM         = $clog2(MAX_VAL_AM)
+    	parameter NB_VAL_AM         = $clog2(MAX_VAL_AM)
  )
  (
- 	input  wire 							i_clock,
- 	input  wire 							i_reset,
- 	input  wire 							i_enable,
- 	input  wire 							i_valid,//significa que hay un nuevo bloque listo para testear
- 	input  wire 							i_block_lock,
+ 	input  wire 				i_clock,
+ 	input  wire 				i_reset,
+ 	input  wire 				i_enable,
+ 	input  wire 				i_valid,//significa que hay un nuevo bloque listo para testear
+ 	input  wire 				i_block_lock,
  	input  wire [LEN_CODED_BLOCK-1 : 0] 	i_data,
- 	input  wire [NB_INV_AM-1 : 0]			i_max_invalid_am,  
+ 	input  wire [NB_INV_AM-1 : 0]		i_max_invalid_am,  
  	input  wire [NB_VAL_AM-1 : 0]           i_max_valid_am,
  
  	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data,
-	output wire [NB_LANE_ID-1 : 0]			o_lane_id,
+	output wire [NB_LANE_ID-1 : 0]		o_lane_id,
 	output wire [NB_ERROR_COUNTER-1 : 0]	o_error_counter,
-	output wire 							o_am_lock,
-	output wire 							o_resync,
-	output wire 							o_start_of_lane
+	output wire 				o_am_lock,
+	output wire 				o_resync,
+	output wire 				o_start_of_lane
  );
 
 
 //LOCALPARAMS
 localparam LEN_AM    		= 48;
-localparam CTRL_SH 	 		= 2'b10; 
+localparam CTRL_SH 	 	= 2'b10; 
 localparam PCS_IDLE  		= 7'h00;
 localparam BLOCK_TYPE_CTRL 	= 8'h1E; //[CHECK]
 
@@ -54,15 +54,15 @@ wire [N_ALIGNER-1 : 0]		match_mask; 	//done
 wire [N_ALIGNER-1 : 0]		match_vector; 	//done
 //wire [TAMANIO DEL CONTADOR : 0]			bip_error_count;//asignar a puerto
 wire [LEN_AM-1 : 0] 		am_value;		//done
-wire [NB_BIP-1:0] 			calculated_bip, recived_bip;
-wire 						timer_done;
-wire  						start_of_lane;
-wire 						reset_sol_count;
-wire 						timer_restart;
-wire 						am_match; 		//done
-wire 						ignore_sh; 		//done
-wire 						enable_mask;	//done
-wire 						restore_am;		//done
+wire [NB_BIP-1:0] 		calculated_bip, recived_bip;
+wire 				timer_done;
+wire  				start_of_lane;
+wire 				reset_sol_count;
+wire 				timer_restart;
+wire 				am_match; 		//done
+wire 				ignore_sh; 		//done
+wire 				enable_mask;	//done
+wire 				restore_am;		//done
 
 
 
@@ -70,7 +70,9 @@ wire 						restore_am;		//done
 //Update input
 always @ (posedge i_clock)
 begin
-	if (i_valid && i_enable)
+	if (i_reset)
+		input_data <= {LEN_CODED_BLOCK{1'b0}};
+	else if (i_valid && i_enable)
 		input_data <= i_data;
 end
 
@@ -101,10 +103,10 @@ am_lock_comparator
 	(
 		.i_enable_mask	(enable_mask),
 		.i_timer_done	(timer_done),
-		.i_am_value		(am_value),
+		.i_am_value	(am_value),
 		.i_match_mask	(match_mask),
-		.i_sh_valid		(sh_valid),
-		.o_am_match		(am_match),
+		.i_sh_valid	(sh_valid),
+		.o_am_match	(am_match),
 		.o_match_vector	(match_vector)
 	);
 
@@ -118,57 +120,24 @@ am_lock_fsm
 		.i_reset  		(i_reset),
 		.i_enable 		(i_enable),
 	 	.i_valid		(i_valid),
-	 	.i_block_lock	(i_block_lock),
-	 	.i_timer_done	(timer_done),
+	 	.i_block_lock		(i_block_lock),
+	 	.i_timer_done		(timer_done),
 	 	.i_am_valid		(am_match),
-	 	.i_start_of_lane(start_of_lane),
-	 	.i_match_vector (match_vector),
-	 	.i_lock_trh     (i_max_valid_am),
-	 	.i_unlock_trh   (i_max_invalid_am),
+	 	.i_start_of_lane	(start_of_lane),
+	 	.i_match_vector 	(match_vector),
+	 	.i_lock_trh     	(i_max_valid_am),
+	 	.i_unlock_trh   	(i_max_invalid_am),
 
-	 	.o_match_mask	(match_mask),
-	 	.o_ignore_sh	(ignore_sh),
-	 	.o_enable_mask	(enable_mask),
+	 	.o_match_mask		(match_mask),
+	 	.o_ignore_sh		(ignore_sh),
+	 	.o_enable_mask		(enable_mask),
 	 	.o_am_lock		(o_am_lock),
-	 	.o_resyncby_am_start(o_resync),
-	 	.o_start_of_lane(o_start_of_lane),
-	 	.o_restore_am	(restore_am)
+	 	.o_resyncby_am_start	(o_resync),
+	 	.o_start_of_lane	(o_start_of_lane),
+	 	.o_restore_am		(restore_am)
  	);
  	
-/*
-am_timer
-#(
-	.N_BLOCKS(N_BLOCKS),
-	.EXTRA_DELAY(2)
- )
-	u_am_timer
-	 (
-	 	.i_clock		(i_clock),
-		.i_reset  		(i_reset),
-	 	.i_restart		(timer_restart),//input from fsm
-	 	.i_valid		(i_valid),
-	 	.i_enable 		(i_enable),
 
-	 	.o_timer_done	(timer_done)
-	 );
-
-am_sol_timer
-#(
-	.N_BLOCKS(N_BLOCKS),
-	.EXTRA_DELAY(0) 		//en este caso no hay delay
- )
-u_am_sol_timer
- (
- 	.i_clock 			(i_clock),
- 	.i_reset 			(i_reset),
- 	.i_restart 			(reset_sol_count),		//input from fsm
- 	.i_valid 			(i_valid),
- 	.i_enable 			(i_enable),
-
- 	.o_start_of_lane	(start_of_lane)
- );
-
-*/
 
 lane_id_decoder
 #(
@@ -178,7 +147,7 @@ lane_id_decoder
 	(
 		.i_match_mask	(match_mask),
 
-		.o_lane_id		(o_lane_id)
+		.o_lane_id	(o_lane_id)
 	);
 
 /*
@@ -189,15 +158,16 @@ am_error_counter
  )
 	u_am_error_counter
 	 (
-	 	.i_clock 		 (i_clock),
-	 	.i_reset 		 (i_reset),
-	 	.i_enable 		 (i_enable),
-	 	.i_match 		 (am_match),
-	 	.i_recived_bip 	 (recived_bip),
-	 	.i_calculated_bip(calculated_bip),
-	 	.o_error_count	 (bip_error_count)
+	 	.i_clock 		(i_clock),
+	 	.i_reset 		(i_reset),
+	 	.i_enable 		(i_enable),
+	 	.i_match 		(am_match),
+	 	.i_recived_bip 	 	(recived_bip),
+	 	.i_calculated_bip	(calculated_bip),
+	 	.o_error_count	 	(bip_error_count)
 	 );
 */
+
 /**checkear puertos y logica
 bip_calculator
 #(
@@ -205,13 +175,13 @@ bip_calculator
  )
 	u_bip_calculator
 	 (
-	 	.i_clock(i_clock),
-	 	.i_reset(i_reset),
-	 	.i_data(input_data),
-	 	.i_enable(i_enable),
+	 	.i_clock	(i_clock),
+	 	.i_reset	(i_reset),
+	 	.i_data		(input_data),
+	 	.i_enable	(i_enable),
 
-	 	.o_bip3(bip3),
-	 	.o_bip7(bip7)
+	 	.o_bip3		(bip3),
+	 	.o_bip7		(bip7)
 	 );
 */
 

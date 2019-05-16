@@ -3,15 +3,15 @@
 
 module am_lock_comparator
 #(
-	parameter LEN_AM 	= 48,
+	parameter LEN_AM    = 48,
 	parameter N_ALIGNER = 20
  )
- (	input  wire 					i_enable_mask,// input from fsm
- 	input  wire 					i_timer_done ,
- 	input  wire [LEN_AM-1 : 0] 	 	i_am_value	 ,
- 	input  wire [N_ALIGNER-1 : 0] 	i_match_mask ,
- 	input  wire 					i_sh_valid   ,
- 	output wire 					o_am_match	 ,
+ (	input  wire 			i_enable_mask,	  // input from fsm
+ 	input  wire 			i_timer_done ,
+ 	input  wire [LEN_AM-1 	 : 0] 	i_am_value ,
+ 	input  wire [LEN_AM-1 	 : 0] 	i_compare_mask ,  //mascara configurable para permitir flexibilidad en la comparacion
+ 	input  wire [N_ALIGNER-1 : 0]	i_match_mask ,	  //expected am mask
+ 	output wire 			o_am_match ,  	  //flag signaling match
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector
  );
 
@@ -43,28 +43,31 @@ localparam AM_LANE_19 = 48'hC0F0E53F0F1A;
 integer i;
 
 reg [LEN_AM*N_ALIGNER-1 : 0] 	  aligners; 
-reg [N_ALIGNER-1 : 0] 			  match_mask; //salida de fsm
-reg [N_ALIGNER-1 : 0] 			  match_vector;//salida de comparadores
-reg [N_ALIGNER-1 : 0] 			  match_expected_am;
-reg [LEN_AM-1 : 0] 				  am_value;// bits
+reg [N_ALIGNER-1 : 0] 		  match_mask; //salida de fsm
+reg [N_ALIGNER-1 : 0] 		  match_vector;//salida de comparadores
+reg [N_ALIGNER-1 : 0] 		  match_expected_am;
+reg [LEN_AM-1 : 0] 		  am_value_masked;// bits
 reg match_payload;
 reg enable;
 reg match;
-
+reg aux; //TODO pensar un nombre mejor
 always @ *
 begin
-	aligners 	  = { AM_LANE_19, AM_LANE_18, AM_LANE_17, AM_LANE_16, AM_LANE_15, AM_LANE_14, AM_LANE_13
-					, AM_LANE_12, AM_LANE_11, AM_LANE_10, AM_LANE_9 , AM_LANE_8 , AM_LANE_7 , AM_LANE_6
-					, AM_LANE_5 , AM_LANE_4 , AM_LANE_3 , AM_LANE_2 , AM_LANE_1 , AM_LANE_0 };
+	aligners 	  = { AM_LANE_19, AM_LANE_18, AM_LANE_17, AM_LANE_16, AM_LANE_15, AM_LANE_14, AM_LANE_13,
+			      AM_LANE_12, AM_LANE_11, AM_LANE_10, AM_LANE_9 , AM_LANE_8 , AM_LANE_7 , AM_LANE_6 ,
+					  AM_LANE_5 , AM_LANE_4 , AM_LANE_3 , AM_LANE_2 , AM_LANE_1 , AM_LANE_0 };
 	match_vector  = 0;
 	match_expected_am = 0;
 	match_payload = 0;
 	enable = 0;
 	match = 0;
+	aux = 0;
 
 	for(i=0;i<N_ALIGNER;i=i+1)
 	begin
-		if((aligners[i*LEN_AM  +: LEN_AM] == i_am_value) && i_match_mask[i])
+		am_value_masked = i_am_value & i_compare_mask;
+		aux = |(am_value_masked ^ aligners[i*LEN_AM +: LEN_AM])
+		if (!aux && i_match_mask[i])
 		begin
 			match_expected_am[i] = 1;
 			match_vector[i]      = 1;
@@ -72,8 +75,8 @@ begin
 	end
 
 	match_payload = | match_expected_am; // se encontro un match
-	enable 		  = (i_timer_done | i_enable_mask);
-	match 		  = match_payload & enable & i_sh_valid;//input to fsm
+	enable 	      = (i_timer_done | i_enable_mask);//se cumplio el tiempo en el que debe llegar otro bloque o todavia no encontre el primero
+	match 	      = match_payload & enable & i_sh_valid;//input to fsm
 
 end 
 
