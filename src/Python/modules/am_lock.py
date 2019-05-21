@@ -50,6 +50,7 @@ class AlignMarkerLockModule(object):
 			if (self.am_valid and (self.block_counter == self.BLOCKS_BETWEEN_AM )):
 				self.am_lock = True
 				self.block_counter = 0
+				self.lane_id = align_marker_list.index(recv_block['payload'])
 				self.state = 'LOCKED'
 			elif ( (self.am_valid==False) and (self.block_counter == self.BLOCKS_BETWEEN_AM ) ):
 				self.state = 'WAIT_1ST'
