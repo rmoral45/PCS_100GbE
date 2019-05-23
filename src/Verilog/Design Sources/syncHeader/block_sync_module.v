@@ -44,7 +44,8 @@ wire                            block_lock;
 wire                            enable; //usado para fsm, desp hay que eliminarlo
 assign enable = 1;
 
-assign data_ext 	= {data_prev,i_data};
+//assign data_ext 	= {data_prev,i_data};
+assign data_ext 	= {i_data,data_prev};
 
 assign sh_valid 	= ^(data_ext[(NB_CODED_BLOCK-1-search_index) -: 2]);
 

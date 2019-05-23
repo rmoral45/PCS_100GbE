@@ -28,12 +28,14 @@ wire [NB_INDEX-1 : 0]		tb_block_index;
 reg tb_enable_files;
 
 reg  [NB_CODED_BLOCK-1 : 0] input_data;
+reg  [NB_CODED_BLOCK-1 : 0] python_output_data;
 reg  [0 : NB_CODED_BLOCK-1] temp_data;
-wire [NB_CODED_BLOCK-1 : 0] output_data;
+reg  [0 : NB_CODED_BLOCK-1] temp_out_python_data;
 
 
 integer fid_input_data;
 integer fid_output_data;
+integer fid_output_python_data;
 integer fid_output_lock;
 integer fid_output_search_index;
 integer fid_output_block_index;
@@ -41,6 +43,7 @@ integer fid_output_block_index;
 integer code_error_data;
 
 integer ptr_data;
+integer ptr_output_python_data;
 
 initial
 begin
@@ -54,6 +57,13 @@ begin
 		$display("\n\n NO SE PUDO ABRIR ARCHIVO DE INPUT DATA");
 		$stop;
 	end
+	
+	fid_output_python_data =$fopen("/media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/block_sync_tb_files/block-sync-output-python.txt","r");
+    if (fid_output_python_data == 0)
+    begin
+       $display("\n\n NO SE PUDO ABRIR ARCHIVO DE OUTPUT PYTHON");
+       $stop;
+    end
 
 	fid_output_data = $fopen("/media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/block_sync_tb_files/block-sync-output-verilog.txt","w");
 	if (fid_output_data == 0)
@@ -68,13 +78,8 @@ begin
 		$display("\n\n NO SE PUDO ABRIR ARCHIVO PARA BLOCK LOCK");
 		$stop;
 	end
-	/*fid_output_search_index =$fopen("/home/diego/fundacion/PPS/src/Python/run/block_sync_tb_files/","w");
-	if (fid_output_search_index == 0)
-	begin
-		$display("\n\n NO SE PUDO ABRIR ARCHIVO PARA SEARCH INDEX");
-		$stop;
-	end
-	fid_output_block_index = $fopen("/home/diego/fundacion/PPS/src/Python/run/block_sync_tb_files/","w");
+	
+	/*fid_output_block_index = $fopen("/home/diego/fundacion/PPS/src/Python/run/block_sync_tb_files/","w");
 	if (fid_output_block_index == 0)
 	begin
 		$display("\n\n NO SE PUDO ABRIR ARCHIVO PARA BLOCK INDEX");
@@ -113,6 +118,18 @@ begin
                	$stop;
 			end
 		end
+		
+		for(ptr_output_python_data=0; ptr_output_python_data < NB_CODED_BLOCK; ptr_output_python_data=ptr_output_python_data+1)
+        begin
+            code_error_data <= $fscanf(fid_output_python_data, "%b\n", temp_out_python_data[ptr_output_python_data]);
+            if(code_error_data != 1)
+            begin
+                $display("Python-output-Data: El caracter leido no es valido..");
+                   $stop;
+            end
+        end		
+		
+		
 		//FIN LECTURA ARCHIVO
 
 
@@ -125,6 +142,7 @@ begin
 		
 
 		input_data <= temp_data;
+		python_output_data <= temp_out_python_data;
 
 	end
 

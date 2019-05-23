@@ -7,9 +7,9 @@ import numpy as np
 def allign_vector(python_vector, verilog_vector):
 
 	ver_index_left  = 2
-	ver_index_right = 6
-	py_index_left   = 2
-	py_index_right  = 6
+	ver_index_right = 1
+	py_index_left   = 1
+	py_index_right  = 56
 
 	#new_pyvector = cp.deepcopy(python_vector[py_index_left:-py_index_right])
 	new_pyvector = cp.deepcopy(python_vector[py_index_left:])
@@ -44,14 +44,14 @@ def main():
 	with open("./encoder-input-ctrl.txt") as verilog_cgmii_ctrl_input:
 		cgmii_ctrl_input = verilog_cgmii_ctrl_input.readlines()
 	'''
-	with open("../run/block_sync_tb_files/block-sync-input.txt") as verilog_cgmii_data_input:
+	with open("../run/block_sync_tb_files/block-sync-output-python.txt") as verilog_cgmii_data_input:
 		cgmii_data_input = verilog_cgmii_data_input.readlines()
 
 	
 	for i in range(len(cgmii_data_input)):
 		cgmii_data_input[i]=filter(lambda x: x!=' ',cgmii_data_input[i])
 
-	bp()
+	#bp()
 
 	#for i in range(len(cgmii_ctrl_input)):
 	#	cgmii_ctrl_input[i]=filter(lambda x: x!=' ',cgmii_ctrl_input[i])
@@ -59,7 +59,7 @@ def main():
 	decoded_data_output = [x.strip() for x in decoded_data_output] 
 	#decoded_ctrl_output = [x.strip() for x in decoded_ctrl_output]
 	cgmii_data_input = [x.strip() for x in cgmii_data_input] 
-	bp()
+	#bp()
 	#cgmii_ctrl_input = [x.strip() for x in cgmii_ctrl_input]
 
 	cgmii_data_input, decoded_data_output = allign_vector(cgmii_data_input, decoded_data_output)

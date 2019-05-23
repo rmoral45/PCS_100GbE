@@ -70,6 +70,7 @@ class BlockSyncModule(object):
 
 		elif (self.state == 'LOCKED'):
 			self.block_lock = 1
+			self.check_sync_header()
 
 			if (self.timer_search == self.locked_timer_limit):
 				self.timer_search = 0
@@ -79,10 +80,7 @@ class BlockSyncModule(object):
 				self.sh_invld_cnt = 0
 				self.search_index = 0
 				self.state = 'UNLOCKED'
-				
-
-
-
+			
 
 	def receive_block(self,recv_block):
 		"""
@@ -106,7 +104,7 @@ class BlockSyncModule(object):
 		"""
 			Revisa la validez de sh
 
-			Retuns :
+			Returns :
 				-<type bool> : True si el sh es valido, False si no lo es
 			Sets :
 				-<type int> sh_cnt : incrementa en 1
@@ -119,6 +117,7 @@ class BlockSyncModule(object):
 			return True
 		else :
 			self.sh_invld_cnt += 1
+
 			return False
 	
 
@@ -140,7 +139,7 @@ class BlockSyncModule(object):
 			name = 'locked_block_' + str(self.locked_bcount)
 			self.locked_bcount += 1
 		else :
-			payload = 0
+			payload = (self.extended_block['payload'] &  (0x3ffffffffffffffff << (66 - self.block_index)) ) >> (66 - self.block_index)
 			name = 'trash_block'
 		block['block_name'] = name
 		block['payload'] = payload

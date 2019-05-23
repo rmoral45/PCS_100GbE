@@ -6,7 +6,7 @@ import block_sync as bs
 import copy
 
 #CONSTANTS
-NCLOCK = 10000
+NCLOCK = 2000000
 NB_BLOCK = 66
 
 #FUNCT
@@ -62,10 +62,11 @@ def gen_block_v2():
 						 	'payload'   : 0
 						}
 	data_list 	= []
-	N_BLOCKS 	= 1000
-	N_TRASH_BLOCKS = random.randint(0,300)
+	N_BLOCKS 	= 2000
+	#N_TRASH_BLOCKS = random.randint(0,1500)
+	N_TRASH_BLOCKS = 1500
 	SH_POS = random.randint(0,65)
-	bp()
+	print('Genere un bloque con sh pos: ', SH_POS)
 	N_TRASH_BITS 	= NB_BLOCK*N_TRASH_BLOCKS+SH_POS
 	data 		= bin(random.getrandbits(N_TRASH_BITS))[2:].zfill(N_TRASH_BITS)
 	for i in range(0,N_BLOCKS) :
@@ -96,12 +97,12 @@ def main():
 #Init
 
 	#fsm config params
-	sh_invld_limit 		= 64
-	locked_time_limit 	= 1024
+	sh_invld_limit 		= 512
+	locked_time_limit 	= 2048
 	unlocked_time_limit = 64
 
 	#Simulation variables
-	sh_index 			= 22 #con 64 se engancha en 64 ciclos de clock 
+	sh_index 			= 64 #con 64 se engancha en 64 ciclos de clock 
 	break_flag 			= False
 	'''
 		En el peor de los casos va a demorar NB_BLOCK*locked_time_limit en engarcharse,es decir va
@@ -116,11 +117,16 @@ def main():
 
 	#Files
 	block_sync_input  = open( "block-sync-input.txt"  , "w" )
-	block_sync_output = open( "block-sync-output.txt" , "w" )
+	block_sync_output = open( "block-sync-output-python.txt" , "w" )
 	block_lock_flag   = open( "block-lock-flag.txt"   , "w" )
 
-	charamasca=[] 
+	charamasca=[]
 	charamasca= gen_block_v2()
+	#bp()
+	#charamasca = gen_block(65)
+	
+	#bp()
+	asd = 0
 
 #main loop
 	#for clock in range(NCLOCK):
@@ -147,14 +153,18 @@ def main():
 		bin_output  = block_to_bin(out_block)
 		bin_flag    = bin(Block_Sync_Module.block_lock)[2:]
 
-		if Block_Sync_Module.block_lock == 1:
-			print 'in  : ' , bin_input
-			print 'out : ', bin_output
-			print binascii.unhexlify('%x' % int(bin_output[2:-1],2))
-			print 'n INDICE DE BLOQUE ',Block_Sync_Module.block_index
-			bp()
+		
+		if Block_Sync_Module.block_lock == 1 and asd == 0:
+			#print 'in  : ' , hex(int(bin_input,2))
+			print('Locked again')
+			print 'sh_index : '		,sh_index
+			print 'block_index : '	,Block_Sync_Module.block_index
+			#bp()
+			#print 'out : ', hex(int(bin_output,2))
+			#print binascii.unhexlify('%x' % int(bin_output[2:-1],2))
+			#print 'INDICE DE BLOQUE ',Block_Sync_Module.block_index
+		asd = Block_Sync_Module.block_lock
 
-		'''
 		if (clock == next_param_change) :
 			print ' Current  params :n'
 
@@ -162,30 +172,29 @@ def main():
 			print 'sh_index : '		,sh_index
 			print 'block_index : '	,Block_Sync_Module.block_index
 			print 'last out block'	,bin_output
-			bp()
-			next_param_change = random.randint(clock+50, clock+2048)
-			sh_index = random.randint(0,64)
-		'''
+			#bp()
+			next_param_change = random.randint(clock+locked_time_limit+unlocked_time_limit+1000, clock+10000)
+			sh_index -= 1
+			if(sh_index < 0):
+				break
 
-		
 
 		#format
 		bin_input   = ''.join(map(lambda x: x+' ' ,  bin_input  ))
 		bin_output  = ''.join(map(lambda x: x+' ' ,  bin_output ))
 
-		block_sync_input.write(bin_input   + 'n')
-		block_sync_output.write(bin_output + 'n')
-		block_lock_flag.write(bin_flag     + 'n')
+		block_sync_input.write(bin_input   + '\n')
+		block_sync_output.write(bin_output + '\n')
+		block_lock_flag.write(bin_flag     + '\n')
 		
-		"""
+
+		#random_change = random.randint(clock+locked_time_limit+unlocked_time_limit+1000, clock+10000)
+		
+		'''
 		if((clock % random_change) == 0):
 			sh_index -=1
 		if(sh_index < 0):
-			bp()
 			break
-		"""
-
-
-
+		'''
 if __name__ == '__main__':
     main()
