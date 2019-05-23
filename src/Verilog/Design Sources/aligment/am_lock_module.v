@@ -27,8 +27,8 @@ module am_lock_module
  	input  wire 				i_valid,		//from clock divider(valid signal generator)
  	input  wire 				i_block_lock,		//from block_sync module
  	input  wire [NB_CODED_BLOCK-1 : 0] 	i_data,			//from block_sync module
- 	input  wire [NB_INV_AM-1 : 0]		i_max_invalid_am,  	//from top level am_lock control module, or register file
- 	input  wire [NB_VAL_AM-1 : 0]           i_max_valid_am, 	//from top level am_lock control module, or register file
+ 	input  wire [NB_INV_AM-1 : 0]		i_invalid_am_thr,  	//from top level am_lock control module, or register file
+ 	input  wire [NB_VAL_AM-1 : 0]           i_valid_am_thr, 	//from top level am_lock control module, or register file
  
  	output wire [NB_CODED_BLOCK-1 : 0] 	o_data,			//to programable_fifo/lane_deskew module
 	output wire [NB_LANE_ID-1 : 0]		o_lane_id,		//to lane reorder module
@@ -122,8 +122,8 @@ am_lock_fsm
 	 	.i_block_lock		(i_block_lock),		//from block_sync
 	 	.i_am_valid		(am_match),		//from comparator
 	 	.i_match_vector 	(match_vector),		//from comparator
-	 	.i_lock_trh     	(i_max_valid_am),   	//input from top
-	 	.i_unlock_trh   	(i_max_invalid_am), 	//input from top
+	 	.i_lock_trh     	(i_valid_am_thr),   	//input from top
+	 	.i_unlock_trh   	(i_invalid_am_thr), 	//input from top
 
 		//OUTPUTS
 	 	.o_match_mask		(match_mask),		//to comparator
