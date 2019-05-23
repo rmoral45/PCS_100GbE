@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-module tb_primerLoopback;
+module tb_toplevel_primerLoopback;
 
 localparam	NMODULES		= 2; 	
 localparam	LEN_DATA_BLOCK	= 64;
@@ -23,9 +23,9 @@ initial begin
 #2	tb_reset				 = 1;
 #2	tb_reset				 = 0;
 	tb_enable_frameGenerator = 1'b1;
-	tb_enable_frameChecker	 = 1'b1;
 	tb_enable_tx			 = 2'b11;
 	tb_enable_rx			 = 2'b11;
+#20	tb_enable_frameChecker	 = 1'b1;
 #10000000 $finish;
 end
 

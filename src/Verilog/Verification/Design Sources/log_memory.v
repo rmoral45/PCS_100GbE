@@ -65,12 +65,12 @@ end
 
 //instances
 
-fifo_memory
+shift_memory
 #(
 	.NB_DATA(NB_DATA),
 	.NB_ADDR(NB_ADDR)
  )
-	u_fifo_memory
+	u_shift_memory
 	(
 		.i_clock(i_clock),
 		.i_write_enb(wr_enable),

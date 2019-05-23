@@ -27,11 +27,10 @@ wire							tb_match_ctrl;
 
 initial begin
 		tb_clock	= 1'b0;
-		tb_reset	= 1'b0;
+		tb_reset	= 1'b1;
 		tb_enable	= 2'b00;
 		tb_enable_rx = 2'b00;
-#1		tb_reset	= 1'b1;
-#5		tb_reset	= 1'b0;
+#6		tb_reset	= 1'b0;
 #2      tb_enable   = 2'b11;
 #7		tb_enable_rx = 2'b11;
 #1000000 $finish;			

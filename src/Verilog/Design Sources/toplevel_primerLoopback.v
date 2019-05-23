@@ -10,7 +10,7 @@ module toplevel_primerLoopback
 	input 								i_clock,
 	input 								i_reset,
 	input 								i_enable_frameGenerator,
-	input 								i_enable_frameChecker,
+	input 								i_enable_frameChecker,       //al frame checker hay que habilitarlo 10 ciclos de clock dsp (por el delay)
 	input		[TX_NMODULES-1 : 0]		i_enable_tx,
 	input		[RX_NMODULES-1 : 0]		i_enable_rx,
 	output wire	[LEN_DATA_BLOCK-1 : 0]	o_rx_raw_data,

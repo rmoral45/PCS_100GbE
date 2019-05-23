@@ -19,7 +19,6 @@ module am_error_counter
 
  	output wire [NB_COUNTER-1 : 0] 		o_error_count,
  	output wire 				o_overflow_flag
-
  );
 
 //LOCALPARAM
@@ -29,9 +28,11 @@ localparam NB_CURRENT_ERROR = $clog2(NB_BIP);
 
 //INTERNAL SIGANLS
 
-reg [NB_CURRENT_ERROR-1 : 0] error_counter,error_counter_next;
-reg 			     overflow_flag;
+reg [NB_COUNTER : 0] 		error_counter;
+reg [NB_CURRENT_ERROR-1 : 0]	error_counter_next;
+wire 			     	overflow_flag;
 
+assign overflow_flag = error_counter[NB_COUNTER];
 
 //Update counter
  always @ (posedge i_clock)
@@ -42,18 +43,13 @@ reg 			     overflow_flag;
  		error_counter <= {NB_COUNTER{1'b0}};
  		overflow_flag <= 1'b0;
  	end 
+
  	else if (i_enable && i_match)
 	begin
- 		if(error_counter[NB_COUNTER-1 : NB_CURRENT_ERROR] == {NB_COUNTER-NB_CURRENT_ERROR{1'b1}})//** check
- 		begin//evitar overflow
+ 		if (overflow_flag)
  			error_counter <= {NB_COUNTER{1'b1}};
- 			overflow_flag <= 1'b1;
- 		end
  		else
- 		begin
- 			error_counter <= //(error_counter + error_counter_next); agrego un bit mas a esta suma y verifico overflow
- 			overflow_flag <= 1'b0;
- 		end
+ 			error_counter <= (error_counter + error_counter_next);
 	end
  end
 
