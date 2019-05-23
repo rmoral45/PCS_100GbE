@@ -1,15 +1,15 @@
 
 
 
-module am_lock_comparator
+module am_lock_comparator_v2
 #(
-	parameter LEN_AM    = 48,
+	parameter NB_AM    = 48,
 	parameter N_ALIGNER = 20
  )
  (	input  wire 			i_enable_mask,	  // input from fsm
  	input  wire 			i_timer_done ,
- 	input  wire [LEN_AM-1 	 : 0] 	i_am_value ,
- 	input  wire [LEN_AM-1 	 : 0] 	i_compare_mask ,  //mascara configurable para permitir flexibilidad en la comparacion
+ 	input  wire [NB_AM-1 	 : 0] 	i_am_value ,
+ 	input  wire [NB_AM-1 	 : 0] 	i_compare_mask ,  //mascara configurable para permitir flexibilidad en la comparacion
  	input  wire [N_ALIGNER-1 : 0]	i_match_mask ,	  //expected am mask
  	output wire 			o_am_match ,  	  //flag signaling match
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector
@@ -42,11 +42,11 @@ localparam AM_LANE_19 = 48'hC0F0E53F0F1A;
 
 integer i;
 
-reg [LEN_AM*N_ALIGNER-1 : 0] 	  aligners; 
+reg [NB_AM*N_ALIGNER-1 : 0] 	  aligners; 
 reg [N_ALIGNER-1 : 0] 		  match_mask; //salida de fsm
 reg [N_ALIGNER-1 : 0] 		  match_vector;//salida de comparadores
 reg [N_ALIGNER-1 : 0] 		  match_expected_am;
-reg [LEN_AM-1 : 0] 		  am_value_masked;// bits
+reg [NB_AM-1 : 0] 		  am_value_masked;// bits
 reg match_payload;
 reg enable;
 reg match;
