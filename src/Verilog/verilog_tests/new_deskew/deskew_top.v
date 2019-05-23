@@ -120,7 +120,4 @@ module deskew_top
 
  //endgenerate
 
-
-
-
   endmodule
