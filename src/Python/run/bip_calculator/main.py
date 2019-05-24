@@ -9,7 +9,7 @@ import bip_calculator as bip
 from pdb import set_trace as bp
 import random
 
-#NCLOCK = 2^14
+#NCLOCK = 64
 NCLOCK = 31
 LANEID = 0
 
@@ -37,7 +37,7 @@ def main():
 		bin_output_parity = ''.join(map(lambda x: x+' ', bin_output_parity))
 		bin_am_insert_flag = str(block['flag'])
 		bin_input_data = map(str, block['data'])
-		bin_input_data = ''.join(map(lambda x: x+' ', bin_input_data))
+		bin_input_data = ''.join(map(lambda x: x+'', bin_input_data))
 		bin_output_data = map(str, data)
 		bin_output_data = ''.join(map(lambda x: x+' ', bin_output_data))
 
