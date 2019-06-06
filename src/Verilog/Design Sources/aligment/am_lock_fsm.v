@@ -83,13 +83,11 @@ always @ (posedge i_clock)
 begin
 	if(i_reset || !i_block_lock)
 	begin
-		restore_am 		 <= 0;
 		match_mask  	 <= {N_ALIGNERS{1'b1}};
 	end
 	else if (i_enable && i_valid)
 	begin
 		match_mask  	 <= match_mask_next;
-		restore_am 		 <= rest_am_next;
 	end
 end
 

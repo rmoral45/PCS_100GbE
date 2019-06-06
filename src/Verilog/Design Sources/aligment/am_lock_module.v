@@ -58,33 +58,26 @@ wire 				compare_timer_trigg;		//done
 wire 				am_match; 			//done
 wire 				enable_mask;			//done
 wire 				restore_am;			//[CHECK] verificar si es necesario usar
+wire 				start_of_lane;
 
-
-//Update input
-always @ (posedge i_clock)
-begin
-	if (i_reset)
-		input_data <= {LEN_CODED_BLOCK{1'b0}};
-	else if (i_valid && i_enable)
-		input_data <= i_data;
-end
 
 //Output mux
-always @ (posedge i_clock)
+always @ *
 begin
-	//if(i_enable && i_valid && restore_am)
-	if(i_enable && i_valid && am_match)
-		output_data <= { CTRL_SH,BLOCK_TYPE_CTRL,{8{PCS_IDLE}} }; //CHECK
-	//else if(i_enable && i_valid && !restore_am)
-	else if(i_enable && i_valid && !am_match)
-		output_data <= input_data;
+
+	if(i_enable && i_valid && start_of_lane)
+		output_data = { CTRL_SH,BLOCK_TYPE_CTRL,{8{PCS_IDLE}} }; //CHECK
+	else if(i_enable && i_valid && !start_of_lane)
+		output_data = i_data;
+
 end
 
 
-assign am_value 	= {input_data[LEN_CODED_BLOCK-3 -: 24], input_data[31 -: 24]}; //PARAMETRIZAR
+assign am_value 	= {i_data[LEN_CODED_BLOCK-3 -: 24], i_data[31 -: 24]}; //PARAMETRIZAR
 
 //PORTS
 assign o_data 		= output_data;
+assign o_start_of_lane  = start_of_lane;
 
 
 //Instances
@@ -130,7 +123,7 @@ am_lock_fsm
 	 	.o_enable_mask		(enable_mask),		//to comparator
 	 	.o_am_lock		(o_am_lock),		//to top level
 	 	.o_resync_by_am_start	(o_resync),		//to top level
-	 	.o_start_of_lane	(o_start_of_lane),	//to top level
+	 	.o_start_of_lane	(start_of_lane),	//to top level
 	 	.o_restore_am		(restore_am),		//to internal output
 		.o_search_timer_done 	(compare_timer_trigg) 	//to comparator
  	);
@@ -164,7 +157,7 @@ am_error_counter
 		 * El trigger para calcular el match deberia ser
 		 * probablemente la senial de SOL, revisar 
 		 */
-	 	.i_match 		(am_match),		//from comparator
+	 	.i_match 		(start_of_lane),		//from comparator
 	 	.i_recived_bip 	 	(recived_bip),		//from input reg
 	 	.i_calculated_bip	(calculated_bip),	//from bip_calc
 	 	.o_error_count	 	(o_error_counter)	//to top level
@@ -180,8 +173,9 @@ bip_calculator
 	 (
 	 	.i_clock	(i_clock),
 	 	.i_reset	(i_reset),
-	 	.i_data		(input_data),
+	 	.i_data		(i_data),
 	 	.i_enable	(i_enable),
+		.i_start_of_lane(),
 
 	 	.o_bip3		(bip3),
 	 	.o_bip7		(bip7)
