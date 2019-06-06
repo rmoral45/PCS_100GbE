@@ -3,13 +3,13 @@
 
 module am_lock_comparator
 #(
-	parameter LEN_AM    = 48,
+	parameter NB_AM    = 48,
 	parameter N_ALIGNER = 20
  )
  (	input  wire 			i_enable_mask,	  // input from fsm
  	input  wire 			i_timer_done ,
- 	input  wire [LEN_AM-1 	 : 0] 	i_am_value ,
- 	input  wire [LEN_AM-1 	 : 0] 	i_compare_mask ,  //mascara configurable para permitir flexibilidad en la comparacion
+ 	input  wire [NB_AM-1 	 : 0] 	i_am_value ,
+ 	input  wire [NB_AM-1 	 : 0] 	i_compare_mask ,  //mascara configurable para permitir flexibilidad en la comparacion
  	input  wire [N_ALIGNER-1 : 0]	i_match_mask ,	  //expected am mask
  	output wire 			o_am_match ,  	  //flag signaling match
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector
@@ -65,18 +65,19 @@ begin
 
 	for(i=0;i<N_ALIGNER;i=i+1)
 	begin
-		am_value_masked = i_am_value & i_compare_mask;
-		aux = |(am_value_masked ^ aligners[i*LEN_AM +: LEN_AM])
-		if (!aux && i_match_mask[i])
+		//am_value_masked = i_am_value & i_compare_mask;
+		//aux = |(am_value_masked ^ aligners[i*LEN_AM +: LEN_AM])
+		aux = & (~( i_am_value ^ aligners[i*LEN_AM +: LEN_AM] )) |
+~i_compare_mask ) ) ;
+		if (aux && i_match_mask[i])
 		begin
-			match_expected_am[i] = 1;
 			match_vector[i]      = 1;
 		end 
 	end
 
-	match_payload = | match_expected_am; // se encontro un match
+	match_payload = | match_vector; // se encontro un match
 	enable 	      = (i_timer_done | i_enable_mask);//se cumplio el tiempo en el que debe llegar otro bloque o todavia no encontre el primero
-	match 	      = match_payload & enable & i_sh_valid;//input to fsm
+	match 	      = match_payload & enable;//input to fsm
 
 end 
 
