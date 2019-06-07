@@ -13,7 +13,7 @@ module am_insertion
  	input  wire 						i_enable,
  	input  wire 						i_am_insert,
  	input  wire [LEN_CODED_BLOCK-1 : 0] i_data,
-
+    output wire [NB_BIP-1 : 0]          o_parity,
  	output wire [LEN_CODED_BLOCK-1 : 0]	o_data
 
  );
@@ -44,6 +44,7 @@ begin
 end
 //PORTS
 assign o_data = data;
+assign o_parity = br;
 
 //instances
 bip_calculator
