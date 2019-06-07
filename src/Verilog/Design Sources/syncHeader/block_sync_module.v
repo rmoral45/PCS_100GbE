@@ -13,11 +13,14 @@ module block_sync_module
     parameter NB_INDEX          = $clog2(NB_CODED_BLOCK)
  )
  (
-    input wire 						  	i_clock,
-    input wire 						  	i_reset,
+    input wire 				i_clock,
+    input wire 				i_reset,
     input wire  [NB_CODED_BLOCK-1 : 0]	i_data,
-    input wire 						  	i_valid, //valid signal from serial_to_parallel converter(means 66bit acumulation ready)
+    input wire 				i_valid, //valid signal from serial_to_parallel converter(means 66bit acumulation ready)
     input wire                        	i_signal_ok,
+    input wire [NB_WINDOW_CNT-1 : 0] 	i_unlocked_timer_limit,
+    input wire [NB_WINDOW_CNT-1 : 0] 	i_locked_timer_limit,
+    input wire [NB_INVALID_CNT-1 : 0]	i_,
 
     output wire [NB_CODED_BLOCK-1 : 0]	o_data,
     output wire                         o_block_lock,
@@ -27,24 +30,24 @@ module block_sync_module
 
 //LOCALPARAMS
 localparam NB_EXTENDED_BLOCK 	= NB_CODED_BLOCK*2;
-//localparam NB_INDEX 			= $clog2(NB_CODED_BLOCK);
 
 //INTERNAL SIGNALS
 reg  [NB_CODED_BLOCK-1 : 0]    	data_prev;
 
 wire [NB_EXTENDED_BLOCK-1 : 0] 	data_ext;
 wire [NB_CODED_BLOCK-1 : 0]    	data_shifted;
-wire [NB_INDEX-1 : 0] 			search_index;
-wire [NB_INDEX-1 : 0] 			block_index;
-wire [NB_WINDOW_CNT-1 : 0]      unlocked_timer_limit;
-wire [NB_WINDOW_CNT-1 : 0]      locked_timer_limit;
-wire [NB_INVALID_CNT-1 : 0]     sh_invalid_limit;
+wire [NB_INDEX-1 : 0] 		search_index;
+wire [NB_INDEX-1 : 0] 		block_index;
 wire                            sh_valid;
 wire                            block_lock;
+
+/*
+ * BIG FIX : arreglar el assign del enable que esta aca abajo
+ */
+
 wire                            enable; //usado para fsm, desp hay que eliminarlo
 assign enable = 1;
 
-//assign data_ext 	= {data_prev,i_data};
 assign data_ext 	= {i_data,data_prev};
 
 assign sh_valid 	= ^(data_ext[(NB_CODED_BLOCK-1-search_index) -: 2]);
@@ -62,13 +65,19 @@ assign o_dbg_block_index  = block_index;//solo p debug, eliminar desp
 
 
 /*
-    FIX : ver como setear bien los proximos 3 assigns
-*/
-assign unlocked_timer_limit = 64;
-
-assign locked_timer_limit   = 2048;
-
-assign sh_invalid_limit     = 512;
+ * Parametros de funcionamiento seteados desde REGISTER FILE.
+ * 
+ * i_unlocked_timer_limit : ventana de tiempo en la  cual se deben recibir
+ * 			    todos sh validos para declarar LOCKED
+ * 
+ * i_locked_timer_limit   : Una vez en LOCKED es laventana de tiempo en la cual se cuentan sh
+ * 			    invalidos, si al cumplirse el tiempo la cantidad
+ * 			    de sh invalidos es >= i_sh_invalid_limit se
+ * 			    declara UNLOCKED.
+ * i_sh_invalid_limit     : cantidad maxima de sh invalidos en estado de
+ * 			    LOCKED durante un periodo de tiempo
+ * 			    i_locked_timer_limit 
+ */
 
 
 always @ (posedge i_clock)
@@ -108,7 +117,8 @@ block_sync_fsm
 
         .o_block_index(block_index),
         .o_search_index(search_index),
-        .o_block_lock(block_lock));
+        .o_block_lock(block_lock)
+    );
 
 
 
