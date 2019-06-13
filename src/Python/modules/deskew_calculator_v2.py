@@ -1,8 +1,8 @@
 import copy
+
 '''
     condicion de error: que llegue un start of lane en una posicion que ya existe 
         error = lambda x : filter(sol_vect, sol_vect[i] > 1 )
-
 '''
 
 class deskewCalculator(object):
@@ -17,16 +17,16 @@ class deskewCalculator(object):
 
 
     def update_counters(self, sol_signals, resync_signals, am_lock_signal):
-        self.start_flag = any(sol_signals)
-        self.resync_flag = any(resync_signals)
+        self.start_flag = any(sol_signals)      #<reduction or> of start_of_lane of all lanes
+        self.resync_flag = any(resync_signals)  #<reduction or> of resync_signal of all lanes
 
         if ~am_lock_signal:
             for x in range(self.nlanes):
                 counters[x].reset()
 
-        else:
+        elif am_lock_signal:
             for x in range(self.nlanes):
-                counters[x].update_count(self.start_flag, sol_signals[i], self.resync_flag)
+                counters[x].update_count(self.start_flag, sol_signals[x], self.resync_flag)
 
 '''
 Start/Stop Counter: 
@@ -35,7 +35,7 @@ Start/Stop Counter:
     - si start signal es 1 y no hay stop signal, seteamos el flag de inicio de cuenta en 1.
     - si start signal es 1 y no esta seteado el flag de finalizacion, incrementamos la cuenta en 1.
 
-    ACA HAY QUE REVISAR EL MAX_DESKEW?????? Lo podria hacer en el Modulo principal.
+    ACA HAY QUE REVISAR EL MAX_DESKEW?????? Lo podria hacer en el Modulo principal. (13/06/19) ----> lo hacemos en la FSM
 '''
 class ss_counter(object):
 
@@ -98,10 +98,10 @@ class deskewCalculatorFSM(object):
             self._skew_done = 0
             self._invalid_skew = 0 
         
-            if(any(resync_signals)):            #si llego algun resync, voy a estado inicial
+            if(any(resync_signals)):            #<reduction or> of start_of_lane of all lanes
                 self._state = "INIT"
             
-            if(any(sol_signals)):               #si llego algun start of lane, empiezo la cuenta de todos
+            if(any(sol_signals)):               #<reduction or> of resync_signal of all lanes
                 self._state = "COUNT"
                 self._start_counters = 1
                 self._stop_lane_counter = copy.copy(sol_signals)

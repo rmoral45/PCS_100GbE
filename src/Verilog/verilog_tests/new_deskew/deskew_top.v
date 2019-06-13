@@ -85,7 +85,7 @@ module deskew_top
   	.i_enable				(i_enable),
   	.i_resync				(|i_resync), //[CAREFUL]reduction OR of all lanes resync signal
   	.i_enable_counter		(enable_counter),
-  	.i_stop_counter 		(&stop_lane_counters),//[CAREFUL]reduction OR of all lanes resync signal
+  	.i_stop_counter 		(&stop_lane_counters),//[CAREFUL]reduction AND of all lanes resync signal
   	//OUTPUT
   	.o_count 				(common_counter_value)
    );
