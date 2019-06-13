@@ -32,12 +32,15 @@ localparam NB_POINTER = $clog2(NB_ID_BUS);
 //INTERNAL SIGNALS
 reg  [NB_ID_BUS-1 : 0] mux_selector ;
 reg  [NB_COUNTER-1 : 0] counter ;
+reg  [N_LANES-1 : 0] id_present;
 wire [NB_POINTER : 0] wr_ptr;
 wire [NB_POINTER : 0] aux_MSB;
 wire  reorder_done;
+wire  all_lanes_present;
 
 //PORTS
-assign o_reorder_mux_selector =  (reorder_done) ? mux_selector : {NB_ID_BUS{1'b0}};
+//FIXME Si reorder_done esta en 0, o_reorder_mux_selector = {0,1,2,....., 19}
+assign o_reorder_mux_selector =  (reorder_done && all_lanes_present) ? mux_selector : {NB_ID_BUS{1'b0}};
 
 
 always @ (posedge i_clock)
@@ -55,8 +58,17 @@ begin
 end
 
 assign wr_ptr = (reorder_done) ? {NB_POINTER{1'b0}} : i_logical_rx_ID[((NB_ID_BUS)-(counter*NB_ID))-1 -: NB_ID];
-//assign aux_MSB = ((NB_ID_BUS-1) - (wr_ptr*NB_ID));
 assign reorder_done = (counter == N_LANES) ? 1'b1 : 1'b0;
+
+always @ (posedge i_clock)
+begin
+	if (i_reset || i_reset_order)
+		id_present <=  {N_LANES{1'b0}};
+        else if (i_enable && i_valid && i_deskew_done && !reorder_done)
+		id_present[wr_ptr] <= 1'b1;
+end
+
+assign all_lanes_present = &id_present; //si es 1 significa que no llego ningun ID repetido
 
 endmodule
 
