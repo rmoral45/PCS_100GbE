@@ -1,6 +1,7 @@
 
 
 /*
+ * 
  * i_ID = [ID_LANE_0, ID_LANE_1, ..., ID_LANE_19]
  *
  */
@@ -54,8 +55,9 @@ begin
 end
 
 assign wr_ptr = (reorder_done) ? {NB_POINTER{1'b0}} : i_logical_rx_ID[((NB_ID_BUS)-(counter*NB_ID))-1 -: NB_ID];
-assign aux_MSB = ((NB_ID_BUS-1) - (wr_ptr*NB_ID));
+//assign aux_MSB = ((NB_ID_BUS-1) - (wr_ptr*NB_ID));
 assign reorder_done = (counter == N_LANES) ? 1'b1 : 1'b0;
+
 endmodule
 
 
