@@ -30,19 +30,22 @@ localparam NB_COUNTER = $clog2(N_LANES);
 localparam NB_POINTER = $clog2(NB_ID_BUS);
                                                                                           
 //INTERNAL SIGNALS
-reg  [NB_ID_BUS-1 : 0] mux_selector ;
-reg  [NB_COUNTER-1 : 0] counter ;
-reg  [N_LANES-1 : 0] id_present;
-wire [NB_POINTER : 0] wr_ptr;
-wire [NB_POINTER : 0] aux_MSB;
-wire  reorder_done;
-wire  all_lanes_present;
+reg  [NB_ID_BUS-1  : 0]         mux_selector ;
+reg  [NB_COUNTER-1 : 0]         counter ;
+reg  [N_LANES-1    : 0]         id_present;
+wire [NB_POINTER   : 0]         wr_ptr;
+wire                            reorder_done;
+wire                            all_lanes_present;
+wire [NB_ID_BUS-1  : 0]         default_lane_select;
+
+assign default_lane_select = {5'd0 , 5'd1, 5'd2 , 5'd3 , 5'd4 , 5'd5 , 5'd6 , 5'd7 , 5'd8 , 5'd9,
+                              5'd10, 5'd11,5'd12, 5'd13, 5'd14, 5'd15, 5'd16, 5'd17, 5'd18, 5'd19};
 
 //PORTS
-//FIXME Si reorder_done esta en 0, o_reorder_mux_selector = {0,1,2,....., 19}
-assign o_reorder_mux_selector =  (reorder_done && all_lanes_present) ? mux_selector : {NB_ID_BUS{1'b0}};
+assign o_reorder_mux_selector =  
+       (reorder_done && all_lanes_present) ? mux_selector : default_lane_select;
 
-
+//Reorder
 always @ (posedge i_clock)
 begin
         if (i_reset || i_reset_order)
@@ -60,6 +63,8 @@ end
 assign wr_ptr = (reorder_done) ? {NB_POINTER{1'b0}} : i_logical_rx_ID[((NB_ID_BUS)-(counter*NB_ID))-1 -: NB_ID];
 assign reorder_done = (counter == N_LANES) ? 1'b1 : 1'b0;
 
+
+//Check if any ID is repeated
 always @ (posedge i_clock)
 begin
 	if (i_reset || i_reset_order)
@@ -68,7 +73,7 @@ begin
 		id_present[wr_ptr] <= 1'b1;
 end
 
-assign all_lanes_present = &id_present; //si es 1 significa que no llego ningun ID repetido
+assign all_lanes_present = &id_present;
 
 endmodule
 
