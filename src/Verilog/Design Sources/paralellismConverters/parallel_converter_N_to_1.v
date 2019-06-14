@@ -34,15 +34,15 @@ reg [NB_INDEX-1 : 0] index;
 
 //PORTS
 
-assign o_data = i_data[(index*LEN_CODED_BLOCK) +: LEN_CODED_BLOCK];
+assign o_data = i_data[(index*LEN_CODED_BLOCK)-1 -: LEN_CODED_BLOCK];
 
 
 always @ (posedge i_clock)
 begin
 	if (i_reset)
-		index <= {NB_INDEX{1'b0}};
+		index <= N_LANES;
 	else if (i_enable && i_valid)
-		index <= (index < N_LANES-1) ? index + 1'b1 : {NB_INDEX{1'b0}};
+		index <= (index > 1) ? index - 1'b1 : N_LANES;
 end
 
 /*
