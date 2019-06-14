@@ -71,6 +71,8 @@ def set_init_time_delay(lock_vect, sol_matrix, resync_vect,test_type = 'valid sk
 			time = sol_delay[lane_iter]
 			sol_matrix[time][lane_iter] = 1
 	
+		bp()
+
 		
 
 	else:
