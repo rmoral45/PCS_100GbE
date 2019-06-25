@@ -164,7 +164,6 @@ am_error_counter
 	 );
 
 
-/**checkear puertos y logica
 bip_calculator
 #(
 	.LEN_CODED_BLOCK(LEN_CODED_BLOCK)
@@ -175,12 +174,12 @@ bip_calculator
 	 	.i_reset	(i_reset),
 	 	.i_data		(i_data),
 	 	.i_enable	(i_enable),
-		.i_start_of_lane(),
+		.i_start_of_lane(start_of_lane),
 
 	 	.o_bip3		(bip3),
 	 	.o_bip7		(bip7)
 	 );
-*/
+
 
 endmodule
 
