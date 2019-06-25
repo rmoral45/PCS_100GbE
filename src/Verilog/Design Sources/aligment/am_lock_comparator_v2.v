@@ -67,8 +67,7 @@ begin
 	begin
 		//am_value_masked = i_am_value & i_compare_mask;
 		//aux = |(am_value_masked ^ aligners[i*LEN_AM +: LEN_AM])
-		aux = & (~( i_am_value ^ aligners[i*LEN_AM +: LEN_AM] )) |
-~i_compare_mask ) ) ;
+		aux = & (((~( i_am_value ^ aligners[i*NB_AM +: NB_AM] )) | ~i_compare_mask ) ) ;
 		if (aux && i_match_mask[i])
 		begin
 			match_vector[i]      = 1;
