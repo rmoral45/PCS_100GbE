@@ -231,8 +231,8 @@ end
                 <= ( timer_search_done )? 1 : timer_search+1'b1 ;
     end
 
-    assign timer_search_done = ( timer_search == N_BLOCKS ) ;
-    assign o_timer_search_done = timer_search_done;
+    assign timer_search_done = ( timer_search == N_BLOCKS) ;
+    assign o_search_timer_done = timer_search_done;
 
 
 //cuenta de timer para start of lane

@@ -5,9 +5,15 @@ module tb_am_module;
 
 localparam NB_CODED_BLOCK = 66;
 localparam N_ALIGNER = 20;
+localparam NB_LANE_ID = $clog2(N_ALIGNER);
 localparam N_BLOCKS = 10;
 localparam MAX_INV_AM = 8;
+localparam NB_INV_AM  = $clog2(MAX_INV_AM);
 localparam MAX_VAL_AM = 20;
+localparam NB_VAL_AM = $clog2(MAX_VAL_AM);
+localparam SIM_BLOCKS = N_BLOCKS*10;
+localparam NB_ERROR_COUNTER = 64;
+localparam [NB_CODED_BLOCK-1 : 0] SIM_AM = 66'h2_F5_07_09_00_0A_F8_F6_FF; //alineador lane 4
 
 
 
@@ -16,6 +22,7 @@ reg tb_clock, tb_reset, tb_enable, tb_valid, tb_block_lock;
 reg [63 : 0] tb_clock_counter;
 
 reg [NB_CODED_BLOCK-1 : 0]      tb_i_data;
+reg [NB_CODED_BLOCK-1 : 0]      tb_input_vector [SIM_BLOCKS-1 : 0]; 
 reg [NB_INV_AM-1 : 0]           tb_invalid_am_thr;
 reg [NB_VAL_AM-1 : 0]           tb_valid_am_thr;
 
@@ -34,75 +41,33 @@ begin
         tb_block_lock           = 0;
         tb_i_data               = 66'd0;
         tb_invalid_am_thr       = 3;
-        tb_valid_am_thr         = 2;
+        tb_valid_am_thr         = 5;
 
         tb_clock_counter = {64{1'b0}};
-        /*
+        
         #10
                 tb_reset        = 0;
                 tb_enable       = 1;
                 tb_valid        = 1;
                 tb_block_lock   = 1;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_12_AA_AA_AC_AA_AA_AB;
-        #10
-                tb_i_data       = 66'h2_00_00_00_00_00_00_00_00;
-        #10
-                tb_i_data       = 66'hALINEADOR;
-        #10
-                tb_i_data       = 66'h1_AA_AA_11_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_9A_AA_A1_AA_5A_7A_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'hALINEADOR;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'h1_AA_AA_AA_AA_AA_AA_AA_AA;
-        #10
-                tb_i_data       = 66'hALINEADOR;
-        */
+      
+       
+        
 end
 
-always #1 tb_clock = ~clock;
+always #1 tb_clock = ~tb_clock;
 
 always @ (posedge tb_clock)
 begin
         tb_clock_counter <= tb_clock_counter + 1'b1;
-        if (tb_clock_counter % N_BLOCKS)
-                tb_i_data <= {2'b10,$random,$random};
+
+                
+        if ((tb_clock_counter%N_BLOCKS) == 0 && (tb_clock_counter < N_BLOCKS*10))
+                tb_i_data <= SIM_AM;
         else
-                tb_i_data <= 66'h2_F5_07_09_00_0A_F8_F6_FF; //alineador lane 4
+                //tb_i_data <= {NB_CODED_BLOCK{1'b0}};
+                tb_i_data <= {2'b01,$random,$random};
+                
 end
 
 am_lock_module

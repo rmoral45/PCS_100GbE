@@ -49,6 +49,9 @@ localparam BLOCK_TYPE_CTRL 	= 8'h1E;
 //INTERNAL SIGNALS
 reg  [NB_CODED_BLOCK-1 : 0]	input_data,output_data;
 
+wire [NB_AM-1 : 0] compare_config_mask;
+assign compare_config_mask = 48'hffffffffffff;
+
 //Module connect wires
 wire [N_ALIGNER-1 : 0]		match_mask; 			//done
 wire [N_ALIGNER-1 : 0]		match_vector; 			//done
@@ -73,7 +76,7 @@ begin
 end
 
 
-assign am_value 	= {i_data[LEN_CODED_BLOCK-3 -: 24], i_data[31 -: 24]}; //PARAMETRIZAR
+assign am_value 	= {i_data[NB_CODED_BLOCK-3 -: 24], i_data[31 -: 24]}; //PARAMETRIZAR
 
 //PORTS
 assign o_data 		= output_data;
@@ -84,7 +87,7 @@ assign o_start_of_lane  = start_of_lane;
 
 am_lock_comparator_v2
 #(
- 	.LEN_AM(LEN_AM),
+ 	.LEN_AM(NB_AM),
  	.N_ALIGNER(N_ALIGNER)
  )
 	u_am_lock_comparator
@@ -115,8 +118,8 @@ am_lock_fsm
 	 	.i_block_lock		(i_block_lock),		//from block_sync
 	 	.i_am_valid		(am_match),		//from comparator
 	 	.i_match_vector 	(match_vector),		//from comparator
-	 	.i_lock_trh     	(i_valid_am_thr),   	//input from top
-	 	.i_unlock_trh   	(i_invalid_am_thr), 	//input from top
+	 	.i_lock_thr     	(i_valid_am_thr),   	//input from top
+	 	.i_unlock_thr   	(i_invalid_am_thr), 	//input from top
 
 		//OUTPUTS
 	 	.o_match_mask		(match_mask),		//to comparator
@@ -129,7 +132,7 @@ am_lock_fsm
  	);
  	
 
-
+/*
 lane_id_decoder
 #(
 	.N_ALIGNER(N_ALIGNER)
@@ -152,11 +155,11 @@ am_error_counter
 	 	.i_clock 		(i_clock),		//from top level
 	 	.i_reset 		(i_reset),		//from top level
 	 	.i_enable 		(i_enable),		//from top level
-		/*
-		 * [CHECK] <<<< i_match >>>>>>
-		 * El trigger para calcular el match deberia ser
-		 * probablemente la senial de SOL, revisar 
-		 */
+		//
+		// [CHECK] <<<< i_match >>>>>>
+		// El trigger para calcular el match deberia ser
+		// probablemente la senial de SOL, revisar 
+		//
 	 	.i_match 		(start_of_lane),		//from comparator
 	 	.i_recived_bip 	 	(recived_bip),		//from input reg
 	 	.i_calculated_bip	(calculated_bip),	//from bip_calc
@@ -166,7 +169,7 @@ am_error_counter
 
 bip_calculator
 #(
-	.LEN_CODED_BLOCK(LEN_CODED_BLOCK)
+	.LEN_CODED_BLOCK(NB_CODED_BLOCK)
  )
 	u_bip_calculator
 	 (
@@ -180,6 +183,6 @@ bip_calculator
 	 	.o_bip7		(bip7)
 	 );
 
-
+*/
 endmodule
 
