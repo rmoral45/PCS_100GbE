@@ -14,6 +14,7 @@ module am_error_counter
  	input wire 			i_reset,
  	input wire 			i_enable,
  	input wire 			i_match,
+	input wire			i_reset_count,
  	input wire [NB_BIP-1 : 0] 	i_recived_bip,
  	input wire [NB_BIP-1 : 0] 	i_calculated_bip,
 
@@ -38,7 +39,7 @@ assign overflow_flag = error_counter[NB_COUNTER];
  always @ (posedge i_clock)
  begin
 
- 	if(i_reset) // se deberia agregar una condicion p resetear contador i_reset_count
+ 	if(i_reset || i_reset_count)
  	begin
  		error_counter <= {NB_COUNTER{1'b0}};
  	end
@@ -63,5 +64,4 @@ assign overflow_flag = error_counter[NB_COUNTER];
 
  end
 
-
- endmodule
+endmodule
