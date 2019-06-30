@@ -1,3 +1,5 @@
+`timescale 1ns/100ps
+
 module am_lock_fsm
 #(
 	parameter N_ALIGNERS 	 = 20 ,

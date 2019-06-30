@@ -1,11 +1,10 @@
 /*
-	AGREGAR PUERTOS QUE FALTEN(max_invaklid_am por ej)
-	VER POR QUE CARAJOS LA SINTESIS ME DICE :
-		design lane_id_decoder has unconnected port i_match_mask[0]
+       - Agregar puerto i_rf_compare_mask p reemplazar senal
+         interna compare config mask
 
 */
 
-
+`timescale 1ns/100ps
 module am_lock_module
 #(
 	parameter NB_CODED_BLOCK   = 66,
