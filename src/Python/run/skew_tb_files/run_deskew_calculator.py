@@ -9,7 +9,7 @@ from pdb import set_trace as bp
 import copy 
 
 NLANES      = 20
-MAX_SKEW    = 14  #son 928 bits segun estandar, es decir, 14 bloques
+MAX_SKEW    = 10  #son 928 bits segun estandar, es decir, 14 bloques
 MAX_DELAY   = 32
 NCLOCK      = 1000
 #AM_PERIOD   = 16384 #chequear si no es 16383
@@ -27,41 +27,54 @@ Cuando este vector tenga todos sus elementos en 1, se declarara el am_lock de to
 
 def main():
 
-    sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(NCLOCK*AM_PERIOD)]
-    resync_vector = [[0 for ncols in range(NLANES)] for nrows in range(NCLOCK)]
-    #am_lock_vector = [0]*NCLOCK
-    am_lock_lanes = [0]*NLANES
+    sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
+    resync_vector = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
 
-    deskewCalculator = deskew.deskewCalculator(NLANES, MAX_SKEW)
+    (sol_matrix, resync_vector) = simulate_skew(sol_matrix, resync_vector)
+    deskewCalculator = deskew.deskewCalculator(NLANES)
+    
+    for clock in range(AM_PERIOD*4):
 
-    simulate_skew(sol_matrix, resync_vector, am_lock_lanes)
+        
+        
+        deskewCalculator.fsm.change_state(sol_matrix[clock], resync_vector[clock], deskewCalculator.common_counter, MAX_SKEW)
 
-    if(sum(am_lock_lanes) == NLANES):
-        # am_lock_vector[clock] = 1
-        am_lock = 1
+        deskewCalculator.common_counter.update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_common_counter, any(resync_vector[clock]))
+        
+        for ncounters in range(NLANES):
+            deskewCalculator.counters[ncounters].update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_lane_counter[ncounters], any(resync_vector[clock]))
 
-    #for clock in range(NCLOCK):
-    #    deskewCalculator.update_counters(sol_signals, resync_vector, )
 
-def simulate_skew(sol_matrix, resync_vector, am_lock_lanes):
+    for index, count in enumerate(deskewCalculator.counters):
+        print index, count._count
 
-    #Hardcode del delay_vector
-    #delay_vector = [0,0,5,3,4,5,6,7,8,9,10,5,12,13,14,15,16,17,18,19]
 
-    delay_vector = [0]*NCLOCK
+    #print 'stop de lanes ', deskewCalculator.fsm.stop_lane_counter
+    print 'common', deskewCalculator.common_counter._count
+    
+    bp()
 
-    for index in range(len(delay_vector)):
-            delay_vector[index] = rand.randint(0,19)
+
+def simulate_skew(sol_matrix, resync_vector):
+
+    delay_vector = [rand.randint(0,MAX_SKEW-1) for x in range(NLANES)]
+    #delay_vector = [0,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+
 
     for index, value in enumerate(delay_vector):
-        sol_matrix[index*AM_PERIOD][value] = 1
-        resync_vector[index][value] = 1
-        #sol_matrix[value+AM_PERIOD*index][index] = 1
-        am_lock_lanes[value] = 1
+        sol_matrix[value][index] = 1
 
-    bp()    
+    #Matriz de start of lanes con el periodo inter bloque incluido
+    sol_matrix = sol_matrix + [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
 
+    resync_vector = copy.copy(sol_matrix) + 2 * [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
 
+    sol_matrix = sol_matrix + sol_matrix
+    print delay_vector
+
+    return sol_matrix, resync_vector
+
+    
     
 if __name__ == '__main__':
     main()
