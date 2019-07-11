@@ -1,4 +1,9 @@
-import random
+import sys
+sys.path.append('../../modules')
+import deskew_calculator_v2 as deskew
+import common_functions as cf
+import common_variables as cv
+import random as rand
 import numpy as np
 from pdb import set_trace as bp
 import copy 
@@ -22,27 +27,40 @@ Cuando este vector tenga todos sus elementos en 1, se declarara el am_lock de to
 
 def main():
 
-    sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(NCLOCK)]
+    sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(NCLOCK*AM_PERIOD)]
     resync_vector = [[0 for ncols in range(NLANES)] for nrows in range(NCLOCK)]
-    am_lock_vector = [0]*NCLOCK
+    #am_lock_vector = [0]*NCLOCK
     am_lock_lanes = [0]*NLANES
+
+    deskewCalculator = deskew.deskewCalculator(NLANES, MAX_SKEW)
 
     simulate_skew(sol_matrix, resync_vector, am_lock_lanes)
 
-    for clock in range(NCLOCK):
-        if(sum(am_lock_lanes) == NLANES):
-            am_lock_vector[clock] = 1
+    if(sum(am_lock_lanes) == NLANES):
+        # am_lock_vector[clock] = 1
+        am_lock = 1
+
+    #for clock in range(NCLOCK):
+    #    deskewCalculator.update_counters(sol_signals, resync_vector, )
 
 def simulate_skew(sol_matrix, resync_vector, am_lock_lanes):
 
-    delay_vector = [0,0,5,3,4,5,6,7,8,9,10,5,12,13,14,15,16,17,18,19]
+    #Hardcode del delay_vector
+    #delay_vector = [0,0,5,3,4,5,6,7,8,9,10,5,12,13,14,15,16,17,18,19]
+
+    delay_vector = [0]*NCLOCK
+
+    for index in range(len(delay_vector)):
+            delay_vector[index] = rand.randint(0,19)
 
     for index, value in enumerate(delay_vector):
-        sol_matrix[index][value] = 1
+        sol_matrix[index*AM_PERIOD][value] = 1
         resync_vector[index][value] = 1
-        sol_matrix[value+AM_PERIOD*index][index] = 1
-        am_lock_lanes[index] = 1
-        bp()
+        #sol_matrix[value+AM_PERIOD*index][index] = 1
+        am_lock_lanes[value] = 1
+
+    bp()    
+
 
     
 if __name__ == '__main__':

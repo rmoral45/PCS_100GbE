@@ -1,6 +1,3 @@
-
-
-
 module ss_counter
 #(
 	parameter MAX_SKEW = 16,
@@ -41,6 +38,5 @@ module ss_counter
  	end
 
  end
-
-
+ 
  endmodule

@@ -22,12 +22,13 @@ class deskewCalculator(object):
 
         if ~am_lock_signal:
             for x in range(self.nlanes):
-                counters[x].reset()
+                self.counters[x].reset()
 
         elif am_lock_signal:
             for x in range(self.nlanes):
-                counters[x].update_count(self.start_flag, sol_signals[x], self.resync_flag)
+                self.counters[x].update_count(self.start_flag, sol_signals[x], self.resync_flag)
 
+    
 '''
 Start/Stop Counter: 
     Habra un contador de este tipo por cada linea, el comportamiento es el siguiente:
@@ -64,7 +65,7 @@ class ss_counter(object):
             self._finish = 1
         elif start_signal and not stop_signal:
             self._start = 1
-        elif start_signal and not self._finish
+        elif start_signal and not self._finish:
             self._count += 1
 
 '''
@@ -91,7 +92,7 @@ class deskewCalculatorFSM(object):
 
     def change_state(self, sol_signals, resync_signals, common_counter, max_skew):
 
-        if self._state = "INIT":
+        if self._state == "INIT":
             self._start_counters = 0
             self._stop_lane_counter = [0]*self._nlanes
             self._stop_common_counter = 0 
@@ -107,7 +108,7 @@ class deskewCalculatorFSM(object):
                 self._stop_lane_counter = copy.copy(sol_signals)
             
         
-        elif self._state = "COUNT":
+        elif self._state == "COUNT":
 
             self._stop_lane_counter = [sum(x) for x in zip(self._stop_lane_counter,sol_signals)]        #xoring list element wise
             self._stop_common_counter = sum(self._stop_lane_counter) == self.nlanes                     #si todas las lineas pararon de contar, paro el contador comun
@@ -119,10 +120,10 @@ class deskewCalculatorFSM(object):
             else:
                 if(any(resync_signals)):
                     self._state = "INIT"
-                elif self._stop_common_counter
+                elif self._stop_common_counter:
                     self._state = "DONE"
 
-        elif self._state = "DONE":
+        elif self._state == "DONE":
             self._skew_done = 1
 
 
