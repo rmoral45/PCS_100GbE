@@ -9,7 +9,7 @@ from pdb import set_trace as bp
 import copy 
 
 NLANES      = 20
-MAX_SKEW    = 10  #son 928 bits segun estandar, es decir, 14 bloques
+MAX_SKEW    = 14  #son 928 bits segun estandar, es decir, 14 bloques
 MAX_DELAY   = 32
 NCLOCK      = 1000
 #AM_PERIOD   = 16384 #chequear si no es 16383
@@ -30,7 +30,10 @@ def main():
     sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
     resync_vector = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
 
-    (sol_matrix, resync_vector) = simulate_skew(sol_matrix, resync_vector)
+    (sol_matrix, resync_vector, delay_vector) = simulate_skew(sol_matrix, resync_vector)
+    #### CORREGIDO se resta cada elemento de delay_vector con min(delay_vector) para que quede expresado
+    #### 		   correctamente el delay relativo entre las lineas y poder verificar el buen funcionamiento
+    delay_vector = list(map(lambda x : x - min(delay_vector), delay_vector))
     deskewCalculator = deskew.deskewCalculator(NLANES)
     
     for clock in range(AM_PERIOD*4):
@@ -40,17 +43,22 @@ def main():
         deskewCalculator.fsm.change_state(sol_matrix[clock], resync_vector[clock], deskewCalculator.common_counter, MAX_SKEW)
 
         deskewCalculator.common_counter.update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_common_counter, any(resync_vector[clock]))
-        
+        '''
+        if clock > 30 and sum(sol_matrix[clock]):
+        	bp()
+        '''
         for ncounters in range(NLANES):
             deskewCalculator.counters[ncounters].update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_lane_counter[ncounters], any(resync_vector[clock]))
 
 
     for index, count in enumerate(deskewCalculator.counters):
-        print index, count._count
+        print (index, count._count, delay_vector[index])
 
 
     #print 'stop de lanes ', deskewCalculator.fsm.stop_lane_counter
-    print 'common', deskewCalculator.common_counter._count
+    print ('common', deskewCalculator.common_counter._count, 'max_delay ', max(delay_vector))
+
+    print ('\n\n####################\n\n' ,'Invalid Skew status : ', deskewCalculator.fsm.invalid_skew, '\n\n####################' )
     
     bp()
 
@@ -70,9 +78,9 @@ def simulate_skew(sol_matrix, resync_vector):
     resync_vector = copy.copy(sol_matrix) + 2 * [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
 
     sol_matrix = sol_matrix + sol_matrix
-    print delay_vector
+    print (delay_vector)
 
-    return sol_matrix, resync_vector
+    return sol_matrix, resync_vector, delay_vector
 
     
     

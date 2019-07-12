@@ -40,10 +40,9 @@ class ss_counter(object):
         #un resync en cualquier linea resetea a todos los contadores.
         if(resync_signal):              
             self.reset()
-        elif stop_signal and start_signal: 
+        elif stop_signal : 
             self._final_count = self._count
-            self._finish = 1
-        elif start_signal and not self._finish:
+        elif start_signal:
             self._count += 1
 
 '''
@@ -75,7 +74,7 @@ class deskewCalculatorFSM(object):
             self.stop_lane_counter = [0]*self._nlanes
             self.stop_common_counter = 0 
             self.skew_done = 0
-            self.invalid_skew = 0 
+            #self.invalid_skew = 0 
         
             if(any(resync_signals)):            #<reduction or> of resync_signal of all lanes, mas prioritario que el sol? 
                 self._state = "INIT"
