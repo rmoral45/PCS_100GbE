@@ -1,33 +1,15 @@
 import copy
-
-'''
-    condicion de error: que llegue un start of lane en una posicion que ya existe 
-        error = lambda x : filter(sol_vect, sol_vect[i] > 1 )
-'''
+from pdb import set_trace as bp
 
 class deskewCalculator(object):
-    def __init__(self, nlanes, max_deskew):
+    def __init__(self, nlanes):
         self.nlanes = nlanes
-        self.counters = [ss_counter for x in range(nlanes)]
-        self.common_counter = 0
+        self.counters = [ss_counter() for x in range(nlanes)]
+        self.common_counter = ss_counter()
         self.start_flag = 0
         self.stop_signals = [0]*nlanes
         self.resync_flag = 0
         self.fsm = deskewCalculatorFSM(nlanes)
-
-
-    def update_counters(self, sol_signals, resync_signals, am_lock_signal):
-        self.start_flag = any(sol_signals)      #<reduction or> of start_of_lane of all lanes
-        self.resync_flag = any(resync_signals)  #<reduction or> of resync_signal of all lanes
-
-        if ~am_lock_signal:
-            for x in range(self.nlanes):
-                self.counters[x].reset()
-
-        elif am_lock_signal:
-            for x in range(self.nlanes):
-                self.counters[x].update_count(self.start_flag, sol_signals[x], self.resync_flag)
-
     
 '''
 Start/Stop Counter: 
@@ -40,9 +22,7 @@ Start/Stop Counter:
 '''
 class ss_counter(object):
 
-    #def __init__(self, MAX_SKEW):
     def __init__(self):
-        #self._max_skew  = 0
         self._start     = 0
         self._stop      = 0
         self._count     = 0
@@ -50,7 +30,6 @@ class ss_counter(object):
         self._final_count = 0 
 
     def reset(self):
-        #self._max_skew  = 0
         self._start     = 0
         self._stop      = 0
         self._count     = 0
@@ -58,13 +37,12 @@ class ss_counter(object):
         self._final_count = 0 
 
     def update_count(self, start_signal, stop_signal, resync_signal):
-        if(resync_signal):
+        #un resync en cualquier linea resetea a todos los contadores.
+        if(resync_signal):              
             self.reset()
         elif stop_signal and start_signal: 
             self._final_count = self._count
             self._finish = 1
-        elif start_signal and not stop_signal:
-            self._start = 1
         elif start_signal and not self._finish:
             self._count += 1
 
@@ -84,47 +62,47 @@ class deskewCalculatorFSM(object):
     def __init__(self, nlanes):
         self._nlanes = nlanes
         self._state = "INIT"
-        self._start_counters = 0
-        self._stop_lane_counter = [0]*nlanes
-        self._stop_common_counter = 0
-        self._skew_done = 0
-        self._invalid_skew = 0
+        self.start_counters = 0
+        self.stop_lane_counter = [0]*nlanes
+        self.stop_common_counter = 0
+        self.skew_done = 0
+        self.invalid_skew = 0
 
     def change_state(self, sol_signals, resync_signals, common_counter, max_skew):
 
         if self._state == "INIT":
-            self._start_counters = 0
-            self._stop_lane_counter = [0]*self._nlanes
-            self._stop_common_counter = 0 
-            self._skew_done = 0
-            self._invalid_skew = 0 
+            self.start_counters = 0
+            self.stop_lane_counter = [0]*self._nlanes
+            self.stop_common_counter = 0 
+            self.skew_done = 0
+            self.invalid_skew = 0 
         
-            if(any(resync_signals)):            #<reduction or> of start_of_lane of all lanes
+            if(any(resync_signals)):            #<reduction or> of resync_signal of all lanes, mas prioritario que el sol? 
                 self._state = "INIT"
             
-            if(any(sol_signals)):               #<reduction or> of resync_signal of all lanes
+            elif(any(sol_signals)):               #<reduction or> of start_of_lane of all lanes
                 self._state = "COUNT"
-                self._start_counters = 1
-                self._stop_lane_counter = copy.copy(sol_signals)
-            
+                self.start_counters = 1
+                self.stop_lane_counter = [sum(x) for x in zip(self.stop_lane_counter,sol_signals)]            
+
         
         elif self._state == "COUNT":
+            self.stop_lane_counter = [sum(x) for x in zip(self.stop_lane_counter,sol_signals)]        #oring list element wise
+            self.stop_common_counter = sum(self.stop_lane_counter) == self._nlanes                     #si todas las lineas pararon de contar, paro el contador comun
 
-            self._stop_lane_counter = [sum(x) for x in zip(self._stop_lane_counter,sol_signals)]        #xoring list element wise
-            self._stop_common_counter = sum(self._stop_lane_counter) == self.nlanes                     #si todas las lineas pararon de contar, paro el contador comun
 
-            if(common_counter >= max_skew):
-                self._invalid_skew = 1
+            if(common_counter._count >= max_skew):
+                self.invalid_skew = 1
                 self._state = 'INIT'
 
             else:
                 if(any(resync_signals)):
                     self._state = "INIT"
-                elif self._stop_common_counter:
+                elif self.stop_common_counter:
                     self._state = "DONE"
 
         elif self._state == "DONE":
-            self._skew_done = 1
+            self.skew_done = 1
 
 
 

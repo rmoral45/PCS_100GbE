@@ -10,7 +10,7 @@ module deskew_fsm
  	input wire 					i_clock,
  	input wire 					i_reset,
  	input wire 					i_enable,
- 	input wire 					i_am_lock, //[REVISAR] esta sin uso, deberia condicion de reset tmb, o no usarlo pero no encuento el motivo
+ 	//input wire 					i_am_lock, //[REVISAR] esta sin uso, NO USARLO
  	input wire 					i_resync,
  	input wire [N_LANES-1 : 0]	i_start_of_lane,
  	input wire [NB_COUNT-1 : 0] i_common_counter,
