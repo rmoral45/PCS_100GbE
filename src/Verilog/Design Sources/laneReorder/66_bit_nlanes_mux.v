@@ -1,13 +1,13 @@
 `timescale 1ns/100ps
 
-module 66_bit_nlanes_mux
+module _66_bit_nlanes_mux
 #(
         parameter NB_CODED_BLOCK = 66,
         parameter N_LANES        = 20,
         parameter IN_DATA_BUS    = NB_CODED_BLOCK*N_LANES
  )
  (
-        input wire  [N_LANES : 0]               i_lane_id,
+        input wire  [N_LANES-1 : 0]             i_lane_id,
         input wire  [IN_DATA_BUS-1 : 0]         i_data,
 
         output wire [NB_CODED_BLOCK-1 : 0]      o_data
@@ -42,7 +42,8 @@ genvar  i;
                         .i_data         (input_data),
 
                         //OUTPUT
-                        .o_data         (o_data)
+                        //.o_data           (o_data[i])
+                        .o_data         (o_data[NB_CODED_BLOCK-1-i])
 	         );
 
                 
