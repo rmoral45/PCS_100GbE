@@ -39,9 +39,9 @@ module am_lock_module
 
 
 //LOCALPARAMS
-localparam NB_BIP 	        = 8,
-localparam NB_SH		= 2,
-localparam BIP_MSB_POS          = NB_CODED_BLOCK-24-1;
+localparam NB_BIP 	        = 8;
+localparam NB_SH		= 2;
+localparam BIP_MSB_POS          = NB_CODED_BLOCK-NB_SH-24-1;
 localparam CTRL_SH 	 	= 2'b10; 
 localparam PCS_IDLE  		= 7'h00;
 localparam BLOCK_TYPE_CTRL 	= 8'h1E; 
@@ -58,7 +58,8 @@ wire [NB_BIP-1: 0] 		calculated_bip, recived_bip;	//terminar al definir que bip_
 wire 				compare_timer_trigg;		//done
 wire 				am_match; 			//done
 wire 				enable_mask;			//done
-wire 				start_of_lane;
+wire 				start_of_lane;                  //done
+wire                            resync;                         //done
 
 assign recived_bip = i_data[BIP_MSB_POS -: NB_BIP]; //[CHECK]
 
@@ -66,9 +67,9 @@ assign recived_bip = i_data[BIP_MSB_POS -: NB_BIP]; //[CHECK]
 always @ *
 begin
 
-	if(i_enable && i_valid && start_of_lane)
+	if(i_rf_enable && i_valid && start_of_lane)
 		output_data = { CTRL_SH,BLOCK_TYPE_CTRL,{8{PCS_IDLE}} }; //CHECK
-	else if(i_enable && i_valid && !start_of_lane)
+	else if(i_rf_enable && i_valid && !start_of_lane)
 		output_data = i_data;
 
 end
@@ -79,6 +80,7 @@ assign am_value 	= {i_data[NB_CODED_BLOCK-3 -: 24], i_data[31 -: 24]}; //PARAMET
 //PORTS
 assign o_data 		= output_data;
 assign o_start_of_lane  = start_of_lane;
+assign o_resync         = resync;
 
 
 //Instances
@@ -123,9 +125,8 @@ am_lock_fsm
 	 	.o_match_mask		(match_mask),		//to comparator
 	 	.o_enable_mask		(enable_mask),		//to comparator
 	 	.o_am_lock		(o_am_lock),		//to top level
-	 	.o_resync_by_am_start	(o_resync),		//to top level
+	 	.o_resync_by_am_start	(resync),		//to top level
 	 	.o_start_of_lane	(start_of_lane),	//to top level
-	 	.o_restore_am		(restore_am),		//to internal output
 		.o_search_timer_done 	(compare_timer_trigg) 	//to comparator
  	);
  	
@@ -159,6 +160,7 @@ am_error_counter
 		// probablemente la senial de SOL, revisar 
 		//
 	 	.i_match 		(start_of_lane),	//from comparator
+                .i_reset_count          (resync),
 	 	.i_recived_bip 	 	(recived_bip),		//from input reg
 	 	.i_calculated_bip	(calculated_bip),	//from bip_calc
 	 	.o_error_count	 	(o_error_counter)	//to top level
@@ -175,9 +177,9 @@ bip_calculator
 	 	.i_reset	(i_reset),      //from top level
 	 	.i_data		(i_data),       //from top level
 	 	.i_enable	(i_rf_enable),  //from register file
-		.i_start_of_lane(start_of_lane),//from fsm
+		.i_start_of_lane(start_of_lane | resync),//from fsm
 
-	 	.o_bip3		(bip3),         //to error counter
+	 	.o_bip3		(calculated_bip),         //to error counter
 	 	.o_bip7		(bip7)          //to error counter
 	 );
 

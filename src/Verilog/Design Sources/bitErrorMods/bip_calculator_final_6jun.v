@@ -23,7 +23,8 @@ module bip_calculator
  );
 
 //LOCALPARAMS
-localparam BIP_START_POS = 56;
+localparam NB_SH         = 2;
+localparam BIP_START_POS = LEN_CODED_BLOCK-NB_SH-24-1;
 localparam BIP_FINAL_POS = 48;
 //INTERNAL SIGNALS
 integer i;
@@ -40,8 +41,6 @@ always @ (posedge i_clock)
  begin
     if (i_reset)
 		bip <= {8{1'b1}};
-    else if (i_start_of_lane) 
-		bip <= i_data[BIP_START_POS : BIP_FINAL_POS];
     else if (i_enable)
        		bip <= bip_next;
  end
@@ -50,14 +49,16 @@ always @ (posedge i_clock)
 always @ *
 begin
 
-    if (i_am_insert)
+    if (i_am_insert || i_start_of_lane)
         	bip_next = {NB_BIP{1'b1}};
     else
         	bip_next = bip;
 
     data = i_data;
+    
     for (i=0; i<((LEN_CODED_BLOCK-2)/8); i=i+1)
     begin
+                
            	bip_next[0] = bip_next[0] ^ data[2+(8*i)] ;
            	bip_next[1] = bip_next[1] ^ data[3+(8*i)] ;
            	bip_next[2] = bip_next[2] ^ data[4+(8*i)] ;

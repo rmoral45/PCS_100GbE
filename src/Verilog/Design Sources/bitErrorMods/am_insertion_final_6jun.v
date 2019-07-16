@@ -43,7 +43,7 @@ assign o_data = data;
 //instances
 bip_calculator
 #(
-	.LEN_CODED_BLOCK(LEN_CODED_BLOCK)
+	.LEN_CODED_BLOCK(NB_CODED_BLOCK)
  )
 	u_bip_calculator
  	(

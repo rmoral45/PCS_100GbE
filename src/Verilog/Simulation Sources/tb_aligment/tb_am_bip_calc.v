@@ -67,18 +67,19 @@ begin
         tb_i_data <= {2'b01,$random,$random};
 
                 
-        if ((tb_clock_counter%N_BLOCKS) == 0 && (tb_clock_counter < N_BLOCKS*10))
-                tb_am_insert <= 1;
+        if ((tb_clock_counter%N_BLOCKS) == 0/* && (tb_clock_counter < N_BLOCKS*10)*/)
+                tb_am_insert = 1;
         else
-                tb_am_insert <= 0;
+                tb_am_insert = 0;
                 
 end
 
+// SIM_AM = 66'h2_F5_07_09_00_0A_F8_F6_FF; alineador lane 4
 am_insertion
 #(
         .NB_CODED_BLOCK(NB_CODED_BLOCK),
-        .AM_ENCODING_LOW(), //Seleccionar algun alineador
-        .AM_ENCODING_HIGH() //idem
+        .AM_ENCODING_LOW(24'hF5_07_09), //Seleccionar algun alineador
+        .AM_ENCODING_HIGH(24'h0A_F8_F6) //idem
  )
 u_am_insert
         (
@@ -96,18 +97,19 @@ am_lock_module
         .N_ALIGNER(N_ALIGNER),
         .N_BLOCKS(N_BLOCKS),
         .MAX_INV_AM(MAX_INV_AM),
-        .MAX_VAL_AM(MAX_VAL_AM)
+        .MAX_VAL_AM(MAX_VAL_AM),
+        .NB_ERROR_COUNTER(NB_ERROR_COUNTER)
  )
  u_am_mod
         (
                 .i_clock                (tb_clock),
                 .i_reset                (tb_reset),
-                .i_enable               (tb_enable),
+                .i_rf_enable               (tb_enable),
                 .i_valid                (tb_valid),
                 .i_block_lock           (tb_block_lock),
                 .i_data                 (tb_TX_data),
-                .i_invalid_am_thr       (tb_invalid_am_thr),
-                .i_valid_am_thr         (tb_valid_am_thr),
+                .i_rf_invalid_am_thr       (tb_invalid_am_thr),
+                .i_rf_valid_am_thr         (tb_valid_am_thr),
 
                 .o_data                 (tb_o_data),
                 .o_lane_id              (tb_o_lane_id),

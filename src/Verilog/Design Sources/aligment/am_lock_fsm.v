@@ -25,7 +25,6 @@ module am_lock_fsm
  	output wire 				o_am_lock ,	    //quizas no haga falta ya que manejamos todo con resync
  	output wire 				o_resync_by_am_start ,
  	output wire 				o_start_of_lane ,
- 	output wire 				o_restore_am,
 	output wire 				o_search_timer_done //entrada al comparator
  );
 
@@ -63,7 +62,6 @@ wire                    timer_search_done;
 assign o_match_mask  		= match_mask;
 assign o_enable_mask 		= (state == WAIT_1ST); // verificar si hace falta
 assign o_am_lock     		= am_lock;
-assign o_restore_am		= restore_am;
 
 //Update state and signaling
 always @ (posedge i_clock)
