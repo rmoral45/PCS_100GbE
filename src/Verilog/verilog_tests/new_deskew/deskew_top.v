@@ -3,7 +3,7 @@
 module deskew_top
 #(
 	parameter N_LANES  = 20,
-	parameter MAX_SKEW = 16,
+	parameter MAX_SKEW = 14,
 	parameter NB_COUNT = 6 //[REVISAR]
  )
  (
@@ -11,7 +11,7 @@ module deskew_top
  	input wire 								i_reset,
  	input wire 								i_enable,
  	input wire 								i_valid,
- 	input wire 								i_am_lock,
+ 	//input wire 								i_am_lock,
  	input wire 	[N_LANES-1 : 0]				i_resync,
  	input wire 	[N_LANES-1 : 0]				i_start_of_lane,
 
@@ -28,7 +28,7 @@ module deskew_top
  wire [N_LANES-1 : 0]			 stop_lane_counters;
  wire [(N_LANES*NB_COUNT)-1 : 0] lane_counters_value;
  wire 							 enable_counter;
- wire 							 common_counter_value;
+ wire [NB_COUNT-1 : 0]  		 common_counter_value;
  wire 							 stop_common_counter;
  wire 							 set_fifo_delay;
  wire 							 valid_skew;
@@ -61,7 +61,7 @@ module deskew_top
   	.i_clock				(i_clock),
   	.i_reset				(i_reset),
   	.i_enable				(i_enable),
-  	.i_am_lock				(i_am_lock),
+  	//.i_am_lock				(i_am_lock),
   	.i_resync				(|i_resync),
   	.i_start_of_lane		(i_start_of_lane),
   	.i_common_counter		(common_counter_value),

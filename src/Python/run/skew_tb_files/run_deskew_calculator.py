@@ -27,10 +27,14 @@ Cuando este vector tenga todos sus elementos en 1, se declarara el am_lock de to
 
 def main():
 
-    sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
-    resync_vector = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
+    sol_input = open("start-of-lane-input.txt", "w")
+    resync_input = open("resync-input.txt", "w")
 
-    (sol_matrix, resync_vector, delay_vector) = simulate_skew(sol_matrix, resync_vector)
+    sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
+    resync_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
+
+    (sol_matrix, resync_matrix, delay_vector) = simulate_skew(sol_matrix, resync_matrix)
+
     #### CORREGIDO se resta cada elemento de delay_vector con min(delay_vector) para que quede expresado
     #### 		   correctamente el delay relativo entre las lineas y poder verificar el buen funcionamiento
     delay_vector = list(map(lambda x : x - min(delay_vector), delay_vector))
@@ -38,17 +42,22 @@ def main():
     
     for clock in range(AM_PERIOD*4):
 
-        
-        
-        deskewCalculator.fsm.change_state(sol_matrix[clock], resync_vector[clock], deskewCalculator.common_counter, MAX_SKEW)
+        #file writing
+        sol_tmp = cf.list_to_str(sol_matrix[clock])
+        sol_tmp = cf.reverse_string(sol_tmp)
+        resync_tmp = cf.list_to_str(resync_matrix[clock])
+        sol_tmp = ''.join(map(lambda x: x+' ',  sol_tmp))
+        resync_tmp = ''.join(map(lambda x: x+' ', resync_tmp))
+        sol_input.write(sol_tmp + '\n')
+        resync_input.write(resync_tmp + '\n')
 
-        deskewCalculator.common_counter.update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_common_counter, any(resync_vector[clock]))
-        '''
-        if clock > 30 and sum(sol_matrix[clock]):
-        	bp()
-        '''
+
+        deskewCalculator.fsm.change_state(sol_matrix[clock], resync_matrix[clock], deskewCalculator.common_counter, MAX_SKEW)
+
+        deskewCalculator.common_counter.update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_common_counter, any(resync_matrix[clock]))
+
         for ncounters in range(NLANES):
-            deskewCalculator.counters[ncounters].update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_lane_counter[ncounters], any(resync_vector[clock]))
+            deskewCalculator.counters[ncounters].update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_lane_counter[ncounters], any(resync_matrix[clock]))
 
 
     for index, count in enumerate(deskewCalculator.counters):
@@ -60,14 +69,12 @@ def main():
 
     print ('\n\n####################\n\n' ,'Invalid Skew status : ', deskewCalculator.fsm.invalid_skew, '\n\n####################' )
     
-    bp()
+    #bp()
 
 
-def simulate_skew(sol_matrix, resync_vector):
+def simulate_skew(sol_matrix, resync_matrix):
 
     delay_vector = [rand.randint(0,MAX_SKEW-1) for x in range(NLANES)]
-    #delay_vector = [0,0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
-
 
     for index, value in enumerate(delay_vector):
         sol_matrix[value][index] = 1
@@ -75,12 +82,13 @@ def simulate_skew(sol_matrix, resync_vector):
     #Matriz de start of lanes con el periodo inter bloque incluido
     sol_matrix = sol_matrix + [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
 
-    resync_vector = copy.copy(sol_matrix) + 2 * [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
+    #Matriz de resync seguida por ceros, queda del mismo tamanio que la sol_matrix
+    resync_matrix = copy.copy(sol_matrix) + 2 * [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
 
     sol_matrix = sol_matrix + sol_matrix
     print (delay_vector)
 
-    return sol_matrix, resync_vector, delay_vector
+    return sol_matrix, resync_matrix, delay_vector
 
     
     

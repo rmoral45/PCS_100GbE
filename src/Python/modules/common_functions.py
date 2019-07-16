@@ -97,6 +97,47 @@ def block_to_bit_stream(block):
 			bit_stream.insert(0,bit)
 	bit_stream = map(int,bit_stream)
 	return bit_stream
+'''
+Retorna el string recibida como parametro, pero inveritda
+'''
+def reverse_string(word):
+
+	
+	'''
+	tmp2 = ""
+	tmp.zfill(len(word))
+	tmp2.zfill(len(word))
+
+	for index in (len(word)):
+		tmp2[len(word)-1-index] = (word[index] << index)
+
+	return tmp2
+	'''
+	tmp = ''
+	tmp = word[::-1]
+	return tmp
+
+'''
+Recibe una lista como param y devuelve un string compuesto por los elementos de dicha lista
+El otro parametro es return type: 	- string
+									- int
+Simplemente indicamos si queremos que se retorne como string o entero, por defecto sera como string.
+'''
+def list_to_str(lista, return_type = 'string'):
+	
+	tmp = 0
+	for index in range(len(lista)):
+		tmp |= (lista[index] << index)
+		
+	tmp = bin(tmp)[2:].zfill(len(lista))
+	tmp = reverse_string(tmp)
+
+	if(return_type == 'int'):
+		tmp = int(tmp)
+		return tmp
+	else:
+		return tmp
+		
 
 
 
