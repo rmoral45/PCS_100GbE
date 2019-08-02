@@ -1,6 +1,7 @@
 import sys
 sys.path.append('../../modules')
 import deskew_calculator_v2 as deskew
+import programmable_fifo as pFifo
 import common_functions as cf
 import common_variables as cv
 import random as rand
@@ -30,10 +31,19 @@ def main():
     sol_input = open("start-of-lane-input.txt", "w")
     resync_input = open("resync-input.txt", "w")
 
+    prog_fifo_wr_enable = 1
+    prog_fifo_rd_enable = 0
+
+    prog_fifo = pFifo.programmableFifo(NLANES, prog_fifo_wr_enable, prog_fifo_rd_enable)
+
+
     sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
     resync_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
+    data_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)]
+    data_readed = [[0 for ncols in range(NLANES)] for nrows in range(NLANES)]       #esta es una matriz de 20x20 para ver los datos leidos de la prog_fifo una vez calculado el skew
 
     (sol_matrix, resync_matrix, delay_vector) = simulate_skew(sol_matrix, resync_matrix)
+    data_matrix = gen_data(NLANES)    
 
     #### CORREGIDO se resta cada elemento de delay_vector con min(delay_vector) para que quede expresado
     #### 		   correctamente el delay relativo entre las lineas y poder verificar el buen funcionamiento
@@ -58,18 +68,32 @@ def main():
 
         for ncounters in range(NLANES):
             deskewCalculator.counters[ncounters].update_count(deskewCalculator.fsm.start_counters, deskewCalculator.fsm.stop_lane_counter[ncounters], any(resync_matrix[clock]))
+            prog_fifo.fifos[ncounters].write_fifo(data_matrix[clock], clock)   #escritura de fifos
+
+        if(deskewCalculator.fsm.skew_done):                     #seria la senial set_fifo_delay
+            
+            for nfifos in range(NLANES):
+                prog_fifo.fifos[nfifos].rd_enable = 1           #habilitamos la lectura de las memorias, deberia leer el valor del contador calculado para cada linea
+                #bp()
+                data_readed[nfifos] = prog_fifo.fifos[nfifos].read_fifo(deskewCalculator.counters[nfifos]._count)         
+
+           
 
 
     for index, count in enumerate(deskewCalculator.counters):
         print (index, count._count, delay_vector[index])
 
-
     #print 'stop de lanes ', deskewCalculator.fsm.stop_lane_counter
     print ('common', deskewCalculator.common_counter._count, 'max_delay ', max(delay_vector))
 
     print ('\n\n####################\n\n' ,'Invalid Skew status : ', deskewCalculator.fsm.invalid_skew, '\n\n####################' )
+
+    print ('\n\n################################# PROG FIFO DATA ######################## \n\n')
+
+    for index in range(NLANES):
+        print('Indice: {} ---- Data_readed: {} \n'.format(index, data_readed[index]))
     
-    #bp()
+    bp()
 
 
 def simulate_skew(sol_matrix, resync_matrix):
@@ -90,6 +114,16 @@ def simulate_skew(sol_matrix, resync_matrix):
 
     return sol_matrix, resync_matrix, delay_vector
 
+
+def gen_data(nlanes):
+    
+    #Matriz de datos de 20x120
+    data_matrix = [[0 for row in range(nlanes)] for col in range(AM_PERIOD*4)]
+
+    for ctr in range(AM_PERIOD*4):
+        data_matrix[ctr][ctr%nlanes] = ctr
+
+    return data_matrix
     
     
 if __name__ == '__main__':

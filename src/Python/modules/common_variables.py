@@ -1,4 +1,8 @@
-
+############## NUMBER OF BITS FOR PARAM ###############
+NB_DATA	  = 20
+NB_ADDR   = 5
+#MEM_DEPTH = 2**NB_ADDR*10
+MEM_DEPTH = 1000
 
 
 ############## CGMII CHARACTERS########################
