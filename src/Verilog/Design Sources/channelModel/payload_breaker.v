@@ -3,9 +3,6 @@
 /*
  * <MAX_ERR_PERIOD> : setea en cuanta cantidad maxima de bloques se aplicara el patron de erro, por ejemplo
  *                    si MAX_ERR_BURST = 10 y MAX_ERR_PERIOD = 100, como maximo se romperan 10 bloques cada 100.
- * 
- * CHECK : se podria agregar otra input 'i_mode' la cual seleccionara  si se desea romper bloques de datos, blloques de control,
-           alineadores o cualquier bloque.
  *
  */
 
@@ -20,7 +17,6 @@ module payload_breaker
         parameter NB_PERIOD_CNT  = $clog2(MAX_ERR_PERIOD),
         parameter NB_REPEAT_CNT  = $clog2(MAX_ERR_REPEAT),
         parameter N_MODES        = 4,
-        parameter NB_MODES       = $clog2(N_MODES)
  )
  (
         input  wire                             i_clock,
@@ -28,14 +24,15 @@ module payload_breaker
         input  wire                             i_valid,
         input  wire                             i_aligner_tag,       //indica que el bloque es un alineador
         input  wire [NB_CODED_BLOCK-1 : 0]      i_data,
-        input  wire [NB_MODES-1 : 0]            i_rf_mode,           //ver NOTAS
+        input  wire [N_MODES-1 : 0]             i_rf_mode,           //ver NOTAS
         input  wire                             i_rf_update,         //trigger para actualizar los valores de generacion de error
         input  wire [NB_ERR_MASK-1 : 0]         i_rf_error_mask,     // selecciona que bits romper
         input  wire [NB_BURST_CNT-1 : 0]        i_rf_error_burst,    // selecciona cuantos bloques consecutivos romper por periodo
         input  wire [NB_PERIOD_CNT-1 : 0]       i_rf_error_period,   // periodo
         input  wire [NB_REPEAT_CNT-1 : 0]       i_rf_error_repeat,   // cantidad de periodos con el mismo patron de error
 
-        output reg o_data
+        output reg  [NB_CODED_BLOCK-1 : 0]      o_data,
+        output reg                              o_aligner_tag
  );
 
 //Localparams
@@ -46,7 +43,7 @@ localparam MODE_CTRL = 1;
 localparam MODE_DATA = 2;
 localparam MODE_ALL  = 3;
 
-//Internal Signals
+//------------------------------Internal Signals-----------------------------------
 
 //Error control counters
 reg [NB_BURST_CNT-1 : 0]        burst_counter;
@@ -66,14 +63,15 @@ wire                            burst_fin;
 wire                            period_fin;
 wire                            repeat_fin;
 
-assign sh               = i_data[NB_CODED_BLOCK-1 -: NB_SH];
-assign payload          = i_data[NB_CODED_BLOCK-NB_SH-1 : 0];
-
 //sh type
 wire                            sh_ctrl_type;
 wire                            sh_data_type;
 
-//Algorithm Begin
+//-----------------------------Algorithm Begin-------------------------------------
+
+
+assign sh               = i_data[NB_CODED_BLOCK-1 -: NB_SH];
+assign payload          = i_data[NB_CODED_BLOCK-NB_SH-1 : 0];
 
 //[CHECK] verificar sh type en el estandar
 sh_ctrl_type = (sh == 2'b10);
