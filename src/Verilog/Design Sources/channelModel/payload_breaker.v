@@ -16,7 +16,7 @@ module payload_breaker
         parameter NB_BURST_CNT   = $clog2(MAX_ERR_BURST),
         parameter NB_PERIOD_CNT  = $clog2(MAX_ERR_PERIOD),
         parameter NB_REPEAT_CNT  = $clog2(MAX_ERR_REPEAT),
-        parameter N_MODES        = 4,
+        parameter N_MODES        = 4
  )
  (
         input  wire                             i_clock,
@@ -59,9 +59,9 @@ wire [NB_PAYLOAD-1 : 0]         masked_payload;
 wire [NB_PAYLOAD-1 : 0]         err_payload;
 
 //Error counters conditions
-wire                            burst_fin;
-wire                            period_fin;
-wire                            repeat_fin;
+wire                            burst_on;
+wire                            period_on;
+wire                            repeat_on;
 
 //sh type
 wire                            sh_ctrl_type;
@@ -74,8 +74,8 @@ assign sh               = i_data[NB_CODED_BLOCK-1 -: NB_SH];
 assign payload          = i_data[NB_CODED_BLOCK-NB_SH-1 : 0];
 
 //[CHECK] verificar sh type en el estandar
-sh_ctrl_type = (sh == 2'b10);
-sh_data_type = (sh == 2'b01);
+assign sh_ctrl_type = (sh == 2'b10);
+assign sh_data_type = (sh == 2'b01);
 
 //break process
 assign bit_flip         = (payload & i_rf_error_mask) ^ i_rf_error_mask;
@@ -129,7 +129,7 @@ begin
                 burst_counter <= burst_counter - 1'b1;
                         
 end
-assign burst_on = (burst_counter > {NB_BURST_CNT{1'b0}}) = 1'b1 : 1'b0;
+assign burst_on = (burst_counter > {NB_BURST_CNT{1'b0}}) ? 1'b1 : 1'b0;
 
 //Period counter
 always @ (posedge i_clock)
@@ -139,7 +139,7 @@ begin
         else if (i_rf_update)
                 period_counter <= i_rf_error_period;
         else if (repeat_on && !period_on)
-                period_counter <= i_rf_error_period
+                period_counter <= i_rf_error_period;
         else if (i_valid && period_on)
                 period_counter <= period_counter - 1'b1;
 end
