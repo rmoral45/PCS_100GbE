@@ -66,6 +66,9 @@ class deskewCalculatorFSM(object):
         self.stop_common_counter = 0
         self.skew_done = 0
         self.invalid_skew = 0
+        self.wr_enb_prog_fifo = 0
+        self.rd_enb_prog_fifo = 0
+        self.set_fifo_delay   = 0
 
     def change_state(self, sol_signals, resync_signals, common_counter, max_skew):
 
@@ -88,6 +91,7 @@ class deskewCalculatorFSM(object):
         elif self._state == "COUNT":
             self.stop_lane_counter = [sum(x) for x in zip(self.stop_lane_counter,sol_signals)]        #oring list element wise
             self.stop_common_counter = sum(self.stop_lane_counter) == self._nlanes                     #si todas las lineas pararon de contar, paro el contador comun
+            self.wr_enb_prog_fifo = 1
 
 
             if(common_counter._count >= max_skew):
@@ -99,10 +103,13 @@ class deskewCalculatorFSM(object):
                     self._state = "INIT"
                 elif self.stop_common_counter:
                     self._state = "DONE"
+                    self.set_fifo_delay = 1
+
 
         elif self._state == "DONE":
             self.skew_done = 1
-
+            self.rd_enb_prog_fifo = 1
+            self.set_fifo_delay = 0
 
 
 

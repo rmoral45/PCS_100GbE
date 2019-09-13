@@ -3,25 +3,27 @@
 module deskew_fsm
 #(
 	parameter  MAX_SKEW = 16,
-	parameter  NB_COUNT = $clog2(MAX_SKEW),//AGREGAR MAS BITS !!!!!
+	parameter  NB_DELAY_COUNT = $clog2(MAX_SKEW),//AGREGAR MAS BITS !!!!!
 	parameter  N_LANES  = 20
  )
  (
- 	input wire 					i_clock,
- 	input wire 					i_reset,
- 	input wire 					i_enable,
- 	//input wire 					i_am_lock, //[REVISAR] esta sin uso, REVISADO!! --> NO USARLO (se usa en el Reg_File)
- 	input wire 					i_resync,
- 	input wire [N_LANES-1 : 0]	i_start_of_lane,
- 	input wire [NB_COUNT-1 : 0] i_common_counter,
+ 	input wire 					      i_clock,
+ 	input wire 					      i_reset,
+ 	input wire 					      i_enable,
+	input wire					      i_valid,
+ 	input wire 					      i_resync,
+ 	input wire [N_LANES-1 : 0]	      i_start_of_lane,
+ 	input wire [NB_DELAY_COUNT-1 : 0] i_common_counter,
 
 
- 	output reg 					o_enable_counters,
- 	output reg					o_stop_common_counter,
- 	output reg 					o_set_fifo_delay, //hace que las fifo recalculen el delay
- 	output wire [N_LANES-1 : 0] o_stop_lane_counters,
+ 	output reg 					      o_enable_counters,
+ 	output reg					      o_stop_common_counter,
+ 	output reg 					      o_set_fifo_delay, //hace que las fifo recalculen el delay
+    output reg					      o_write_prog_fifo_enb,
+	output reg					      o_read_prog_fifo_enb,
+ 	output wire [N_LANES-1 : 0]       o_stop_lane_counters,
  	//output wire                 o_deskew_done,
- 	output wire                 o_invalid_skew
+ 	output wire                       o_invalid_skew
  );
 
  //LOCALPARAMS
@@ -51,7 +53,7 @@ module deskew_fsm
  //		deskew_done         <= 0;
  		start_of_lane 		<= {N_LANES{1'b0}};
  	end
- 	else if (i_enable) //[REVISAR]no usa valid por que debe funcionar con el clock de sistema?
+ 	else if (i_enable && i_valid) 				//[REVISAR]no usa valid por que debe funcionar con el clock de sistema?
  	begin	
  		state 				<= state_next;
  	//	deskew_done         <= deskew_done_next;
@@ -69,6 +71,8 @@ module deskew_fsm
  	o_set_fifo_delay 	  = 0;
  	o_enable_counters  	  = 0;
  	o_stop_common_counter = 0;
+	o_write_prog_fifo_enb = 0;
+	o_read_prog_fifo_enb  = 0;
 
  	case (state)
  		INIT :
@@ -82,6 +86,7 @@ module deskew_fsm
  		COUNT :
  		begin
  			o_enable_counters  = 1;
+			o_write_prog_fifo_enb = 1;
  			start_of_lane_next = (start_of_lane | i_start_of_lane);
 
  			if (o_invalid_skew)
@@ -101,6 +106,8 @@ module deskew_fsm
  		end
  		DESKEW_DONE :
  		begin
+			o_write_prog_fifo_enb = 1;
+			o_read_prog_fifo_enb  = 1;
  		//    deskew_done_next   = 1;
  		end
 
