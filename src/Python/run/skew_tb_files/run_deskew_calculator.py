@@ -33,8 +33,6 @@ def main():
     sol_input = open("start-of-lane-input.txt", "w")
     resync_input = open("resync-input.txt", "w")
     fifo_input = open("fifos-input.txt", "w")
-    fifo_wr_enb = open("fifo-wr-enb.txt", "w")
-    fifo_rd_enb = open("fifo-rd-enb.txt", "w")
     fifo_output = open("fifos-output.txt", "w")     
     #Deskew Calculator
     sol_matrix = [[0 for ncols in range(NLANES)] for nrows in range(AM_PERIOD)] 
@@ -112,6 +110,12 @@ def main():
                 data_readed.append(prog_fifo.fifos[nfifos].read_fifo())
       
 
+    sol_input.close()
+    resync_input.close()
+    fifo_input.close()
+    fifo_output.close()
+
+
 
     bp()
 
@@ -120,16 +124,13 @@ def main():
         for fifo in(prog_fifo.fifos):
                 data_readed.append(fifo.read_fifo())
     '''
-    if(data_readed.count(-99)):
+    if(data_readed.count(TRASH_DATA)):
         print '\n\n\nERROR: hay un -99 en los datos leidos\n\n\n'
 
     for ctr2 in range(len(data_readed)):
         if(ctr2 != data_readed[ctr2]):
             print '\n\n\nERROR: hay datos fuera de orden\n\n\n'
-
-    #bp()
-                      
-               
+             
     #escritura de salida en archivo
     '''
     for nfifos in range(NLANES):
@@ -138,6 +139,8 @@ def main():
         fifo_out_tmp = ''.join(map(lambda x: x+' ', fifo_out_tmp))
         fifo_output.write(fifo_out_tmp+ '\n')
     '''
+
+    bp()
     for index, count in enumerate(deskewCalculator.counters):
         print (index, count._count, delay_vector[index])
 
@@ -151,8 +154,6 @@ def main():
     for index in range(NLANES):
         print('Indice: {} ---- Data_readed: {} \n'.format(index, data_readed[index]))
     
-    bp()
-
 
 def simulate_skew(sol_matrix, resync_matrix):
 
