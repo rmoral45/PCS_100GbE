@@ -125,11 +125,11 @@ def main():
                 data_readed.append(fifo.read_fifo())
     '''
     if(data_readed.count(TRASH_DATA)):
-        print '\n\n\nERROR: hay un -99 en los datos leidos\n\n\n'
+        print ('\n\n\nERROR: hay un -99 en los datos leidos\n\n\n')
 
     for ctr2 in range(len(data_readed)):
         if(ctr2 != data_readed[ctr2]):
-            print '\n\n\nERROR: hay datos fuera de orden\n\n\n'
+            print ('\n\n\nERROR: hay datos fuera de orden\n\n\n')
              
     #escritura de salida en archivo
     '''
@@ -182,7 +182,7 @@ def gen_data(nlanes):
     aux_m  = [[] for col in range(nlanes)]
 
     for i in range(nlanes):
-        aux_m[i] = range(i, AM_PERIOD*10*nlanes, nlanes)
+        aux_m[i] = list(range(i, AM_PERIOD*10*nlanes, nlanes))
 
     return aux_m
     
