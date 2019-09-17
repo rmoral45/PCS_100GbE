@@ -1,28 +1,28 @@
 module prog_fifo
 #(
-    parameter N_LANES           = 20,
-    parameter NB_DATA           = 66,
-	parameter FIFO_DEPTH        = 20,
+        parameter N_LANES           = 20,
+        parameter NB_DATA           = 66,
+        parameter FIFO_DEPTH        = 20,
 	parameter NB_ADDR           = $clog2(FIFO_DEPTH),
-    parameter MAX_SKEW          = 16,
-    parameter NB_DELAY_COUNT    = $clog2(MAX_SKEW)
+        parameter MAX_SKEW          = 16,
+        parameter NB_DELAY_COUNT    = $clog2(MAX_SKEW)
 )   
 (
- 	input wire  				        i_clock,
-	input wire					        i_reset,
-    input wire                          i_valid,
-    input wire                          i_set_fifo_delay,
- 	input wire  				        i_write_enb,
- 	input wire  				        i_read_enb, 
- 	input wire  [NB_DELAY_COUNT-1 : 0]  i_read_addr,
- 	input wire  [NB_DATA-1 : 0]         i_data,
+ 	input wire  				i_clock,
+	input wire			        i_reset,
+        input wire                              i_valid,
+        input wire                              i_set_fifo_delay,
+ 	input wire  				i_write_enb,
+ 	input wire  		                i_read_enb, 
+ 	input wire  [NB_DELAY_COUNT-1 : 0]      i_read_addr,
+ 	input wire  [NB_DATA-1 : 0]             i_data,
 
- 	output wire [NB_DATA-1 : 0]         o_data
+ 	output wire [NB_DATA-1 : 0]             o_data
 );
 
 //INTERNAL SIGNALS
 reg [NB_ADDR-1 : 0]	   wr_ptr;
-reg [NB_ADDR-1 : 0]    rd_ptr;                       
+reg [NB_ADDR-1 : 0]        rd_ptr;                       
 
 
 wire reset_wr_ptr;
