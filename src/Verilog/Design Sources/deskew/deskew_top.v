@@ -6,7 +6,7 @@ module deskew_top
 	parameter NB_DATA          = 66,
 	parameter FIFO_DEPTH       = 20,
 	parameter MAX_SKEW         = 16,	
-	parameter NB_DELAY_COUNT   = $clog2(MAX_SKEW),
+	parameter NB_DELAY_COUNT   = $clog2(FIFO_DEPTH),
 	parameter NB_DELAY_BUS     = NB_DELAY_COUNT*N_LANES,
 	parameter NB_DATA_BUS      = NB_DATA*N_LANES
  )
@@ -57,7 +57,9 @@ module deskew_top
 
  //MODULES
  prog_fifo_top
- #()
+ #(
+    .FIFO_DEPTH(FIFO_DEPTH)
+ )
  u_prog_fifo_top
  (
     .i_clock            (i_clock),
@@ -74,6 +76,7 @@ module deskew_top
  deskew_fsm
  #(
  	.N_LANES 	(N_LANES),
+ 	.NB_DELAY_COUNT(NB_DELAY_COUNT),
  	.MAX_SKEW	(MAX_SKEW)
   )
  u_deskew_fsm
@@ -99,7 +102,7 @@ module deskew_top
 
   ss_counter
   #(
-  	.MAX_SKEW	(MAX_SKEW)
+  	.NB_DELAY_COUNT(NB_DELAY_COUNT)
   	)
   u_common_counter
    (
@@ -123,7 +126,7 @@ module deskew_top
  begin :ger_block
 	   ss_counter
 	  #(
-	  	.MAX_SKEW	(MAX_SKEW)
+        .NB_DELAY_COUNT(NB_DELAY_COUNT)
 	   )
 	  u_ss_counter
 	   (

@@ -3,10 +3,10 @@ module prog_fifo_top
         parameter N_LANES           = 20,
         parameter NB_DATA           = 66,
         parameter NB_DATA_BUS       = NB_DATA*N_LANES,
-	parameter FIFO_DEPTH        = 20,
-	parameter NB_ADDR           = $clog2(FIFO_DEPTH),
+	    parameter FIFO_DEPTH        = 20,
+	    parameter NB_ADDR           = $clog2(FIFO_DEPTH),
         parameter MAX_SKEW          = 16,
-        parameter NB_DELAY_COUNT    = $clog2(MAX_SKEW),
+        parameter NB_DELAY_COUNT    = $clog2(FIFO_DEPTH),
         parameter NB_DELAY_BUS      = NB_DELAY_COUNT*N_LANES
 )
 (

@@ -3,17 +3,18 @@
 module tb_deskew_calculator;
 
 localparam N_LANES          =   20;
+localparam FIFO_DEPTH       =   20;
 localparam MAX_SKEW         =   16;
-localparam NB_COUNT         =   $clog2(MAX_SKEW); //[FIX],EL ANCHO del delay NO ES EL MISMO que el skew,es dependiendo la profundidad e la fifo !!!
+localparam NB_COUNT         =   $clog2(FIFO_DEPTH); //[FIX],EL ANCHO del delay NO ES EL MISMO que el skew,es dependiendo la profundidad e la fifo !!!
 localparam NB_DATA          =   66;
-localparam PATH_SOL         =   "/home/dabratte/PPS/src/Python/run/skew_tb_files/start-of-lane-input.txt";
-localparam PATH_RESYNC      =   "/home/dabratte/PPS/src/Python/run/skew_tb_files/resync-input.txt";  
-localparam PATH_DATA_INPUT  =   "/home/dabratte/PPS/src/Python/run/skew_tb_files/fifos-input.txt"; 
-localparam PATH_DATA_OUTPUT =   "/home/dabratte/PPS/src/Python/run/skew_tb_files/fifos-output-verilog.txt";
+localparam PATH_SOL         =   "/media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/skew_tb_files/start-of-lane-input.txt";
+localparam PATH_RESYNC      =   "/media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/skew_tb_files/resync-input.txt";  
+localparam PATH_DATA_INPUT  =   "/media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/skew_tb_files/fifos-input.txt"; 
+localparam PATH_DATA_OUTPUT =   "/media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/skew_tb_files/fifos-output-verilog.txt";
 
-
+reg [64 : 0] clock_counter;
 reg tb_clock, tb_reset, tb_enable, tb_valid, tb_enable_files;
-reg     [N_LANES-1 : 0]             temp_sol;
+reg     [0 : N_LANES-1]             temp_sol;
 reg     [N_LANES-1 : 0]             tb_i_start_of_lane;
 reg     [N_LANES-1 : 0]             temp_resync;
 reg     [N_LANES-1 : 0]             tb_i_resync;
@@ -77,7 +78,6 @@ assign out_data_14 = tb_o_data[(N_LANES*NB_DATA)-(14*NB_DATA)-1 -: NB_DATA];
 wire [NB_DATA-1 : 0]out_data_15;
 assign out_data_15 = tb_o_data[(N_LANES*NB_DATA)-(15*NB_DATA)-1 -: NB_DATA];
 
-
 wire [NB_DATA-1 : 0]out_data_16;
 assign out_data_16 = tb_o_data[(N_LANES*NB_DATA)-(16*NB_DATA)-1 -: NB_DATA];
 
@@ -89,6 +89,9 @@ assign out_data_18 = tb_o_data[(N_LANES*NB_DATA)-(18*NB_DATA)-1 -: NB_DATA];
 
 wire [NB_DATA-1 : 0]out_data_19;
 assign out_data_19 = tb_o_data[(N_LANES*NB_DATA)-(19*NB_DATA)-1 -: NB_DATA];
+
+wire [NB_COUNT-1 : 0] out_delay_0;
+assign out_delay_0 = tb_o_lane_delay[(N_LANES*NB_COUNT)-(0*NB_COUNT)-1 -: NB_COUNT];
 
 wire [NB_COUNT-1 : 0] out_delay_1;
 assign out_delay_1 = tb_o_lane_delay[(N_LANES*NB_COUNT)-(1*NB_COUNT)-1 -: NB_COUNT];
@@ -196,6 +199,7 @@ begin
     tb_reset = 1;
     tb_enable = 0;
     tb_valid = 0;
+    clock_counter = 66'd0;
     tb_enable_files = 0;
     #2  tb_enable_files = 1;
     #2  tb_reset = 0;
@@ -205,21 +209,23 @@ end
 
 always #1tb_clock = ~tb_clock;
 
+always #2 clock_counter = clock_counter + 1;
+
 always @ (posedge tb_clock)
 begin
     
     if(tb_enable_files)
     begin
-
-        for(ptr_sol = 0; ptr_sol < N_LANES; ptr_sol = ptr_sol + 1)
-        begin
-            code_error_sol <= $fscanf(fid_input_sol_vector, "%b\n", temp_sol[ptr_sol]);
-            if(code_error_sol != 1)
+      
+            for(ptr_sol = 0; ptr_sol < N_LANES; ptr_sol = ptr_sol + 1)
             begin
-                $display("Start_of_lane: El caracter leido no es valido..");
+                code_error_sol <= $fscanf(fid_input_sol_vector, "%b\n", temp_sol[ptr_sol]);
+                if(code_error_sol != 1)
+                begin
+                    $display("Start_of_lane: El caracter leido no es valido..");
                 //$stop;
+                end
             end
-        end
         
         for(ptr_resync = 0; ptr_resync < N_LANES; ptr_resync = ptr_resync + 1)
         begin
@@ -230,17 +236,18 @@ begin
                 //$stop;
             end
         end
-        
-        for(ptr_input_data = 0; ptr_input_data < N_LANES*NB_DATA; ptr_input_data = ptr_input_data + 1)
-        begin
-            code_error_idata <= $fscanf(fid_input_data, "%b\n", temp_i_data[ptr_input_data]);
-            if(code_error_idata != 1)
+      if (clock_counter > 61)
+      begin  
+            for(ptr_input_data = 0; ptr_input_data < N_LANES*NB_DATA; ptr_input_data = ptr_input_data + 1)
             begin
-                $display("Resync: El caracter leido no es valido..");
-                //$stop;
+                code_error_idata <= $fscanf(fid_input_data, "%b\n", temp_i_data[ptr_input_data]);
+                if(code_error_idata != 1)
+                begin
+                    $display("Resync: El caracter leido no es valido..");
+                    //$stop;
+                end
             end
-        end
-
+      end
         $fwrite(fid_output_data, "%b\n", tb_o_data);
         
         tb_i_data           <= temp_i_data;

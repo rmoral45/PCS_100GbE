@@ -5,7 +5,7 @@ module prog_fifo
         parameter FIFO_DEPTH        = 20,
 	parameter NB_ADDR           = $clog2(FIFO_DEPTH),
         parameter MAX_SKEW          = 16,
-        parameter NB_DELAY_COUNT    = $clog2(MAX_SKEW)
+        parameter NB_DELAY_COUNT    = $clog2(FIFO_DEPTH)
 )   
 (
  	input wire  				i_clock,
@@ -50,7 +50,7 @@ begin
         rd_ptr <= {NB_ADDR{1'b0}};
     
     else if(i_set_fifo_delay && i_valid)
-        rd_ptr <= i_read_addr;
+        rd_ptr <= {1'b0,i_read_addr};
     
     else if(i_read_enb && i_valid)
         rd_ptr <= rd_ptr + 1;

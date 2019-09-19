@@ -52,23 +52,24 @@ def main():
     #### El tamanio de cada fila es el mismo que el de la prog_fifo correspondiente a dicha linea             
     data_readed = []                                   
     data_matrix = gen_data(NLANES)
-
+    
     for k in range(len(delay_vector)):
         for j in range(delay_vector[k]):
             data_matrix[k].insert(0,TRASH_DATA)
             data_matrix[k].pop()
+
 
     #file writing
     for counter in range(AM_PERIOD*10):
         sol_tmp = cf.list_to_str(sol_matrix[counter])
         sol_tmp = cf.reverse_string(sol_tmp)
         resync_tmp = cf.list_to_str(resync_matrix[counter])
+        resync_tmp = cf.reverse_string(resync_tmp)
         sol_tmp = ''.join(map(lambda x: x+' ',  sol_tmp))
         resync_tmp = ''.join(map(lambda x: x+' ', resync_tmp))
         sol_input.write(sol_tmp + '\n')
         resync_input.write(resync_tmp + '\n')
         wr_data = ''
-
 
         for nlanes in range(NLANES):
             data_tmp = bin(data_matrix[nlanes][counter])[2:].zfill(NB_DATA)

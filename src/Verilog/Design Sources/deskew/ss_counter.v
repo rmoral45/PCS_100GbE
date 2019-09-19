@@ -1,7 +1,7 @@
 module ss_counter
 #(
-	parameter MAX_SKEW         = 16,
-	parameter NB_DELAY_COUNT   = $clog2(MAX_SKEW) //AGREGAR MAS BITS !!!!!
+	parameter FIFO_DEPTH       = 20,
+	parameter NB_DELAY_COUNT   = $clog2(FIFO_DEPTH) //AGREGAR MAS BITS !!!!!
  )
  (
  	input wire 					      i_clock,
