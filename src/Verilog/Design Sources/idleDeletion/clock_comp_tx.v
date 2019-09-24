@@ -1,105 +1,111 @@
+`timescale 1ns/100ps
 
 
+/*
+        Cada AM_BLOCK_PERIOD se debe realizr la insercion de un alineador en cada lane, como todavia el flujo de datos
+        es unico(no se distribuyo ne la LANES) esto implica que cada AM_BLOCK_PERIOD*N_LANES se debe generar el espacio
+        para insertar tantos alineadores como lanes tengamos, y a su vez se debe compensar dicha insercion eliminando 
+        bloques idle cuando estos lleguen desde la MII.
+        Cuando genero el lugar para los alineadores, lo que hago es insertar bloques idle junto con un 'tag' el cual
+        le indica al scrambler que debe hacer bypass de estos datos (para no modificar su estado) y al bloque de
+        insercion de alineadores le indica que debe reemplazar dicho bloque con el alineador correspondiente.
+        Por lo tanto, cuando estoy insertando idles taggeados debo escribir los datos recibidos de la MII en la
+        fifo, pero no debo leer ningun dato de esta, osea read_enable = 0. Cuando elimino idles para compensar debo
+        leer datos de la fifo pero no escribir los idles recibidos desde la MII, es decir write_enable = 0.
+
+*/
 
 module clock_comp_tx
 #(
-	parameter NB_DATA       = 66,
-	parameter N_IDLE        = 20,
-	parameter N_BLOCKS      = 16383,
-	parameter N_LANES       = 20 // deberia ser siempre igual a N_IDLE 
+        parameter NB_DATA          = 66,
+        parameter AM_BLOCK_PERIOD  = 16383, //[CHECK]
+        parameter N_LANES          = 20
  )
  (
- 	input  wire                     i_clock  ,
- 	input  wire                     i_reset  ,
- 	input  wire                     i_enable ,
- 	input  wire                     i_valid  ,
- 	input  wire [NB_DATA-1 : 0]     i_data,
-
- 	output wire [NB_DATA-1 : 0]     o_data,
- 	output wire                     o_am_flag
-
+        input  wire                     i_clock,
+        input  wire                     i_reset,
+        input  wire                     i_enable,
+        input  wire                     i_valid,
+        input  wire [NB_DATA-1 : 0]     i_data,
+      
+        output wire [NB_DATA-1 : 0]     o_data,
+        output wire                     o_aligner_tag
  );
 
-//LOCALPARAMS
-localparam NB_ADDR                      = $clog2(N_IDLE); //[CHECK] 
-localparam [NB_DATA-1 : 0] PCS_IDLE     = 'h1e_00_00_00_00_00_00_00_0; 
 
-//Internal signals
-wire 				idle_detected   ;
-wire 				block_count_done; 
-wire 				idle_count_done ;
-wire 				insert_am_idle  ;
-wire 				fifo_write_enb  ;
-wire [NB_DATA-1 : 0]            fifo_input_data ;
-wire 				fifo_read_enb   ;
-wire [NB_DATA-1 : 0]            fifo_output_data;
-wire 				fifo_empty      ;
+localparam                      NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES);
+localparam                      NB_IDLE_CNT   = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
+localparam [NB_DATA-1 : 0]      PCS_IDLE      = 'h1_e0_00_00_00_00_00_00_00;
 
-//Instancies
-idle_counter
-	#(
-		.N_IDLE(N_IDLE)
-	 )
-	u_idle_counter
-	 (
-	 	.i_clock           (i_clock),
-	 	.i_reset           (i_reset),
-	 	.i_enable          (i_enable),
-	 	.i_block_count_done(block_count_done),
-	 	.i_idle_detected   (idle_detected),
+//------------ Internal Signals -----------------//
 
-	 	.o_idle_count_done (idle_count_done)
-	 );
+reg [NB_PERIOD_CNT-1 : 0]       period_counter;
+reg [NB_IDLE_CNT-1 : 0]         idle_counter;
 
-am_mod_counter
-	#(
-		.N_BLOCKS(N_BLOCKS),
-		.N_LANES (N_LANES)
-	 )
-	u_am_mod_counter
-	 (
-	 	.i_clock           (i_clock),
-	 	.i_reset           (i_reset),
-	 	.i_enable          (i_enable),
-	 	.i_valid		   (i_valid),
-	 	
-	 	.o_block_count_done(block_count_done),
-	 	.o_insert_am_idle  (insert_am_idle),
-	 	.o_enable_fifo_read(fifo_read_enb)
-	 );
+wire                            idle_count_full;
+wire                            period_done;
+wire                            insert_idle;
+wire                            fifo_read_enable;
+wire                            fifo_write_enable;
+
+
+
+//----------- Algorithm ------------------------//
+
+
+always @ (posedge i_clock)
+begin
+        if (i_reset || period_done)
+                period_counter = {NB_PERIOD_CNT{1'b0}};
+        else if (i_enable && i_valid)
+                period_counter <= period_counter + 1'b1;
+end
+
+assign period_done = (period_counter == (AM_BLOCK_PERIOD-1)) ? 1'b1 : 1'b0;
+
+
+always @ (posedge i_clock)
+begin
+        if (i_reset || period_done)
+                idle_counter = {NB_IDLE_CNT{1'b0}};
+        else if (i_enable && i_valid && idle_detected && !idle_count_full)
+                idle_counter <= idle_counter + 1'b1;
+end
+
+assign idle_detected       = (i_data == PCS_IDLE)        ? 1'b1 : 1'b0;
+assign idle_count_full     = ((idle_counter >= N_LANES)) ? 1'b1 : 1'b0;
+assign insert_idle         = (period_counter < N_LANES)  ? 1'b1 : 1'b0; 
+
+//Fifo enables
+
+assign fifo_read_enable  = (period_conter < N_LANES)           ? 1'b0 : 1'b1 ;                                               
+assign fifo_write_enable = (idle_detected && !idle_count_full) ? 1'b0 : 1'b1 ; 
+
+
+//-------- Ports -------------------------------//
+
+assign o_data           = (idle_insert) ? PCS_IDLE : fifo_output_data;
+assign o_aligner_tag    = (idle_insert) ? 1'b1     : 1'b0; // si inserto idle le agrego el tag para que sea "pisado" con un alineador
+
+
+//------- Instances ---------------------------//
 
 sync_fifo
-	#(
-		.NB_DATA(NB_DATA),
-		.NB_ADDR(NB_ADDR)
-	 )
-	u_sync_fifo
-	 (
-	 	.i_clock                (i_clock ),
-	 	.i_reset                (i_reset ),
-	 	.i_enable               (i_enable),
-	 	.i_write_enb	        (fifo_write_enb ),
-	 	.i_read_enb             (fifo_read_enb  ),
-	 	.i_data                 (i_data),
-
-	 	.o_empty                (fifo_empty),
-	 	.o_data                 (fifo_output_data)
-	 );
-
-
-
-
-//Idle detection
-assign idle_detected = (i_data == PCS_IDLE) ? 1'b1 : 1'b0;
-
-//Fifo write logic 
-assign fifo_write_enb  = 
-	(idle_detected == 1'b1 && idle_count_done == 1'b0 ) ? 1'b0 : 1'b1;
-
-
-//PORTS
-assign o_valid      =  (~fifo_empty & fifo_read_enb); 
-assign o_data       =  (fifo_read_enable) ? fifo_output_data : PCS_IDLE;
-assign o_aliger_tag =  (fifo_read_enable) ? 1'b0             : 1'b1;
+        #(
+                .NB_DATA(NB_DATA),
+                .NB_ADDR(NB_ADDR)
+         )
+         u_sync_fifo
+         (
+                .i_clock        (i_clock),
+                .i_reset        (i_reset),
+                .i_enable       (i_enable),
+                .i_write_enb    (i_valid),
+                .i_read_enb     (fifo_read_enable),
+                .i_data         (i_data),
+                
+                .o_empty        (fifo_empty),
+                .o_data         (fifo_output_data)
+         );
 
 endmodule

@@ -1,5 +1,13 @@
 `timescale 1ns/100ps
-
+/*
+        Each lanes recibes an aligner marker every AM_BLOCK_PERIOD, this must be bypassed by the scrambler and deleted in
+        order to avoid breaking the normal data flow.In this stage we have already reorder each lane into a single one, therefore
+        we will receive an amount of N_LANES aligner markers every AM_BLOCK_PERIOD*N_LANES.
+        We detect aligner markers by checking the sol_tag signals which is asserted by previous stages when aligner markers are detected.
+        To delete this aligner markers we simply dont write them into the fifo, but to compensate for this deletion we must
+        insert the same amount of idle blocks, but this can only be done if the receiver fsm is waiting to receive control blocks
+        (i.e RX_C state) otherwise it will enter into error state (i.e RX_E state).
+*/
 
 module clock_comp_rx
 #(
