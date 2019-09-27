@@ -45,9 +45,10 @@ end
 
 
 //PORTS
-assign o_block_count_done = (counter == {NB_COUNT{1'b0}}) ? 1'b1 : 1'b0;
-assign o_insert_am_idle   = (counter <  N_LANES)		  ? 1'b1 : 1'b0;
-assign o_enable_fifo_read = (counter >  N_LANES)		  ? 1'b1 : 1'b0;
+assign o_block_count_done = (counter == {NB_COUNT{1'b0}}) ? 1'b1 : 1'b0; //[CHECK] no deberia ser MAX_COUNT-1 ? asi tanto este como el idel detector se resetean
+                                                                         // al mismo tiempo ??
+assign o_insert_am_idle   = (counter <  N_LANES)		  ? 1'b1 : 1'b0; // [CHECK]
+assign o_enable_fifo_read = (counter >  N_LANES)		  ? 1'b1 : 1'b0; // [CHECK]
 
 
 
