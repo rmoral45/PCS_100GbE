@@ -21,8 +21,8 @@ class ClockCompTx(object):
                 self.rd_ptr         = 0
 
         def run(self, i_data):
-                o_data = 0
-                o_tag  = 0
+                o_data = 'xxxxxxxxxxxxxxx'
+                o_tag  = 'x'
 
                 self.fifo_write(i_data)
                 (o_data,o_tag) = self.fifo_read()
