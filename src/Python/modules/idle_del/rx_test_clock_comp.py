@@ -1,4 +1,5 @@
 import random
+import copy
 import clock_comp_rx as ccrx
 from pdb import set_trace as bp
 AM_PERIOD = 100
@@ -29,34 +30,36 @@ def main():
         i_tag      = []
         o_data     = 99
         o_tag      = 99
+        o_dv       = []
+        o_tv       = []
         fsm_ctrl   = 0
         (i_data,i_tag) = sim_data_stream()
         for clock in range(len(i_data)):
                 state_vect.append(deco_fsm.state)
+                if ccomp.idle_counter > N_LANES :
+                        print("diel countr max")
+                        bp()
                 if deco_fsm.state == RX_E :
+                        print("\n\n FSM ENTERED ERROR STATE \n\n")
                         bp()
                 if (deco_fsm.state == RX_C) :
                         fsm_ctrl = 1
                 else :
                         fsm_ctrl = 0
                 (o_data, o_tag) = ccomp.run(i_data[clock], i_tag[clock], fsm_ctrl)
-                
+                o_dv.append(o_data)
+                o_tv.append(o_tag)
                 print(DATA_NAME[i_data[clock]],'  ',i_tag[clock],'  ', DATA_NAME[o_data], '  ', o_tag)
                 deco_fsm.run(o_data)
 
-        bp()
-
+        if o_dv.count(CTRL_BLOCK) != i_data.count(CTRL_BLOCK):
+                print("Error en centa de idles en MAin")
+                bp()
 
 def sim_data_stream():
-        # Block encoding
-        CTRL_BLOCK  = 0
-        START_BLOCK = 1
-        DATA_BLOCK  = 2
-        TERM_BLOCK  = 3
-        ERR_BLOCK   = 4
         #Sim parameters
-        N_PACKETS = 10
-        MIN_CTRL = 0 #es como  si llegara la secuencia {START DATA ... DATA TERM START DATA ... DATA}
+        N_PACKETS = 1200
+        MIN_CTRL = 5 #es como  si llegara la secuencia {START DATA ... DATA TERM START DATA ... DATA}
         MAX_CTRL = 30
         MIN_DATA = 20
         MAX_DATA = 60
@@ -75,14 +78,14 @@ def sim_data_stream():
                 type_vect += [TERM_BLOCK]
         sol_vect += [0]*len(type_vect)
         #Simulo la insercion de alineadores, que luego en RX fueron pisados con idles y a los cuales se les appendeo sol_tag
-          
         N_INSERTS = int(len(type_vect)/AM_PERIOD)
         for i in range(1,N_INSERTS+1):
+                pos = (AM_PERIOD*N_LANES*i)-N_LANES -1
                 for j in range(N_LANES):
-                        pos = (AM_PERIOD*i) + j
+                #        pos = (AM_PERIOD*N_LANES*i)
                         type_vect.insert(pos, CTRL_BLOCK)
                         sol_vect.insert(pos, 1)
-        return (type_vect, sol_vect)
+        return (type_vect[0:12000], sol_vect)
 
 class DecoderFsm(object):
         def __init__(self):
@@ -99,7 +102,6 @@ class DecoderFsm(object):
                         elif RTYPE == START_BLOCK :
                                 self.state = RX_D
                         else :
-                                bp()
                                 self.state = RX_E
 
                 elif self.state == RX_C :
@@ -108,7 +110,6 @@ class DecoderFsm(object):
                         elif RTYPE == START_BLOCK:
                                 self.state = RX_D
                         else :
-                                bp()
                                 self.state = RX_E
 
                 elif self.state == RX_D :
@@ -117,7 +118,6 @@ class DecoderFsm(object):
                         elif RTYPE == TERM_BLOCK:
                                 self.state = RX_T
                         else :
-                                bp()
                                 self.state = RX_E
                 elif self.state == RX_T :
                         if RTYPE == CTRL_BLOCK:
@@ -125,7 +125,6 @@ class DecoderFsm(object):
                         elif RTYPE == START_BLOCK:
                                 self.state = RX_D
                         else :
-                                bp()
                                 self.state = RX_E
                 elif self.state == RX_E :
                         if RTYPE == CTRL_BLOCK :

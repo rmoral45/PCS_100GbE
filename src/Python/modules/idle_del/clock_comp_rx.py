@@ -1,4 +1,4 @@
-
+from pdb import set_trace as bp
 
 
 class ClockCompRx(object):
@@ -13,6 +13,7 @@ class ClockCompRx(object):
                 self.PCS_IDLE       = 0
                 self.N_LANES        = nlanes
                 self.PERIOD         = nlanes * am_period
+                self.deleted        = 0
 
 
         def reset(self) :
@@ -32,7 +33,8 @@ class ClockCompRx(object):
         def fifo_write(self, i_data, sol) :
                 
                 if sol :
-                        self.idle_counter += 1
+                        self.deleted += 1
+                        return
                 else :
                         self.fifo[self.wr_ptr] = i_data
                         self.wr_ptr += 1
@@ -47,6 +49,7 @@ class ClockCompRx(object):
                 if (self.idle_counter < self.N_LANES) and fsm_ctrl :
                         o_data = self.PCS_IDLE
                         o_tag  = 1
+                        self.idle_counter += 1
                         return (o_data, o_tag)
                 else :
                         o_data       = self.fifo[self.rd_ptr]
@@ -59,7 +62,14 @@ class ClockCompRx(object):
         def update_period(self):
                 self.period_counter += 1
                 if self.period_counter >= self.PERIOD :
+                        print("\n####################\n")
+                        print("\n  PERIOD RESTARTED  \n")
+                        print("\n####################\n")
+                        if self.deleted != 20 or self.idle_counter != 20 :
+                                print("ERROR EN CLOCK COMP")
+                                bp()
                         self.period_counter = 0
                         self.idle_counter = 0
+                        self.deleted = 0
 
 
