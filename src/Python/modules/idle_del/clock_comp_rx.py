@@ -9,7 +9,8 @@ class ClockCompRx(object):
                 self.fifo           = [0]*(nlanes + 1)
                 self.wr_ptr         = 0
                 self.rd_ptr         = 0
-                self.PCS_IDLE       = 0x1e000000000000000
+                #self.PCS_IDLE       = 0x1e000000000000000
+                self.PCS_IDLE       = 0
                 self.N_LANES        = nlanes
                 self.PERIOD         = nlanes * am_period
 
@@ -20,11 +21,11 @@ class ClockCompRx(object):
                 self.wr_ptr         = 0
                 self.rd_ptr         = 0
 
-        def run (self, i_data) :
+        def run (self, i_data, i_sol, fsm_ctrl) :
                 o_data = 'xxxxxxxxxxxxxxxx'
                 o_tag  = 'x'
-                self.fifo_write(i_data)
-                (o_data, o_tag) = self.fifo_read()
+                self.fifo_write(i_data,i_sol)
+                (o_data, o_tag) = self.fifo_read(fsm_ctrl)
                 self.update_period()
                 return (o_data,o_tag)
 
@@ -33,7 +34,7 @@ class ClockCompRx(object):
                 if sol :
                         self.idle_counter += 1
                 else :
-                        self.fifo[wr_ptr] = i_data
+                        self.fifo[self.wr_ptr] = i_data
                         self.wr_ptr += 1
                         if self.wr_ptr >= len(self.fifo) :
                                 self.wr_ptr = 0
@@ -43,7 +44,7 @@ class ClockCompRx(object):
 
                 o_data = 'xxxxxxxxxxxxxxxx'
                 o_tag  = 'xx'
-                if self.idle_counter < self.nlanes and fsm_ctrl :
+                if (self.idle_counter < self.N_LANES) and fsm_ctrl :
                         o_data = self.PCS_IDLE
                         o_tag  = 1
                         return (o_data, o_tag)
@@ -55,6 +56,10 @@ class ClockCompRx(object):
                                 self.rd_ptr = 0
                         return (o_data, o_tag)
 
-                
+        def update_period(self):
+                self.period_counter += 1
+                if self.period_counter >= self.PERIOD :
+                        self.period_counter = 0
+                        self.idle_counter = 0
 
 

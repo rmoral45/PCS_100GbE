@@ -1,4 +1,5 @@
 import random
+import clock_comp_rx as ccrx
 from pdb import set_trace as bp
 AM_PERIOD = 100
 N_LANES   = 20
@@ -19,15 +20,29 @@ START_BLOCK = 1
 DATA_BLOCK  = 2
 TERM_BLOCK  = 3
 ERR_BLOCK   = 4
+DATA_NAME = ['IDLE', 'START', 'DATA', 'TERM', 'ERR']
 def main():
-        deco_fsm = DecoderFsm()
+        deco_fsm   = DecoderFsm()
+        ccomp      = ccrx.ClockCompRx(N_LANES, AM_PERIOD)
         state_vect = []
-        i_data = []
-        i_tag = []
+        i_data     = []
+        i_tag      = []
+        o_data     = 99
+        o_tag      = 99
+        fsm_ctrl   = 0
         (i_data,i_tag) = sim_data_stream()
         for clock in range(len(i_data)):
                 state_vect.append(deco_fsm.state)
-                deco_fsm.run(i_data[clock])
+                if deco_fsm.state == RX_E :
+                        bp()
+                if (deco_fsm.state == RX_C) :
+                        fsm_ctrl = 1
+                else :
+                        fsm_ctrl = 0
+                (o_data, o_tag) = ccomp.run(i_data[clock], i_tag[clock], fsm_ctrl)
+                
+                print(DATA_NAME[i_data[clock]],'  ',i_tag[clock],'  ', DATA_NAME[o_data], '  ', o_tag)
+                deco_fsm.run(o_data)
 
         bp()
 
@@ -60,14 +75,13 @@ def sim_data_stream():
                 type_vect += [TERM_BLOCK]
         sol_vect += [0]*len(type_vect)
         #Simulo la insercion de alineadores, que luego en RX fueron pisados con idles y a los cuales se les appendeo sol_tag
-        '''   
+          
         N_INSERTS = int(len(type_vect)/AM_PERIOD)
         for i in range(1,N_INSERTS+1):
                 for j in range(N_LANES):
                         pos = (AM_PERIOD*i) + j
                         type_vect.insert(pos, CTRL_BLOCK)
                         sol_vect.insert(pos, 1)
-        '''
         return (type_vect, sol_vect)
 
 class DecoderFsm(object):
@@ -85,6 +99,7 @@ class DecoderFsm(object):
                         elif RTYPE == START_BLOCK :
                                 self.state = RX_D
                         else :
+                                bp()
                                 self.state = RX_E
 
                 elif self.state == RX_C :
@@ -93,6 +108,7 @@ class DecoderFsm(object):
                         elif RTYPE == START_BLOCK:
                                 self.state = RX_D
                         else :
+                                bp()
                                 self.state = RX_E
 
                 elif self.state == RX_D :
@@ -101,6 +117,7 @@ class DecoderFsm(object):
                         elif RTYPE == TERM_BLOCK:
                                 self.state = RX_T
                         else :
+                                bp()
                                 self.state = RX_E
                 elif self.state == RX_T :
                         if RTYPE == CTRL_BLOCK:
@@ -108,6 +125,7 @@ class DecoderFsm(object):
                         elif RTYPE == START_BLOCK:
                                 self.state = RX_D
                         else :
+                                bp()
                                 self.state = RX_E
                 elif self.state == RX_E :
                         if RTYPE == CTRL_BLOCK :
