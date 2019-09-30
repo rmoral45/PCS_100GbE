@@ -26,6 +26,7 @@ class ClockCompRx(object):
                 self.fifo_write(i_data)
                 (o_data, o_tag) = self.fifo_read()
                 self.update_period()
+                return (o_data,o_tag)
 
         def fifo_write(self, i_data, sol) :
                 
