@@ -216,7 +216,7 @@ begin
     
     if(tb_enable_files)
     begin
-      
+        
             for(ptr_sol = 0; ptr_sol < N_LANES; ptr_sol = ptr_sol + 1)
             begin
                 code_error_sol <= $fscanf(fid_input_sol_vector, "%b\n", temp_sol[ptr_sol]);
@@ -226,7 +226,7 @@ begin
                 //$stop;
                 end
             end
-        
+      
         for(ptr_resync = 0; ptr_resync < N_LANES; ptr_resync = ptr_resync + 1)
         begin
             code_error_resync <= $fscanf(fid_input_resync_vector, "%b\n", temp_resync[ptr_resync]);
