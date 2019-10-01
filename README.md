@@ -6,7 +6,7 @@
 # Todas las branches que se necesiten crear, deberan ser creadas a partir de la branch MERGE-ALL que es la mas actualizada.
 # Las que faltan mergear son: 
 #                             - diego-deskew
-#                             - clock_comp
 #                             - channel
+#                             - clock_comp
 #                             - python-helpers
-#
+#                             - valid_generator
