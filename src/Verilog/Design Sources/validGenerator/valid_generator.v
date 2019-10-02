@@ -47,6 +47,22 @@ begin
         else if(increment_sys_counter)
                 valid_counter <= valid_counter + 1'b1;
 end
-assign  valid_count_done = (valid_counter == VALID_COUNT_LIMIT) ? 1'b1 : 1'b0;
+assign valid_count_done = (valid_counter == VALID_COUNT_LIMIT) ? 1'b1 : 1'b0;
 
+/*
+generate
+if(COUNT_SCALE > 1)
+assign  increment_sys_counter   = (system_counter == COUNT_SCALE-1) ? 1'b1 : 1'b0;
+else
+ assign  increment_sys_counter   =1;
+endgenerate
+
+
+generate
+if(VALID_COUNT_LIMIT > 1)
+assign  valid_count_done   = (valid_counter == VALID_COUNT_LIMIT-1) ? 1'b1 : 1'b0;
+else
+ assign valid_count_done = increment_sys_counter;
+endgenerate
+*/
 endmodule

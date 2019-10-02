@@ -21,66 +21,47 @@ module parallel_converter_1_to_N
 localparam NB_INDEX = $clog2(N_LANES);
 
 reg [NB_INDEX-1 : 0]                    index;
-reg [NB_DATA_BUS-1 : 0]                 save_data;
 reg [NB_DATA_BUS-1 : 0]                 output_data;
 reg                                     output_valid;
-
+wire count_done;
 ///////////   PORT ASSIGMENT  ////////
 
-assign o_data  = output_data;
-assign o_valid = output_valid;
+assign o_data  = {output_data[NB_DATA_BUS-1 : LEN_CODED_BLOCK], i_data};
+//assign o_data  = output_data;
+//assign o_valid = output_valid;
 
-always @(posedge i_clock)
-begin
-
-    if(i_reset)
-    begin
-        index           <= N_LANES;
-        output_valid    <= 1'b0;
-        output_data     <= {NB_DATA_BUS{1'b0}};
-        save_data       <= {NB_DATA_BUS{1'b0}};
-    end
-    else if(i_enable)
-    begin
-        save_data       <= i_data[(NB_DATA_BUS-N_LANES*index-1) -: LEN_CODED_BLOCK];
-        index <= (index > 1) ? index - 1'b1 : N_LANES;
-        
-        if(i_valid)
-        begin
-            output_data <= save_data;
-            output_valid <= 1'b1;
-        end
-    end
-
-
-end
-
-/*
 always @ (posedge i_clock)
 begin
     
     if (i_reset)
     begin
-        index      <= 0;
-        output_valid <= 0;
         output_data  <= {NB_DATA_BUS{1'b0}};
     end
     
-    else if (i_enable)
+    else if (i_enable && i_valid)
     begin
-        output_data [((N_LANES-index)*LEN_CODED_BLOCK)-1 -: LEN_CODED_BLOCK] <= i_data;
+        output_data [NB_DATA_BUS-(LEN_CODED_BLOCK*index)-1 -: LEN_CODED_BLOCK] <= i_data;
+    end
+end
 
-        if(index == N_LANES-1 && i_valid) begin
+always @ (posedge i_clock)
+begin
+    if (i_reset || count_done)
+        index        <= 0;
+
+    
+    else if (i_enable && i_valid)
+    begin
+        if (count_done)
+        begin
             index <= 0;
-            output_valid <= 1'b1;
         end
-        else begin
-            index <= index+1;
-            output_valid <= 1'b0;    
+        else
+        begin
+            index <= index +1;
         end
     end
-
 end
-*/
-
+assign count_done = ((index == (N_LANES-1)) && i_valid);
+assign o_valid = count_done;
 endmodule
