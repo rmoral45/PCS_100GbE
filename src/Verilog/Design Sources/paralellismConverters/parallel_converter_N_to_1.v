@@ -5,22 +5,21 @@
  *
  *
  */
-
-
+`timescale 1ns/100ps
 
 module parallel_converter_N_to_1
 #(
 	parameter LEN_CODED_BLOCK 	= 66,
-	parameter N_LANES 		= 20,
-	parameter NB_INPUT 		= (LEN_CODED_BLOCK * N_LANES) 
+	parameter N_LANES 			= 20,
+	parameter NB_DATA_BUS		= (LEN_CODED_BLOCK * N_LANES) 
  )
  (
- 	input  wire 				i_clock, //system clock
- 	input  wire 				i_reset, //system reset
- 	input  wire 				i_enable,
- 	input  wire 				i_valid, //valid del clock mas rapido, osea el del scrambler
- 	input  wire [NB_INPUT-1 : 0] 		i_data,
- 	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data
+ 	input  wire 						i_clock, //system clock
+ 	input  wire 						i_reset, //system reset
+ 	input  wire 						i_enable,
+ 	input  wire 						i_valid, //valid del clock mas rapido, osea el del scrambler
+ 	input  wire [NB_DATA_BUS-1 : 0] 	i_data,
+ 	output wire [LEN_CODED_BLOCK-1 : 0] o_data
  );
 
 

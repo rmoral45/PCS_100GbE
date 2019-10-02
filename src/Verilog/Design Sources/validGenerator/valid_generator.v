@@ -3,38 +3,50 @@
 
 module valid_generator
 #(
-        parameter COUNT_LIMIT = 10
+        parameter               COUNT_SCALE             = 2,
+        parameter               VALID_COUNT_LIMIT       = 10
  )
  (
-        input  wire     i_clock,
-        input  wire     i_reset,
+        input  wire             i_clock,
+        input  wire             i_reset,
+        input  wire             i_enable,
 
-        output wire     o_valid
+        output wire             o_valid
  );
 
 
 //Localparams
-
-localparam NB_COUNTER = $clog2(COUNT_LIMIT);
+localparam                      NB_SYSTEM_COUNTER        = (COUNT_SCALE <= 2) ? COUNT_SCALE : $clog2(COUNT_SCALE);
+localparam                      NB_VALID_COUNTER         = (VALID_COUNT_LIMIT <= 2) ? VALID_COUNT_LIMIT : $clog2(VALID_COUNT_LIMIT); 
 
 //Internal signals
+reg [NB_SYSTEM_COUNTER-1 : 0]   system_counter;
+reg [NB_VALID_COUNTER-1 : 0]    valid_counter;
 
-reg [NB_COUNTER-1 : 0] counter;
-
-wire                   count_done;
+wire                            increment_sys_counter;
+wire                            valid_count_done;
 
 //Ports
+assign                          o_valid = valid_count_done;
 
-assign o_valid = count_done;
-
+//always for counter register (para controlar cada cuantos clock de sistema aumento el contador)
 always @ (posedge i_clock)
 begin
-        if (i_reset || count_done)
-                counter <= {NB_COUNTER{1'b0}};
-        else 
-                counter <= counter + 1'b1;
+        if(i_reset || increment_sys_counter)
+                system_counter  <= {NB_SYSTEM_COUNTER{1'b0}};
+        else
+                system_counter  <= system_counter + 1;
 end
+assign  increment_sys_counter   = (system_counter == COUNT_SCALE) ? 1'b1 : 1'b0;
 
-assign count_done = (counter == COUNT_LIMIT) ? 1'b1 : 1'b0;
+//always for valid signal
+always @ (posedge i_clock)
+begin
+        if (i_reset || valid_count_done)
+                valid_counter <= {NB_VALID_COUNTER{1'b0}};
+        else if(increment_sys_counter)
+                valid_counter <= valid_counter + 1'b1;
+end
+assign  valid_count_done = (valid_counter == VALID_COUNT_LIMIT) ? 1'b1 : 1'b0;
 
 endmodule
