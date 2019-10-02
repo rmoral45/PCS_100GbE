@@ -4,19 +4,15 @@ import copy
 import random
 import clock_comp_tx as cctx
 from pdb import set_trace as bp
-
-NCLOCK    = 100
-NLANES    = 20
-AM_PERIOD = 16383
+NB_DATA    = 66
+NCLOCK     = 100
+NLANES     = 20
+AM_PERIOD  = 16383
 EXTRA_TIME = 32
 CLOCK_VECT = [NLANES*AM_PERIOD*3, NLANES*2, NLANES*2, ((NLANES*2)+EXTRA_TIME), NLANES*3]
 
 '''
-
-
         Agregar algun caso donde se pueda probar el correcto reset 
-
-
 
 '''
 TEST_CASE = 5
@@ -31,9 +27,7 @@ def main():
         o_tag_vect  = []
         o_data      = 0
         o_tag       = 0
-        bp()
         for clock in range(NCLOCK) :
-                print(clock)
                 i_data          = i_vect[clock]
                 (o_data, o_tag) = ccomp.run(i_data)
                 o_data_vect.append(o_data)
@@ -45,6 +39,21 @@ def main():
         print ('#'*30, " TEST_PASSED ", '#'*30)
         print ('')
         print ('#' * 75)
+        print ('')
+        print('#'*25, 'writing log files...' , '#'*25)
+        test_case = 'case_' + str(TEST_CASE) + '.txt'
+        with open('tx_input_data_' + test_case, 'w') as fd:
+                for block in i_vect:
+                        fd.write(bin(block)[2:].zfill(NB_DATA))         
+        with open('tx_output_data_' + test_case, 'w') as fd:
+                for block in o_data_vect:
+                        fd.write(bin(block)[2:].zfill(NB_DATA))         
+        with open('tx_output_tag_' + test_case, 'w') as fd:
+                for tag in o_tag_vect:
+                        fd.write(bin(tag)[2:])         
+
+class TestFailed(Exception):
+        pass
 
 def do_test(dvect, tvect):
         idle_block = 0x1e000000000000000
@@ -54,39 +63,34 @@ def do_test(dvect, tvect):
         elif TEST_CASE == 2 :
                 for i in range(NLANES):
                         if dvect[i] != idle_block or tvect[i] != 1 :
-                                print("Cantidad de idles o tags iniciales insuficintes")
-                                bp()
+                                raise TestFailed("Cant de idlesso tags iniciales insuficientes")
+
                 for i in range (NLANES,NLANES*2):
                         if dvect == idle_block or tvect == 1 :
-                                print("Se insertaron idles o tags de mas")
-                                bp()
+                                raise TestFailed("se insertaron idles o tags de mas")
+
         elif TEST_CASE == 3 :
                 for i in range(NLANES):
                         if dvect[i] != idle_block or tvect[i] != 1 :
-                                print("Cantidad de idles o tags iniciales insuficintes")
-                                bp()
+                                raise TestFailed("Cant de idles o tags iniciales insuficientes")
                 for i in range(NLANES, len(dvect)):
                         if dvect == idle_block or tvect == 1 :
-                                print("Se insertaron idles o tags de mas")
-                                bp()
+                                raise TestFailed("se insertaron idles o tags de mas")
+
         elif TEST_CASE == 4 :
                 for i in range(NLANES):
                         if dvect[i] != idle_block or tvect[i] != 1 :
-                                print("Cantidad de idles o tags iniciales insuficintes")
-                                bp()
+                                raise TestFailed("Cant de idlesso tags iniciales insuficientes")
                 for i in range(NLANES, EXTRA_TIME):
                         if dvect[i] != idle_block:
-                                print("Se eliminaron idles  de mas")
-                                bp()
+                                raise TestFailed("se eliminaton idles de mas")
         elif TEST_CASE == 5 :
                 for i in range(NLANES):
                         if dvect[i] != idle_block or tvect[i] != 1 :
-                                print("Cantidad de idles o tags iniciales insuficintes")
-                                bp()
+                                raise TestFailed("Canti de idles o tags insuficientes")
                 for i in range(NLANES, len(dvect)):
                         if dvect[i] == idle_block or tvect[i] == 1:
-                                print("Se insertaron idlesde mas")
-                                bp()
+                                raise TestFailed("se insertaron idles de mas")
 
 def generate_input_vector():
 

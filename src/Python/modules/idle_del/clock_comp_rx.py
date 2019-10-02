@@ -1,5 +1,8 @@
 from pdb import set_trace as bp
 
+class IdleDeletionError(Exception):
+        pass
+
 
 class ClockCompRx(object):
 
@@ -65,9 +68,15 @@ class ClockCompRx(object):
                         print("\n####################\n")
                         print("\n  PERIOD RESTARTED  \n")
                         print("\n####################\n")
-                        if self.deleted != 20 or self.idle_counter != 20 :
-                                print("ERROR EN CLOCK COMP")
-                                bp()
+                        if self.deleted < 20 :
+                                raise IdleDeletionError("Se deletearon menos idles")
+                        if self.deleted > 20 :
+                                raise IdleDeletionError("Se deletearon mas idles")
+                        if self.idle_counter < 20 :
+                                raise IdleDeletionError("Se insertaron menos idles")
+                        if self.idle_counter > 20 :
+                                raise IdleDeletionError("Se insertaron mas idles")
+
                         self.period_counter = 0
                         self.idle_counter = 0
                         self.deleted = 0
