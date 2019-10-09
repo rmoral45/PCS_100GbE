@@ -32,7 +32,7 @@ module clock_comp_tx
         output wire                     o_aligner_tag
  );
 
-
+localparam                      NB_ADDR       = 5;
 localparam                      NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES);
 localparam                      NB_IDLE_CNT   = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
 localparam [NB_DATA-1 : 0]      PCS_IDLE      = 'h1_e0_00_00_00_00_00_00_00;
@@ -42,11 +42,14 @@ localparam [NB_DATA-1 : 0]      PCS_IDLE      = 'h1_e0_00_00_00_00_00_00_00;
 reg [NB_PERIOD_CNT-1 : 0]       period_counter;
 reg [NB_IDLE_CNT-1 : 0]         idle_counter;
 
+wire                            idle_detected;
 wire                            idle_count_full;
 wire                            period_done;
-wire                            insert_idle;
+wire                            idle_insert;
 wire                            fifo_read_enable;
 wire                            fifo_write_enable;
+wire [NB_DATA-1 : 0]            fifo_output_data;
+
 
 
 
@@ -74,11 +77,11 @@ end
 
 assign idle_detected       = (i_data == PCS_IDLE)        ? 1'b1 : 1'b0;
 assign idle_count_full     = ((idle_counter >= N_LANES)) ? 1'b1 : 1'b0;
-assign insert_idle         = (period_counter < N_LANES)  ? 1'b1 : 1'b0; 
+assign idle_insert         = (period_counter <= N_LANES)  ? 1'b1 : 1'b0; 
 
 //Fifo enables
 
-assign fifo_read_enable  = (period_conter < N_LANES)           ? 1'b0 : 1'b1 ;                                               
+assign fifo_read_enable  = (period_counter < N_LANES)           ? 1'b0 : 1'b1 ;                                               
 assign fifo_write_enable = (idle_detected && !idle_count_full) ? 1'b0 : 1'b1 ; 
 
 
@@ -93,14 +96,15 @@ assign o_aligner_tag    = (idle_insert) ? 1'b1     : 1'b0; // si inserto idle le
 sync_fifo
         #(
                 .NB_DATA(NB_DATA),
-                .NB_ADDR(NB_ADDR)
+                .NB_ADDR(NB_ADDR),
+                .WR_PTR_AFTER_RESET('d1)
          )
          u_sync_fifo
          (
                 .i_clock        (i_clock),
                 .i_reset        (i_reset),
                 .i_enable       (i_enable),
-                .i_write_enb    (i_valid),
+                .i_write_enb    (fifo_write_enable),
                 .i_read_enb     (fifo_read_enable),
                 .i_data         (i_data),
                 

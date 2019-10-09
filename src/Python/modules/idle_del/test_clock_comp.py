@@ -15,7 +15,23 @@ CLOCK_VECT = [NLANES*AM_PERIOD*3, NLANES*2, NLANES*2, ((NLANES*2)+EXTRA_TIME), N
         Agregar algun caso donde se pueda probar el correcto reset 
 
 '''
-TEST_CASE = 5
+'''
+Programa para hacer el testing del modulo de insecion/eliminacion de idles
+	Casos  de prueba:
+		1)flujo 'normal' de datos de cgmii
+			pass : cada NLANES*NBLOCKS debe haber 20 idles iniciales
+					la cant de idles generada por la cgmii debe ser igual 
+					a la cant que sale del modulo de idle_delete (no se insertaron de mas ni sacaron de menos)
+		2)no se recibe ningun idle desde cgmii hasta al menos clock > NLANES
+			pass : debe haber 20 idles inicales y ninguno al menos hasta NLANES*2 bloques
+		3)se reciben todos idle mientras 0 < clock < NLANES y ninguno clock >= NLANE
+			pass : la entrada al encoder debe contene SOLO 20 idles iniciales consecutivos
+		4)se reciben todos idle mientras 0 < clock < NLANES + M
+			pass : la entrada al encoder debe tener NLANES + M idles
+		5) se reciben M ( < NLANES ) idles mientras clock < 20
+			pass : la entrada al encoder debe tener solo NLANES idles
+'''
+TEST_CASE = 2
 NCLOCK = CLOCK_VECT[TEST_CASE-1]
 NCLOCK += EXTRA_TIME
 
@@ -44,13 +60,16 @@ def main():
         test_case = 'case_' + str(TEST_CASE) + '.txt'
         with open('tx_input_data_' + test_case, 'w') as fd:
                 for block in i_vect:
-                        fd.write(bin(block)[2:].zfill(NB_DATA))         
+                        dtw = bin(block)[2:].zfill(NB_DATA)
+                        dtw = " ".join(dtw)
+                        dtw = dtw + '\n'
+                        fd.write(dtw)         
         with open('tx_output_data_' + test_case, 'w') as fd:
                 for block in o_data_vect:
                         fd.write(bin(block)[2:].zfill(NB_DATA))         
         with open('tx_output_tag_' + test_case, 'w') as fd:
                 for tag in o_tag_vect:
-                        fd.write(bin(tag)[2:])         
+                        fd.write(bin(tag)[2:] + '\n')         
 
 class TestFailed(Exception):
         pass
@@ -102,9 +121,11 @@ def generate_input_vector():
                 if NLANES <= 2 :
                         raise ValueError('no es posible realizar este test para una cantidad de lineas menor a 2')
                 n_idle = random.randint(1,NLANES-1)
-                vect =  [random.randint(0,28674382) for y in range(NLANES)]
-                vect += [copy.copy(idle_block)      for y in range(n_idle)]
-                vect +=  [random.randint(0,28674382) for y in range(CLOCK_VECT[TEST_CASE-1] + EXTRA_TIME)]
+                #vect =  [random.randint(0,28674382) for y in range(NLANES)]
+                vect =  list(range(NLANES))
+                vect += [copy.copy(idle_block)      for y in range(25)] #[FIX] hacer esto parametrizando n_idle
+                #vect +=  [random.randint(0,28674382) for y in range(CLOCK_VECT[TEST_CASE-1] + EXTRA_TIME)]
+                vect +=  list(range(NLANES,CLOCK_VECT[TEST_CASE-1] + EXTRA_TIME))
 
         elif TEST_CASE == 3:
                 vect =  [copy.copy(idle_block)      for y in range(NLANES)]

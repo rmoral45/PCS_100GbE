@@ -1,9 +1,10 @@
-
-
+`timescale 1ns/100ps
+//[FIX] Agregar i_valid
 module  sync_fifo
 #(
 	parameter NB_DATA = 72,
-	parameter NB_ADDR = 5
+	parameter NB_ADDR = 5,
+	parameter WR_PTR_AFTER_RESET = 1
  )
  (
  	input  wire 				i_clock,
@@ -52,7 +53,7 @@ fifo_memory
  always @ (posedge i_clock)
  begin
  	if(i_reset)
- 		write_ptr <= 0; 
+ 		write_ptr <= WR_PTR_AFTER_RESET; 
  	else if (i_enable && i_write_enb)
  	begin
  		if(write_ptr == DEPTH-1 )

@@ -1,4 +1,4 @@
-
+`timescale 1ns/100ps
 
 
 module fifo_memory
