@@ -35,7 +35,7 @@ module clock_comp_tx
 localparam                      NB_ADDR       = 5;
 localparam                      NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES);
 localparam                      NB_IDLE_CNT   = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
-localparam [NB_DATA-1 : 0]      PCS_IDLE      = 'h1_e0_00_00_00_00_00_00_00;
+localparam [NB_DATA-1 : 0]      PCS_IDLE      = 'h2_e0_00_00_00_00_00_00_00;
 
 //------------ Internal Signals -----------------//
 
@@ -64,7 +64,7 @@ begin
                 period_counter <= period_counter + 1'b1;
 end
 
-assign period_done = (period_counter == (AM_BLOCK_PERIOD-1)) ? 1'b1 : 1'b0;
+assign period_done = (period_counter == ((AM_BLOCK_PERIOD*N_LANES)-1)) ? 1'b1 : 1'b0;
 
 
 always @ (posedge i_clock)
@@ -77,12 +77,12 @@ end
 
 assign idle_detected       = (i_data == PCS_IDLE)        ? 1'b1 : 1'b0;
 assign idle_count_full     = ((idle_counter >= N_LANES)) ? 1'b1 : 1'b0;
-assign idle_insert         = (period_counter <= N_LANES)  ? 1'b1 : 1'b0; 
+assign idle_insert         = (period_counter < N_LANES)  ? 1'b1 : 1'b0; 
 
 //Fifo enables
 
 assign fifo_read_enable  = (period_counter < N_LANES)           ? 1'b0 : 1'b1 ;                                               
-assign fifo_write_enable = (idle_detected && !idle_count_full) ? 1'b0 : 1'b1 ; 
+assign fifo_write_enable = ((idle_detected && !idle_count_full) || i_reset) ? 1'b0 : 1'b1 ; 
 
 
 //-------- Ports -------------------------------//

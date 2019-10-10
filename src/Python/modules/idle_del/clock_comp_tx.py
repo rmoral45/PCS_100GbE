@@ -10,7 +10,7 @@ class ClockCompTx(object):
                 self.fifo           = [0]*(nlanes + 1)
                 self.wr_ptr         = 0
                 self.rd_ptr         = 0
-                self.PCS_IDLE       = 0x1e000000000000000
+                self.PCS_IDLE       = 0x2e000000000000000
                 self.N_LANES        = nlanes
                 self.PERIOD         = nlanes * am_period
 
