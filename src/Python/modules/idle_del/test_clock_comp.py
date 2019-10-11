@@ -114,6 +114,7 @@ def do_test(dvect, tvect):
                         if dvect[i] == idle_block or tvect[i] == 1:
                                 raise TestFailed("se insertaron idles de mas")
 
+
 def generate_input_vector():
 
         idle_block = 0x2e000000000000000
@@ -121,6 +122,21 @@ def generate_input_vector():
         if TEST_CASE == 1:
                 vect = [] #aca generar algun flujo aleatorio como el de la cgmii
                 vect += [err_block]
+                data_start = 0
+                data_end   = 0
+                min_data_blocks = 20
+                max_data_blocks = 45
+                min_idle_blocks = 1
+                max_idle_blocks = 75
+                n_idle = 0
+                n_data = 0
+                while len(vect) <=  NCLOCK+1:
+                        n_idle     =  random.randint(min_idle_blocks, max_idle_blocks)
+                        vect       += [copy.copy(idle_block) for y in range(n_idle)]
+                        n_data     =  random.randint(min_data_blocks,max_data_blocks)
+                        vect       += list(range(data_start, data_start + n_data))
+                        data_start +=  n_data
+                '''
                 vect += [copy.copy(idle_block) for y in range(45)] #[FIX] hacer esto parametrizando n_idle
                 vect += list(range(100))
                 vect += [copy.copy(idle_block) for y in range(27)] #[FIX] hacer esto parametrizando n_idle
@@ -159,7 +175,7 @@ def generate_input_vector():
                 vect += list(range(2350,2450))
                 vect += [copy.copy(idle_block) for y in range(450)] #[FIX] hacer esto parametrizando n_idle
                 vect += list(range(2450,2850))
-                
+                '''
 
         elif TEST_CASE == 2:
                 if NLANES <= 2 :
