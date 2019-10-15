@@ -23,6 +23,8 @@ DATA_BLOCK  = 2
 TERM_BLOCK  = 3
 ERR_BLOCK   = 4
 DATA_NAME = ['IDLE', 'START', 'DATA', 'TERM', 'ERR']
+
+DUMP_DIR = './rx_test_dump/'
 def main():
         decode_type(2)
         deco_fsm   = DecoderFsm()
@@ -34,6 +36,7 @@ def main():
         o_tag      = 99
         o_dv       = []
         o_tv       = []
+        o_fsm_vect = []
         fsm_ctrl   = 0
         (i_data,i_tag) = sim_data_stream()
         
@@ -43,6 +46,7 @@ def main():
                 (o_data, o_tag) = ccomp.run(i_data[clock], i_tag[clock], fsm_ctrl)
                 o_dv.append(o_data)
                 o_tv.append(o_tag)
+                o_fsm_vect.append(fsm_ctrl);
                 print(DATA_NAME[i_data[clock]],'  ',i_tag[clock],'  ', DATA_NAME[o_data], '  ', o_tag)
                 deco_fsm.run(o_data)
 
@@ -50,16 +54,19 @@ def main():
         sim_test(i_data,o_dv)
 
         ##########  Logging   ############
-        with open("rx_input_data.txt", "w") as fd:
+        with open(DUMP_DIR + "rx_input_data.txt", "w") as fd:
                 for block_type in i_data :
-                        fd.write(decode_type(block_type) + '\n')
-        with open("rx_input_tag.txt", "w") as fd:
+                        fd.write((' '.join(decode_type(block_type))) + '\n')
+        with open(DUMP_DIR + "rx_input_tag.txt", "w") as fd:
                 for tag in i_tag :
                         fd.write(bin(tag)[2:] + '\n')
+        with open(DUMP_DIR + "rx_input_fsmctrl.txt", "w") as fd:
+                for tag in o_fsm_vect :
+                        fd.write(bin(tag)[2:] + '\n')
 
-        with open("rx_output_data.txt", "w") as fd:
+        with open(DUMP_DIR + "rx_output_data.txt", "w") as fd:
                 for block_type in o_dv :
-                        fd.write(decode_type(block_type) + '\n')
+                        fd.write((' '.join(decode_type(block_type))) + '\n')
         
 
 class IdleBlocksMismatch(Exception):
