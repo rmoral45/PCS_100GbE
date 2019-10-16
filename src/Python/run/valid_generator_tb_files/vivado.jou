@@ -1,0 +1,84 @@
+#-----------------------------------------------------------
+# Vivado v2019.1 (64-bit)
+# SW Build 2552052 on Fri May 24 14:47:09 MDT 2019
+# IP Build 2548770 on Fri May 24 18:01:18 MDT 2019
+# Start of session at: Wed Oct  2 10:33:59 2019
+# Process ID: 679
+# Current directory: /media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/valid_generator_tb_files
+# Command line: vivado
+# Log file: /media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/valid_generator_tb_files/vivado.log
+# Journal file: /media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/valid_generator_tb_files/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /usr/bin/Xilinx/Vivado/2019.1/bin/projects/prog_fifo_vector_matching/prog_fifo_vector_matching.xpr
+update_compile_order -fileset sources_1
+close_project
+open_project /usr/bin/Xilinx/Vivado/2019.1/bin/projects/test_valid_generator/test_valid_generator.xpr
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
+export_ip_user_files -of_objects  [get_files {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_valid_generator.v}}] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_valid_generator.v}}
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+add_files -fileset sim_1 -norecurse {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/valid_generator_1_to_N.v} {/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_valid_generator_N_to_1.v}}
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+add_files -fileset sim_1 -norecurse {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}
+update_compile_order -fileset sim_1
+export_ip_user_files -of_objects  [get_files {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_valid_generator_N_to_1.v}}] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_valid_generator_N_to_1.v}}
+add_files -norecurse {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}
+update_compile_order -fileset sources_1
+export_ip_user_files -of_objects  [get_files {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/valid_generator_1_to_N.v}}] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/valid_generator_1_to_N.v}}
+export_ip_user_files -of_objects  [get_files {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}
+export_ip_user_files -of_objects  [get_files {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}] -no_script -reset -force -quiet
+remove_files  {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}
+add_files -norecurse {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}
+update_compile_order -fileset sources_1
+set_property is_enabled false [get_files  {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}]
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+add_files -fileset sim_1 -norecurse {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_valid_generator_1_to_N.v} {/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_valid_generator_N_to_1.v}}
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+set_property is_enabled false [get_files  {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_valid_generator_N_to_1.v}}]
+set_property is_enabled true [get_files  {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}]
+set_property is_enabled false [get_files  {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_N_to_1.v}}]
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+launch_simulation
+source tb_valid_generator_1_to_N.tcl
+relaunch_sim
+close_sim
+launch_simulation
+source tb_valid_generator_1_to_N.tcl
+close_sim
+launch_simulation
+source tb_valid_generator_1_to_N.tcl
+relaunch_sim
+close_sim
+launch_simulation
+source tb_valid_generator_1_to_N.tcl
+relaunch_sim
+relaunch_sim
+close_sim
+launch_simulation
+source tb_valid_generator_1_to_N.tcl
+relaunch_sim
+close_sim
+launch_simulation
+source tb_valid_generator_1_to_N.tcl
+export_ip_user_files -of_objects  [get_files {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}] -no_script -reset -force -quiet
+remove_files  {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}
+update_compile_order -fileset sources_1
+add_files -norecurse {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v}}
+update_compile_order -fileset sources_1
+close_sim
+launch_simulation
+source tb_valid_generator_1_to_N.tcl
+relaunch_sim
+relaunch_sim
+close_sim
