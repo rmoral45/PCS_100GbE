@@ -1,17 +1,18 @@
+`timescale 1ns/100ps
 
 
 module am_insertion
 #(
-	parameter NB_CODED_BLOCK  = 66,
-	parameter AM_ENCODING_LOW  = 24'd0, //{M0,M1,M2} tabla 82-2
-	parameter AM_ENCODING_HIGH = 24'd0,  //{M4,M5,M6} tabla 82-2
-	parameter NB_BIP = 8
+	parameter 							NB_CODED_BLOCK  = 66,
+	parameter 							AM_ENCODING_LOW  = 24'd0, //{M0,M1,M2} tabla 82-2
+	parameter 							AM_ENCODING_HIGH = 24'd0,  //{M4,M5,M6} tabla 82-2
+	parameter 							NB_BIP = 8
  )
  (
- 	input  wire 				i_clock ,
- 	input  wire 				i_reset ,
- 	input  wire 				i_enable,
- 	input  wire 				i_am_insert,
+ 	input  wire 						i_clock ,
+ 	input  wire 						i_reset ,
+ 	input  wire 						i_enable,
+ 	input  wire 						i_am_insert,
  	input  wire [NB_CODED_BLOCK-1 : 0] 	i_data,
 	
  	output wire [NB_CODED_BLOCK-1 : 0]	o_data
@@ -47,14 +48,14 @@ bip_calculator
  )
 	u_bip_calculator
  	(
-        .i_clock 	(i_clock)  ,
-        .i_reset 	(i_reset)  ,
-     	.i_data  	(data)     , 
-        .i_enable 	(i_enable) ,
-	.i_am_insert	(i_am_insert),
-	.i_start_of_lane(static_start_of_lane),
-        .o_bip3		(bip3),
-        .o_bip7		(bip7)
+        .i_clock 		(i_clock)  ,
+        .i_reset 		(i_reset)  ,
+     	.i_data  		(data)     , 
+        .i_enable 		(i_enable) ,
+		.i_am_insert	(i_am_insert),
+		.i_start_of_lane(static_start_of_lane),
+        .o_bip3			(bip3),
+        .o_bip7			(bip7)
  	);
 
 endmodule

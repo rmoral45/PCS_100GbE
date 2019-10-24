@@ -4,36 +4,37 @@
 	  Se agrego condicion de reset por SOL para funcionar en modo RX.
   
 */
+`timescale 1ns/100ps
 
 module bip_calculator
 #(
-    parameter LEN_CODED_BLOCK = 66,
-    parameter NB_BIP = 8
+    parameter                             LEN_CODED_BLOCK = 66,
+    parameter                             NB_BIP = 8
  )
  (
     input wire                          	i_clock,
     input wire                          	i_reset,
     input wire  [LEN_CODED_BLOCK-1 : 0] 	i_data,
     input wire                          	i_enable,
-    input wire                              i_start_of_lane,
-    input wire					            i_am_insert,
+    input wire                            i_start_of_lane,
+    input wire					               i_am_insert,
 
     output wire [NB_BIP-1 : 0]          	o_bip3,
     output wire [NB_BIP-1 : 0]          	o_bip7
  );
 
 //LOCALPARAMS
-localparam NB_SH         = 2;
-localparam BIP_START_POS = LEN_CODED_BLOCK-NB_SH-24-1;
-localparam BIP_FINAL_POS = 48;
+localparam                                NB_SH         = 2;
+localparam                                BIP_START_POS = LEN_CODED_BLOCK-NB_SH-24-1;
+localparam                                BIP_FINAL_POS = 48;
 //INTERNAL SIGNALS
 integer i;
-reg  [0 : LEN_CODED_BLOCK-1] data;
-reg  [NB_BIP-1 : 0] bip,bip_next;
+reg            [0 : LEN_CODED_BLOCK-1]    data;
+reg            [NB_BIP-1 : 0]             bip, bip_next;
 
 //PORTS
-assign o_bip3 = bip;
-assign o_bip7 = ~bip;
+assign                                    o_bip3 = bip;
+assign                                    o_bip7 = ~bip;
 
 
 //Update state
