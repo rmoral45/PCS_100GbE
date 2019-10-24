@@ -12,6 +12,7 @@ module parallel_converter_1_to_N
     input wire                              i_reset,
     input wire                              i_enable,
     input wire                              i_valid,
+    input wire                              i_set_shadow,
     input wire  [LEN_TAGGED_BLOCK-1 : 0]    i_data,
 
     output wire                             o_valid,
@@ -23,14 +24,14 @@ localparam NB_INDEX = $clog2(N_LANES);
 
 reg [NB_INDEX-1 : 0]                    index;
 reg [NB_DATA_BUS-1 : 0]                 output_data;
-reg [NB_DATA_BUS-1 : 0]                 aux_output_data;
+reg [NB_DATA_BUS-1 : 0]                 shadow_output_data;
 reg                                     output_valid;
 reg                                     aux_output_valid;
 wire count_done;
 ///////////   PORT ASSIGMENT  ////////
 
 //assign o_data  = {output_data[NB_DATA_BUS-1 : LEN_TAGGED_BLOCK], i_data};
-assign o_data  = aux_output_data;
+assign o_data  = shadow_output_data;
 //assign o_valid = output_valid;
 
 always @ (posedge i_clock)
@@ -58,20 +59,15 @@ end
 
 always @ (posedge i_clock)
 begin
-        
-    if(count_done)
-    begin
-        aux_output_data <= {output_data[NB_DATA_BUS-1 : LEN_TAGGED_BLOCK], i_data};
-        aux_output_valid <= count_done;
-        
-    end
-    else
-    begin
-        aux_output_valid <= 1'b0;
-    end                                                            
+    if (i_reset)
+        shadow_output_data <= {NB_DATA_BUS{1'b0}};
+
+    else if(i_set_shadow)
+        shadow_output_data <= {output_data[NB_DATA_BUS-1 -: LEN_TAGGED_BLOCK*(N_LANES-1)], i_data};    
+        //shadow_output_data <= output_data;                                                 
 end
 
 assign count_done = ((index == (N_LANES-1)) && i_valid);
-//assign o_valid = count_done;
-assign o_valid  = aux_output_valid;
+assign o_valid    = count_done;
+
 endmodule

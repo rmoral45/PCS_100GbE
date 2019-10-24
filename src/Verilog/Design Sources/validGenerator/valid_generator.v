@@ -34,7 +34,7 @@ always @ (posedge i_clock)
 begin
         if(i_reset || increment_sys_counter)
                 system_counter  <= {NB_SYSTEM_COUNTER{1'b0}};
-        else
+        else if (i_enable)
                 system_counter  <= system_counter + 1;
 end
 assign  increment_sys_counter   = (system_counter == COUNT_SCALE) ? 1'b1 : 1'b0;

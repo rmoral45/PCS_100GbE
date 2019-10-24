@@ -12,7 +12,7 @@ localparam  AM_ENCODING_HIGH            = 24'd0;  //{M4,M5,M6} tabla 82-2
 localparam  COUNT_SCALE                 = 2;              //el clock de sistema se escala de igual manera en ambos generadores de valid
 localparam  VALID_COUNT_LIMIT_FOR_FILE  = 1;              
 localparam  VALID_COUNT_LIMIT_FOR_PC    = 20;             //esto indica que la señal de valid del PC es 20 veces mas lenta que la del archivo
-localparam  PATH_DATA_INPUT             = "/media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/toplevel_am_insert_tb_files/data-input.txt";
+localparam  PATH_DATA_INPUT             = "/home/dabratte/PPS/src/Python/run/toplevel_am_insert_tb_files/data-input.txt";
 
 //common signals
 reg tb_clock, tb_reset, tb_valid, tb_enable, tb_enable_files, tb_enable_pc;
@@ -35,7 +35,7 @@ wire    [(LEN_CODED_BLOCK*N_LANES)-1 : 0]    tb_am_insert_o_data;
 wire    [LEN_CODED_BLOCK-1 : 0]              tb_PC_20_to_1_o_data;
 
 
-reg         [(LEN_TAGGED_BLOCK*N_LANES)-1 : 0] asdasd; 
+reg         [(LEN_TAGGED_BLOCK*N_LANES)-1 : 0] latch_between_pc_and_am; 
 
 initial 
 begin
@@ -82,13 +82,19 @@ begin
                 $stop;
             end
         end
-        tb_PC_1_to_20_i_data <= temp_PC_i_data;
+        tb_PC_1_to_20_i_data = temp_PC_i_data;
         
     end
 
 end
 
-
+always @ (posedge tb_clock)
+begin
+    if (tb_reset)
+        latch_between_pc_and_am <= 'd0;
+    else if (tb_valid_generated_for_pc)
+        latch_between_pc_and_am <= tb_PC_1_to_20_o_data;
+end
 
 parallel_converter_1_to_N
 #(
@@ -102,6 +108,7 @@ u_pc_1_to_20
     .i_reset(tb_reset),
     .i_enable(tb_enable_pc),
     .i_valid(tb_valid_generated_for_file),
+    .i_set_shadow(tb_valid_generated_for_pc),
     .i_data(tb_PC_1_to_20_i_data),
     .o_valid(tb_PC_1_to_20_o_data_valid),
     .o_data(tb_PC_1_to_20_o_data)    
@@ -122,7 +129,8 @@ u_am_insertion
     .i_reset(tb_reset),
     .i_valid(tb_PC_1_to_20_o_data_valid),
     .i_enable(tb_PC_1_to_20_o_data_valid),
-    .i_data(tb_PC_1_to_20_o_data),
+    //.i_data(tb_PC_1_to_20_o_data),
+    .i_data(latch_between_pc_and_am),
     .o_data(tb_am_insert_o_data)
 );
 
@@ -179,6 +187,7 @@ begin: ger_block1
         assign PC_1_to_20_output_per_lane[i] = tb_PC_1_to_20_o_data[(LEN_TAGGED_BLOCK*N_LANES)-1 - i*LEN_TAGGED_BLOCK -: LEN_TAGGED_BLOCK];
         assign am_insert_out_per_lane[i] = tb_am_insert_o_data[(LEN_CODED_BLOCK*N_LANES)-1 - i*LEN_CODED_BLOCK -: LEN_CODED_BLOCK];
         assign am_insert_in_per_lane[i] = tb_PC_1_to_20_o_data[(LEN_TAGGED_BLOCK*N_LANES)-1 - i*LEN_TAGGED_BLOCK -: LEN_TAGGED_BLOCK];
+        //assign am_insert_in_per_lane[i] = latch_between_pc_and_am[(LEN_TAGGED_BLOCK*N_LANES)-1 - i*LEN_TAGGED_BLOCK -: LEN_TAGGED_BLOCK];
         assign am_insert_flag_per_lane  = tb_PC_1_to_20_o_data[(LEN_TAGGED_BLOCK*N_LANES)-1 - i*LEN_TAGGED_BLOCK];
 end
 
