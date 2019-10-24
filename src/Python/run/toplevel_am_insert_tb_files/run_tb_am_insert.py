@@ -10,7 +10,7 @@ from pdb import set_trace as bp
 import copy 
 
 NLANES      = 20
-NCLOCK      = 1000
+NCLOCK      = 100
 #AM_PERIOD   = 16384 #chequear si no es 16383
 AM_PERIOD   = 30
 NB_DATA     = 66
@@ -25,13 +25,22 @@ def main():
     zeros_vector = [0]*(AM_PERIOD*NLANES-len(tag_vector))
     am_insert_vector = (tag_vector+zeros_vector)*NCLOCK
 
-    am_insert_vector_temp = zip(am_insert_vector, data)
+    am_insert_vector_zip = zip(am_insert_vector, data)
 
-    data_input = ("data-input.txt")
+    data_input = open("data-input.txt", "w")
 
-    bp()
+    for clock in range(AM_PERIOD*NLANES*NCLOCK):
 
-    #for clock in range(AM_PERIOD*NLANES*NCLOCK):
+        bin_data = bin(am_insert_vector_zip[clock][1])[2:].zfill(NB_DATA)
+        am_insert_bit = bin(am_insert_vector_zip[clock][0])[2:]
+        am_insert_vector = am_insert_bit + bin_data
+
+        am_insert_vector_tmp = am_insert_vector
+        am_insert_vector_tmp = ''.join(map(lambda x: x+' ', am_insert_vector_tmp))
+        data_input.write(am_insert_vector_tmp + '\n')
+
+    
+    data_input.close()
 
 
 
