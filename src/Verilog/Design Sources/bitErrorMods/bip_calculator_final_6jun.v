@@ -16,8 +16,9 @@ module bip_calculator
     input wire                          	i_reset,
     input wire  [LEN_CODED_BLOCK-1 : 0] 	i_data,
     input wire                          	i_enable,
-    input wire                            i_start_of_lane,
-    input wire					               i_am_insert,
+    input wire                              i_valid,
+    input wire                              i_start_of_lane,
+    input wire					            i_am_insert,
 
     output wire [NB_BIP-1 : 0]          	o_bip3,
     output wire [NB_BIP-1 : 0]          	o_bip7
@@ -42,7 +43,7 @@ always @ (posedge i_clock)
  begin
     if (i_reset)
 		bip <= {8{1'b1}};
-    else if (i_enable)
+    else if (i_enable && i_valid)
        		bip <= bip_next;
  end
 
