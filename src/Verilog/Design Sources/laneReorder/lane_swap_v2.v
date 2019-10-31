@@ -58,7 +58,7 @@ begin
         else if (i_reorder_done)
                 lane_id_sr <= i_lane_ids;
         else if (i_enable && i_valid)
-                lane_id_sr <= {lane_id_sr[NB_ID_BUS - NB_ID - 1 : NB_ID], lane_id_sr[0 +: NB_ID]};
+                lane_id_sr <= {lane_id_sr[NB_ID_BUS - NB_ID - 1 : 0], lane_id_sr[NB_ID_BUS-1 -: NB_ID]};
 end
 assign rd_ptr = lane_id_sr[NB_ID_BUS-1 -: NB_ID];
 
@@ -67,7 +67,7 @@ generate
 
         for (i = 0; i< N_LANES; i = i + 1)
         begin : SPLIT_LANES 
-             assign  lane_data[N_LANES-i-1] = i_data[NB_DATA_BUS-(NB_DATA*i)-1 -: NB_DATA];
+             assign  lane_data[i] = i_data[NB_DATA_BUS-(NB_DATA*i)-1 -: NB_DATA];
         end
 
 endgenerate
