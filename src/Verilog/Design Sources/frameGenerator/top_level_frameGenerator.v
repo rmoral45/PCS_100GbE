@@ -1,14 +1,14 @@
 module top_level_frameGenerator
 	#(
-	parameter							LEN_DATA_BLOCK		= 64,
-	parameter							LEN_CTRL_BLOCK		= 8
+	parameter							NB_DATA_RAW		= 64,
+	parameter							NB_CTRL_RAW		= 8
 	)
 	(
 	input								i_clock,
 	input								i_reset,
 	input								i_enable,
-	output wire	[LEN_DATA_BLOCK-1 : 0]	o_tx_data,
-	output wire	[LEN_CTRL_BLOCK-1 : 0]	o_tx_ctrl
+	output wire	[NB_DATA_RAW-1 : 0]		o_tx_data,
+	output wire	[NB_CTRL_RAW-1 : 0]		o_tx_ctrl
 	);
 
 
@@ -26,8 +26,10 @@ wire [NB_IDLE-1:0]						nidle;
 
 assign 									noise_enable 	= 1'b1;
 assign  								nterm 			= noise_data[LEN_GNG-8 -: NB_TERM];	//3 bits mas significativos para establecer el numero de terminate
-assign  								ndata 			= (noise_data[LEN_GNG-4 -: NB_DATA] > 8'b1100100) ? 
-                                                        8'b11000110 : noise_data[LEN_GNG-4 -: NB_DATA]; //8 bits siguientes para data
+
+assign  								ndata 			= (noise_data[LEN_GNG-4 -: NB_DATA] > 8'D189) ? 
+                                                        8'D189 : (noise_data[LEN_GNG-4 -: NB_DATA] == 0) ?
+														8'D1 :	noise_data[LEN_GNG-4 -: NB_DATA]; //8 bits siguientes para data
 assign  								nidle 			= noise_data[LEN_GNG-8 -: NB_IDLE]; //6 bits menos significativos para idle
 
 
