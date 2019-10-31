@@ -12,8 +12,8 @@ localparam  AM_ENCODING_HIGH            = 24'd0;  //{M4,M5,M6} tabla 82-2
 localparam  COUNT_SCALE                 = 2;              //el clock de sistema se escala de igual manera en ambos generadores de valid
 localparam  VALID_COUNT_LIMIT_FOR_FILE  = 1;              
 localparam  VALID_COUNT_LIMIT_FOR_PC    = 20;             //esto indica que la señal de valid del PC es 20 veces mas lenta que la del archivo
-localparam  PATH_DATA_INPUT             = "/home/dabratte/PPS/src/Python/run/toplevel_am_insert_tb_files/data-input.txt";
-
+//localparam  PATH_DATA_INPUT             = "/home/dabratte/PPS/src/Python/run/toplevel_am_insert_tb_files/data-input.txt";
+localparam  PATH_DATA_INPUT             = "/media/ramiro/1C3A84E93A84C16E/PPS/src/Python/run/toplevel_am_insert_tb_files/data-input.txt";
 //common signals
 reg tb_clock, tb_reset, tb_valid, tb_enable, tb_enable_files, tb_enable_pc;
 integer fid_input_data;
@@ -119,8 +119,6 @@ am_insertion_toplevel
     .LEN_TAGGED_BLOCK(LEN_TAGGED_BLOCK),
     .LEN_CODED_BLOCK(LEN_CODED_BLOCK),
     .N_LANES(N_LANES),
-    .AM_ENCODING_LOW(AM_ENCODING_LOW),
-    .AM_ENCODING_HIGH(AM_ENCODING_HIGH),
     .NB_BIP(NB_BIP)
 )
 u_am_insertion

@@ -5,9 +5,6 @@ module am_insertion_toplevel
 	parameter 							            LEN_TAGGED_BLOCK     = 67,
     parameter                                       LEN_CODED_BLOCK      = 66,
     parameter                                       N_LANES             = 20,
-	//parameter 							            AM_ENCODING_LOW     = 24'd0, //{M0,M1,M2} tabla 82-2
-	//parameter 							            AM_ENCODING_HIGH    = 24'd0,  //{M4,M5,M6} tabla 82-2
-    parameter                                       NB_AM_ENCODING      = $clog2(AM_ENCODING_HIGH),
 	parameter 							            NB_BIP              = 8
 )
 (
@@ -19,47 +16,50 @@ module am_insertion_toplevel
 
     output wire [(LEN_CODED_BLOCK*N_LANES)-1 : 0]   o_data
 );
+    
+    localparam NB_AM_ENCODING           = 24;
 
     //LANE_MARKERS'S MATRIX
-    localparam [NB_AM_ENCODING-1 : 0] AM_ENCODING_LOW [N_LANES-1 : 0]   = {{8'hC1, 8'h68, 8'h21},
-                                                                           {8'h9D, 8'h71, 8'h8E},
-                                                                           {8'h59, 8'h4B, 8'hE8},
-                                                                           {8'h4D, 8'h95, 8'h7B},
-                                                                           {8'hF5, 8'h07, 8'h09},
-                                                                           {8'hDD, 8'h14, 8'hC2},
-                                                                           {8'h9A, 8'h4A, 8'h26},
-                                                                           {8'h7B, 8'h45, 8'h66},
-                                                                           {8'hA0, 8'h24, 8'h76},
-                                                                           {8'h68, 8'hC9, 8'hFB}
-                                                                           {8'hFD, 8'h6C, 8'h99},
-                                                                           {8'hB9, 8'h91, 8'h55},
-                                                                           {8'h5C, 8'hB9, 8'hB2},
-                                                                           {8'h1A, 8'hF8, 8'hBD},
-                                                                           {8'h83, 8'hC7, 8'hCA},
-                                                                           {8'hC4, 8'h31, 8'h4C},
-                                                                           {8'hAD, 8'hD6, 8'hB7},
-                                                                           {8'h5F, 8'h66, 8'h2A},
-                                                                           {8'hC0, 8'hF0, 8'hE5}}; 
-    localparam [NB_AM_ENCODING-1 : 0] AM_ENCODING_HIGH [N_LANES-1 : 0]  = {{8'h3E, 8'h97, 8'hDE},
-                                                                           {8'h62, 8'h8E, 8'h71},
-                                                                           {8'hA6, 8'hB4, 8'h17},
-                                                                           {8'hB2, 8'h6A, 8'h84},
-                                                                           {8'h0A, 8'hF8, 8'hF6},
-                                                                           {8'h22, 8'hEB, 8'h3D},
-                                                                           {8'h65, 8'hB5, 8'hD9},
-                                                                           {8'h84, 8'hBA, 8'h99},
-                                                                           {8'h5E, 8'hDB, 8'h89},
-                                                                           {8'h97, 8'h36, 8'h04}
-                                                                           {8'h02, 8'h93, 8'h66},
-                                                                           {8'h46, 8'h6E, 8'hAA},
-                                                                           {8'hA3, 8'h46, 8'h4D},
-                                                                           {8'hE5, 8'h07, 8'h42},
-                                                                           {8'h7C, 8'h38, 8'h35},
-                                                                           {8'hCA, 8'hC9, 8'h32},
-                                                                           {8'h3B, 8'hCE, 8'hB3},
-                                                                           {8'h52, 8'h29, 8'h48},
-                                                                           {8'hA0, 8'h99, 8'hD5},
-                                                                           {8'h3F, 8'h0F, 8'h1A}};                                                                                                                
+    localparam [(NB_AM_ENCODING*N_LANES)-1 : 0] AM_ENCODING_LOW    = { 24'hC1_68_21, 
+                                                                       24'h9D_71_8E, 
+                                                                       24'h59_4B_E8, 
+                                                                       24'h4D_95_7B, 
+                                                                       24'hF5_07_09,
+                                                                       24'hDD_14_C2, 
+                                                                       24'h9A_4A_26, 
+                                                                       24'h7B_45_66, 
+                                                                       24'hA0_24_76, 
+                                                                       24'h68_C9_FB,
+                                                                       24'hFD_6C_99, 
+                                                                       24'hB9_91_55, 
+                                                                       24'h5C_B9_B2, 
+                                                                       24'h1A_F8_BD, 
+                                                                       24'h83_C7_CA,
+                                                                       24'h35_36_CD, 
+                                                                       24'hC4_31_4C, 
+                                                                       24'hAD_D6_B7, 
+                                                                       24'h5F_66_2A, 
+                                                                       24'hC0_F0_E5}; 
+    localparam [(NB_AM_ENCODING*N_LANES)-1 : 0] AM_ENCODING_HIGH    = {24'h3E_97_DE,
+                                                                       24'h62_8E_71, 
+                                                                       24'hA6_B4_17, 
+                                                                       24'hB2_6A_84, 
+                                                                       24'h0A_F8_F6, 
+                                                                       24'h22_EB_3D, 
+                                                                       24'h65_B5_D9, 
+                                                                       24'h84_BA_99, 
+                                                                       24'h5F_DB_89, 
+                                                                       24'h97_36_04, 
+                                                                       24'h02_93_66, 
+                                                                       24'h46_6E_AA, 
+                                                                       24'hA3_46_4D, 
+                                                                       24'hE5_07_42, 
+                                                                       24'h7C_38_35, 
+                                                                       24'hCA_C9_32, 
+                                                                       24'h3B_CE_B3, 
+                                                                       24'h52_29_48, 
+                                                                       24'hA0_99_D5, 
+                                                                       24'h3F_0F_1A};                                                                                                                
 
     //Vector que almacena los tags de cada lane
     wire        [(LEN_CODED_BLOCK*N_LANES)-1 : 0]     out_data;  
@@ -76,8 +76,8 @@ module am_insertion_toplevel
         am_insertion
         #(
             .LEN_CODED_BLOCK    (LEN_CODED_BLOCK),
-            .AM_ENCODING_LOW    (AM_ENCODING_LOW[i]),
-            .AM_ENCODING_HIGH   (AM_ENCODING_HIGH[i]),
+            .AM_ENCODING_LOW    (AM_ENCODING_LOW [(NB_AM_ENCODING*N_LANES)-1 - i*NB_AM_ENCODING -: NB_AM_ENCODING]),
+            .AM_ENCODING_HIGH   (AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-1 - i*NB_AM_ENCODING -: NB_AM_ENCODING]),
             .NB_BIP             (NB_BIP)
         )
         u_am_insertion
@@ -92,7 +92,5 @@ module am_insertion_toplevel
         );
         
     end
-
-    //endgenerate
 
 endmodule
