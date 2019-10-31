@@ -9,9 +9,9 @@
 
 module parallel_converter_N_to_1
 #(
-	parameter LEN_CODED_BLOCK 	= 66,
+	parameter NB_DATA_CODED 	= 66,
 	parameter N_LANES 			= 20,
-	parameter NB_DATA_BUS		= (LEN_CODED_BLOCK * N_LANES) 
+	parameter NB_DATA_BUS		= (NB_DATA_CODED * N_LANES) 
  )
  (
  	input  wire 						i_clock, //system clock
@@ -19,7 +19,7 @@ module parallel_converter_N_to_1
  	input  wire 						i_enable,
  	input  wire 						i_valid, //valid del clock mas rapido, osea el del scrambler
  	input  wire [NB_DATA_BUS-1 : 0] 	i_data,
- 	output wire [LEN_CODED_BLOCK-1 : 0] o_data
+ 	output wire [NB_DATA_CODED-1 : 0] o_data
  );
 
 
@@ -33,7 +33,7 @@ reg [NB_INDEX-1 : 0] index;
 
 //PORTS
 
-assign o_data = i_data[(index*LEN_CODED_BLOCK)-1 -: LEN_CODED_BLOCK];
+assign o_data = i_data[(index*NB_DATA_CODED)-1 -: NB_DATA_CODED];
 
 
 always @ (posedge i_clock)
