@@ -17,7 +17,7 @@
 
 module clock_comp_tx
 #(
-        parameter NB_DATA          = 66,
+        parameter NB_DATA_CODED          = 66,
         parameter AM_BLOCK_PERIOD  = 16383, //[CHECK]
         parameter N_LANES          = 20
  )
@@ -26,16 +26,16 @@ module clock_comp_tx
         input  wire                     i_reset,
         input  wire                     i_enable,
         input  wire                     i_valid,
-        input  wire [NB_DATA-1 : 0]     i_data,
+        input  wire [NB_DATA_CODED-1 : 0]     i_data,
       
-        output wire [NB_DATA-1 : 0]     o_data,
+        output wire [NB_DATA_CODED-1 : 0]     o_data,
         output wire                     o_aligner_tag
  );
 
 localparam                      NB_ADDR       = 5;
-localparam                      NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES);
+localparam                      NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES)+1; //[CHECK]
 localparam                      NB_IDLE_CNT   = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
-localparam [NB_DATA-1 : 0]      PCS_IDLE      = 'h2_e0_00_00_00_00_00_00_00;
+localparam [NB_DATA_CODED-1 : 0]      PCS_IDLE      = 'h2_e0_00_00_00_00_00_00_00;
 
 //------------ Internal Signals -----------------//
 
@@ -48,7 +48,7 @@ wire                            period_done;
 wire                            idle_insert;
 wire                            fifo_read_enable;
 wire                            fifo_write_enable;
-wire [NB_DATA-1 : 0]            fifo_output_data;
+wire [NB_DATA_CODED-1 : 0]            fifo_output_data;
 
 
 
@@ -95,7 +95,7 @@ assign o_aligner_tag    = (idle_insert) ? 1'b1     : 1'b0; // si inserto idle le
 
 sync_fifo
         #(
-                .NB_DATA(NB_DATA),
+                .NB_DATA_CODED(NB_DATA_CODED),
                 .NB_ADDR(NB_ADDR),
                 .WR_PTR_AFTER_RESET('d1)
          )
