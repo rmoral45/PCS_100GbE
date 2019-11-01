@@ -81,7 +81,7 @@ begin // etapa 1
 	if (i_idle_pattern_mode)
 		input_data = IDLE_BLOCK;
 	else 
-		input_data = i_data[NB_DATA_CODED-1 -: NB_DATA_CODED]; //------------------------------------------- incluir el tag en scrambling?
+		input_data = i_data;
 
 	for(i=NB_DATA_CODED-3; i >= 0; i=i-1)
 	begin
