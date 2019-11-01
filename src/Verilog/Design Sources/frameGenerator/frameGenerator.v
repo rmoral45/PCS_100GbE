@@ -1,3 +1,4 @@
+`timescale 1ns/100ps
 module frameGenerator
 	#(
 	parameter						NB_DATA_RAW 	= 64,

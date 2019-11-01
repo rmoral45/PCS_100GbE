@@ -1,3 +1,4 @@
+`timescale 1ns/100ps
 module frameChecker
 	#(
 	parameter								NB_DATA_RAW 	= 64,

@@ -1,3 +1,4 @@
+`timescale 1ns/100ps
 module top_level_frameGenerator
 	#(
 	parameter							NB_DATA_RAW		= 64,

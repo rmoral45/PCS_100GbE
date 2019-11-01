@@ -1,4 +1,4 @@
-
+`timescale 1ns/100ps
 
 module encoder_fsm
 #(

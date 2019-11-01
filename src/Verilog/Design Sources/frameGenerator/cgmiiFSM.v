@@ -1,3 +1,4 @@
+`timescale 1ns/100ps
 module cgmiiFSM
 	#(
 	parameter						DATA_NBIT	= 8,

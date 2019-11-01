@@ -1,3 +1,4 @@
+`timescale 1ns/100ps
 module scrambler
 #(
 	parameter NB_SCRAMBLER   = 58,

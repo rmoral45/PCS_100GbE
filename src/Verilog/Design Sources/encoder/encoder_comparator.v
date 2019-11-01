@@ -8,7 +8,7 @@
    	-Aplicar funcion T_TYPE.<pag 168 estandar> 
 
 */
-
+`timescale 1ns/100ps
 
 module encoder_comparator
 #(

@@ -1,3 +1,4 @@
+`timescale 1ns/100ps
 module dataGenerator
 	#(
 	parameter							NB_BYTE 		= 8,
