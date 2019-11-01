@@ -8,13 +8,13 @@
 
 module bip_calculator
 #(
-    parameter                             LEN_CODED_BLOCK = 66,
+    parameter                             NB_DATA_CODED = 66,
     parameter                             NB_BIP = 8
  )
  (
     input wire                          	i_clock,
     input wire                          	i_reset,
-    input wire  [LEN_CODED_BLOCK-1 : 0] 	i_data,
+    input wire  [NB_DATA_CODED-1 : 0] 	i_data,
     input wire                          	i_enable,
     input wire                              i_valid,
     input wire                              i_start_of_lane,
@@ -26,11 +26,11 @@ module bip_calculator
 
 //LOCALPARAMS
 localparam                                NB_SH         = 2;
-localparam                                BIP_START_POS = LEN_CODED_BLOCK-NB_SH-24-1;
+localparam                                BIP_START_POS = NB_DATA_CODED-NB_SH-24-1;
 localparam                                BIP_FINAL_POS = 48;
 //INTERNAL SIGNALS
 integer i;
-reg            [0 : LEN_CODED_BLOCK-1]    data;
+reg            [0 : NB_DATA_CODED-1]    data;
 reg            [NB_BIP-1 : 0]             bip, bip_next;
 
 //PORTS
@@ -58,7 +58,7 @@ begin
 
     data = i_data;
     
-    for (i=0; i<((LEN_CODED_BLOCK-2)/8); i=i+1)
+    for (i=0; i<((NB_DATA_CODED-2)/8); i=i+1)
     begin
                 
            	bip_next[0] = bip_next[0] ^ data[2+(8*i)] ;

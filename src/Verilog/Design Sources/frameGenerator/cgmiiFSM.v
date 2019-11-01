@@ -32,9 +32,12 @@ reg 		[IDLE_NBIT - 1:0]		idle_counter_next;
 reg 		[DATA_NBIT - 1:0]		data_counter;
 reg 		[DATA_NBIT - 1:0]		data_counter_next; 
 reg 		[IDLE_NBIT - 1:0]		n_idle;
+reg 		[IDLE_NBIT - 1:0]		n_idle_next;
 reg 		[DATA_NBIT - 1:0]		n_data;
+reg 		[DATA_NBIT - 1:0]		n_data_next;
 reg                                 first_transition;
 reg                                 start_signal;
+reg                                 start_signal_next;
 
 //Asigns
 assign 								o_actual_state = actual_state;
@@ -58,8 +61,10 @@ always @ (posedge i_clock)begin
     else if(i_enable)begin
 		idle_counter 	<= idle_counter_next;
 		data_counter 	<= data_counter_next;
-		start_signal    <= start_signal;
+		start_signal    <= start_signal_next;
 		actual_state 	<= next_state;
+		n_idle          <= n_idle_next;
+		n_data          <= n_data_next;
 	end
 end
 
@@ -70,7 +75,10 @@ always @ * begin
 	next_state 			= actual_state;
 	idle_counter_next 	= idle_counter;
 	data_counter_next 	= data_counter;
-
+    start_signal_next   = start_signal;
+    n_idle_next         = n_idle;
+    n_data_next         = n_data;
+    
 	if(i_debug_pulse == 4'b0000)begin  					//Operacion normal
 
 		case(actual_state)
@@ -78,7 +86,7 @@ always @ * begin
 		INIT:
 		begin
 			next_state 				= TX_C;
-			start_signal            = 1'b0;
+			start_signal_next       = 1'b0;
 		end
 
 		TX_C:
@@ -88,7 +96,7 @@ always @ * begin
 			     next_state 		= actual_state;
 			end
 			else begin
-			     start_signal        = 1'b1;
+			     start_signal_next  = 1'b1;
 				 idle_counter_next 	= {IDLE_NBIT{1'b0}};
 			     next_state 		= TX_D;
 			end
@@ -109,8 +117,8 @@ always @ * begin
 
 		TX_T:
 		begin
-				n_idle = i_nidle;
-				n_data = i_ndata;
+				n_idle_next = i_nidle;
+				n_data_next = i_ndata;
 				next_state = INIT;
 		end
 

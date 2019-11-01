@@ -49,7 +49,7 @@ begin
         state    <= TX_INIT;
     end
 
-    else if (i_enable)
+    else if (i_enable && i_valid)
     begin
         tx_coded <= tx_coded_next;
         state    <= state_next;

@@ -20,7 +20,7 @@ module scrambler
  );
 
 //LOCALPARAMS
-localparam [NB_DATA_CODED-1 : 0] static_idle_block = 66'h21E00000000000000;
+localparam [NB_DATA_CODED-1 : 0] IDLE_BLOCK = 66'h21E00000000000000;
 
 //INTERNAL SIGNALS
 integer i;
@@ -55,10 +55,10 @@ end
  	if(i_reset)begin
  		output_data <= {NB_DATA_CODED{1'b0}};
  	end 
- 	else if (i_enable && (!i_bypass))begin
+ 	else if (i_enable && (!i_bypass) && i_valid)begin
  		output_data <= scrambled_data; 
  	end
- 	else if (i_enable &&  i_bypass)begin
+ 	else if (i_enable &&  i_bypass && i_valid)begin
  		output_data <= i_data;			
  	end
  end
@@ -68,7 +68,7 @@ end
  begin
 		if(i_reset)
 			idle_tag <= 1'b0;
-	    else
+	    else if(i_enable && i_valid)
 			idle_tag <= i_alligner_tag;
  end
 

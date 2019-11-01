@@ -36,6 +36,7 @@ u_encoder_comparator
     .i_clock    (i_clock)               ,
     .i_reset    (i_reset)               ,
     .i_enable   (i_enable)              ,
+    .i_valid    (i_valid)               ,
     .i_tx_data  (i_data)                ,
     .i_tx_ctrl  (i_ctrl)                ,
     .o_tx_type  (comparator_type_fsm)   ,
@@ -51,6 +52,7 @@ u_encoder_fsm
     .i_clock   (i_clock)                ,
     .i_reset   (i_reset)                ,
     .i_enable  (i_enable)               ,
+    .i_valid   (i_valid)                ,
     .i_tx_type (comparator_type_fsm)    ,
     .i_tx_coded(comparator_data_fsm)    ,
     .o_tx_coded(o_tx_coded)

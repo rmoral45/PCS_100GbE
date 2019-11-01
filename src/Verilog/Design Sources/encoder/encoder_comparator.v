@@ -204,7 +204,7 @@ begin
 		tx_data    <= {NB_DATA_RAW{1'b0}};
 		tx_ctrl    <= {NB_CTRL_RAW{1'b0}}; 
 	end
-	else if(i_enable)
+	else if(i_enable && i_valid)
 	begin
 		tx_data    <= i_tx_data;
 		tx_ctrl    <= i_tx_ctrl;

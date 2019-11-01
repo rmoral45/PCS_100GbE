@@ -2,8 +2,8 @@
 
 module am_insertion_toplevel
 #(
-	parameter 							            LEN_TAGGED_BLOCK     = 67,
-    parameter                                       LEN_CODED_BLOCK      = 66,
+	parameter 							            NB_DATA_TAGGED     = 67,
+    parameter                                       NB_DATA_CODED      = 66,
     parameter                                       N_LANES             = 20,
 	parameter 							            NB_BIP              = 8
 )
@@ -12,9 +12,9 @@ module am_insertion_toplevel
     input wire                                      i_reset,
     input wire                                      i_valid,
     input wire                                      i_enable,
-    input wire  [(LEN_TAGGED_BLOCK*N_LANES)-1 : 0]  i_data,
+    input wire  [(NB_DATA_TAGGED*N_LANES)-1 : 0]  i_data,
 
-    output wire [(LEN_CODED_BLOCK*N_LANES)-1 : 0]   o_data
+    output wire [(NB_DATA_CODED*N_LANES)-1 : 0]   o_data
 );
     
     localparam NB_AM_ENCODING           = 24;
@@ -62,7 +62,7 @@ module am_insertion_toplevel
                                                                        24'h3F_0F_1A};                                                                                                                
 
     //Vector que almacena los tags de cada lane
-    wire        [(LEN_CODED_BLOCK*N_LANES)-1 : 0]     out_data;  
+    wire        [(NB_DATA_CODED*N_LANES)-1 : 0]     out_data;  
         
 
     assign                                          o_data = out_data;
@@ -75,7 +75,7 @@ module am_insertion_toplevel
     begin :ger_block
         am_insertion
         #(
-            .LEN_CODED_BLOCK    (LEN_CODED_BLOCK),
+            .NB_DATA_CODED    (NB_DATA_CODED),
             .AM_ENCODING_LOW    (AM_ENCODING_LOW [(NB_AM_ENCODING*N_LANES)-1 - i*NB_AM_ENCODING -: NB_AM_ENCODING]),
             .AM_ENCODING_HIGH   (AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-1 - i*NB_AM_ENCODING -: NB_AM_ENCODING]),
             .NB_BIP             (NB_BIP)
@@ -86,9 +86,9 @@ module am_insertion_toplevel
             .i_reset            (i_reset),
             .i_enable           (i_enable && i_valid),
             .i_valid            (i_valid),
-            .i_am_insert        (i_data[(LEN_TAGGED_BLOCK*N_LANES)-1 - i*LEN_TAGGED_BLOCK]),
-            .i_data             (i_data[(LEN_TAGGED_BLOCK*N_LANES)-2 -(i*LEN_TAGGED_BLOCK) -: LEN_CODED_BLOCK]),
-            .o_data             (out_data[((LEN_CODED_BLOCK*N_LANES)-1) -(i*LEN_CODED_BLOCK) -: LEN_CODED_BLOCK])
+            .i_am_insert        (i_data[(NB_DATA_TAGGED*N_LANES)-1 - i*NB_DATA_TAGGED]),
+            .i_data             (i_data[(NB_DATA_TAGGED*N_LANES)-2 -(i*NB_DATA_TAGGED) -: NB_DATA_CODED]),
+            .o_data             (out_data[((NB_DATA_CODED*N_LANES)-1) -(i*NB_DATA_CODED) -: NB_DATA_CODED])
         );
         
     end
