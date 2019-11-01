@@ -17,6 +17,7 @@ module toplevel_tx
     input wire          i_rf_enb_clock_comp,
     input wire          i_rf_enb_scrambler,
     input wire          i_rf_bypass_scrambler,
+    input wire          i_rf_idle_pattern_mode,
     input wire          i_rf_enb_pc_1_20,
     input wire          i_rf_enb_am_insertion,
     //input wire          i_rf_enb_serial_transmitter,
@@ -73,6 +74,10 @@ wire                          pc_1_20_valid_am_insert;
 //----------------------(Am_insertion - PC_20_to_1)----------------------
 //--outputs
 wire    [NB_DATA_CODED-1 : 0] am_insert_data_pc_20_1;
+
+//----------------------(PC_20_to_1 - Serial Transmitter)----------------------
+//--outputs
+wire    [NB_DATA_CODED-1 : 0] pc_20_1_data_serial_tx;
 
 
 //tx_modules
@@ -164,9 +169,9 @@ u_scrambler
     .i_reset(i_reset),
     .i_enable(i_rf_enb_scrambler),
     .i_valid(fast_valid),
-    .i_bypass(i_rf_bypass_scrambler || clockComp_tag_scrambler),//[CHECK]: es correcta esa OR?
+    .i_bypass(i_rf_bypass_scrambler || clockComp_tag_scrambler),
     .i_alligner_tag(clockComp_tag_scrambler)
-    .i_idle_pattern_mode(),
+    .i_idle_pattern_mode(i_rf_idle_pattern_mode),
     .i_data(clockComp_data_scrambler),
     .o_data(scrambler_data_pc_1_20)
 );
@@ -202,8 +207,8 @@ u_am_insertion
     .i_clock(i_clock),
     .i_reset(i_reset),
     .i_enable(i_rf_enb_am_insertion),
-    .i_valid(pc_1_20_valid_allignment),
-    .i_data(pc_1_20_data_allignment), //[CHECK]: Falta latch??
+    .i_valid(slow_valid),
+    .i_data(pc_1_20_data_allignment),
     .o_data(am_insert_data_pc_20_1)
 );
 
