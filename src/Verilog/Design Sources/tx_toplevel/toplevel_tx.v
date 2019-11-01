@@ -19,7 +19,8 @@ module toplevel_tx
     input wire          i_rf_bypass_scrambler,
     input wire          i_rf_idle_pattern_mode,
     input wire          i_rf_enb_pc_1_20,
-    input wire          i_rf_enb_am_insertion
+    input wire          i_rf_enb_am_insertion,
+    input wire          i_rf_enb_pc_20_1
     //input wire          i_rf_enb_serial_transmitter,
     
     //output wire [(NB_DATA_CODED*N_LANES)-1 : 0]     o_data
@@ -220,7 +221,7 @@ parallel_converter_N_to_1
 (
     .i_clock(i_clock),
     .i_reset(i_reset),
-    .i_enable(),
+    .i_enable(i_rf_enb_pc_20_1),
     .i_valid(slow_valid),
     .i_data(am_insert_data_pc_20_1),
     .o_data(pc_20_1_data_serial_tx)
