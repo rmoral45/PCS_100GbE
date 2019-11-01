@@ -19,10 +19,10 @@ module toplevel_tx
     input wire          i_rf_bypass_scrambler,
     input wire          i_rf_idle_pattern_mode,
     input wire          i_rf_enb_pc_1_20,
-    input wire          i_rf_enb_am_insertion,
+    input wire          i_rf_enb_am_insertion
     //input wire          i_rf_enb_serial_transmitter,
     
-    output wire [(NB_DATA_CODED*N_LANES)-1 : 0]     o_data
+    //output wire [(NB_DATA_CODED*N_LANES)-1 : 0]     o_data
 );
 
 //parameters for modules
@@ -36,7 +36,7 @@ localparam              SEED                = 58'd0;
 localparam              NB_SCRAMBLER        = 58;
 localparam              NB_SH               = 2;
 /* parallel converters */
-localparam              NB_DATA_BUS         = NB_DATA_TAGGED*N_LANES
+localparam              NB_DATA_BUS         = NB_DATA_TAGGED*N_LANES;
 /* am_insertion */
 localparam              NB_BIP              = 8;
 
@@ -59,12 +59,12 @@ wire    [NB_DATA_CODED-1 : 0] encoder_data_clockComp;
 
 //----------------------(Clock Compensator - Scrambler)----------------------
 //--outputs
-wire    [NB_DATA_CODED-1 : 0] clockComp_data_scrambler;
-wire                          clockComp_tag_scrambler; 
+wire    [NB_DATA_CODED-1 : 0]  clockComp_data_scrambler;
+wire                           clockComp_tag_scrambler; 
 
 //----------------------(Scrambler - PC_1_to_20)----------------------
 //--outputs
-wire    [NB_DATA_CODED-1 : 0] scrambler_data_pc_1_20;
+wire    [NB_DATA_TAGGED-1 : 0] scrambler_data_pc_1_20;
 
 //----------------------(PC_1_to_20 - Am_insertion)----------------------
 //--outputs
@@ -73,7 +73,7 @@ wire                          pc_1_20_valid_am_insert;
 
 //----------------------(Am_insertion - PC_20_to_1)----------------------
 //--outputs
-wire    [NB_DATA_CODED-1 : 0] am_insert_data_pc_20_1;
+wire    [(NB_DATA_CODED*N_LANES)-1 : 0] am_insert_data_pc_20_1;
 
 //----------------------(PC_20_to_1 - Serial Transmitter)----------------------
 //--outputs
@@ -92,7 +92,7 @@ u_fast_valid
     .i_reset(i_reset),
     .i_enable(i_rf_enb_valid_gen),
     .o_valid(fast_valid)
-)
+);
 
 valid_generator
 #(
@@ -105,7 +105,7 @@ u_slow_valid
     .i_reset(i_reset),
     .i_enable(i_rf_enb_valid_gen),
     .o_valid(slow_valid)
-)
+);
 
 top_level_frameGenerator
 #(
@@ -170,7 +170,7 @@ u_scrambler
     .i_enable(i_rf_enb_scrambler),
     .i_valid(fast_valid),
     .i_bypass(i_rf_bypass_scrambler || clockComp_tag_scrambler),
-    .i_alligner_tag(clockComp_tag_scrambler)
+    .i_alligner_tag(clockComp_tag_scrambler),
     .i_idle_pattern_mode(i_rf_idle_pattern_mode),
     .i_data(clockComp_data_scrambler),
     .o_data(scrambler_data_pc_1_20)
@@ -191,8 +191,8 @@ u_pc_1_to_20
     .i_valid(fast_valid),
     .i_set_shadow(slow_valid),
     .i_data(scrambler_data_pc_1_20),
-    .o_valid(pc_1_20_valid_allignment),
-    .o_data(pc_1_20_data_allignment)    
+    .o_valid(pc_1_20_valid_am_insert),
+    .o_data(pc_1_20_data_am_insert)    
 );
 
 am_insertion_toplevel
@@ -200,7 +200,7 @@ am_insertion_toplevel
     .NB_DATA_CODED(NB_DATA_CODED),
     .NB_DATA_TAGGED(NB_DATA_TAGGED),
     .N_LANES(N_LANES),
-    .NB_BIP(NB_BIP),
+    .NB_BIP(NB_BIP)
 )
 u_am_insertion
 (
@@ -208,7 +208,7 @@ u_am_insertion
     .i_reset(i_reset),
     .i_enable(i_rf_enb_am_insertion),
     .i_valid(slow_valid),
-    .i_data(pc_1_20_data_allignment),
+    .i_data(pc_1_20_data_am_insert),
     .o_data(am_insert_data_pc_20_1)
 );
 
