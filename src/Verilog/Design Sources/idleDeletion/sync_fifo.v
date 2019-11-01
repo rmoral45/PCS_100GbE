@@ -40,7 +40,7 @@ fifo_memory
 	 (
 	 	.i_clock     (i_clock)    ,
 	 	.i_write_enb (i_write_enb),
-	 	.i_read_enb  (i_read_enb) ,
+	 	//.i_read_enb  (i_read_enb) ,
 	 	.i_write_addr(write_ptr)  ,
 	 	.i_read_addr (read_ptr)   ,
 	 	.i_data		 (i_data)     ,

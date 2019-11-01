@@ -95,7 +95,7 @@ assign o_aligner_tag    = (idle_insert) ? 1'b1     : 1'b0; // si inserto idle le
 
 sync_fifo
         #(
-                .NB_DATA_CODED(NB_DATA_CODED),
+                .NB_DATA(NB_DATA_CODED),
                 .NB_ADDR(NB_ADDR),
                 .WR_PTR_AFTER_RESET('d1)
          )
