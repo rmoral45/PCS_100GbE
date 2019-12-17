@@ -8,14 +8,14 @@ module encoder
     parameter   NB_CTRL_RAW   = 8
 )
 (
-    input wire      i_clock,
-    input wire      i_reset,
-    input wire      i_enable,
-    input wire      i_valid,
-    input wire   [NB_DATA_RAW-1 : 0]    i_data,
-    input wire      [NB_CTRL_RAW-1 : 0] i_ctrl,
+    input wire                              i_clock,
+    input wire                              i_reset,
+    input wire                              i_enable,
+    input wire                              i_valid,
+    input wire      [NB_DATA_RAW-1 : 0]     i_data,
+    input wire      [NB_CTRL_RAW-1 : 0]     i_ctrl,
     
-    output wire [NB_DATA_CODED-1 : 0]  o_tx_coded
+    output wire     [NB_DATA_CODED-1 : 0]   o_tx_coded
 );
 
     localparam  N_DATA_TYPES    = 4;

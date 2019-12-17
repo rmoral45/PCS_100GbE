@@ -10,8 +10,8 @@ module encoder_fsm
   input  wire                          i_enable,
   input  wire 						   i_valid,
   input  wire [3:0]                    i_tx_type,
-  input  wire [NB_DATA_CODED-1 : 0]  i_tx_coded, //recibida desde el bloque comparador/codificador
-  output wire [NB_DATA_CODED-1 : 0]  o_tx_coded // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+  input  wire [NB_DATA_CODED-1 : 0]    i_tx_coded, //recibida desde el bloque comparador/codificador
+  output wire [NB_DATA_CODED-1 : 0]    o_tx_coded // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  );
 
 // T_TYPE

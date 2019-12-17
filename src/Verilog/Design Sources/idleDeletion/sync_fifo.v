@@ -10,6 +10,7 @@ module  sync_fifo
  	input  wire 				i_clock,
  	input  wire 				i_reset,
  	input  wire 				i_enable,
+ 	input  wire                 i_valid,
  	input  wire 				i_write_enb,
  	input  wire 				i_read_enb,
  	input  wire [NB_DATA-1 : 0] i_data,
@@ -54,7 +55,7 @@ fifo_memory
  begin
  	if(i_reset)
  		write_ptr <= WR_PTR_AFTER_RESET; 
- 	else if (i_enable && i_write_enb)
+ 	else if (i_enable && i_write_enb && i_valid)
  	begin
  		if(write_ptr == DEPTH-1 )
  			write_ptr <= 0;
@@ -69,7 +70,7 @@ always @ (posedge i_clock)
 begin
 	if (i_reset)
 		read_ptr <= 0;
-	else if (i_enable && i_read_enb)
+	else if (i_enable && i_read_enb && i_valid)
 	begin
 		if(read_ptr == DEPTH-1 )
  			read_ptr <= 0;

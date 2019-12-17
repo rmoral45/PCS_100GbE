@@ -18,7 +18,7 @@
 module clock_comp_tx
 #(
         parameter NB_DATA_CODED          = 66,
-        parameter AM_BLOCK_PERIOD  = 16383, //[CHECK]
+        parameter AM_BLOCK_PERIOD  = 100, //[CHECK]
         parameter N_LANES          = 20
  )
  (
@@ -35,7 +35,7 @@ module clock_comp_tx
 localparam                      NB_ADDR       = 5;
 localparam                      NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES)+1; //[CHECK]
 localparam                      NB_IDLE_CNT   = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
-localparam [NB_DATA_CODED-1 : 0]      PCS_IDLE      = 'h2_e0_00_00_00_00_00_00_00;
+localparam [NB_DATA_CODED-1 : 0]      PCS_IDLE      = 'h2_1e_00_00_00_00_00_00_00;
 
 //------------ Internal Signals -----------------//
 
@@ -49,6 +49,7 @@ wire                            idle_insert;
 wire                            fifo_read_enable;
 wire                            fifo_write_enable;
 wire [NB_DATA_CODED-1 : 0]            fifo_output_data;
+wire                            fifo_empty;
 
 
 
@@ -104,6 +105,7 @@ sync_fifo
                 .i_clock        (i_clock),
                 .i_reset        (i_reset),
                 .i_enable       (i_enable),
+                .i_valid        (i_valid),
                 .i_write_enb    (fifo_write_enable),
                 .i_read_enb     (fifo_read_enable),
                 .i_data         (i_data),

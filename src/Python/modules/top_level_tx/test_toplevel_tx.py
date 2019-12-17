@@ -43,6 +43,7 @@ def main():
                 #parse data blocks 
                 out_data_blocks  = list(filter(lambda x : ((x & data_search_mask) != 0) , am_blocks))
 
+        '''
         #process frame generator output
         with open('') as fd:
                 gen_blocks = []
@@ -53,11 +54,11 @@ def main():
                         gen_blocks.append(data[:-1]) # CHECK !!!!! creo que esto era por el tema del tag que estaba puesto
 
 
-                '''
+                \'''
                 Dejo esta linea por las dudas, pero no deberia tener que ajustar este vector, ya que
                 no tiene estado transitorio por que es primer salida
                 gen_blocks = gen_blocks[period_start_index : n_simulated_periods * AM_BLOCK_PERIOD * N_LANES]
-                '''
+                \'''
 
                 gen_blocks = list(map(lambda x : int(x,2), gen_blocks))
                 #parse data blocks
@@ -70,7 +71,7 @@ def main():
 
         if in_data_blocks != out_data_blocks :
                 raise Exception("Data Mismatch")
-
+        '''
 
 if __name__ == '__main__':
         main()
