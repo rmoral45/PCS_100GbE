@@ -44,10 +44,10 @@ always @ (posedge i_clock)
 begin
         if (i_reset || valid_count_done)
                 valid_counter <= {NB_VALID_COUNTER{1'b0}};
-        else if(increment_sys_counter)
+        else 
                 valid_counter <= valid_counter + 1'b1;
 end
-assign valid_count_done = (valid_counter == VALID_COUNT_LIMIT) ? 1'b1 : 1'b0;
+assign valid_count_done = (valid_counter == VALID_COUNT_LIMIT-1) ? 1'b1 : 1'b0;
 
 /*
 generate

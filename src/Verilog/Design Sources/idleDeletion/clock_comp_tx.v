@@ -36,6 +36,7 @@ localparam                      NB_ADDR       = 5;
 localparam                      NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES)+1; //[CHECK]
 localparam                      NB_IDLE_CNT   = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
 localparam [NB_DATA_CODED-1 : 0]      PCS_IDLE      = 'h2_1e_00_00_00_00_00_00_00;
+localparam                      WR_PTR_AFTER_RST = 1;
 
 //------------ Internal Signals -----------------//
 
@@ -65,7 +66,7 @@ begin
                 period_counter <= period_counter + 1'b1;
 end
 
-assign period_done = (period_counter == ((AM_BLOCK_PERIOD*N_LANES)-1)) ? 1'b1 : 1'b0;
+assign period_done = (period_counter == ((AM_BLOCK_PERIOD*N_LANES))) ? 1'b1 : 1'b0;
 
 
 always @ (posedge i_clock)
@@ -98,7 +99,7 @@ sync_fifo
         #(
                 .NB_DATA(NB_DATA_CODED),
                 .NB_ADDR(NB_ADDR),
-                .WR_PTR_AFTER_RESET('d1)
+                .WR_PTR_AFTER_RESET(WR_PTR_AFTER_RST)
          )
          u_sync_fifo
          (

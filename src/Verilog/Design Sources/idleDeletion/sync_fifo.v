@@ -4,7 +4,7 @@ module  sync_fifo
 #(
 	parameter NB_DATA = 72,
 	parameter NB_ADDR = 5,
-	parameter WR_PTR_AFTER_RESET = 1
+	parameter WR_PTR_AFTER_RESET = 0
  )
  (
  	input  wire 				i_clock,

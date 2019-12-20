@@ -1,9 +1,9 @@
 `timescale 1ns/100ps
 
 module tb_toplvel_tx;
-localparam      DATA_ENCODER_PATH   = "/media/data/PPS/src/Verilog/Simulation Sources/tb_toplevel_tx/encoder_output.txt";
-localparam      DATA_CLOCKCOMP_PATH = "/media/data/PPS/src/Verilog/Simulation Sources/tb_toplevel_tx/clockComp_output.txt";
-localparam      DATA_AM_INSERT_PATH = "/media/data/PPS/src/Verilog/Simulation Sources/tb_toplevel_tx/amInsert_output.txt";
+localparam      DATA_ENCODER_PATH   = "/home/dabratte/PPS/src/Python/modules/top_level_tx/dump/encoder_output.txt";
+localparam      DATA_CLOCKCOMP_PATH = "/home/dabratte/PPS/src/Python/modules/top_level_tx/dump/clockComp_output.txt";
+localparam      DATA_AM_INSERT_PATH = "/home/dabratte/PPS/src/Python/modules/top_level_tx/dump/amInsert_output.txt";
 localparam      NB_DATA_RAW         = 64;
 localparam      NB_CTRL_RAW         = 8;
 localparam      NB_DATA_CODED       = 66;
@@ -11,7 +11,8 @@ localparam      NB_DATA_TAGGED      = 67;
 localparam      N_LANES             = 20;
 localparam      COUNT_SCALE         = 2;
 localparam      VALID_COUNT_LIMIT   = 10;
-localparam      AM_BLOCK_PERIOD     = 16383;
+//localparam      AM_BLOCK_PERIOD     = 16383;
+localparam      AM_BLOCK_PERIOD     = 100;
 localparam      SEED                = 58'd0;
 localparam      NB_SCRAMBLER        = 58;
 localparam      NB_SH               = 2;
@@ -36,7 +37,10 @@ wire                                slow_valid;
 wire [NB_DATA_CODED-1 : 0]          tb_o_encoder_data;
 wire [NB_DATA_CODED-1 : 0]          tb_o_clock_comp_data;
 wire [NB_DATA_CODED*N_LANES-1 : 0]  tb_o_am_insert_data;
+wire [NB_DATA_TAGGED*N_LANES-1 : 0]  tb_o_pc_data;
 wire [NB_DATA_CODED-1 : 0]          tb_o_am_insert_per_lane [N_LANES-1:0];
+wire [NB_DATA_TAGGED-1 : 0]         tb_o_pc_per_lane [N_LANES-1:0];
+wire                                tb_o_valid_pc;
 
 integer                             fid_tx_data_encoder;
 integer                             fid_tx_data_clockComp;
@@ -69,34 +73,33 @@ begin
     end
 
 
-    tb_clock 				 = 0;
-	tb_reset 				 = 0;
+    tb_clock 		     = 0;
+    tb_reset 		     = 0;
     tb_enb_valid_gen         = 0;
     tb_enb_frame_gen         = 0;
     tb_enb_encoder           = 0;
     tb_enb_clock_comp        = 0;
     tb_enb_scrambler         = 0;
     tb_bypass_scrambler      = 0;
-    tb_idle_pattern_mode     = 0;
+    tb_idle_pattern_mode     = 1;
     tb_enb_pc_1_20           = 0;
     tb_enb_am_insertion      = 0;
     tb_enb_pc_20_1           = 0;
-#2  tb_reset                 = 1;
-#4  tb_reset                 = 0;
-#2  tb_enb_valid_gen         = 1;
+    tb_reset                 = 1;
+#100  
+    tb_reset                 = 0;
+    tb_enb_valid_gen         = 1;
     tb_enb_frame_gen         = 1;
     tb_enb_encoder           = 1;
     tb_enb_clock_comp        = 1;
-    tb_enb_scrambler         = 1;
-     tb_enb_pc_1_20           = 1;
-     tb_enb_am_insertion      = 1;
-     tb_enb_pc_20_1           = 1;
-
-/*#128 tb_enb_scrambler         = 1;
-     tb_enb_pc_1_20           = 1;
-     tb_enb_am_insertion      = 1;
-     tb_enb_pc_20_1           = 1;
-*/
+    tb_enb_am_insertion      = 1;
+    tb_enb_pc_20_1           = 1;
+  tb_enb_scrambler         = 1;
+    tb_enb_pc_1_20           = 1;
+#200
+    tb_bypass_scrambler      = 1;
+    tb_idle_pattern_mode     = 0;
+    
 end
 
 always #1 tb_clock = ~tb_clock;
@@ -107,7 +110,7 @@ begin
         $fwrite(fid_tx_data_clockComp, "%b\n", tb_o_clock_comp_data);        
 end
 
-always @(posedge slow_valid)
+always @(posedge tb_o_valid_pc)
 begin   
         for(j=0; j<N_LANES; j=j+1)
             $fwrite(fid_tx_am_insert, "%b\n", tb_o_am_insert_per_lane[j]);
@@ -139,7 +142,9 @@ u_toplevel_tx
     .o_slow_valid(slow_valid),
     .o_encoder_data(tb_o_encoder_data),
     .o_clock_comp_data(tb_o_clock_comp_data),
-    .o_am_insert_data(tb_o_am_insert_data)
+    .o_am_insert_data(tb_o_am_insert_data),
+    .o_valid_pc(tb_o_valid_pc),
+    .o_pc_data(tb_o_pc_data)
 );
 
 genvar i;
@@ -151,5 +156,9 @@ begin: ger_block1
     assign tb_o_am_insert_per_lane[i] = tb_o_am_insert_data[(NB_DATA_CODED*N_LANES-1) - i*NB_DATA_CODED -: NB_DATA_CODED];
 end
 
+for(i=0; i<N_LANES; i=i+1)
+begin: ger_block2
+    assign tb_o_pc_per_lane[i] = tb_o_pc_data[(NB_DATA_TAGGED*N_LANES-2) - i*NB_DATA_TAGGED -: NB_DATA_CODED];
+end
 //endgenerate
 endmodule
