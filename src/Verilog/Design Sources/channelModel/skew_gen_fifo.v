@@ -26,8 +26,8 @@ module skew_gen_fifo
 //LOCALPARAMS
 
 localparam NB_ADDR_CNT = $clog2(FIFO_DEPTH);
-localparam NB_MEM_DATA = NB_CODED_BLOCK + 1; //incluye el tag de alineador
-
+localparam NB_MEM_DATA = NB_CODED_BLOCK + 1; //incluye el tag de alineador[FIX quizas]
+localparam NB_FILL_ADDR = NB_ADDR_CNT - NB_SKEW_SELECT;
 
 //INTERNAL SIGNALS
 
@@ -49,7 +49,7 @@ begin
                 wr_ptr <= {NB_ADDR_CNT{1'b0}};
 
         else if (i_rf_update)
-                wr_ptr <=
+                wr_ptr <= {{NB_FILL_ADDR{1'b0}},i_rf_skew};
 
         else if (wr_addr_limit)
                 wr_ptr <= {NB_ADDR_CNT{1'b0}};
@@ -66,7 +66,7 @@ begin
                 rd_addr <= {NB_ADDR_CNT{1'b0}};
 
         else if (i_rf_update)
-                rd_addr <=
+                rd_addr <= {NB_ADDR_CNT{1'b0}};
 
         else if (rd_addr_limit)
                 rd_addr <= {NB_ADDR_CNT{1'b0}};

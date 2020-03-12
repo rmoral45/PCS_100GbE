@@ -38,10 +38,10 @@ module payload_breaker
 //Localparams
 localparam NB_PAYLOAD = NB_CODED_BLOCK-2;
 localparam NB_SH = 2;
-localparam MODE_ALIN = 0;
-localparam MODE_CTRL = 1;
-localparam MODE_DATA = 2;
-localparam MODE_ALL  = 3;
+localparam MODE_ALIN = 4'b0001;
+localparam MODE_CTRL = 4'b0010;
+localparam MODE_DATA = 4'b0100;
+localparam MODE_ALL  = 4'b1000;
 
 //------------------------------Internal Signals-----------------------------------
 
@@ -62,6 +62,7 @@ wire [NB_PAYLOAD-1 : 0]         err_payload;
 wire                            burst_on;
 wire                            period_on;
 wire                            repeat_on;
+wire                            expected_block;
 
 //sh type
 wire                            sh_ctrl_type;
@@ -77,6 +78,11 @@ assign payload          = i_data[NB_CODED_BLOCK-NB_SH-1 : 0];
 assign sh_ctrl_type = (sh == 2'b10);
 assign sh_data_type = (sh == 2'b01);
 
+assign expected_block = ((i_rf_mode == MODE_ALIN) & i_aligner_tag) |
+                        ((i_rf_mode == MODE_CTRL) & sh_ctrl_type)  |
+                        ((i_rf_mode == MODE_DATA) & sh_data_type)  |
+                         (i_rf_mode == MODE_ALL);
+
 //break process
 assign bit_flip         = (payload & i_rf_error_mask) ^ i_rf_error_mask;
 assign masked_payload   = payload & (~i_rf_error_mask);
@@ -89,16 +95,16 @@ begin
         o_data = i_data; //DEFINIR OUT DATA
                 case (i_rf_mode)
                 MODE_ALIN :
-                        if (burst_on && i_aligner_tag)
+                        if (burst_on && i_aligner_tag && !i_rf_update)
                                 o_data = {sh , err_payload}; 
                 MODE_CTRL :
-                        if (burst_on && sh_ctrl_type)
+                        if (burst_on && sh_ctrl_type  && !i_rf_update)
                                 o_data = {sh, err_payload};
                 MODE_DATA :
-                        if (burst_on && sh_data_type)
+                        if (burst_on && sh_data_type  && !i_rf_update)
                                 o_data = {sh, err_payload};
                 MODE_ALL :
-                        if (burst_on)
+                        if (burst_on && !i_rf_update)
                                 o_data = {sh, err_payload};
                 default  :
                         o_data = i_data;
@@ -123,9 +129,9 @@ begin
                 burst_counter <= {NB_BURST_CNT{1'b0}};
         else if (i_rf_update)
                 burst_counter <= i_rf_error_burst;
-        else if (repeat_on && !period_on) //si termino el periodo y debo repetir vuelvo a setear el valor
+        else if (repeat_on && !period_on && i_valid) //si termino el periodo y debo repetir vuelvo a setear el valor
                 burst_counter <= i_rf_error_burst;
-        else if (i_valid && burst_on)
+        else if (expected_block && burst_on && i_valid)
                 burst_counter <= burst_counter - 1'b1;
                         
 end
@@ -138,9 +144,9 @@ begin
                 period_counter <= {NB_PERIOD_CNT{1'b0}};     
         else if (i_rf_update)
                 period_counter <= i_rf_error_period;
-        else if (repeat_on && !period_on)
+        else if (repeat_on && !period_on && i_valid)
                 period_counter <= i_rf_error_period;
-        else if (i_valid && period_on)
+        else if (period_on && i_valid)
                 period_counter <= period_counter - 1'b1;
 end
 assign period_on = (period_counter > {NB_PERIOD_CNT{1'b0}}) ? 1'b1 : 1'b0;
