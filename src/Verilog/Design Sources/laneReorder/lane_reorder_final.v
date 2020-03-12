@@ -21,7 +21,8 @@ module lane_reorder_final
         input wire                      i_deskew_done,
         input wire  [NB_ID_BUS-1 : 0]   i_logical_rx_ID,
 
-        output wire [NB_ID_BUS-1 : 0]   o_reorder_mux_selector
+        output wire [NB_ID_BUS-1 : 0]   o_reorder_mux_selector,
+        output wire                     o_update_selectors
 );
 
 
@@ -33,7 +34,9 @@ localparam NB_POINTER = $clog2(NB_ID_BUS);
 reg  [NB_ID_BUS-1  : 0]         mux_selector ;
 reg  [NB_COUNTER-1 : 0]         counter ;
 reg  [N_LANES-1    : 0]         id_present;
+reg                             update_sel;
 wire [NB_POINTER   : 0]         wr_ptr;
+wire [NB_POINTER   : 0]         aux_wr_ptr;
 wire                            reorder_done;
 wire                            all_lanes_present;
 wire [NB_ID_BUS-1  : 0]         default_lane_select;
@@ -51,7 +54,7 @@ begin
         if (i_reset || i_reset_order)
         begin
                 mux_selector <= {NB_ID_BUS{1'b0}};
-                 counter <= 1'b0;
+                counter <= 1'b0;
         end
         else if (i_enable && i_valid && i_deskew_done && !reorder_done)
         begin
@@ -60,7 +63,10 @@ begin
         end
 end
 
-assign wr_ptr = (reorder_done) ? {NB_POINTER{1'b0}} : i_logical_rx_ID[((NB_ID_BUS)-(counter*NB_ID))-1 -: NB_ID];
+//Two step assigment to ensure ids isnt out of range
+assign aux_wr_ptr = (reorder_done) ? {NB_POINTER{1'b0}} : i_logical_rx_ID[((NB_ID_BUS)-(counter*NB_ID))-1 -: NB_ID];
+assign wr_ptr     = (aux_wr_ptr < N_LANES) ? wr_ptr : {NB_POINTER{1'b0}};
+
 assign reorder_done = (counter == N_LANES) ? 1'b1 : 1'b0;
 
 
@@ -69,11 +75,23 @@ always @ (posedge i_clock)
 begin
 	if (i_reset || i_reset_order)
 		id_present <=  {N_LANES{1'b0}};
+
         else if (i_enable && i_valid && i_deskew_done && !reorder_done)
 		id_present[wr_ptr] <= 1'b1;
 end
 
 assign all_lanes_present = &id_present;
+
+//Update conditions pulse generator
+always @ (posedge i_clock)
+begin
+        if (i_reset)
+                update_sel <= 0;
+        else if (i_enable && i_valid)
+                update_sel <= all_lanes_present & reorder_done;        
+end
+
+assign o_update_selectors = ~update_sel & (all_lanes_present & reorder_done);
 
 endmodule
 
