@@ -1,3 +1,5 @@
+/* -------- DEPRECATED --------- */
+
 module max_finder
 	#(
 		parameter	MAX_SKEW 				= 15,

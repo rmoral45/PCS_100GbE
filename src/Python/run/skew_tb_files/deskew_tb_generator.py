@@ -66,10 +66,16 @@ def set_init_time_delay(lock_vect, sol_matrix, resync_vect,test_type = 'valid sk
 		#revisar : ambos indices son inclusivos en randint
 		skew_possibilities = range(lock_delay+AM_PERIOD-MAX_SKEW, lock_delay+AM_PERIOD)*NLANES
 		sol_delay = random.sample(skew_possibilities,NLANES)
+		bp()
 		for lane_iter in range(NLANES) :
 			time = sol_delay[lane_iter]
 			sol_matrix[time][lane_iter] = 1
-	else :
+	
+		bp()
+
+		
+
+	else:
 		RaiseError('test type undefined, BOLUDO')
 
 
