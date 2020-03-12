@@ -1,18 +1,19 @@
+`timescale 1ns/100ps
 module frameChecker
 	#(
-	parameter								LEN_DATA_BLOCK 	= 64,
-	parameter								LEN_CTRL_BLOCK 	= 8,
-	parameter								LEN_GNG			= 16,
+	parameter								NB_DATA_RAW 	= 64,
+	parameter								NB_CTRL_RAW 	= 8,
+	parameter								NB_GNG			= 16,
 	parameter								N_BLOCKS		= 2048
 	)
 	(
 	input									i_clock,
 	input									i_reset,
 	input									i_enable,
-	input 	wire	[LEN_DATA_BLOCK-1 : 0]	i_tx_data,
-	input 	wire	[LEN_CTRL_BLOCK-1 : 0]	i_tx_ctrl,
-	input	wire	[LEN_DATA_BLOCK-1 : 0]	i_rx_raw_data,
-	input	wire	[LEN_CTRL_BLOCK-1 : 0]	i_rx_raw_ctrl,
+	input 	wire	[NB_DATA_RAW-1 : 0]	i_tx_data,
+	input 	wire	[NB_CTRL_RAW-1 : 0]	i_tx_ctrl,
+	input	wire	[NB_DATA_RAW-1 : 0]	i_rx_raw_data,
+	input	wire	[NB_CTRL_RAW-1 : 0]	i_rx_raw_ctrl,
 	output 	wire							o_match_data,
 	output	wire							o_match_ctrl
 	);
@@ -34,8 +35,8 @@ module frameChecker
 	reg				[NB_ADDR_RAM-1 : 0]		min_read_ptr;
 	
 
-	wire			[LEN_CTRL_BLOCK-1 : 0]	ctrl_compare;
-	wire			[LEN_DATA_BLOCK-1 : 0]	data_compare;
+	wire			[NB_CTRL_RAW-1 : 0]	ctrl_compare;
+	wire			[NB_DATA_RAW-1 : 0]	data_compare;
 	wire 									depth_flag;
 	
 	assign  	depth_flag            = (read_ptr == 2**(NB_ADDR_RAM-1)) ? 1 : 0;
@@ -132,7 +133,7 @@ module frameChecker
 
 shift_memory
     #(
-    .NB_DATA(LEN_CTRL_BLOCK),
+    .NB_DATA(NB_CTRL_RAW),
     .NB_ADDR(NB_ADDR_RAM)
     )
     u_shift_memory

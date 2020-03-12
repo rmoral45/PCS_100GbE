@@ -1,15 +1,17 @@
+`timescale 1ns/100ps
 module cgmiiFSM
 	#(
 	parameter						DATA_NBIT	= 8,
 	parameter						IDLE_NBIT	= 5,
 	parameter						TERM_NBIT	= 3,
 	parameter						DEBUG_NBIT	= 4,
-	parameter						N_STATES	= 5
+	parameter						N_STATES	= 6
 	)
 	(
 	input 							i_clock,
 	input 							i_reset,
 	input                           i_enable,
+	input                           i_valid,
 	input		[DEBUG_NBIT - 1:0]	i_debug_pulse,			//senial utilizada para forzar transiciones de estados
 	input wire 	[DATA_NBIT - 1:0]	i_ndata,
 	input wire 	[IDLE_NBIT - 1:0]	i_nidle,
@@ -18,11 +20,12 @@ module cgmiiFSM
 	);
 
 //Estados
-localparam	[N_STATES-1:0]			INIT 		= 5'b00001;
-localparam	[N_STATES-1:0]			TX_C 		= 5'b00010;
-localparam	[N_STATES-1:0]			TX_D 		= 5'b00100;
-localparam	[N_STATES-1:0]			TX_T 		= 5'b01000;
-localparam	[N_STATES-1:0]			TX_E 		= 5'b10000;
+localparam	[N_STATES-1:0]			INIT 		= 6'b000001;
+localparam	[N_STATES-1:0]			TX_C 		= 6'b000010;
+localparam	[N_STATES-1:0]			TX_S 		= 6'b000100;
+localparam	[N_STATES-1:0]			TX_D 		= 6'b001000;
+localparam	[N_STATES-1:0]			TX_T 		= 6'b010000;
+localparam	[N_STATES-1:0]			TX_E 		= 6'b100000;
 
 //Registros
 reg 		[N_STATES - 1:0]		actual_state;
@@ -32,9 +35,12 @@ reg 		[IDLE_NBIT - 1:0]		idle_counter_next;
 reg 		[DATA_NBIT - 1:0]		data_counter;
 reg 		[DATA_NBIT - 1:0]		data_counter_next; 
 reg 		[IDLE_NBIT - 1:0]		n_idle;
+reg 		[IDLE_NBIT - 1:0]		n_idle_next;
 reg 		[DATA_NBIT - 1:0]		n_data;
+reg 		[DATA_NBIT - 1:0]		n_data_next;
 reg                                 first_transition;
 reg                                 start_signal;
+reg                                 start_signal_next;
 
 //Asigns
 assign 								o_actual_state = actual_state;
@@ -45,21 +51,21 @@ always @ (posedge i_clock)begin
 	if(i_reset)begin
         data_counter    <= {DATA_NBIT{1'b0}};
         idle_counter 	<= {IDLE_NBIT{1'b0}};
-        first_transition<= 1'b1; 
-        start_signal    <= 1'b0;
-	end
-	else if(first_transition && i_enable)begin
-	    n_idle 			<= i_nidle;
+        //first_transition<= 1'b1; 
+        n_idle 			<= i_nidle;
         n_data          <= i_ndata;
-        actual_state    <= INIT;
         first_transition<= 1'b0;
-        start_signal    <= start_signal;
-    end    
-    else if(i_enable)begin
+        start_signal    <= 1'b0;
+        actual_state    <= INIT;
+	end  
+    else if(i_enable && i_valid)
+    begin
 		idle_counter 	<= idle_counter_next;
 		data_counter 	<= data_counter_next;
-		start_signal    <= start_signal;
+		start_signal    <= start_signal_next;
 		actual_state 	<= next_state;
+		n_idle          <= n_idle_next;
+		n_data          <= n_data_next;
 	end
 end
 
@@ -70,7 +76,10 @@ always @ * begin
 	next_state 			= actual_state;
 	idle_counter_next 	= idle_counter;
 	data_counter_next 	= data_counter;
-
+    start_signal_next   = start_signal;
+    n_idle_next         = n_idle;
+    n_data_next         = n_data;
+    
 	if(i_debug_pulse == 4'b0000)begin  					//Operacion normal
 
 		case(actual_state)
@@ -78,7 +87,7 @@ always @ * begin
 		INIT:
 		begin
 			next_state 				= TX_C;
-			start_signal            = 1'b0;
+			start_signal_next       = 1'b0;
 		end
 
 		TX_C:
@@ -88,11 +97,17 @@ always @ * begin
 			     next_state 		= actual_state;
 			end
 			else begin
-			     start_signal        = 1'b1;
+			     start_signal_next  = 1'b1;
 				 idle_counter_next 	= {IDLE_NBIT{1'b0}};
-			     next_state 		= TX_D;
+			     next_state 		= TX_S;
 			end
 		end
+
+        TX_S:
+        begin
+                start_signal_next   = 1'b0;
+                next_state          = TX_D;
+        end
 
 		TX_D:
 		begin
@@ -109,8 +124,8 @@ always @ * begin
 
 		TX_T:
 		begin
-				n_idle = i_nidle;
-				n_data = i_ndata;
+				n_idle_next = i_nidle;
+				n_data_next = i_ndata;
 				next_state = INIT;
 		end
 

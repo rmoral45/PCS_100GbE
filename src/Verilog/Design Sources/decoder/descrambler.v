@@ -8,30 +8,31 @@ module descrambler
 	parameter SEED			  = 0 //verificar de que tamanio
  )
  (
- 	input wire  						i_clock,
- 	input wire  						i_reset,
- 	input wire  						i_enable,
- 	input wire							i_bypass,
- 	input wire  [LEN_CODED_BLOCK-1 : 0] i_data,
+ 	input wire  				i_clock,
+ 	input wire  				i_reset,
+ 	input wire  				i_enable,
+ 	input wire				i_bypass,
+ 	input wire  [LEN_CODED_BLOCK-1 : 0] 	i_data,
 
- 	output wire [LEN_CODED_BLOCK-1 : 0] o_data
+ 	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data
  );
 
 //LOCALPARAM
-localparam NB_SH = 2;
+localparam 			   NB_SH = 2;
+localparam [LEN_CODED_BLOCK-1 : 0] IDLE_BLOCK = 66'h21E00000000000000;
+
 //INTERNAL SIGNALS
 
 integer i;
 wire [NB_SH-1 : 0]			 sync_header;
 (* keep = "true" *) reg  [LEN_CODED_BLOCK-1 : 0] output_data;
-reg  [LEN_CODED_BLOCK-1 : 0] descrambled_data;
+		    reg  [LEN_CODED_BLOCK-1 : 0] descrambled_data;
 
-(* keep = "true" *)reg  [LEN_SCRAMBLER-1   : 0] descrambler_state;
-//reg  [LEN_SCRAMBLER-1   : 0] descrambler_state;
-reg  [LEN_SCRAMBLER-1   : 0] descrambler_state_next;
-reg out_bit_N;
+(* keep = "true" *) reg  [LEN_SCRAMBLER-1   : 0] descrambler_state;
+		    reg  [LEN_SCRAMBLER-1   : 0] descrambler_state_next;
+		    reg out_bit_N;
 
-assign sync_header = i_data[LEN_CODED_BLOCK-1 -: 2];
+assign sync_header = i_data[LEN_CODED_BLOCK-1 -: NB_SH];
 
 //PORTS
 assign o_data = output_data;
@@ -44,12 +45,11 @@ begin
 	else if (i_enable && (!i_bypass))
  		descrambler_state <= descrambler_state_next;
 
-
 end
 
 //output
- always @ (posedge i_clock)
- begin
+always @ (posedge i_clock)
+begin
 
  	if (i_enable && (!i_bypass))begin
  		output_data <= descrambled_data;
@@ -57,7 +57,7 @@ end
  	else if (i_enable &&  i_bypass)begin
  		output_data <= i_data;
  	end
- end
+end
 
 
 //ALGORITHM BEGIN
@@ -74,6 +74,8 @@ begin
 		descrambler_state_next = {i_data[i],descrambler_state_next[LEN_SCRAMBLER-1 : 1]};
 	end
 end
+
+
 
 
 endmodule

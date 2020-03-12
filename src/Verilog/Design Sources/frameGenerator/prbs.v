@@ -1,3 +1,4 @@
+`timescale 1ns/100ps
 module prbs
 	#(
 	parameter 								SEED 		= 12'hABC,

@@ -51,6 +51,15 @@ reg match_payload;
 reg enable;
 reg match;
 reg aux; //TODO pensar un nombre mejor
+/*
+        Variables usadas para debugging
+
+reg [NB_AM-1 :0] dbg_xor;
+reg [NB_AM-1 :0] dbg_inv_xor;
+reg [NB_AM-1 :0] dbg_or;
+reg [NB_AM-1 :0] dbg_red_and;
+reg [NB_AM-1 :0] dbg_test_am;
+*/
 always @ *
 begin
 	aligners 	  = { AM_LANE_19, AM_LANE_18, AM_LANE_17, AM_LANE_16, AM_LANE_15, AM_LANE_14, AM_LANE_13,
@@ -65,18 +74,21 @@ begin
 
 	for(i=0;i<N_ALIGNER;i=i+1)
 	begin
-		am_value_masked = i_am_value & i_compare_mask;
-		aux = |(am_value_masked ^ aligners[i*LEN_AM +: LEN_AM])
-		if (!aux && i_match_mask[i])
+                
+		//am_value_masked = i_am_value & i_compare_mask;
+		//aux = |(am_value_masked ^ aligners[i*LEN_AM +: LEN_AM])
+                //dbg_test_am = aligners[i*NB_AM +: NB_AM];
+                //dbg_xor = i_am_value ^ dbg_test_am;
+		aux = & (((~( i_am_value ^ aligners[i*NB_AM +: NB_AM] )) | ~i_compare_mask ) ) ;
+		if (aux && i_match_mask[i])
 		begin
-			match_expected_am[i] = 1;
 			match_vector[i]      = 1;
 		end 
 	end
 
-	match_payload = | match_expected_am; // se encontro un match
+	match_payload = | match_vector; // se encontro un match
 	enable 	      = (i_timer_done | i_enable_mask);//se cumplio el tiempo en el que debe llegar otro bloque o todavia no encontre el primero
-	match 	      = match_payload & enable & i_sh_valid;//input to fsm
+	match 	      = match_payload & enable;//input to fsm
 
 end 
 

@@ -8,23 +8,24 @@
    	-Aplicar funcion T_TYPE.<pag 168 estandar> 
 
 */
-
+`timescale 1ns/100ps
 
 module encoder_comparator
 #(
-  parameter 						  LEN_CODED_BLOCK = 66,
-  parameter 						  LEN_DATA_BLOCK = 64,
-  parameter						      LEN_CTRL_BLOCK = 8
+  parameter 						  NB_DATA_CODED = 66,
+  parameter 						  NB_DATA_RAW = 64,
+  parameter						      NB_CTRL_RAW = 8
  )
  (
 
   input wire 						  i_clock,
   input wire 					      i_reset,
-  input wire  [LEN_DATA_BLOCK-1 : 0]  i_tx_data,
-  input wire  [LEN_CTRL_BLOCK-1 : 0]  i_tx_ctrl,
+  input wire 						  i_valid,
+  input wire  [NB_DATA_RAW-1 : 0]  i_tx_data,
+  input wire  [NB_CTRL_RAW-1 : 0]  i_tx_ctrl,
   input wire 					      i_enable,
   output wire [3:0]                   o_tx_type,
-  output reg  [LEN_CODED_BLOCK-1 : 0] o_tx_coded
+  output reg  [NB_DATA_CODED-1 : 0] o_tx_coded
 
  );
 
@@ -63,14 +64,14 @@ localparam [7:0] BTYPE_T6    = 8'hE1;
 localparam [7:0] BTYPE_T7    = 8'hFF;
 
 //Byte positions
-localparam BYTE_0 = LEN_DATA_BLOCK-1;
-localparam BYTE_1 = LEN_DATA_BLOCK-1-8;
-localparam BYTE_2 = LEN_DATA_BLOCK-1-16;
-localparam BYTE_3 = LEN_DATA_BLOCK-1-24;
-localparam BYTE_4 = LEN_DATA_BLOCK-1-32;
-localparam BYTE_5 = LEN_DATA_BLOCK-1-40;
-localparam BYTE_6 = LEN_DATA_BLOCK-1-48;
-localparam BYTE_7 = LEN_DATA_BLOCK-1-56;
+localparam BYTE_0 = NB_DATA_RAW-1;
+localparam BYTE_1 = NB_DATA_RAW-1-8;
+localparam BYTE_2 = NB_DATA_RAW-1-16;
+localparam BYTE_3 = NB_DATA_RAW-1-24;
+localparam BYTE_4 = NB_DATA_RAW-1-32;
+localparam BYTE_5 = NB_DATA_RAW-1-40;
+localparam BYTE_6 = NB_DATA_RAW-1-48;
+localparam BYTE_7 = NB_DATA_RAW-1-56;
 
 
 //DECODIFICACION 
@@ -192,18 +193,18 @@ reg [6:0] pcs_char_7;
 
 
 //Update input
-reg [LEN_DATA_BLOCK-1 : 0] tx_data;
-reg [LEN_CTRL_BLOCK-1 : 0] tx_ctrl;
+reg [NB_DATA_RAW-1 : 0] tx_data;
+reg [NB_CTRL_RAW-1 : 0] tx_ctrl;
 
 always @(posedge i_clock)
 begin
 
 	if(i_reset)
 	begin
-		tx_data    <= {LEN_DATA_BLOCK{1'b0}};
-		tx_ctrl    <= {LEN_CTRL_BLOCK{1'b0}}; 
+		tx_data    <= {NB_DATA_RAW{1'b0}};
+		tx_ctrl    <= {NB_CTRL_RAW{1'b0}}; 
 	end
-	else if(i_enable)
+	else if(i_enable && i_valid)
 	begin
 		tx_data    <= i_tx_data;
 		tx_ctrl    <= i_tx_ctrl;

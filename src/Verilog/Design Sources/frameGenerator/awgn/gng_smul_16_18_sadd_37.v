@@ -6,7 +6,7 @@
 //
 // Description
 //     Signed multiplier 16-bit x 18-bit follows signed adder 37-bit,
-// delay 3 cycles¡£
+// delay 3 cyclesï¿½ï¿½
 //
 //------------------------------------------------------------------------------
 //
@@ -34,7 +34,7 @@
 //------------------------------------------------------------------------------
 
 
-`timescale 1 ns / 1 ps
+`timescale 1 ns / 100 ps
 
 
 module gng_smul_16_18_sadd_37 (

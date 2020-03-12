@@ -32,6 +32,7 @@ class bipCalculator(object):
 		self.bip[7] = self.bip3[7] ^ data[9] ^ data[17] ^ data[25] ^ data[33] ^ data[41] ^ data[49] ^ data[57] ^ data[65]
 		'''
 
+	
 		#paridad invertida
 		self.bip[7] = self.bip3[7] ^ data[2] ^ data[10] ^ data[18] ^ data[26] ^ data[34] ^ data[42] ^ data[50] ^ data[58]
 		self.bip[6] = self.bip3[6] ^ data[3] ^ data[11] ^ data[19] ^ data[27] ^ data[35] ^ data[43] ^ data[51] ^ data[59] 

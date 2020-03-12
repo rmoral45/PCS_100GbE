@@ -1,6 +1,7 @@
 /*
   Scrambling en base al polinomio definido en el estandar, 1+ x^39 + x^58.
 */
+`timescale 1ns/100ps
 
 module parallel_scrambler
 #(

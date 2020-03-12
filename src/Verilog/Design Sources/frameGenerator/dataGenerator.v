@@ -1,25 +1,25 @@
+`timescale 1ns/100ps
 module dataGenerator
 	#(
-	parameter							DATA_BYTE_LEN 	= 8,
-	parameter							DATA_BLOCK_LEN 	= 64
+	parameter							NB_BYTE 		= 8,
+	parameter							NB_DATA_RAW 	= 64
 	)
 	(
 	input								i_clock,
 	input								i_reset,
 	input								i_enable,
-	input								i_valid,
-	output wire	[DATA_BLOCK_LEN - 1 :0]	o_data_block
+	output wire	[NB_DATA_RAW - 1 :0]	o_data_block
 	);
 
 wire									valid = 1'b1;
-wire 			[DATA_BYTE_LEN-1 : 0]	data0;
-wire 			[DATA_BYTE_LEN-1 : 0]	data1;
-wire 			[DATA_BYTE_LEN-1 : 0]	data2;
-wire 			[DATA_BYTE_LEN-1 : 0]	data3;
-wire 			[DATA_BYTE_LEN-1 : 0]	data4;
-wire 			[DATA_BYTE_LEN-1 : 0]	data5;
-wire 			[DATA_BYTE_LEN-1 : 0]	data6;
-wire 			[DATA_BYTE_LEN-1 : 0]	data7;
+wire 			[NB_BYTE-1 : 0]	data0;
+wire 			[NB_BYTE-1 : 0]	data1;
+wire 			[NB_BYTE-1 : 0]	data2;
+wire 			[NB_BYTE-1 : 0]	data3;
+wire 			[NB_BYTE-1 : 0]	data4;
+wire 			[NB_BYTE-1 : 0]	data5;
+wire 			[NB_BYTE-1 : 0]	data6;
+wire 			[NB_BYTE-1 : 0]	data7;
 
 assign o_data_block	= {data0, data1, data2, data3, data4, data5, data6, data7};
 
