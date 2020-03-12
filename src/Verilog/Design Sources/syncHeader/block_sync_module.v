@@ -20,7 +20,7 @@ module block_sync_module
     input wire                        	i_signal_ok,
     input wire [NB_WINDOW_CNT-1 : 0] 	i_unlocked_timer_limit,
     input wire [NB_WINDOW_CNT-1 : 0] 	i_locked_timer_limit,
-    input wire [NB_INVALID_CNT-1 : 0]	i_,
+    input wire [NB_INVALID_CNT-1 : 0]	i_sh_invalid_limit,
 
     output wire [NB_CODED_BLOCK-1 : 0]	o_data,
     output wire                         o_block_lock,
@@ -111,9 +111,9 @@ block_sync_fsm
         .i_valid(i_valid),
         .i_signal_ok(i_signal_ok),
         .i_sh_valid(sh_valid),
-        .i_unlocked_timer_limit(unlocked_timer_limit),
-        .i_locked_timer_limit(locked_timer_limit),
-        .i_sh_invalid_limit(sh_invalid_limit),
+        .i_unlocked_timer_limit(i_unlocked_timer_limit),
+        .i_locked_timer_limit(i_locked_timer_limit),
+        .i_sh_invalid_limit(i_sh_invalid_limit),
 
         .o_block_index(block_index),
         .o_search_index(search_index),
