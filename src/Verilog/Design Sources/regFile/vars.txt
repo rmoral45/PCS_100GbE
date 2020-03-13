@@ -1,0 +1,53 @@
+
+Definidas en 82.3.1
+        -reset
+        -loopback
+        -test-pattern enable
+        -hi_ber (1 por lane???)
+        -block_lock X <20 bits>
+        -lane X aligned <20bits>
+        -PCS lane aligment status <1 bit> (es la AND de todas ls lanes)
+        -BER count <22 bits> cuenta cada vez que se entro a BER_BAD_SH
+        -Errored blocks <22 bits> clear-on-read, aumenta en 1 cada vez que decoder entra a estado RX_E
+        -Test-Pattern error count <16 bits>
+        -BIP error counter lane X <N bits por 20 lanes>
+        -lane-mapping
+
+Custom :
+        -enables <1 bit por modulo>
+
+        Scramblers :
+                -bypass scramble
+                -bypass descrambler
+        Block Sync : x20
+                -invalid_sh
+                -locked window
+                -unlocked window
+        Aligment : x20
+                -invalid_thr
+                -valid_thr
+                -compare_mask
+
+        bit_skew_gen : x20
+                -skew_index
+                -update
+
+        payload_breaker: x20
+                -mode
+                -mask
+                -burst
+                -period
+                -repeat
+                -update
+
+        sh_breaker: x20
+                -mode
+                -burst
+                -period
+                -repeat
+                -update
+
+        skew_gen_fifo : x20
+                -update
+                -block_skew
+
