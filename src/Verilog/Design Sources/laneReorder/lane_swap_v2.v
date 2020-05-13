@@ -21,11 +21,11 @@
  */
 module lane_swap_v2
 #(
-        parameter NB_DATA     = 66,
-        parameter N_LANES     = 20,
-        parameter NB_ID       = $clog2(N_LANES),
-        parameter NB_DATA_BUS = NB_DATA * N_LANES,
-        parameter NB_ID_BUS   = NB_ID   * N_LANES
+        parameter                       NB_DATA     = 66,
+        parameter                       N_LANES     = 20,
+        parameter                       NB_ID       = $clog2(N_LANES),
+        parameter                       NB_DATA_BUS = NB_DATA * N_LANES,
+        parameter                       NB_ID_BUS   = NB_ID   * N_LANES
  )
  (
         input  wire                     i_clock,
@@ -44,12 +44,12 @@ module lane_swap_v2
 
 //INTERNAL SIGNALS
 
-reg  [NB_ID_BUS-1 : 0]  lane_id_sr;
-wire [NB_ID-1 : 0]      rd_ptr;
-wire [NB_DATA-1 : 0]  lane_data  [N_LANES-1 : 0];
+reg                 [NB_ID_BUS-1 : 0]   lane_id_sr;
+wire                [NB_ID-1 : 0]       rd_ptr;
+wire                [NB_DATA-1 : 0]     lane_data  [N_LANES-1 : 0];
 
 //PORTS
-assign o_data = lane_data[rd_ptr];
+assign                                  o_data      = lane_data[rd_ptr];
 
 always @ (posedge i_clock)
 begin
@@ -60,7 +60,7 @@ begin
         else if (i_enable && i_valid)
                 lane_id_sr <= {lane_id_sr[NB_ID_BUS - NB_ID - 1 : 0], lane_id_sr[NB_ID_BUS-1 -: NB_ID]};
 end
-assign rd_ptr = lane_id_sr[NB_ID_BUS-1 -: NB_ID];
+assign                                   rd_ptr     = lane_id_sr[NB_ID_BUS-1 -: NB_ID];
 
 genvar i;
 generate

@@ -8,9 +8,9 @@
 
 module lane_reorder_final
 #(
-        parameter N_LANES = 20,
-        parameter NB_ID = $clog2(N_LANES),
-        parameter NB_ID_BUS = N_LANES * NB_ID
+        parameter                       N_LANES                 = 20,
+        parameter                       NB_ID                   = $clog2(N_LANES),
+        parameter                       NB_ID_BUS               = N_LANES * NB_ID
  )
  (
         input wire                      i_clock,
@@ -27,26 +27,25 @@ module lane_reorder_final
 
 
 //LOCALPARAMS
-localparam NB_COUNTER = $clog2(N_LANES);
-localparam NB_POINTER = $clog2(NB_ID_BUS);
+localparam                              NB_COUNTER              = $clog2(N_LANES);
+localparam                              NB_POINTER              = $clog2(NB_ID_BUS);
                                                                                           
 //INTERNAL SIGNALS
-reg  [NB_ID_BUS-1  : 0]         mux_selector ;
-reg  [NB_COUNTER-1 : 0]         counter ;
-reg  [N_LANES-1    : 0]         id_present;
-reg                             update_sel;
-wire [NB_POINTER   : 0]         wr_ptr;
-wire [NB_POINTER   : 0]         aux_wr_ptr;
-wire                            reorder_done;
-wire                            all_lanes_present;
-wire [NB_ID_BUS-1  : 0]         default_lane_select;
+reg                 [NB_ID_BUS-1  : 0]  mux_selector ;
+reg                 [NB_COUNTER-1 : 0]  counter ;
+reg                 [N_LANES-1    : 0]  id_present;
+reg                                     update_sel;
+wire                [NB_POINTER   : 0]  wr_ptr;
+wire                [NB_POINTER   : 0]  aux_wr_ptr;
+wire                                    reorder_done;
+wire                                    all_lanes_present;
+wire                [NB_ID_BUS-1  : 0]  default_lane_select;
 
-assign default_lane_select = {5'd0 , 5'd1, 5'd2 , 5'd3 , 5'd4 , 5'd5 , 5'd6 , 5'd7 , 5'd8 , 5'd9,
-                              5'd10, 5'd11,5'd12, 5'd13, 5'd14, 5'd15, 5'd16, 5'd17, 5'd18, 5'd19};
+assign                                  default_lane_select     = { 5'd0 , 5'd1, 5'd2 , 5'd3 , 5'd4 , 5'd5 , 5'd6 , 5'd7 , 5'd8 , 5'd9,
+                                                                    5'd10, 5'd11,5'd12, 5'd13, 5'd14, 5'd15, 5'd16, 5'd17, 5'd18, 5'd19};
 
 //PORTS
-assign o_reorder_mux_selector =  
-       (reorder_done && all_lanes_present) ? mux_selector : default_lane_select;
+assign                                  o_reorder_mux_selector  =  (reorder_done && all_lanes_present) ? mux_selector : default_lane_select;
 
 //Reorder
 always @ (posedge i_clock)
@@ -64,8 +63,8 @@ begin
 end
 
 //Two step assigment to ensure ids isnt out of range
-assign aux_wr_ptr = (reorder_done) ? {NB_POINTER{1'b0}} : i_logical_rx_ID[((NB_ID_BUS)-(counter*NB_ID))-1 -: NB_ID];
-assign wr_ptr     = (aux_wr_ptr < N_LANES) ? wr_ptr : {NB_POINTER{1'b0}};
+assign                                  aux_wr_ptr              = (reorder_done) ? {NB_POINTER{1'b0}}   : i_logical_rx_ID[((NB_ID_BUS)-(counter*NB_ID))-1 -: NB_ID];
+assign                                  wr_ptr                  = (aux_wr_ptr < N_LANES) ? wr_ptr       : {NB_POINTER{1'b0}};
 
 assign reorder_done = (counter == N_LANES) ? 1'b1 : 1'b0;
 
@@ -80,7 +79,7 @@ begin
 		id_present[wr_ptr] <= 1'b1;
 end
 
-assign all_lanes_present = &id_present;
+assign                                  all_lanes_present       = &id_present;
 
 //Update conditions pulse generator
 always @ (posedge i_clock)
@@ -91,7 +90,7 @@ begin
                 update_sel <= all_lanes_present & reorder_done;        
 end
 
-assign o_update_selectors = ~update_sel & (all_lanes_present & reorder_done);
+assign                                  o_update_selectors      = ~update_sel & (all_lanes_present & reorder_done);
 
 endmodule
 
