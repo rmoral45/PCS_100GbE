@@ -26,7 +26,7 @@ module am_lock_module
  
  	output wire [NB_DATA_CODED-1 : 0] 	    o_data,			                //to programable_fifo/lane_deskew module
 	output wire [NB_LANE_ID-1 : 0]		    o_lane_id,		                //to lane reorder module
-	output wire [NB_ERROR_COUNTER-1 : 0]    o_error_counter,	            //to register_file/MDIO register
+	output wire [NB_ERROR_COUNTER-1 : 0]    o_rf_error_counter,	            //to register_file/MDIO register
 	output wire 				            o_am_lock,		                //to lane deskew module
 	output wire 				            o_resync,	 	                //to programable_fifo/lane_deskew modul	
 	output wire 				            o_start_of_lane		            //to programable_fifo/lane_deskew modul
@@ -158,11 +158,11 @@ assign                                      o_resync            = resync;
         .i_reset_count          (resync),
 	 	.i_recived_bip 	 	    (recived_bip),		//from input reg
 	 	.i_calculated_bip	    (calculated_bip),	//from bip_calc
-	 	.o_error_count	 	    (o_error_counter)	//to top level
+	 	.o_rf_error_count	 	(o_rf_error_counter)	//to top level
 	 );
 
 
-    ip_calculator
+    bip_calculator
     #(
 	    .LEN_CODED_BLOCK        (NB_DATA_CODED)
     )

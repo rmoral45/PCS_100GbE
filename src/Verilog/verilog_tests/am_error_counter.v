@@ -1,4 +1,3 @@
-
 /*
 
 	REVISAR LOGICA PARA EVITAR OVERFLOW
@@ -6,39 +5,35 @@
 
 module am_error_counter
 #(
-	parameter NB_BIP = 8,
-	parameter NB_COUNTER = 32
+	parameter                               NB_BIP              = 8,
+	parameter                               NB_COUNTER          = 32
  )
  (
 
- 	input wire 			i_clock,
- 	input wire 			i_reset,
- 	input wire 			i_enable,
- 	input wire 			i_match,
-	input wire			i_reset_count,
- 	input wire [NB_BIP-1 : 0] 	i_recived_bip,
- 	input wire [NB_BIP-1 : 0] 	i_calculated_bip,
+ 	input wire 			                    i_clock,
+ 	input wire 			                    i_reset,
+ 	input wire 			                    i_enable,
+ 	input wire 			                    i_match,
+	input wire			                    i_reset_count,
+ 	input wire  [NB_BIP-1 : 0] 	            i_recived_bip,
+ 	input wire  [NB_BIP-1 : 0] 	            i_calculated_bip,
 
- 	output wire [NB_COUNTER-1 : 0] 	o_error_count,
- 	output wire 			o_overflow_flag
+ 	output wire [NB_COUNTER-1 : 0]          o_rf_error_count,
+ 	output wire 			                o_overflow_flag
  );
 
 //LOCALPARAM
-
-localparam NB_CURRENT_ERROR = $clog2(NB_BIP);
-
+localparam                                  NB_CURRENT_ERROR    = $clog2(NB_BIP);
 
 //INTERNAL SIGANLS
+reg             [NB_COUNTER : 0] 		    error_counter;
+reg             [NB_CURRENT_ERROR-1 : 0]    error_counter_next;
+wire 			     	                    overflow_flag;
 
-reg [NB_COUNTER : 0] 		error_counter;
-reg [NB_CURRENT_ERROR-1 : 0]	error_counter_next;
-wire 			     	overflow_flag;
-
-assign overflow_flag = error_counter[NB_COUNTER];
+assign                                      overflow_flag       = error_counter[NB_COUNTER];
 
 //Ports
-
-assign o_error_count = error_counter;
+assign                                      o_rf_error_count    = error_counter;
 
 //Update counter
  always @ (posedge i_clock)

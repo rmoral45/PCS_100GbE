@@ -5,21 +5,21 @@
 
 module lane_id_decoder
 #(
-	parameter N_ALIGNER = 20,
-	parameter ID_LEN    = $clog2(N_ALIGNER)
+	parameter                           N_ALIGNER   = 20,
+	parameter                           NB_LANE_ID  = $clog2(N_ALIGNER)
  )
  (
- 	input wire  [N_ALIGNER-1 : 0]		i_match_mask,
+ 	input wire  [N_ALIGNER-1    : 0]    i_match_mask,
 
- 	output wire [ID_LEN-1 	 : 0]		o_lane_id
+ 	output wire [NB_LANE_ID-1   : 0]    o_lane_id
  );
 
 
 
- reg  [ID_LEN-1    : 0] lane_id;
- wire [N_ALIGNER-1 : 0] match_mask;
+ reg            [NB_LANE_ID-1   : 0]    lane_id;
+ wire           [N_ALIGNER-1    : 0]    match_mask;
 
- assign match_mask = i_match_mask;
+ assign                                 match_mask  = i_match_mask;
 
  integer i;
  always @ *
@@ -33,6 +33,6 @@ module lane_id_decoder
  	end
  end
 
- assign o_lane_id = lane_id;
+ assign                                 o_lane_id   = lane_id;
 
 endmodule
