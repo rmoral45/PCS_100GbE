@@ -2,29 +2,29 @@
 
 module block_sync_fsm
 #(
-	parameter NB_CODED_BLOCK	= 66,
-	parameter MAX_INDEX_VALUE 	= (NB_CODED_BLOCK - 2),
-	parameter MAX_INVALID_SH   	= 6,
-	parameter MAX_WINDOW	    	= 2048,
-	parameter NB_WINDOW_CNT		= $clog2(MAX_WINDOW),
-	parameter NB_INVALID_CNT 	= $clog2(MAX_INVALID_SH),
-	parameter NB_INDEX 		= $clog2(NB_CODED_BLOCK)
+	parameter                           NB_DATA_CODED	= 66,
+	parameter                           MAX_INDEX_VALUE = (NB_DATA_CODED - 2),
+	parameter                           MAX_INVALID_SH  = 6,
+	parameter                           MAX_WINDOW	    = 2048,
+	parameter                           NB_WINDOW_CNT	= $clog2(MAX_WINDOW),
+	parameter                           NB_INVALID_CNT 	= $clog2(MAX_INVALID_SH),
+	parameter                           NB_INDEX 		= $clog2(NB_DATA_CODED)
 
  )
  (
- 	input  wire 				i_clock,
- 	input  wire 				i_reset,
- 	input  wire 				i_enable,
- 	input  wire 				i_valid,
- 	input  wire 				i_signal_ok,
- 	input  wire 				i_sh_valid,
- 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_unlocked_timer_limit, //usado por timer interno
- 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_locked_timer_limit, //usado por timer interno
- 	input  wire [NB_INVALID_CNT-1 : 0] 	i_sh_invalid_limit,
+ 	input  wire 				        i_clock,
+ 	input  wire 				        i_reset,
+ 	input  wire 				        i_enable,
+ 	input  wire 				        i_valid,
+ 	input  wire 				        i_signal_ok,
+ 	input  wire 				        i_sh_valid,
+ 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_rf_unlckd_thr, //usado por timer interno
+ 	input  wire [NB_WINDOW_CNT -1 : 0] 	i_rf_lckd_thr, //usado por timer interno
+ 	input  wire [NB_INVALID_CNT-1 : 0] 	i_rf_sh_invalid_thr,
 
  	output wire [NB_INDEX-1 : 0]		o_block_index,
  	output wire [NB_INDEX-1 : 0]		o_search_index,
- 	output wire 				o_block_lock	     
+ 	output wire 				        o_block_lock	     
  );
 
 
@@ -37,31 +37,30 @@ localparam LOCKED  	 = 2'b01;
 
 //INTERNAL SIGNALS
 
-reg 			   					block_lock;
-reg 								reset_count;
-reg [NB_INVALID_CNT-1 : 0]  		sh_invalid_count;
-reg [N_STATES-1 : 0]				state, next_state;
-reg [NB_INDEX-1 : 0]				search_index, next_search_index;
-reg [NB_INDEX-1 : 0]				block_index, next_block_index;
-reg [NB_WINDOW_CNT-1 : 0] 			timer_search;
-reg 								update_search_index;
-reg 								update_block_index;
-reg 								reset_search_index;
-reg                                 reset_timer;
+reg 			   					    block_lock;
+reg 								    reset_count;
+reg             [NB_INVALID_CNT-1 : 0]  sh_invalid_count;
+reg             [N_STATES-1 : 0]		state, next_state;
+reg             [NB_INDEX-1 : 0]		search_index, next_search_index;
+reg             [NB_INDEX-1 : 0]		block_index, next_block_index;
+reg             [NB_WINDOW_CNT-1 : 0] 	timer_search;
+reg 								    update_search_index;
+reg 								    update_block_index;
+reg 								    reset_search_index;
+reg                                     reset_timer;
 
-				
-wire 								locked_timer_done;
-wire 								unlocked_timer_done;
-wire								invalid_counter_full;
+wire 								    locked_timer_done;
+wire 								    unlocked_timer_done;
+wire								    invalid_counter_full;
 
 /*
 	Realizar todas las asignaciones de puertos correspondientes
 */
 
-//PORTS
-assign o_search_index = search_index;
-assign o_block_index = block_index;
-assign o_block_lock =block_lock;
+//OUTPUT PORTS
+assign                                  o_search_index  = search_index;
+assign                                  o_block_index   = block_index;
+assign                                  o_block_lock    = block_lock;
 
 //Update state
 always @ (posedge i_clock)
@@ -165,9 +164,6 @@ begin
 end
 
 
-
-
-
 //cuenta de sh invalidos
 
 always @ (posedge i_clock)
@@ -181,8 +177,7 @@ begin
 	
 end
 
-assign invalid_counter_full = (sh_invalid_count >= i_sh_invalid_limit) ? 1'b1 : 1'b0;
-
+assign invalid_counter_full = (sh_invalid_count >= i_rf_sh_invalid_thr) ? 1'b1 : 1'b0;
 
 
 //cuenta de timer
@@ -197,8 +192,8 @@ begin
 
 end 
 
-assign unlocked_timer_done = (timer_search == i_unlocked_timer_limit);//time window to search for sh in unlocked state
-assign locked_timer_done = (timer_search == i_locked_timer_limit); 
+assign unlocked_timer_done  = (timer_search == i_rf_unlckd_thr);//time window to search for sh in unlocked state
+assign locked_timer_done    = (timer_search == i_rf_lckd_thr); 
 
 
 endmodule
