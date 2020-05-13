@@ -2,66 +2,63 @@
 
 module am_lock_fsm
 #(
-	parameter N_ALIGNERS 	 = 20 ,
-	parameter N_BLOCKS   	 = 16383 , //check
-	parameter MAX_INVALID_AM = 8 ,
-	parameter MAX_VALID_AM   = 20,
-	parameter NB_INVALID_CNT = $clog2(MAX_INVALID_AM),
-	parameter NB_VALID_CNT   = $clog2(MAX_VALID_AM)
+	parameter                           N_ALIGNERS 	    = 20 ,
+	parameter                           N_BLOCKS   	    = 16383 , //check
+	parameter                           MAX_INVALID_AM  = 8 ,
+	parameter                           MAX_VALID_AM    = 20,
+	parameter                           NB_INVALID_CNT  = $clog2(MAX_INVALID_AM),
+	parameter                           NB_VALID_CNT    = $clog2(MAX_VALID_AM)
  )
  (
- 	input  wire 				i_clock ,
- 	input  wire 				i_reset ,
- 	input  wire 				i_enable ,
- 	input  wire 				i_valid ,
- 	input  wire 				i_block_lock ,
- 	input  wire 				i_am_valid  ,
+ 	input  wire 				        i_clock ,
+ 	input  wire 				        i_reset ,
+ 	input  wire 				        i_enable ,
+ 	input  wire 				        i_valid ,
+ 	input  wire 				        i_block_lock ,
+ 	input  wire 				        i_am_valid  ,
  	input  wire [N_ALIGNERS-1 : 0] 		i_match_vector ,
- 	input wire  [NB_VALID_CNT-1 : 0]    	i_lock_thr,       //contador para am validos
- 	input wire  [NB_INVALID_CNT-1 : 0]  	i_unlock_thr,     //contador para am invalidos
+ 	input wire  [NB_VALID_CNT-1 : 0]    i_lock_thr,       //contador para am validos
+ 	input wire  [NB_INVALID_CNT-1 : 0]  i_unlock_thr,     //contador para am invalidos
 
  	output wire [N_ALIGNERS-1 : 0] 		o_match_mask ,
- 	output wire				o_enable_mask ,
- 	output wire 				o_am_lock ,	    //quizas no haga falta ya que manejamos todo con resync
- 	output wire 				o_resync_by_am_start ,
- 	output wire 				o_start_of_lane ,
-	output wire 				o_search_timer_done //entrada al comparator
+ 	output wire				            o_enable_mask ,
+ 	output wire 				        o_am_lock ,	    //quizas no haga falta ya que manejamos todo con resync
+ 	output wire 				        o_resync_by_am_start ,
+ 	output wire 				        o_start_of_lane ,
+	output wire 				        o_search_timer_done //entrada al comparator
  );
 
 //LOCALPARAMS
-
-localparam N_STATE      = 4;
-localparam INIT         = 4'b1000;
-localparam WAIT_1ST     = 4'b0100;
-localparam WAIT_2ND     = 4'b0010;
-localparam LOCKED 	= 4'b0001;
-localparam NB_COUNTER   = $clog2(N_BLOCKS);
-
+localparam                              N_STATE         = 4;
+localparam                              INIT            = 4'b1000;
+localparam                              WAIT_1ST        = 4'b0100;
+localparam                              WAIT_2ND        = 4'b0010;
+localparam                              LOCKED 	        = 4'b0001;
+localparam                              NB_COUNTER      = $clog2(N_BLOCKS);
 
 //INTERNAL SIGNALS
+reg				                        reset_timer_next    , reset_sol_lock;
+reg             [NB_COUNTER -1 : 0]     timer_search	    , timer_lock;
+reg             [N_STATE-1 : 0] 		state 		        , next_state;
+reg             [NB_INVALID_CNT-1 : 0] 	am_invalid_count;
+reg             [NB_VALID_CNT-1 : 0] 	am_valid_count;
 
-reg				reset_timer_next, reset_sol_lock;
-reg [NB_COUNTER -1 : 0]     	timer_search	, timer_lock;
-reg [N_STATE-1 : 0] 		state 		, next_state;
-reg [NB_INVALID_CNT-1 : 0] 	am_invalid_count;
-reg [NB_VALID_CNT-1 : 0] 	am_valid_count;
 
+reg             [N_ALIGNERS-1 : 0] 	    match_mask 	        , match_mask_next ;
+reg 			                        am_lock   	        , am_lock_next ;
+reg 			                        restore_am 	        , rest_am_next; 
+reg                                     reset_match_counter , reset_timer_lock, confirmation_flag;
+reg 			                        rst_good_am_cnt;
 
-reg [N_ALIGNERS-1 : 0] 	match_mask 	 , match_mask_next ;
-reg 			am_lock   	 , am_lock_next ;
-reg 			restore_am 	 , rest_am_next; 
-reg                     reset_match_counter, reset_timer_lock, confirmation_flag;
-reg 			rst_good_am_cnt;
-
-wire                    match_counter_full;
-wire                    invalid_count_full;
-wire                    timer_search_done;
+wire                                    match_counter_full;
+wire                                    invalid_count_full;
+wire                                    timer_search_done;
 
 
 //PORTS
-assign o_match_mask  		= match_mask;
-assign o_enable_mask 		= (state == WAIT_1ST); // verificar si hace falta
-assign o_am_lock     		= am_lock;
+assign                                  o_match_mask  	= match_mask;
+assign                                  o_enable_mask 	= (state == WAIT_1ST); // verificar si hace falta
+assign                                  o_am_lock     	= am_lock;
 
 //Update state and signaling
 always @ (posedge i_clock)
