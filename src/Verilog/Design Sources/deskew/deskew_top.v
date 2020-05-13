@@ -19,8 +19,9 @@ module deskew_top
  	input wire 	[N_LANES-1 : 0]		    i_start_of_lane,
  	input wire  [NB_DATA_BUS-1 : 0]     i_data,
 
- 	output wire 					    o_set_fifo_delay,
- 	output wire [NB_DELAY_BUS-1 : 0]    o_lane_delay,
+ //	output wire 					    o_set_fifo_delay,
+// 	output wire [NB_DELAY_BUS-1 : 0]    o_lane_delay,
+    output wire                         o_posedge_deskew_done,
  	output wire [NB_DATA_BUS-1 : 0]     o_data
  //	output wire 							o_valid_skew,
  //	output wire 							o_align_status
@@ -38,13 +39,14 @@ module deskew_top
  wire 					                set_fifo_delay;
  wire                                   write_prog_fifo_enb;
  wire                                   read_prog_fifo_enb;
+ wire                                   posedge_deskew_done;
  wire 				                    invalid_skew;
 
 
 
  //PORTS
- assign                                 o_set_fifo_delay    = set_fifo_delay;
- assign                                 o_lane_delay        = lane_counters_value;
+ //assign                                 o_set_fifo_delay    = set_fifo_delay;
+// assign                                 o_lane_delay        = lane_counters_value;
  /*
 
  Salidas de la FSM , pero probablemente align_status deberia ser seteada por las
@@ -96,7 +98,8 @@ module deskew_top
   	.o_set_fifo_delay	    (set_fifo_delay),
   	.o_write_prog_fifo_enb  (write_prog_fifo_enb),
   	.o_read_prog_fifo_enb   (read_prog_fifo_enb),
-  	.o_stop_lane_counters	(stop_lane_counters),
+    .o_stop_lane_counters	(stop_lane_counters),
+    .o_posedge_deskew_done  (posedge_deskew_done),  
   	.o_invalid_skew         (invalid_skew)
   );
 
