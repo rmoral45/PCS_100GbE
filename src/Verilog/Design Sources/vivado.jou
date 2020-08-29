@@ -1,0 +1,54 @@
+#-----------------------------------------------------------
+# Vivado v2019.1 (64-bit)
+# SW Build 2552052 on Fri May 24 14:47:09 MDT 2019
+# IP Build 2548770 on Fri May 24 18:01:18 MDT 2019
+# Start of session at: Tue Oct 29 18:18:19 2019
+# Process ID: 32417
+# Current directory: /media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources
+# Command line: vivado
+# Log file: /media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/vivado.log
+# Journal file: /media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /usr/bin/Xilinx/Vivado/2019.1/bin/projects/toplevel_am_insertion/toplevel_am_insertion.xpr
+update_compile_order -fileset sim_1
+update_compile_order -fileset sources_1
+import_files
+export_ip_user_files -of_objects  [get_files {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_toplevel_alligment.v}}] -no_script -reset -force -quiet
+remove_files  -fileset sim_1 {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_toplevel_alligment.v}}
+set_property SOURCE_SET sources_1 [get_filesets sim_1]
+add_files -fileset sim_1 -norecurse {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Simulation Sources/tb_aligment/tb_toplevel_alligment.v}}
+update_compile_order -fileset sim_1
+update_compile_order -fileset sim_1
+launch_simulation
+launch_simulation
+source tb_toplevel_alligment.tcl
+close_sim
+launch_simulation
+source tb_toplevel_alligment.tcl
+relaunch_sim
+relaunch_sim
+relaunch_sim
+relaunch_sim
+close_sim
+export_ip_user_files -of_objects  [get_files {{/usr/bin/Xilinx/Vivado/2019.1/bin/projects/toplevel_am_insertion/toplevel_am_insertion.srcs/sources_1/imports/Design Sources/bitErrorMods/am_insertion_toplevel.v}}] -no_script -reset -force -quiet
+remove_files  {{/usr/bin/Xilinx/Vivado/2019.1/bin/projects/toplevel_am_insertion/toplevel_am_insertion.srcs/sources_1/imports/Design Sources/bitErrorMods/am_insertion_toplevel.v}}
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+add_files -norecurse {{/media/ramiro/1C3A84E93A84C16E/PPS/src/Verilog/Design Sources/bitErrorMods/am_insertion_toplevel.v}}
+update_compile_order -fileset sources_1
+update_compile_order -fileset sources_1
+launch_simulation
+source tb_toplevel_alligment.tcl
+relaunch_sim
+relaunch_sim
+close_sim
+close_project
+open_project /usr/bin/Xilinx/Vivado/2019.1/bin/projects/toplevel_am_insertion/toplevel_am_insertion.xpr
+update_compile_order -fileset sources_1
+launch_simulation
+source tb_toplevel_alligment.tcl
+relaunch_sim
+relaunch_sim
+relaunch_sim
+close_sim

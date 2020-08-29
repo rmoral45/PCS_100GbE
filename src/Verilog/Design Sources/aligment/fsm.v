@@ -1,10 +1,5 @@
 `timescale 1ns/100ps
 
-//TODO Habklar con ramiro L : si pasamos de LOCKED -> UNLOCK -> LOCK solo se activa
-// el resync si los contadores dan distinto,pero que pasa si el AM que nos llega es otro lane?
-//ahi deberiamos generar alkgo para que el lane_order recalcule de nuevo
-
-
 
 /* Brief : FSM implementation equivalent to 'Aligment marker lock state diagram' Figure 82-11, IEEE 802.3ba
  *
@@ -25,11 +20,11 @@
 module am_lock_fsm
 #(
 	parameter N_ALIGNERS 	 = 20 ,
+	parameter N_BLOCKS   	 = 16383 , //check
 	parameter MAX_INVALID_AM = 8 ,
 	parameter MAX_VALID_AM   = 20,
 	parameter NB_INVALID_CNT = $clog2(MAX_INVALID_AM),
-    parameter NB_VALID_CNT   = $clog2(MAX_VALID_AM),
-    parameter NB_AM_PERIOD   = 16
+	parameter NB_VALID_CNT   = $clog2(MAX_VALID_AM)
  )
  (
  	input  wire 				i_clock ,
@@ -38,12 +33,11 @@ module am_lock_fsm
  	input  wire 				i_valid ,
  	input  wire 				i_block_lock ,
  	input  wire 				i_am_valid  ,
- 	input  wire [N_ALIGNERS-1 : 0] 		i_match_vector ,
- 	input wire  [NB_VALID_CNT-1 : 0]    	i_lock_thr,       //contador para am validos
-    input wire  [NB_INVALID_CNT-1 : 0]  	i_unlock_thr,     //contador para am invalidos
-    input  wire [NB_AM_PERIOD-1 : 0]    i_am_period, 
+ 	input  wire  [N_ALIGNERS-1 : 0] 	i_match_vector ,
+ 	input  wire  [NB_VALID_CNT-1 : 0]    	i_rf_lock_thr,       //contador para am validos
+ 	input  wire  [NB_INVALID_CNT-1 : 0]  	i_rf_unlock_thr,     //contador para am invalidos
 
- 	output wire [N_ALIGNERS-1 : 0] 		o_match_mask ,
+ 	output wire  [N_ALIGNERS-1 : 0] 	o_match_mask ,
  	output wire				o_enable_mask ,
  	output wire 				o_am_lock ,	    //quizas no haga falta ya que manejamos todo con resync
  	output wire 				o_resync_by_am_start ,
@@ -58,7 +52,7 @@ localparam INIT         = 4'b1000;
 localparam WAIT_1ST     = 4'b0100;
 localparam WAIT_2ND     = 4'b0010;
 localparam LOCKED 	= 4'b0001;
-localparam NB_COUNTER   = $clog2(NB_AM_PERIOD);
+localparam NB_COUNTER   = $clog2(N_BLOCKS);
 
 
 //INTERNAL SIGNALS
@@ -202,7 +196,7 @@ end
 
     end
 
-    assign  invalid_count_full = ( am_invalid_count == i_unlock_thr ) ; //coincide numero de am_invalid con entrada --> WAIT_1ST
+    assign  invalid_count_full = ( am_invalid_count == i_rf_unlock_thr ) ; //coincide numero de am_invalid con entrada --> WAIT_1ST
 
 
  //cuenta de am validos, se realiza para poder obtener el estado de lock
@@ -221,7 +215,7 @@ end
 
     end
 
-    assign match_counter_full = (am_valid_count == i_lock_thr) ? 1'b1 : 1'b0;
+    assign match_counter_full = (am_valid_count == i_rf_lock_thr) ? 1'b1 : 1'b0;
    
  //cuenta de timer para busqueda de am   
     
@@ -235,7 +229,7 @@ end
                 <= ( timer_search_done )? 1 : timer_search+1'b1 ;
     end
 
-    assign timer_search_done = ( timer_search == i_am_period) ;
+    assign timer_search_done = ( timer_search == N_BLOCKS) ;
     assign o_search_timer_done = timer_search_done;
 
 
@@ -251,7 +245,7 @@ end
     end
 
     // PORTS
-    assign o_start_of_lane = ( timer_lock == i_am_period ) ;
+    assign o_start_of_lane = ( timer_lock == N_BLOCKS ) ;
     assign o_resync_by_am_start = (reset_timer_lock && ( timer_lock!=timer_search )) 
                                   || (first_lock_next && !first_lock);
 

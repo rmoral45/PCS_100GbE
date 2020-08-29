@@ -11,10 +11,13 @@ module descrambler
  	input wire  				i_clock,
  	input wire  				i_reset,
  	input wire  				i_enable,
+ 	input wire                  i_valid,
  	input wire				i_bypass,
  	input wire  [LEN_CODED_BLOCK-1 : 0] 	i_data,
+    input wire                              i_tag,
 
- 	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data
+ 	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data,
+    output wire                             o_tag
  );
 
 //LOCALPARAM
@@ -31,11 +34,13 @@ wire [NB_SH-1 : 0]			 sync_header;
 (* keep = "true" *) reg  [LEN_SCRAMBLER-1   : 0] descrambler_state;
 		    reg  [LEN_SCRAMBLER-1   : 0] descrambler_state_next;
 		    reg out_bit_N;
+reg tag;
 
 assign sync_header = i_data[LEN_CODED_BLOCK-1 -: NB_SH];
 
 //PORTS
 assign o_data = output_data;
+assign o_tag  = tag;
 
 //descrambler state
 always @(posedge i_clock)
@@ -45,6 +50,14 @@ begin
 	else if (i_enable && (!i_bypass))
  		descrambler_state <= descrambler_state_next;
 
+end
+
+always @ (posedge i_clock)
+begin
+    if (i_reset)
+        tag <= 0;
+    else if (i_enable && i_valid)
+        tag <= i_tag;
 end
 
 //output

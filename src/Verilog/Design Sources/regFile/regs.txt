@@ -23,6 +23,10 @@ PCS_BipError0  = {lane_x_biperr[32/64]}
 .       .
 .       .
 PCS_BipError19 = {lane_x_biperr[32/64]}
+
+/******************   Custom   **************************/
+
+PCS_FrameChecker = {block_mismatch[22], bit_mismatch[64]}
 PCS_InvalidSHLim = {invalid_sh_lim[8]} //idem p todas las lanes supongo
 PCS_WindowsSH = {locked_window[10],unlocked_window[12]}
 PCS_AlignThr  = {invalid_thr[5],valid_thr[5]}

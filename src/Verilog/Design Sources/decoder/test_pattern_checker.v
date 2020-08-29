@@ -5,7 +5,7 @@ module test_pattern_checker
 #(
 	parameter NB_CODED_BLOCK 	= 66,
 	parameter NB_SH 	 	= 2,
-	parameter NB_MISMATCH_COUNTER	= 64
+	parameter NB_MISMATCH_COUNTER	= 32
  )
  (
 	 input  wire 					i_clock,
