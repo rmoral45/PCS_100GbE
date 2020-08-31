@@ -11,8 +11,8 @@ module block_sync_toplevel
         parameter NB_WINDOW_CNT     = $clog2(MAX_WINDOW),
         parameter NB_INVALID_CNT    = $clog2(MAX_INVALID_SH),
         parameter NB_INDEX          = $clog2(NB_DATA),
-        parameter NB_DATA_BUS       = N_LANES * NB_DATA
-
+        parameter NB_DATA_BUS       = N_LANES * NB_DATA,
+        parameter NB_SH_BUS         = N_LANES
  )
  (
         input  wire                                 i_clock,
@@ -35,8 +35,24 @@ module block_sync_toplevel
 
         output wire [NB_DATA_BUS-1      : 0]        o_data,
 
+        output wire [NB_SH_BUS-1        : 0]        o_sh_bus,
+
         output wire [N_LANES-1          : 0]        o_block_lock
  );
+        
+        reg                                         valid;
+        //valid registring
+        always @ (posedge i_clock)
+        begin
+            if(i_reset || ~i_signal_ok)
+                valid       <= 1'b0;
+            else if(i_enable)
+                valid       <= i_valid;
+            else
+                valid       <= valid;
+        end
+
+        assign  o_valid     = valid;
 
 
 genvar i;
@@ -62,6 +78,7 @@ generate
                                 .i_sh_invalid_limit             (i_rf_sh_invalid_limit),
 
                                 .o_data                         (o_data[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
+                                .o_valid_sh                     (o_sh_bus[i]),
                                 .o_block_lock                   (o_block_lock[i])
                         );
         end

@@ -25,6 +25,7 @@ module block_sync_module
     input   wire    [NB_INVALID_CNT-1   : 0]	i_sh_invalid_limit,
 
     output  wire    [NB_CODED_BLOCK-1   : 0]	o_data,
+    output  wire                                o_valid_sh,
     output  wire                                o_valid,
     output  wire                                o_block_lock,
     output  wire    [NB_INDEX-1         : 0]    o_dbg_search_index, //solo p debug, eliminar desp
@@ -36,7 +37,6 @@ module block_sync_module
 
     //INTERNAL SIGNALS
     reg             [NB_CODED_BLOCK-1   : 0]    data_prev;
-    reg                                         valid;
 
     wire            [NB_EXTENDED_BLOCK-1: 0] 	data_ext;
     wire            [NB_CODED_BLOCK-1   : 0] 	data_shifted;
@@ -59,6 +59,9 @@ module block_sync_module
     assign o_dbg_search_index = search_index;//solo p debug, eliminar desp
 
     assign o_dbg_block_index  = block_index;//solo p debug, eliminar desp
+
+
+    assign  o_valid_sh  = sh_valid;
 
 
 /*
@@ -84,17 +87,6 @@ module block_sync_module
             data_prev   <= i_data;
         else
             data_prev   <= data_prev;
-    end
-
-    //valid registring
-    always @ (posedge i_clock)
-    begin
-        if(i_reset || ~i_signal_ok)
-            valid       <= 1'b0;
-        else if(i_enable)
-            valid       <= i_valid;
-        else
-            valid       <= valid;
     end
 
     //Instancias

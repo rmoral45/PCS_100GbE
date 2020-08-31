@@ -11,9 +11,9 @@ module ber_monitor
  (
         input wire      i_clock,
         input wire      i_reset,
-        input wire      i_align_status, //seria lo mismo que 'valid_skew'
+        input wire      i_valid_sh, //seria lo mismo que 'valid sh' --> FIX: es la xor entre los bits del sh
         input wire      i_test_mode, //config para test de patron idle
-        input wire      i_valid, //valid usado por block_sync
+        input wire      i_valid, //valid generado por block_sync
 
         output reg      o_hi_ber
  );
