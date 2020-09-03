@@ -216,7 +216,7 @@ begin
         tb_rf_enb_valid_gen= 1'b1;
         //Block sync inputs
         tb_rf_enable_block_sync= 1'b1;
-        tb_rf_unlocked_timer_limit = 16383;
+        tb_rf_unlocked_timer_limit = 64;
         tb_rf_locked_timer_limit= 1024;
         tb_rf_sh_invalid_limit= 65;
         tb_signal_ok= 1'b1;

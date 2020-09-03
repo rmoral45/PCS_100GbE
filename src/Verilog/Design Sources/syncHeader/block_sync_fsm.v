@@ -29,8 +29,8 @@ module block_sync_fsm
 
 //LOCALPARAMS
     localparam                              N_STATES        = 2;
-    localparam                              UNLOCKED        = 2'b10;
-    localparam                              LOCKED  	    = 2'b01;
+    localparam                              UNLOCKED        = 2'b01;
+    localparam                              LOCKED  	    = 2'b10;
 
 //INTERNAL SIGNALS
 
