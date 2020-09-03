@@ -1,4 +1,5 @@
-`timescale 1ns/100ps
+//`timescale 1ns/100ps
+`timescale 1ns/1ns
 
 /*
  *@TODO agregar un enable diferente por modulo --> LISTO! Definir si hacer un bus de enable o seniales separadas

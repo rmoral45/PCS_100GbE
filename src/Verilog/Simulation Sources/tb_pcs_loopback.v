@@ -1,4 +1,5 @@
-`timescale 1ns/100ps
+//`timescale 1ns/100ps
+`timescale 1ns/1ns
 
 module tb_pcs_loopback;
 
@@ -36,7 +37,7 @@ localparam NB_INV_AM                 = $clog2(MAX_INV_AM);
 localparam MAX_VAL_AM                = 20;
 localparam NB_VAL_AM                 = $clog2(MAX_VAL_AM);
 localparam NB_AM                     = 48;
-localparam NB_AM_PERIOD              = 14;
+localparam NB_AM_PERIOD              = 16;
 localparam AM_PERIOD_BLOCKS          = 16383;
 localparam NB_ID_BUS                 = N_LANES * NB_LANE_ID;
 localparam NB_ERR_BUS                = N_LANES * NB_ERROR_COUNTER;
@@ -223,7 +224,7 @@ begin
         //Aligner inputs
         tb_rf_enable_aligner= 1'b1;
         tb_rf_invalid_am_thr = 4;
-        tb_rf_valid_am_thr = 3;
+        tb_rf_valid_am_thr = 1;
         tb_rf_compare_mask= {NB_AM{1'b1}};
         tb_rf_am_period= 16383;
         //Deskew inputs

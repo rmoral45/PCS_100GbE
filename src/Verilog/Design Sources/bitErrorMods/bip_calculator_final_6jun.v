@@ -2,6 +2,8 @@
 /*
   Calculadora de paridad intercalada.Version Final.
 	  Se agrego condicion de reset por SOL para funcionar en modo RX.
+	  
+	  //@TODO: REGISTRAR SOL Y AL BIP RECIBIDO PARA QUE MATCHEE CON EL CALCULADO!!!!
   
 */
 `timescale 1ns/100ps

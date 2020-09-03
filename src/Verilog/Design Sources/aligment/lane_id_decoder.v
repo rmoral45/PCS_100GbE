@@ -14,7 +14,7 @@ module lane_id_decoder
 
 reg [NB_LANE_ID-1 : 0] decimal_id;
 
-assign o_id = decimal_id;
+assign o_lane_id = decimal_id;
 always @(*)
 begin
 decimal_id = 0;

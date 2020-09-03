@@ -30,10 +30,11 @@ module am_error_counter
     reg             [NB_CURRENT_ERROR-1 : 0]    error_counter_next;
     wire 			     	                    overflow_flag;
     
-    assign                                      overflow_flag       = error_counter[NB_COUNTER];
+    assign                                      overflow_flag       = error_counter[NB_COUNTER]; 
     
     //Ports
-    assign                                      o_rf_error_count    = error_counter;
+    assign                                      o_error_count       = error_counter;
+
     
     //Update counter
      always @ (posedge i_clock)
