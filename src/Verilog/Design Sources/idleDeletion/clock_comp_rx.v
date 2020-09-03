@@ -44,6 +44,7 @@ wire                                        idle_insert;
 wire                                        fifo_read_enable;
 wire                                        fifo_write_enable;
 wire        [NB_DATA_CODED-1 : 0]           fifo_output_data;
+wire                                        fifo_empty;
 
 
 //----------- Algorithm ------------------------//
@@ -87,7 +88,7 @@ assign                                      o_data              = (idle_insert) 
 
     sync_fifo
     #(
-        .NB_DATA_CODED      (NB_DATA_CODED),
+        .NB_DATA      (NB_DATA_CODED),
         .NB_ADDR            (NB_ADDR),
         .WR_PTR_AFTER_RESET (WR_PTR_AFTER_RST)
     )
@@ -95,7 +96,7 @@ assign                                      o_data              = (idle_insert) 
     (
         .i_clock            (i_clock),
         .i_reset            (i_reset),
-        .i_rf_enable           (i_rf_enable),
+        .i_enable           (i_rf_enable),
         .i_write_enb        (fifo_write_enable),
         .i_read_enb         (fifo_read_enable),
         .i_data             (i_data),

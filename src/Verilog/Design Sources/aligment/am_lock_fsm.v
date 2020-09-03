@@ -39,8 +39,8 @@ module am_lock_fsm
  	input  wire 				i_block_lock ,
  	input  wire 				i_am_valid  ,
  	input  wire [N_ALIGNERS-1 : 0] 		i_match_vector ,
- 	input wire  [NB_VALID_CNT-1 : 0]    	i_lock_thr,       //contador para am validos
-    input wire  [NB_INVALID_CNT-1 : 0]  	i_unlock_thr,     //contador para am invalidos
+ 	input wire  [NB_VALID_CNT-1 : 0]    	i_rf_lock_thr,       //contador para am validos
+    input wire  [NB_INVALID_CNT-1 : 0]  	i_rf_unlock_thr,     //contador para am invalidos
     input  wire [NB_AM_PERIOD-1 : 0]    i_am_period, 
 
  	output wire [N_ALIGNERS-1 : 0] 		o_match_mask ,
@@ -202,7 +202,7 @@ end
 
     end
 
-    assign  invalid_count_full = ( am_invalid_count == i_unlock_thr ) ; //coincide numero de am_invalid con entrada --> WAIT_1ST
+    assign  invalid_count_full = ( am_invalid_count == i_rf_unlock_thr ) ; //coincide numero de am_invalid con entrada --> WAIT_1ST
 
 
  //cuenta de am validos, se realiza para poder obtener el estado de lock
@@ -221,7 +221,7 @@ end
 
     end
 
-    assign match_counter_full = (am_valid_count == i_lock_thr) ? 1'b1 : 1'b0;
+    assign match_counter_full = (am_valid_count == i_rf_lock_thr) ? 1'b1 : 1'b0;
    
  //cuenta de timer para busqueda de am   
     

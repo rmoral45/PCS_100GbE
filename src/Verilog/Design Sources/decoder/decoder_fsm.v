@@ -4,7 +4,8 @@
 module decoder_fsm
 #(
     parameter 							LEN_DATA_BLOCK = 64,
-    parameter 							LEN_CTRL_BLOCK = 8
+    parameter 							LEN_CTRL_BLOCK = 8,
+    parameter                           N_STATES = 4
  )
  (
  	input wire  						i_clock,
@@ -15,7 +16,8 @@ module decoder_fsm
  	input wire  [LEN_DATA_BLOCK-1 : 0] 	i_rx_data,       //recibida desde el bloque comparador/decodificador
  	input wire  [LEN_CTRL_BLOCK-1 : 0] 	i_rx_control,    //recibida desde el bloque comparador/decodificador
  	output wire	[LEN_DATA_BLOCK-1 : 0] 	o_rx_raw_data,   // solo difiere de lo recibido del comparador si la secuencia es incorrecta
- 	output wire	[LEN_CTRL_BLOCK-1 : 0] 	o_rx_raw_control // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+ 	output wire	[LEN_CTRL_BLOCK-1 : 0] 	o_rx_raw_control, // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+ 	output wire [N_STATES-1       : 0]  o_fsm_state
  );
 
 reg [4 : 0]				state,state_next;
@@ -24,6 +26,7 @@ reg [LEN_CTRL_BLOCK-1 : 0] rx_raw_control, rx_raw_control_next;
 
 assign o_rx_raw_data 	 = rx_raw_data;
 assign o_rx_raw_control  = rx_raw_control;
+assign o_fsm_state       = state;
 
 //R_TYPE / i_r_type_next
 localparam [3:0] TYPE_D  = 4'b1000;

@@ -6,7 +6,7 @@
 module am_error_counter
     #(
         parameter                               NB_BIP              = 8,
-        parameter                               NB_COUNTER          = 32
+        parameter                               NB_COUNTER          = 16
      )
      (
     
@@ -18,7 +18,7 @@ module am_error_counter
         input wire  [NB_BIP-1 : 0] 	            i_recived_bip,
         input wire  [NB_BIP-1 : 0] 	            i_calculated_bip,
     
-        output wire [NB_COUNTER-1 : 0]          o_rf_error_count,
+        output wire [NB_COUNTER-1 : 0]          o_error_count,
         output wire 			                o_overflow_flag
      );
     
@@ -54,10 +54,11 @@ module am_error_counter
      end
     
     
+    integer i;
      always @ *
      begin
          error_counter_next = 0;
-         for(integer i=0; i<NB_BIP; i=i+1)
+         for(i=0; i<NB_BIP; i=i+1)
          begin
              if(i_recived_bip[i] != i_calculated_bip[i])
                  error_counter_next  = error_counter_next + 1'b1;

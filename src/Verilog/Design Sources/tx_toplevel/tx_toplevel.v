@@ -29,9 +29,9 @@ module toplevel_tx
     output wire    [NB_DATA_CODED-1 : 0]            o_clock_comp_data,
     output wire    [(NB_DATA_CODED*N_LANES)-1 : 0]  o_am_insert_data,
     output wire                                     o_valid_pc,
-    output wire    [(NB_DATA_TAGGED*N_LANES)-1 : 0] o_pc_data
+    //output wire    [(NB_DATA_TAGGED*N_LANES)-1 : 0] o_pc_data,
     
-    //output wire [(NB_DATA_CODED*N_LANES)-1 : 0]     o_data
+    output wire [(NB_DATA_CODED*N_LANES)-1 : 0]     o_data
 );
 
 //parameters for modules
@@ -101,6 +101,7 @@ assign  o_clock_comp_data   = clockComp_data_scrambler;
 assign  o_am_insert_data    = am_insert_data_pc_20_1; 
 assign o_pc_data            = pc_1_20_data_am_insert;
 assign o_valid_pc           = pc_1_20_valid_am_insert;
+assign  o_data              = am_insert_data_pc_20_1;
 
 //tx_modules
 valid_generator
@@ -184,8 +185,8 @@ u_clock_comp
     .i_reset(i_reset),
     .i_enable(i_rf_enb_clock_comp),
     .i_valid(fast_valid),
-    //.i_data(encoder_data_clockComp),
-    .i_data(cnt),
+    .i_data(encoder_data_clockComp),
+    //.i_data(cnt),
     .o_data(clockComp_data_scrambler),
     .o_aligner_tag(clockComp_tag_scrambler)
 );
@@ -264,8 +265,8 @@ u_am_insertion
     .i_enable(i_rf_enb_am_insertion),
     .i_valid(pc_1_20_valid_am_insert),
     //.i_valid(slow_valid),
-    //.i_data(pc_1_20_data_am_insert),
-    .i_data(dbg_pc_o),
+    .i_data(pc_1_20_data_am_insert),
+    //.i_data(dbg_pc_o),
     .o_data(am_insert_data_pc_20_1)
 );
 

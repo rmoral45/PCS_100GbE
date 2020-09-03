@@ -1,6 +1,6 @@
 /* 
-    @TODO: REVISAR LOGICA DE VALID
-    @TODO: ESPECIFICAR CORRECTAMENTE INVALID SH THRESHOLD
+    @TODO: REVISAR LOGICA DE VALID ---> LISTO
+    @TODO: ESPECIFICAR CORRECTAMENTE INVALID SH THRESHOLD ---> LISTO
 */
 
 module block_sync_module
@@ -27,9 +27,9 @@ module block_sync_module
     output  wire    [NB_CODED_BLOCK-1   : 0]	o_data,
     output  wire                                o_valid_sh,
     output  wire                                o_valid,
-    output  wire                                o_block_lock,
-    output  wire    [NB_INDEX-1         : 0]    o_dbg_search_index, //solo p debug, eliminar desp
-    output  wire    [NB_INDEX-1         : 0]    o_dbg_block_index //solo p debug, eliminar desp
+    output  wire                                o_block_lock
+    // output  wire    [NB_INDEX-1         : 0]    o_dbg_search_index, //solo p debug, eliminar desp
+    // output  wire    [NB_INDEX-1         : 0]    o_dbg_block_index //solo p debug, eliminar desp
  );
 
     //LOCALPARAMS
@@ -44,6 +44,9 @@ module block_sync_module
     wire            [NB_INDEX-1         : 0]    block_index;
     wire                                        sh_valid;
     wire                                        block_lock;
+    
+    wire  [1 : 0] debug_sh;
+    assign debug_sh = i_data[NB_CODED_BLOCK-1 -: 2];
 
     assign data_ext 	= {i_data,data_prev};
 

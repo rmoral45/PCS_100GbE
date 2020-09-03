@@ -8,7 +8,8 @@
 module am_lock_module
 #(          
 	parameter                               NB_CODED_BLOCK      = 66,
-	parameter                               NB_ERROR_COUNTER    = 32,
+    parameter                               NB_ERROR_COUNTER    = 32,
+    parameter                               NB_RESYNC_COUNTER   = 8,
 	parameter                               N_ALIGNER 	        = 20,
 	parameter                               NB_LANE_ID	        = $clog2(N_ALIGNER),
 	parameter                               MAX_INV_AM          = 8,
@@ -36,7 +37,7 @@ module am_lock_module
 	output wire [NB_ERROR_COUNTER-1 : 0]    o_error_counter,	//to register_file/MDIO register
 	output wire                             o_am_lock,		//to lane deskew module
     output wire                             o_resync,	 	//to programable_fifo/lane_deskew modul	
-    output wire [NB_ERROR_COUNTER-1 : 0]    o_resync_counter, //to rf
+    output wire [NB_RESYNC_COUNTER-1 : 0]   o_resync_counter, //to rf
 	output wire                             o_start_of_lane		//to programable_fifo/lane_deskew modul
  );
 
@@ -91,13 +92,13 @@ module am_lock_module
     end
 
     //Resync counter logic
-    reg     [NB_ERROR_COUNTER-1     : 0]            resync_counter;
-    wire    [NB_ERROR_COUNTER-1     : 0]            resync_counter_next;
+    reg     [NB_RESYNC_COUNTER-1     : 0]     resync_counter;
+    wire    [NB_RESYNC_COUNTER-1     : 0]     resync_counter_next;
 
     always @(posedge i_clock)
     begin
         if(i_reset)
-            resync_counter  <=  {NB_ERROR_COUNTER{1'b0}};
+            resync_counter  <=  {NB_RESYNC_COUNTER{1'b0}};
         else if(i_rf_enable)
             resync_counter  <=  resync_counter_next;
     end
@@ -116,7 +117,7 @@ module am_lock_module
 
 am_lock_comparator_v2
 #(
- 	.LEN_AM(NB_AM),
+ 	.NB_AM(NB_AM),
  	.N_ALIGNER(N_ALIGNER)
  )
 	u_am_lock_comparator
@@ -132,6 +133,7 @@ am_lock_comparator_v2
 		.o_am_match	(am_match),                 //to fsm
 		.o_match_vector	(match_vector)          //to fsm
 	);
+	
 
 am_lock_fsm
 #(
@@ -146,8 +148,8 @@ am_lock_fsm
 	 	.i_block_lock           (i_block_lock),	        //from block_sync
 	 	.i_am_valid	            (am_match),	            //from comparator
 	 	.i_match_vector         (match_vector),         //from comparator
-	 	.i_lock_thr             (i_rf_valid_am_thr),    //input from top
-        .i_unlock_thr           (i_rf_invalid_am_thr), 	//input from top
+	 	.i_rf_lock_thr          (i_rf_valid_am_thr),    //input from top
+        .i_rf_unlock_thr        (i_rf_invalid_am_thr), 	//input from top
         .i_am_period            (i_rf_am_period), 
 
 		//OUTPUTS
@@ -161,7 +163,7 @@ am_lock_fsm
  	
 lane_id_decoder
 #(
-	.N_ALIGNER(N_ALIGNER)
+	//.N_ALIGNER(N_ALIGNER)
  )
 	u_lane_id_decoder
 	(
@@ -195,7 +197,7 @@ am_error_counter
 
 bip_calculator
 #(
-	.LEN_CODED_BLOCK(NB_CODED_BLOCK)
+	.NB_DATA_CODED(NB_CODED_BLOCK)
  )
 	u_bip_calculator
 	 (

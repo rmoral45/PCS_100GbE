@@ -6,9 +6,9 @@ module lane_id_decoder
         parameter NB_LANE_ID = $clog2(NB_ONEHOT_ID)
  )
  (
-        input  wire [NB_ONEHOT_ID-1 : 0] i_id,
+        input  wire [NB_ONEHOT_ID-1 : 0] i_match_mask,
 
-        output wire [NB_LANE_ID-1 : 0] o_id
+        output wire [NB_LANE_ID-1 : 0] o_lane_id
  );
 
 
@@ -18,7 +18,7 @@ assign o_id = decimal_id;
 always @(*)
 begin
 decimal_id = 0;
-        casez(i_id)
+        casez(i_match_mask)
                 20'b????_????_????_????_???1 :
                         decimal_id = 0;
                 20'b????_????_????_????_??1? :
