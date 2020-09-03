@@ -252,7 +252,7 @@ begin
         // tb_rf_lanes_block_lock= 1'b0;
         // tb_rf_lanes_id= 1'b0;
 
-    #100000000 $finish;
+    #300000000 $finish;
 end
 
 always #1 tb_clock = ~tb_clock;

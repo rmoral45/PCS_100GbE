@@ -55,6 +55,8 @@ module am_lock_module
 //INTERNAL SIGNALS
     reg         [NB_CODED_BLOCK-1   : 0]	input_data,output_data;
     reg                                     valid;
+    reg         [NB_BIP-1           : 0]    received_bip_d;
+    reg                                     start_of_lane_d;
 
 //Module connect wires
     wire        [N_ALIGNER-1        : 0]    match_mask;                     //done
@@ -90,6 +92,25 @@ module am_lock_module
         else
             valid   <=  valid;
     end
+    
+    //Recv bip registrring to error_counter
+    always @(posedge i_clock)
+    begin
+        if(i_reset)
+            received_bip_d <= {NB_BIP{1'b0}};
+        else if(i_rf_enable && i_valid)
+            received_bip_d <= recived_bip;
+    end
+    
+    //sol registrring to error_counter
+    always @(posedge i_clock)
+    begin
+        if(i_reset)
+            start_of_lane_d <= 1'b0;
+        else if(i_rf_enable && i_valid)
+            start_of_lane_d <= start_of_lane;
+    end
+    
 
     //Resync counter logic
     reg     [NB_RESYNC_COUNTER-1     : 0]     resync_counter;
@@ -187,9 +208,9 @@ am_error_counter
 		// El trigger para calcular el match deberia ser
 		// probablemente la senial de SOL, revisar 
 		//
-	 	.i_match            (start_of_lane),	//from comparator
+	 	.i_match            (start_of_lane_d),	//from comparator
         .i_reset_count      (resync),
-	 	.i_recived_bip 	 	(recived_bip),		//from input reg
+	 	.i_recived_bip 	 	(received_bip_d),		//from input reg
 	 	.i_calculated_bip	(calculated_bip),	//from bip_calc
 	 	.o_error_count	 	(o_error_counter)	//to top level
 	 );
