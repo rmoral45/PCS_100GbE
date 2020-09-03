@@ -158,7 +158,7 @@ module block_sync_fsm
     always @ (posedge i_clock)
     begin
 
-        if (i_reset || reset_count )
+        if ((i_reset || reset_count) && i_valid)
             sh_invalid_count <= {NB_INVALID_CNT{1'b0}};
 
         else if (i_enable && i_valid && !i_sh_valid)
@@ -171,7 +171,7 @@ module block_sync_fsm
     always @ (posedge i_clock)
     begin
         
-        if (i_reset || reset_timer)
+        if ((i_reset || reset_timer) && i_valid)
             timer_search <= {NB_WINDOW_CNT{1'b0}};
 
         else if (i_enable && i_valid)

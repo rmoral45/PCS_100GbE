@@ -437,6 +437,7 @@ u_aligner_top
     .i_rf_invalid_am_thr        (i_rf_invalid_am_thr),
     .i_rf_valid_am_thr          (i_rf_valid_am_thr),
     .i_rf_compare_mask          (i_rf_compare_mask),
+    .i_rf_am_period             (i_rf_am_period),
 
     .o_data                     (aligment_data_deskew),
     .o_valid                    (aligment_valid_deskew),
