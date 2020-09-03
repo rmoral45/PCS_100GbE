@@ -58,12 +58,12 @@ localparam INIT         = 4'b1000;
 localparam WAIT_1ST     = 4'b0100;
 localparam WAIT_2ND     = 4'b0010;
 localparam LOCKED 	= 4'b0001;
-localparam NB_COUNTER   = $clog2(NB_AM_PERIOD);
+localparam NB_COUNTER   = $clog2(16383);
 
 
 //INTERNAL SIGNALS
 
-reg				reset_timer_next, reset_sol_lock;
+reg				reset_timer_next;
 reg [NB_COUNTER -1 : 0]     	timer_search	, timer_lock;
 reg [N_STATE-1 : 0] 		state 		, next_state;
 reg [NB_INVALID_CNT-1 : 0] 	am_invalid_count;
@@ -251,9 +251,9 @@ end
     end
 
     // PORTS
-    assign o_start_of_lane = ( timer_lock == i_am_period ) ;
-    assign o_resync_by_am_start = (reset_timer_lock && ( timer_lock!=timer_search )) 
-                                  || (first_lock_next && !first_lock);
+    assign o_start_of_lane = ( timer_lock == i_am_period ) && i_valid ;
+    assign o_resync_by_am_start = ((reset_timer_lock && ( timer_lock!=timer_search )) 
+                                  || (first_lock_next && !first_lock)) && i_valid;
 
     always @ (posedge i_clock)
     begin

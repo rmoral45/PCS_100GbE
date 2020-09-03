@@ -1,4 +1,5 @@
-`timescale 1ns/100ps
+//`timescale 1ns/100ps
+`timescale 1ns/1ns
 
 module toplevel_tx
 #(
@@ -40,8 +41,8 @@ localparam              COUNT_SCALE             = 2;
 localparam              VALID_COUNT_LIMIT_FAST  = 2;
 localparam              VALID_COUNT_LIMIT_SLOW  = 40;
 /* clock_comp_tx - am_insertion */
-//localparam              AM_BLOCK_PERIOD         = 16383;
-localparam              AM_BLOCK_PERIOD         = 100;
+localparam              AM_BLOCK_PERIOD         = 16383;
+//localparam              AM_BLOCK_PERIOD         = 100;
 
 /* scrambler */
 localparam              SEED                    = 58'd0;

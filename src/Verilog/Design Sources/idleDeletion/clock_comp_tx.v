@@ -18,8 +18,9 @@
 module clock_comp_tx
 #(
         parameter NB_DATA_CODED          = 66,
-        parameter AM_BLOCK_PERIOD  = 100, //[CHECK]
-        parameter N_LANES          = 20
+        parameter N_LANES          = 20,
+        parameter AM_BLOCK_PERIOD  = 16383 //[CHECK]
+        
  )
  (
         input  wire                     i_clock,

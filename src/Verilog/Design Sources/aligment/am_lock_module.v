@@ -99,7 +99,7 @@ module am_lock_module
     begin
         if(i_reset)
             resync_counter  <=  {NB_RESYNC_COUNTER{1'b0}};
-        else if(i_rf_enable)
+        else if(i_rf_enable && i_valid)
             resync_counter  <=  resync_counter_next;
     end
 
@@ -204,8 +204,10 @@ bip_calculator
 	 	.i_clock	        (i_clock),                  //from top level
 	 	.i_reset	        (i_reset),                  //from top level
 	 	.i_data		        (i_data),                   //from top level
+	 	.i_valid            (i_valid),
 	 	.i_enable	        (i_rf_enable),              //from register file
 		.i_start_of_lane    (start_of_lane | resync),   //from fsm
+		.i_am_insert        (1'b0),                     //input valid in tx
 
 	 	.o_bip3             (calculated_bip),           //to error counter
 	 	.o_bip7             (bip7)                      //to error counter
