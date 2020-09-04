@@ -14,6 +14,7 @@ module deskew_fsm
  	input wire                          i_resync,
  	input wire [N_LANES-1 : 0]	        i_start_of_lane,
  	input wire [NB_DELAY_COUNT-1 : 0]   i_common_counter,
+ 	input wire                          i_am_lock,
 
  	output reg                          o_enable_counters,
  	output reg                          o_stop_common_counter,
@@ -45,7 +46,7 @@ module deskew_fsm
 
  always @ (posedge  i_clock)
  begin 	
- 	if(i_reset || i_resync)
+ 	if(i_reset || i_resync || ~i_am_lock)
  	begin
  		state 				<= INIT;
  		deskew_done         <= 0;

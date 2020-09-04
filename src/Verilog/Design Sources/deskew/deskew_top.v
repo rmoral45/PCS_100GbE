@@ -20,6 +20,7 @@ module deskew_top
  	input wire 	[N_LANES-1 : 0]		        i_resync,
  	input wire 	[N_LANES-1 : 0]		        i_start_of_lane,
  	input wire  [NB_DATA_BUS-1 : 0]         i_data,
+ 	input wire                              i_am_lock,
 
  	output wire [NB_FIFO_DATA_BUS-1 : 0]    o_data, 
     output wire                             o_deskew_done,
@@ -103,7 +104,7 @@ module deskew_top
   	.i_reset                (i_reset),
   	.i_enable               (i_enable),
   	.i_valid                (i_valid),
-  	//.i_am_lock            (i_am_lock),
+  	.i_am_lock              (i_am_lock),
   	.i_resync               (|i_resync),
   	.i_start_of_lane        (i_start_of_lane),
   	.i_common_counter       (common_counter_value),

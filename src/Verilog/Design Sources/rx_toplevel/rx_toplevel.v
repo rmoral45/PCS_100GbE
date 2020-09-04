@@ -408,7 +408,8 @@ deskew_top
     .i_resync                   (aligment_resync_deskew),
     .i_start_of_lane            (aligment_sol_deskew),
     .i_data                     (aligment_data_deskew),
-
+    .i_am_lock                  (&am_lanes_lock),
+    
     .o_data                     (deskew_data_reorder),
     .o_deskew_done              (deskew_deskewdone_reorder),
     .o_invalid_skew             (deskew_invalidskew_rf)
