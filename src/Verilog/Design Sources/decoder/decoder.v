@@ -14,7 +14,7 @@ module decoder
     input   wire    [NB_DATA_CODED-1    :   0]  i_data,
 
     output  wire    [NB_DATA_RAW-1      :   0]  o_data,
-    output  wire    [NB_DATA_RAW-1      :   0]  o_ctrl,
+    output  wire    [NB_CTRL_BLOCK-1    :   0]  o_ctrl,
     output  wire    [NB_BLOCK_TYPE-1    :   0]  o_fsm_control
 );
 
@@ -29,7 +29,7 @@ module decoder
     wire            [NB_BLOCK_TYPE-1    :   0]  fsminterface_type_next_fsm;
 //decoder_fsm --> rx_toplevel
     wire            [NB_DATA_RAW-1      :   0]  decoderfsm_data_rxtoplevel;
-    wire            [NB_DATA_RAW-1      :   0]  decoderfsm_ctrl_rxtoplevel;
+    wire            [NB_CTRL_BLOCK-1    :   0]  decoderfsm_ctrl_rxtoplevel;
 //decoder_fsm --> clock_comp_rx
     wire            [NB_BLOCK_TYPE-1    :   0]  decoderfsm_type_clockcomp;
     

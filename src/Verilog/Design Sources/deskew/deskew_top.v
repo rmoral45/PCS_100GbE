@@ -9,7 +9,8 @@ module deskew_top
 	parameter MAX_SKEW         = 16,	
 	parameter NB_DELAY_COUNT   = $clog2(FIFO_DEPTH),
 	parameter NB_DELAY_BUS     = NB_DELAY_COUNT*N_LANES,
-	parameter NB_DATA_BUS      = NB_DATA*N_LANES
+	parameter NB_DATA_BUS      = NB_DATA*N_LANES,
+	parameter NB_FIFO_DATA_BUS = NB_FIFO_DATA*N_LANES
  )
  (
  	input wire 					            i_clock,
@@ -20,7 +21,7 @@ module deskew_top
  	input wire 	[N_LANES-1 : 0]		        i_start_of_lane,
  	input wire  [NB_DATA_BUS-1 : 0]         i_data,
 
- 	output wire [NB_DATA_BUS-1 : 0]         o_data, // NO SERIA NB_FIFO_DATA*N_LANES?
+ 	output wire [NB_FIFO_DATA_BUS-1 : 0]    o_data, 
     output wire                             o_deskew_done,
     output wire                             o_invalid_skew
  //	output wire 							o_align_status
@@ -41,12 +42,24 @@ module deskew_top
  wire                           write_prog_fifo_enb;
  wire                           read_prog_fifo_enb;
  wire 				            invalid_skew;
+ 
+ wire [NB_FIFO_DATA_BUS-1 : 0]    data_and_tags;
 
 
-
+ 
+ genvar j;
+  for (j=0; j<N_LANES; j=j+1)
+ begin : prog_fifo_ger_block
+    assign data_and_tags[NB_FIFO_DATA_BUS - j*NB_FIFO_DATA -1 -: NB_FIFO_DATA] = {i_start_of_lane[N_LANES - j - 1], i_data[NB_DATA_BUS - j*NB_DATA - 1 -: NB_DATA]};
+ end
+ 
+ 
+ 
+ 
+ 
  //PORTS
- assign o_set_fifo_delay = set_fifo_delay;
- assign o_lane_delay = lane_counters_value;
+ //assign o_set_fifo_delay = set_fifo_delay;
+ //assign o_lane_delay = lane_counters_value;
  assign o_invalid_skew = invalid_skew;
  /*
 
@@ -73,7 +86,7 @@ module deskew_top
     .i_write_enb        (write_prog_fifo_enb),
     .i_read_enb         (read_prog_fifo_enb),
     .i_delay_vector     (lane_counters_value),
-    .i_data             (i_data),
+    .i_data             (data_and_tags),
     .o_data             (o_data)
  );
  

@@ -46,7 +46,7 @@ module rx_toplevel
     parameter NB_FIFO_DATA              = 67, //incluye tag de SOL
     parameter FIFO_DEPTH                = 20,
     parameter MAX_SKEW                  = 16,
-    parameter FIFO_DATA_BUS             = N_LANES * FIFO_DEPTH,
+    parameter NB_FIFO_DATA_BUS          = N_LANES * NB_FIFO_DATA,
 
     //decoder
     parameter NB_FSM_CONTROL    = 4,
@@ -154,7 +154,7 @@ wire    [N_LANES-1          : 0]    ber_monitor_hi_ber_bus_rf;
 
 //deskew      --> reorder
 //@CAREFUL estos datos son de 67 bits xq contiene el tag
-wire [FIFO_DATA_BUS  - 1 : 0]       deskew_data_reorder;
+wire [NB_FIFO_DATA_BUS  - 1 : 0]    deskew_data_reorder;
 wire                                deskew_deskewdone_reorder;
 
 //deskew      --> regfile

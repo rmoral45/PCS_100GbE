@@ -90,7 +90,7 @@ generate
                 .o_error_counter        (o_error_counter[NB_ERR_BUS-1-i*NB_ERROR_COUNTER -: NB_ERROR_COUNTER]),
                 .o_am_lock              (o_am_lock[i]),
                 .o_resync               (o_resync[i]),
-                .o_resync_counter       (o_resync_counter_bus[NB_ERR_BUS-1-i*NB_ERROR_COUNTER -: NB_ERROR_COUNTER]),
+                .o_resync_counter       (o_resync_counter_bus[NB_RESYNC_COUNTER_BUS-1-i*NB_RESYNC_COUNTER -: NB_RESYNC_COUNTER]),
                 .o_start_of_lane        (o_start_of_lane[i])
             );
         end

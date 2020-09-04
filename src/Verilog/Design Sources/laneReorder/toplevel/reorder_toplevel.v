@@ -22,7 +22,7 @@ module reorder_toplevel
 
     output wire [NB_DATA - 1 : 0]            o_data,
     output wire                              o_tag
- );
+ ); 
 
 //----output data logic
 wire [NB_FIFO_DATA - 1 : 0]     swapped_data;

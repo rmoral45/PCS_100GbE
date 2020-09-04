@@ -13,18 +13,19 @@ module clock_comp_rx
 #(
         parameter                           NB_DATA_CODED       = 66,
         parameter                           AM_BLOCK_PERIOD     = 16383, //[CHECK]
-        parameter                           N_LANES             = 20
+        parameter                           N_LANES             = 20,
+        parameter                           N_FSM_DECO_STATES   = 4
  )
  (
-        input  wire                         i_clock,
-        input  wire                         i_reset,
-        input  wire                         i_rf_enable,
-        input  wire                         i_valid,
-        input  wire                         i_fsm_control,
-        input  wire                         i_sol_tag,
-        input  wire [NB_DATA_CODED-1 : 0]   i_data,
+        input  wire                             i_clock,
+        input  wire                             i_reset,
+        input  wire                             i_rf_enable,
+        input  wire                             i_valid,
+        input  wire [N_FSM_DECO_STATES-1 : 0]   i_fsm_control,
+        input  wire                             i_sol_tag,
+        input  wire [NB_DATA_CODED-1 : 0]       i_data,
 
-        output wire [NB_DATA_CODED-1 : 0]   o_data
+        output wire [NB_DATA_CODED-1 : 0]       o_data
  );
 
 localparam                                  WR_PTR_AFTER_RST    = 1;                    
@@ -97,6 +98,7 @@ assign                                      o_data              = (idle_insert) 
         .i_clock            (i_clock),
         .i_reset            (i_reset),
         .i_enable           (i_rf_enable),
+        .i_valid            (i_valid),
         .i_write_enb        (fifo_write_enable),
         .i_read_enb         (fifo_read_enable),
         .i_data             (i_data),

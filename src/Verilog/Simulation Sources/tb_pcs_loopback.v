@@ -105,6 +105,7 @@ wire tb_tx_fast_valid;
     reg [NB_VAL_AM-1        : 0]tb_rf_valid_am_thr;
     reg [NB_AM-1            : 0] tb_rf_compare_mask;
     reg [NB_AM_PERIOD-1     : 0] tb_rf_am_period;
+    wire[N_LANES-1          : 0] tb_rf_am_lock;
 
     //Deskew inputs
     reg tb_rf_enable_deskewer;
