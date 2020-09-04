@@ -65,7 +65,7 @@ end
 
 //Two step assigment to ensure ids isnt out of range
 assign aux_wr_ptr = (reorder_done) ? {NB_POINTER{1'b0}} : i_logical_rx_ID[((NB_ID_BUS)-(counter*NB_ID))-1 -: NB_ID];
-assign wr_ptr     = (aux_wr_ptr < N_LANES) ? wr_ptr : {NB_POINTER{1'b0}};
+assign wr_ptr     = (aux_wr_ptr < N_LANES) ? aux_wr_ptr : {NB_POINTER{1'b0}};
 
 assign reorder_done = (counter == N_LANES) ? 1'b1 : 1'b0;
 
