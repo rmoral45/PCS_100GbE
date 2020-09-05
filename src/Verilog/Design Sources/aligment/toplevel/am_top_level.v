@@ -57,8 +57,24 @@ module am_top_level
 
         output wire [N_LANES-1                  : 0]    o_start_of_lane
  );
-
-        assign                                         o_valid = i_valid;
+ 
+        wire        [NB_DATA_BUS-1 : 0] alignment_out;
+        wire        [NB_DATA-1 : 0] alignment_single_data [N_LANES-1 : 0];
+        
+        genvar j;
+        generate
+        for(j = 0; j < N_LANES; j = j+1)
+        begin
+            assign alignment_single_data[j] = alignment_out[NB_DATA_BUS - j*NB_DATA - 1 -: NB_DATA];
+        end
+        endgenerate
+        
+        
+        
+        
+            
+        assign                                          o_valid = i_valid;
+        assign                                          o_data  = alignment_out;
 
 genvar i;
 generate
@@ -85,7 +101,8 @@ generate
                 .i_rf_compare_mask      (i_rf_compare_mask),
                 .i_rf_am_period         (i_rf_am_period),
 
-                .o_data                 (o_data[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
+                //.o_data                 (o_data[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
+                .o_data                 (alignment_out[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
                 .o_lane_id              (o_lane_id[(NB_ID_BUS-1-i*NB_LANE_ID) -: NB_LANE_ID]),
                 .o_error_counter        (o_error_counter[NB_ERR_BUS-1-i*NB_ERROR_COUNTER -: NB_ERROR_COUNTER]),
                 .o_am_lock              (o_am_lock[i]),

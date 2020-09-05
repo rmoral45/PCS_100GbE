@@ -74,9 +74,11 @@ module am_lock_module
 //Output mux
     always @ *
     begin
-        if(i_rf_enable && i_valid && start_of_lane)
+        output_data = {NB_CODED_BLOCK{1'b0}};
+    
+        if(i_rf_enable && start_of_lane)
             output_data = { CTRL_SH,BLOCK_TYPE_CTRL,{8{PCS_IDLE}} }; //CHECK
-        else if(i_rf_enable && i_valid && !start_of_lane)
+        else if(i_rf_enable && !start_of_lane)
             output_data = i_data;
 
     end
@@ -131,7 +133,8 @@ module am_lock_module
     assign                                  o_data              = output_data;
     assign                                  o_start_of_lane     = start_of_lane;
     assign                                  o_resync            = resync;
-    assign                                  o_valid             = valid; //[CHECK]!!!
+    //assign                                  o_valid             = valid; //[CHECK]!!!\
+    assign                                  o_valid             = i_valid;
 
 
 //Instances
