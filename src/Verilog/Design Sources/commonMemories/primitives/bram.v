@@ -2,7 +2,8 @@ module bram
 #(
 	parameter                           NB_WORD_RAM        = 66,
     parameter                           RAM_DEPTH          = 1024,
-	parameter 							NB_ADDR_RAM 	   = $clog2(RAM_DEPTH)
+	parameter 							NB_ADDR_RAM 	   = $clog2(RAM_DEPTH),
+	parameter                           ZERO_FILE               = "zero.mem"
  )
  (				 
 	input wire							i_clock,
@@ -16,6 +17,10 @@ module bram
 
     reg			[NB_WORD_RAM-1 : 0]     bram [RAM_DEPTH-1 : 0];
 
+initial
+begin    
+     $readmemb(ZERO_FILE, bram, 0, RAM_DEPTH-1);
+end
 
     always@(posedge i_clock) 
     begin

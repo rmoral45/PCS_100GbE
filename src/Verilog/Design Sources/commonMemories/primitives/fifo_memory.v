@@ -4,7 +4,8 @@
 module fifo_memory
 #(
 	parameter NB_DATA = 72,
-	parameter NB_ADDR = 5
+	parameter NB_ADDR = 5,
+	parameter ZERO_FILE               = "zero.mem"
  )
  (
  	input wire  				i_clock,
@@ -26,6 +27,12 @@ localparam DEPTH = 2**NB_ADDR;
 //INTERNAL SIGNALS
 
 reg [NB_DATA-1 : 0]    memory       [0 : DEPTH-1];
+
+initial
+begin    
+     $readmemb(ZERO_FILE, memory, 0, DEPTH-1);
+end
+
 //reg [NB_DATA-1 : 0]    output_data               ;
 //reg [NB_DATA-1 : 0]    out               		 ;
 
