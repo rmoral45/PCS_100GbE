@@ -22,7 +22,7 @@ module descrambler
 
 //LOCALPARAM
 localparam 			   NB_SH = 2;
-localparam [LEN_CODED_BLOCK-1 : 0] IDLE_BLOCK = 66'h21E00000000000000;
+localparam [LEN_CODED_BLOCK-1 : 0] IDLE_BLOCK = 66'h2_1E_00_00_00_00_00_00_00;
 
 //INTERNAL SIGNALS
 
@@ -63,8 +63,10 @@ end
 //output
 always @ (posedge i_clock)
 begin
+    if(i_reset)
+        output_data <= {LEN_CODED_BLOCK{1'b0}};
 
- 	if (i_enable && (!i_bypass))begin
+ 	else if (i_enable && (!i_bypass))begin
  		output_data <= descrambled_data;
  	end
  	else if (i_enable &&  i_bypass)begin
