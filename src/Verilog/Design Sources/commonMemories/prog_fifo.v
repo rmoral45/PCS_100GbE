@@ -17,7 +17,8 @@ module prog_fifo
  	input wire  [NB_DELAY_COUNT-1 : 0]      i_read_addr,
  	input wire  [NB_DATA-1 : 0]             i_data,
 
- 	output wire [NB_DATA-1 : 0]             o_data
+ 	output wire [NB_DATA-1 : 0]             o_data,
+ 	output wire                             o_overflow
 );
 
 //INTERNAL SIGNALS
@@ -26,10 +27,14 @@ reg [NB_ADDR-1 : 0]        rd_ptr;
 
 
 wire reset_wr_ptr;
-assign reset_wr_ptr = (wr_ptr == FIFO_DEPTH-1) ? 1'b1 : 1'b0;
+assign reset_wr_ptr = ((wr_ptr == FIFO_DEPTH-1) && i_valid) ? 1'b1 : 1'b0;
 
 wire reset_rd_ptr;
-assign reset_rd_ptr = (rd_ptr == FIFO_DEPTH-1) ? 1'b1 : 1'b0;
+assign reset_rd_ptr = ((rd_ptr == FIFO_DEPTH-1) && i_valid) ? 1'b1 : 1'b0;
+
+wire overflow;
+assign overflow = ((wr_ptr - rd_ptr) < 1) ? 1'b1 : 1'b0;
+assign o_overflow = overflow;
 
 //update write pointer
 always @ ( posedge i_clock )
@@ -67,7 +72,7 @@ u_bram
 (
     .i_clock         (i_clock),
     .i_write_enable  (i_write_enb),
-    .i_read_enable   (i_read_enb),
+    .i_read_enable   (i_read_enb | i_reset),  //@FIXME
     .i_write_addr    (wr_ptr),
     .i_read_addr     (rd_ptr),
     .i_data          (i_data),

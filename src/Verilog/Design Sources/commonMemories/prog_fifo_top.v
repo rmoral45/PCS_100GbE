@@ -23,6 +23,8 @@ module prog_fifo_top
  	output wire [NB_DATA_BUS-1 : 0]         o_data
 );
 
+    wire        [N_LANES-1 : 0]             overflow_bus;
+
 //generate
 genvar i;
 
@@ -32,7 +34,7 @@ begin: gen_fifos
         prog_fifo
         #(
                 .N_LANES(N_LANES),
-                .NB_DATA(NB_FIFO_DATA),
+                .NB_DATA(NB_DATA),
                 .FIFO_DEPTH(FIFO_DEPTH),
                 .NB_ADDR(NB_ADDR)
         )
@@ -46,8 +48,9 @@ begin: gen_fifos
                         .i_read_enb             (i_read_enb),
                         .i_read_addr            (i_delay_vector[NB_DELAY_BUS-(i*NB_DELAY_COUNT)-1 -: NB_DELAY_COUNT]),
                         .i_data                 (i_data[NB_DATA_BUS-(i*NB_DATA)-1 -: NB_DATA]),
-                        .o_data                 (o_data[NB_DATA_BUS-(i*NB_DATA)-1 -: NB_DATA])
-                );
+                        .o_data                 (o_data[NB_DATA_BUS-(i*NB_DATA)-1 -: NB_DATA]),
+                        .o_overflow             (overflow_bus[i])
+                );             
 end
 
 //endgenerate
