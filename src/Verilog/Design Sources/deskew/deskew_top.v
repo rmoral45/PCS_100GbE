@@ -45,6 +45,13 @@ module deskew_top
  wire 				            invalid_skew;
  
  wire [NB_FIFO_DATA_BUS-1 : 0]    data_and_tags;
+ 
+ wire [NB_DATA -1 : 0] prog_fifos_data [N_LANES-1 : 0];
+ wire [N_LANES-1: 0]  prog_fifos_tag;
+ 
+ wire   [NB_FIFO_DATA_BUS-1 : 0]    fifo_out_data;
+ 
+ assign o_data = (o_deskew_done) ? fifo_out_data : data_and_tags;          
 
 
  
@@ -52,6 +59,13 @@ module deskew_top
   for (j=0; j<N_LANES; j=j+1)
  begin : prog_fifo_ger_block
     assign data_and_tags[NB_FIFO_DATA_BUS - j*NB_FIFO_DATA -1 -: NB_FIFO_DATA] = {i_start_of_lane[N_LANES - j - 1], i_data[NB_DATA_BUS - j*NB_DATA - 1 -: NB_DATA]};
+ end
+ 
+ genvar k;
+ for(k = 0; k <N_LANES; k = k+1)
+ begin : single_prog_fifo_debug
+    assign prog_fifos_data[k] = fifo_out_data[NB_FIFO_DATA_BUS-2-(k*NB_DATA) -: NB_DATA];
+    assign prog_fifos_tag[k] = fifo_out_data[NB_FIFO_DATA_BUS - 1 - (k*NB_DATA)];
  end
  
  
@@ -76,6 +90,7 @@ module deskew_top
  prog_fifo_top
  #(
     .NB_DATA(NB_FIFO_DATA),
+    .NB_FIFO_DATA(NB_FIFO_DATA),
     .FIFO_DEPTH(FIFO_DEPTH)
  )
  u_prog_fifo_top
@@ -88,7 +103,7 @@ module deskew_top
     .i_read_enb         (read_prog_fifo_enb),
     .i_delay_vector     (lane_counters_value),
     .i_data             (data_and_tags),
-    .o_data             (o_data)
+    .o_data             (fifo_out_data)
  );
  
  deskew_fsm
