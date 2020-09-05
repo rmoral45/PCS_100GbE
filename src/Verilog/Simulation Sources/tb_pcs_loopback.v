@@ -204,8 +204,8 @@ begin
         tb_rf_enb_encoder       = 1'b1;
         tb_rf_enb_clock_comp    = 1'b1;
         tb_rf_enb_scrambler     = 1'b1;
-        tb_rf_bypass_scrambler  = 1'b0;
-        tb_rf_idle_pattern_mode = 1'b1;
+        tb_rf_bypass_scrambler  = 1'b1;
+        tb_rf_idle_pattern_mode = 1'b0;
         tb_rf_enb_pc_1_20       = 1'b1;
         tb_rf_enb_am_insertion  = 1'b1;
         tb_rf_enb_pc_20_1       = 1'b1;
@@ -232,10 +232,10 @@ begin
         tb_rf_enable_deskewer= 1'b1;
         //Lane reorder inputs
         tb_rf_enable_lane_reorder= 1'b1;
-        tb_rf_reset_order= 1'b1;
+        tb_rf_reset_order= 1'b0;
         //Descrambler inputs
         tb_rf_enable_descrambler= 1'b1;
-        tb_rf_descrambler_bypass= 1'b0;
+        tb_rf_descrambler_bypass= 1'b1;
         tb_rf_enable_clock_comp= 1'b1;
         //Test pattern checker & ber_monitor signal
         tb_rf_test_pattern_checker= 1'b1;
@@ -377,7 +377,7 @@ u_rx_toplevel
 
     //Test pattern checker & ber_monitor signal
     .i_rf_enable_test_pattern_checker(tb_rf_test_pattern_checker),
-    .i_rf_idle_pattern_mode_rx(tb_rf_idle_pattern_mode_rx),
+    .i_rf_idle_pattern_mode_rx(tb_rf_idle_pattern_mode),
     
     //Decoder signals
     .i_rf_enable_decoder(tb_rf_enable_decoder),
