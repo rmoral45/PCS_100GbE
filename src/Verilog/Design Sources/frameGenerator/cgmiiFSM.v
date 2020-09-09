@@ -11,12 +11,12 @@ module cgmiiFSM
 	input 							i_clock,
 	input 							i_reset,
 	input                           i_enable,
-	input                           i_valid,
 	input		[DEBUG_NBIT - 1:0]	i_debug_pulse,			//senial utilizada para forzar transiciones de estados
 	input wire 	[DATA_NBIT - 1:0]	i_ndata,
 	input wire 	[IDLE_NBIT - 1:0]	i_nidle,
 	output wire                     o_start_flag,
-	output wire [N_STATES - 1:0]	o_actual_state
+	output wire [N_STATES - 1:0]	o_actual_state,
+	output wire                     o_valid
 	);
 
 //Estados
@@ -41,10 +41,12 @@ reg 		[DATA_NBIT - 1:0]		n_data_next;
 reg                                 first_transition;
 reg                                 start_signal;
 reg                                 start_signal_next;
+reg                                 valid_signal;
 
 //Asigns
 assign 								o_actual_state = actual_state;
 assign                              o_start_flag   = start_signal;
+assign                              o_valid        = valid_signal;
 
 always @ (posedge i_clock)begin
 	
@@ -57,8 +59,9 @@ always @ (posedge i_clock)begin
         first_transition<= 1'b0;
         start_signal    <= 1'b0;
         actual_state    <= INIT;
+        valid_signal    <= 1'b0;
 	end  
-    else if(i_enable && i_valid)
+    else if(i_enable)
     begin
 		idle_counter 	<= idle_counter_next;
 		data_counter 	<= data_counter_next;
@@ -66,6 +69,7 @@ always @ (posedge i_clock)begin
 		actual_state 	<= next_state;
 		n_idle          <= n_idle_next;
 		n_data          <= n_data_next;
+		valid_signal    <= 1'b1;
 	end
 end
 
@@ -126,7 +130,7 @@ always @ * begin
 		begin
 				n_idle_next = i_nidle;
 				n_data_next = i_ndata;
-				next_state = INIT;
+				next_state  = TX_C;
 		end
 
 		TX_E:

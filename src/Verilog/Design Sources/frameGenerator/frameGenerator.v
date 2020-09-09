@@ -11,13 +11,12 @@ module frameGenerator
 	input							i_clock,
 	input							i_reset,
 	input							i_enable,
-	input                           i_valid,
 	input wire	[NB_DATA -1:0]		i_ndata,
 	input wire	[NB_IDLE -1:0]		i_nidle,
 	input wire	[NB_TERM -1:0]		i_nterm,
 	output wire [NB_DATA_RAW - 1:0]	o_tx_data,
 	output wire [NB_CTRL_RAW - 1:0]	o_tx_ctrl,
-	output reg                      o_valid
+	output wire                     o_valid
 	);
 
 //Bloques
@@ -81,6 +80,7 @@ wire [NB_CTRL_RAW-1 :0]				data4;
 wire [NB_CTRL_RAW-1 :0]				data5;
 wire [NB_CTRL_RAW-1 :0]				data6;
 wire [NB_CTRL_RAW-1 :0]				data7;
+wire                                cgmi_output_valid;
 
 
 assign 								data0 			= data_block[NB_CTRL_RAW -: 8];
@@ -94,6 +94,16 @@ assign 								data7 			= data_block[NB_DATA_RAW-8 -: 8];
 assign 								o_tx_data 		= tx_data;
 assign 								o_tx_ctrl 		= tx_ctrl;
 assign  							enable_dataGenerator = 1'b1;
+assign                              o_valid         = cgmi_output_valid;
+
+reg [63:0] dbg_count;
+always @ (posedge i_clock)
+begin
+    if (i_reset)
+        dbg_count <= {64{1'b0}};
+    else if (i_enable)
+        dbg_count <= dbg_count + 1;
+end
 
 
 always @ * begin
@@ -119,15 +129,12 @@ always @ * begin
 		t_ctrls =	{T0_CTRL, T1_CTRL, T2_CTRL, T3_CTRL, T4_CTRL, T5_CTRL, T6_CTRL, 
 					T7_CTRL};
 
-    	o_valid = 1'b0;
-
 		case(state)
 
 		INIT:
 		begin
 			tx_data = Q_ORD_BLOCK;
 			tx_ctrl = ORD_CTRL;
-			o_valid = 1'b1;
 		end
 
 		TX_C:
@@ -135,14 +142,11 @@ always @ * begin
 			
 			tx_data = {8{IDLE_CHAR}};
 			tx_ctrl = IDLE_CTRL;
-			o_valid = 1'b1;
 
 		end
 		
 		TX_S:
-		begin
-			o_valid = 1'b1;
-		
+		begin		
 			if(start_flag)begin
 			     tx_data = start_block;
 			     tx_ctrl = START_CTRL;
@@ -151,28 +155,25 @@ always @ * begin
 
 		TX_D:
 		begin
-    	   o_valid = 1'b1;
-			tx_data = data_block;
+			//tx_data = data_block;
+			tx_data = dbg_count;
 			tx_ctrl = DATA_CTRL;
 		end
 
 		TX_T:	
 		begin
-    		o_valid = 1'b1;
 			tx_data = t_blocks[((NB_DATA_RAW*8-1) - (i_nterm*NB_DATA_RAW)) -: NB_DATA_RAW]; //n_term salida de la awgn
 			tx_ctrl = t_ctrls[((NB_CTRL_RAW*8-1) - (i_nterm*NB_CTRL_RAW)) -: NB_CTRL_RAW]; //n_term salida de la awgn
 		end
 	
 		TX_E:
 		begin
-    	    o_valid = 1'b1;
             tx_data = ERROR_BLOCK;
 	        tx_ctrl = IDLE_CTRL;
     	end
 	
 		default:
 		begin
-    	    o_valid = 1'b0;
 		    tx_data = tx_data;
 		    tx_ctrl = tx_ctrl;
     	end
@@ -188,12 +189,12 @@ u_cgmiiFSM
 	.i_clock(i_clock),
 	.i_reset(i_reset),
 	.i_enable(i_enable),
-	.i_valid(i_valid),
 	.i_debug_pulse(DEBUG_PULSE),
 	.i_ndata(i_ndata),         //salida de la awgn
 	.i_nidle(i_nidle),         //salida de la awgn
 	.o_start_flag(start_flag),
-	.o_actual_state(state)
+	.o_actual_state(state),
+	.o_valid(cgmi_output_valid)
 	);
 
 dataGenerator#(

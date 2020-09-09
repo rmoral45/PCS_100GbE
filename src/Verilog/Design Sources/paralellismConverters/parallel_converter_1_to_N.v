@@ -31,7 +31,7 @@ reg                                     aux_output_valid;
 wire count_done;
 ///////////   PORT ASSIGMENT  ////////
 
-assign o_data  = shadow_output_data;
+assign o_data  = output_data;
 
 always @ (posedge i_clock)
 begin
@@ -56,6 +56,18 @@ begin
         index <= index +1;
 end
 
+reg valid_d;
+
+always @ (posedge i_clock)
+begin
+    if (i_reset)
+        valid_d <= 0;
+    
+     else if(count_done)
+        valid_d <= 1;                                                 
+        
+end
+
 always @ (posedge i_clock)
 begin
     if (i_reset)
@@ -67,7 +79,7 @@ begin
 end
 
 assign count_done = ((index == (N_LANES-1)) && i_valid);
-assign o_valid    = index == 0;
+assign o_valid    = valid_d;
 
 wire [NB_DATA_TAGGED-1 : 0] tb_o_pc_per_lane [N_LANES-1 : 0];
 genvar i;

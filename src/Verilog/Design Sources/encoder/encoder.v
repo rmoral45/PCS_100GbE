@@ -15,7 +15,8 @@ module encoder
     input wire      [NB_DATA_RAW-1 : 0]     i_data,
     input wire      [NB_CTRL_RAW-1 : 0]     i_ctrl,
     
-    output wire     [NB_DATA_CODED-1 : 0]   o_tx_coded
+    output wire     [NB_DATA_CODED-1 : 0]   o_tx_coded,
+    output wire                             o_valid
 );
 
     localparam  N_DATA_TYPES    = 4;
@@ -55,7 +56,8 @@ u_encoder_fsm
     .i_valid   (i_valid)                ,
     .i_tx_type (comparator_type_fsm)    ,
     .i_tx_coded(comparator_data_fsm)    ,
-    .o_tx_coded(o_tx_coded)
+    .o_tx_coded(o_tx_coded)             ,
+    .o_valid   (o_valid)
 );
 
 endmodule

@@ -67,19 +67,23 @@ wire                    slow_valid;         //senial de valid de menor tasa
 //--outputs
 wire    [NB_DATA_RAW-1 : 0] frameGenerator_data_encoder;
 wire    [NB_CTRL_RAW-1 : 0] frameGenerator_ctrl_encoder;
+wire                        frameGenerator_valid_encoder;
 
 //----------------------(Encoder - Clock Compensator)----------------------
 //--outputs
-wire    [NB_DATA_CODED-1 : 0] encoder_data_clockComp;
+wire    [NB_DATA_CODED-1 : 0]   encoder_data_clockComp;
+wire                            encoder_valid_clockComp;
 
 //----------------------(Clock Compensator - Scrambler)----------------------
 //--outputs
 wire    [NB_DATA_CODED-1 : 0]  clockComp_data_scrambler;
 wire                           clockComp_tag_scrambler; 
+wire                            clockComp_valid_scrambler;
 
 //----------------------(Scrambler - PC_1_to_20)----------------------
 //--outputs
 wire    [NB_DATA_TAGGED-1 : 0] scrambler_data_pc_1_20;
+wire                            scrambler_valid_pc_1_20;
 
 //----------------------(PC_1_to_20 - Am_insertion)----------------------
 //--outputs
@@ -142,9 +146,9 @@ u_frameGenerator
     .i_clock(i_clock),
     .i_reset(i_reset),
     .i_enable(i_rf_enb_frame_gen),
-    .i_valid(fast_valid),
     .o_tx_data(frameGenerator_data_encoder),
-    .o_tx_ctrl(frameGenerator_ctrl_encoder)
+    .o_tx_ctrl(frameGenerator_ctrl_encoder),
+    .o_valid(frameGenerator_valid_encoder)
 );
 
 encoder
@@ -158,10 +162,11 @@ u_encoder
     .i_clock(i_clock),
     .i_reset(i_reset),
     .i_enable(i_rf_enb_encoder),
-    .i_valid(fast_valid),
+    .i_valid(frameGenerator_valid_encoder),
     .i_data(frameGenerator_data_encoder),
     .i_ctrl(frameGenerator_ctrl_encoder),
-    .o_tx_coded(encoder_data_clockComp)
+    .o_tx_coded(encoder_data_clockComp),
+    .o_valid(encoder_valid_clockComp)
 );
 
 
@@ -185,11 +190,12 @@ u_clock_comp
     .i_clock(i_clock),
     .i_reset(i_reset),
     .i_enable(i_rf_enb_clock_comp),
-    .i_valid(fast_valid),
+    .i_valid(encoder_valid_clockComp),
     .i_data(encoder_data_clockComp),
     //.i_data(cnt),
     .o_data(clockComp_data_scrambler),
-    .o_aligner_tag(clockComp_tag_scrambler)
+    .o_aligner_tag(clockComp_tag_scrambler),
+    .o_valid(clockComp_valid_scrambler)
 );
 
 scrambler
@@ -205,12 +211,13 @@ u_scrambler
     .i_clock(i_clock),
     .i_reset(i_reset),
     .i_enable(i_rf_enb_scrambler),
-    .i_valid(fast_valid),
+    .i_valid(clockComp_valid_scrambler),
     .i_bypass(i_rf_bypass_scrambler || clockComp_tag_scrambler),
     .i_alligner_tag(clockComp_tag_scrambler),
     .i_idle_pattern_mode(i_rf_idle_pattern_mode),
     .i_data(clockComp_data_scrambler),
-    .o_data(scrambler_data_pc_1_20)
+    .o_data(scrambler_data_pc_1_20),
+    .o_valid(scrambler_valid_pc_1_20)
 );
 
 

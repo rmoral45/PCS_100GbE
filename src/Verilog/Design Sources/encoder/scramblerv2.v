@@ -17,7 +17,8 @@ module scrambler
 	input wire				i_idle_pattern_mode,
  	input wire  [NB_DATA_CODED-1 : 0] 	i_data,
 
- 	output reg [NB_DATA_TAGGED-1 : 0] 	o_data
+ 	output reg [NB_DATA_TAGGED-1 : 0] 	o_data,
+ 	output wire                         o_valid
  );
 
 //LOCALPARAMS
@@ -35,6 +36,8 @@ reg  [NB_SCRAMBLER-1   : 0] scrambler_state;
 reg  [NB_SCRAMBLER-1   : 0] scrambler_state_next;
 reg     out_bit_N;
 reg	idle_tag; 
+
+assign o_valid     = i_valid;
 
 assign sync_header = i_data[NB_DATA_CODED-1 -: 2];
 

@@ -30,7 +30,8 @@ module clock_comp_tx
         input  wire [NB_DATA_CODED-1 : 0]     i_data,
       
         output wire [NB_DATA_CODED-1 : 0]     o_data,
-        output wire                     o_aligner_tag
+        output wire                     o_aligner_tag,
+        output wire                     o_valid
  );
 
 localparam                      NB_ADDR       = 5;
@@ -52,12 +53,19 @@ wire                            fifo_read_enable;
 wire                            fifo_write_enable;
 wire [NB_DATA_CODED-1 : 0]            fifo_output_data;
 wire                            fifo_empty;
+reg                             valid_d;
 
 
 
 
 //----------- Algorithm ------------------------//
-
+always @ (posedge i_clock)
+begin
+    if(i_reset)
+        valid_d <= 1'b0;
+    else
+        valid_d <= i_valid;     
+end
 
 always @ (posedge i_clock)
 begin
@@ -92,7 +100,7 @@ assign fifo_write_enable = ((idle_detected && !idle_count_full) || i_reset) ? 1'
 
 assign o_data           = (idle_insert) ? PCS_IDLE : fifo_output_data;
 assign o_aligner_tag    = (idle_insert) ? 1'b1     : 1'b0; // si inserto idle le agrego el tag para que sea "pisado" con un alineador
-
+assign o_valid          = valid_d;
 
 //------- Instances ---------------------------//
 
