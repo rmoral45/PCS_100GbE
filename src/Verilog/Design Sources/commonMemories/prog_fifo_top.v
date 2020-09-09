@@ -3,7 +3,7 @@ module prog_fifo_top
         parameter N_LANES           = 20,
         parameter NB_DATA           = 66,
         parameter NB_FIFO_DATA      = 67,
-        parameter NB_DATA_BUS       = NB_DATA*N_LANES,
+        parameter NB_DATA_BUS       = NB_FIFO_DATA*N_LANES,
         parameter FIFO_DEPTH        = 20,
         parameter NB_ADDR           = $clog2(FIFO_DEPTH),
         parameter MAX_SKEW          = 16,
@@ -34,7 +34,7 @@ begin: gen_fifos
         prog_fifo
         #(
                 .N_LANES(N_LANES),
-                .NB_DATA(NB_DATA),
+                .NB_DATA(NB_FIFO_DATA),
                 .FIFO_DEPTH(FIFO_DEPTH),
                 .NB_ADDR(NB_ADDR)
         )

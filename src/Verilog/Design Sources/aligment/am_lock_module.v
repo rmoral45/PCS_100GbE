@@ -74,26 +74,15 @@ module am_lock_module
 //Output mux
     always @ *
     begin
-        output_data = {NB_CODED_BLOCK{1'b0}};
     
-        if(i_rf_enable && start_of_lane)
+    
+        if(start_of_lane)
             output_data = { CTRL_SH,BLOCK_TYPE_CTRL,{8{PCS_IDLE}} }; //CHECK
-        else if(i_rf_enable && !start_of_lane)
+        else
             output_data = i_data;
 
     end
     assign                                  am_value            = {i_data[NB_CODED_BLOCK-3 -: NB_AM/2], i_data[AM_MID_POS -: NB_AM/2]}; //PARAMETRIZAR
-
-//Valid registring
-    always @(posedge i_clock)
-    begin
-        if(i_reset)
-            valid   <=  1'b0;
-        else if(i_rf_enable)
-            valid   <=  i_valid;
-        else
-            valid   <=  valid;
-    end
     
     //Recv bip registrring to error_counter
     always @(posedge i_clock)

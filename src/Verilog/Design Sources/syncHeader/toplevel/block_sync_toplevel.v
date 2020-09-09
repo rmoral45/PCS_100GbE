@@ -45,17 +45,17 @@ module block_sync_toplevel
         reg                                     valid;
 
         //valid registring
-        always @ (posedge i_clock)
-        begin
-            if(i_reset || ~i_signal_ok)
-                    valid       <=  1'b0;
-            else if(i_enable)
-                    valid       <=  i_valid;
-            else
-                    valid       <=  valid;
-        end
+//        always @ (posedge i_clock)
+//        begin
+//            if(i_reset || ~i_signal_ok)
+//                    valid       <=  1'b0;
+//            else if(i_enable)
+//                    valid       <=  i_valid;
+//            else
+//                    valid       <=  valid;
+//        end
 
-        assign      o_valid     =   valid;
+        assign      o_valid     =   i_valid;
 
 
         genvar i;
