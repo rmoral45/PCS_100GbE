@@ -16,7 +16,7 @@ module rx_toplevel
     // valid generators  
     parameter COUNT_SCALE               = 2,
     parameter VALID_COUNT_LIMIT_FAST    = 2,
-    parameter VALID_COUNT_LIMIT_SLOW    = 40,
+    parameter VALID_COUNT_LIMIT_SLOW    = 20,
     // block sync
     parameter NB_SH                     = 2,
     parameter NB_SH_VALID_BUS           = N_LANES,
@@ -61,7 +61,7 @@ module rx_toplevel
     input  wire                             i_clock,
     input  wire                             i_reset,
     input  wire                             i_enable,
-    //input  wire                             i_valid, //esta senial viene del channel? 
+    input  wire                             i_valid, //esta senial viene del channel? 
     input  wire [NB_DATA_BUS - 1 : 0]       i_phy_data,
     
     //Valid generator inputs
@@ -475,7 +475,7 @@ u_block_sync_top
     .i_clock                    (i_clock),
     .i_reset                    (i_reset),
     .i_enable                   (i_rf_enable_block_sync),
-    .i_valid                    (slow_valid),
+    .i_valid                    (i_valid),
     .i_data                     (i_phy_data),
     .i_signal_ok                (i_signal_ok),
     .i_rf_unlocked_timer_limit  (i_rf_unlocked_timer_limit),

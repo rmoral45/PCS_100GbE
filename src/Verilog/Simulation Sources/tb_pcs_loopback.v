@@ -83,6 +83,7 @@ wire                                     tb_tx_o_valid_pc;
 wire    [(NB_DATA_CODED*N_LANES)-1 : 0] tb_tx_o_data;
 wire tb_tx_slow_valid;
 wire tb_tx_fast_valid;
+wire tb_tx_o_valid;
 
 
 
@@ -204,11 +205,13 @@ begin
         tb_rf_enb_encoder       = 1'b1;
         tb_rf_enb_clock_comp    = 1'b1;
         tb_rf_enb_scrambler     = 1'b1;
-        tb_rf_bypass_scrambler  = 1'b1;
+        tb_rf_bypass_scrambler  = 1'b0;
         tb_rf_idle_pattern_mode = 1'b0;
         tb_rf_enb_pc_1_20       = 1'b1;
         tb_rf_enb_am_insertion  = 1'b1;
         tb_rf_enb_pc_20_1       = 1'b1;
+        
+#3000   tb_rf_bypass_scrambler  = 1'b1;
 
         //RX
         tb_enable_rx= 1'b1;
@@ -286,8 +289,8 @@ u_toplevel_tx
     .o_encoder_data(tb_tx_o_encoder_data),
     .o_clock_comp_data(tb_tx_o_clock_comp_data),
     .o_am_insert_data(tb_tx_o_am_insert_data),
-    .o_valid_pc(tb_tx_o_valid_pc),
-    .o_data(tb_tx_o_data)
+    .o_data(tb_tx_o_data),
+    .o_valid_am_insert(tb_tx_o_valid)
 );
 
 rx_toplevel
@@ -344,6 +347,7 @@ u_rx_toplevel
     .i_clock(tb_clock),
     .i_reset(tb_reset),
     .i_enable(tb_enable_rx),
+    .i_valid(tb_tx_o_valid),
     .i_phy_data(tb_tx_o_data),
     
     //Valid generator inputs

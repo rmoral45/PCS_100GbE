@@ -75,7 +75,7 @@ begin
                 period_counter <= period_counter + 1'b1;
 end
 
-assign period_done = (period_counter == ((AM_BLOCK_PERIOD*N_LANES))) ? 1'b1 : 1'b0;
+assign period_done = (period_counter == ((AM_BLOCK_PERIOD*N_LANES) - 1)) ? 1'b1 : 1'b0;
 
 
 always @ (posedge i_clock)
@@ -100,7 +100,8 @@ assign fifo_write_enable = ((idle_detected && !idle_count_full) || i_reset) ? 1'
 
 assign o_data           = (idle_insert) ? PCS_IDLE : fifo_output_data;
 assign o_aligner_tag    = (idle_insert) ? 1'b1     : 1'b0; // si inserto idle le agrego el tag para que sea "pisado" con un alineador
-assign o_valid          = valid_d;
+//assign o_valid          = valid_d;
+assign o_valid          = i_valid;
 
 //------- Instances ---------------------------//
 

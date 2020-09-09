@@ -3,7 +3,7 @@ module prog_fifo
         parameter N_LANES           = 20,
         parameter NB_DATA           = 66,
         parameter FIFO_DEPTH        = 20,
-	parameter NB_ADDR           = $clog2(FIFO_DEPTH),
+	    parameter NB_ADDR           = $clog2(FIFO_DEPTH),
         parameter MAX_SKEW          = 16,
         parameter NB_DELAY_COUNT    = $clog2(FIFO_DEPTH)
 )   
@@ -18,12 +18,14 @@ module prog_fifo
  	input wire  [NB_DATA-1 : 0]             i_data,
 
  	output wire [NB_DATA-1 : 0]             o_data,
- 	output wire                             o_overflow
+ 	output wire [NB_ADDR-1 : 0]             o_fifo_level                             
 );
 
 //INTERNAL SIGNALS
 reg [NB_ADDR-1 : 0]	   wr_ptr;
-reg [NB_ADDR-1 : 0]        rd_ptr;                       
+reg [NB_ADDR-1 : 0]        rd_ptr;  
+reg [NB_ADDR-1 : 0]        fifo_level;
+wire [NB_ADDR-1 : 0]        fifo_level_next;                     
 
 
 wire reset_wr_ptr;
@@ -32,9 +34,17 @@ assign reset_wr_ptr = ((wr_ptr == FIFO_DEPTH-1) && i_valid) ? 1'b1 : 1'b0;
 wire reset_rd_ptr;
 assign reset_rd_ptr = ((rd_ptr == FIFO_DEPTH-1) && i_valid) ? 1'b1 : 1'b0;
 
-wire overflow;
-assign overflow = ((wr_ptr - rd_ptr) < 1) ? 1'b1 : 1'b0;
-assign o_overflow = overflow;
+
+always @ ( posedge i_clock )
+begin
+    if(i_reset)
+        fifo_level <= wr_ptr - rd_ptr;
+    else if(i_valid)
+        fifo_level <= fifo_level_next;
+end
+
+assign fifo_level_next = (i_write_enb && i_read_enb)    ? fifo_level        :
+                         (i_write_enb && !i_read_enb)   ? fifo_level + 1'b1 : fifo_level - 1'b1;
 
 //update write pointer
 always @ ( posedge i_clock )

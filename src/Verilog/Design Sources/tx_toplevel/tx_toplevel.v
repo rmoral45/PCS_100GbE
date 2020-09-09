@@ -29,7 +29,7 @@ module toplevel_tx
     output wire    [NB_DATA_CODED-1 : 0]            o_encoder_data,
     output wire    [NB_DATA_CODED-1 : 0]            o_clock_comp_data,
     output wire    [(NB_DATA_CODED*N_LANES)-1 : 0]  o_am_insert_data,
-    output wire                                     o_valid_pc,
+    output wire                                     o_valid_am_insert,
     //output wire    [(NB_DATA_TAGGED*N_LANES)-1 : 0] o_pc_data,
     
     output wire [(NB_DATA_CODED*N_LANES)-1 : 0]     o_data
@@ -243,7 +243,7 @@ u_pc_1_to_20
     .i_clock(i_clock),
     .i_reset(i_reset),
     .i_enable(i_rf_enb_pc_1_20),
-    .i_valid(fast_valid),
+    .i_valid(scrambler_valid_pc_1_20),
     .i_set_shadow(slow_valid),
     .i_data(scrambler_data_pc_1_20),
     //.i_data(dbg),
@@ -275,7 +275,8 @@ u_am_insertion
     //.i_valid(slow_valid),
     .i_data(pc_1_20_data_am_insert),
     //.i_data(dbg_pc_o),
-    .o_data(am_insert_data_pc_20_1)
+    .o_data(am_insert_data_pc_20_1),
+    .o_valid(o_valid_am_insert)
 );
 
 /*
@@ -296,11 +297,13 @@ u_pc_20_to_1
 */
 
 wire [NB_DATA_TAGGED-1 : 0]         dbg_o_pc_per_lane [N_LANES-1:0];
+wire [NB_DATA_CODED-1 : 0]         dbg_o_am_per_lane [N_LANES-1:0];
 
 genvar i;
 for(i=0; i<N_LANES; i=i+1)
 begin: ger_block2
     assign dbg_o_pc_per_lane[i] = dbg_pc_o[(NB_DATA_TAGGED*N_LANES-2) - i*NB_DATA_TAGGED -: NB_DATA_CODED];
+    assign dbg_o_am_per_lane[i] = am_insert_data_pc_20_1[(NB_DATA_CODED*N_LANES-1) - i*NB_DATA_CODED -: NB_DATA_CODED];
 end
 
 endmodule

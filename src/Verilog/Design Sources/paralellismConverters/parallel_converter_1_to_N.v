@@ -64,7 +64,9 @@ begin
         valid_d <= 0;
     
      else if(count_done)
-        valid_d <= 1;                                                 
+        valid_d <= 1;
+     else
+        valid_d <= 0;                                                 
         
 end
 

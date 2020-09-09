@@ -14,7 +14,8 @@ module am_insertion_toplevel
     input wire                                      i_enable,
     input wire  [(NB_DATA_TAGGED*N_LANES)-1 : 0]  i_data,
 
-    output wire [(NB_DATA_CODED*N_LANES)-1 : 0]   o_data
+    output wire [(NB_DATA_CODED*N_LANES)-1 : 0]   o_data,
+    output wire                                     o_valid
 );
     
     localparam NB_AM_ENCODING           = 24;
@@ -63,9 +64,33 @@ module am_insertion_toplevel
 
     //Vector que almacena los tags de cada lane
     wire        [(NB_DATA_CODED*N_LANES)-1 : 0]     out_data;  
-        
-
     assign                                          o_data = out_data;
+    
+    reg         [(NB_DATA_TAGGED*N_LANES)-1 : 0]    data_input_d;
+    reg                                             valid_d;
+    assign                                          o_valid = valid_d;    
+    
+    always @(posedge i_clock)
+    begin
+        if(i_reset)
+        begin
+            data_input_d <= {NB_DATA_TAGGED*N_LANES{1'b0}};
+            valid_d <= 1'b0;
+        end
+        else if(i_enable)
+        begin
+            if(i_valid)
+            begin
+                valid_d <= i_valid;
+                data_input_d <= i_data;
+            end
+            else
+            begin
+                valid_d <= 1'b0;
+                data_input_d <= data_input_d;
+            end
+        end
+    end
 
 
     genvar i;
@@ -85,9 +110,9 @@ module am_insertion_toplevel
             .i_clock            (i_clock),
             .i_reset            (i_reset),
             .i_enable           (i_enable && i_valid),
-            .i_valid            (i_valid),
-            .i_am_insert        (i_data[(NB_DATA_TAGGED*N_LANES)-1 - i*NB_DATA_TAGGED]),
-            .i_data             (i_data[(NB_DATA_TAGGED*N_LANES)-2 -(i*NB_DATA_TAGGED) -: NB_DATA_CODED]),
+            .i_valid            (valid_d),
+            .i_am_insert        (data_input_d[(NB_DATA_TAGGED*N_LANES)-1 - i*NB_DATA_TAGGED]),
+            .i_data             (data_input_d[(NB_DATA_TAGGED*N_LANES)-2 -(i*NB_DATA_TAGGED) -: NB_DATA_CODED]),
             .o_data             (out_data[((NB_DATA_CODED*N_LANES)-1) -(i*NB_DATA_CODED) -: NB_DATA_CODED])
         );
         
