@@ -40,6 +40,16 @@ reg                         update_selector_prev;
 wire                        deskew_done_posedge;
 reg                         deskew_done_prev;
 
+reg [NB_FIFO_DATA_BUS - 1 : 0] data_d;
+
+always @(posedge i_clock)
+begin
+    if(i_reset)
+        data_d <= {NB_FIFO_DATA_BUS{1'b0}};
+    else if(i_enable && i_valid)
+        data_d <= i_data;
+end
+
 always @(posedge i_clock)
 begin
     if (i_reset)
@@ -58,7 +68,6 @@ begin
 end
 assign deskew_done_posedge = i_deskew_done && (~deskew_done_prev);
 
-
 lane_swap_v2
 #(
     .NB_DATA    (NB_FIFO_DATA),
@@ -71,7 +80,7 @@ lane_swap_v2
         .i_enable           (i_enable),
         .i_valid            (i_valid),
         .i_reorder_done     (update_selector_posedge),
-        .i_data             (i_data),
+        .i_data             (data_d),
         .i_lane_ids         (ordered_ids),
 
         .o_data             (swapped_data)
