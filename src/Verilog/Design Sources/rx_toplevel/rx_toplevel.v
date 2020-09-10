@@ -156,6 +156,7 @@ wire    [N_LANES-1          : 0]    ber_monitor_hi_ber_bus_rf;
 //@CAREFUL estos datos son de 67 bits xq contiene el tag
 wire [NB_FIFO_DATA_BUS  - 1 : 0]    deskew_data_reorder;
 wire                                deskew_deskewdone_reorder;
+wire                                deskew_valid_reorder;
 
 //deskew      --> regfile
 wire                                deskew_invalidskew_rf;
@@ -380,7 +381,7 @@ reorder_toplevel
     .i_reset                    (i_reset),
     .i_rf_reset_order           (i_rf_reset_order),
     .i_enable                   (i_rf_enable_lane_reorder),
-    .i_valid                    (fast_valid),
+    .i_valid                    (deskew_valid_reorder),
     .i_deskew_done              (deskew_deskewdone_reorder),
     .i_logical_rx_ID            (aligment_id_reorder),
     .i_data                     (deskew_data_reorder),
@@ -411,6 +412,7 @@ deskew_top
     .i_am_lock                  (&am_lanes_lock),
     
     .o_data                     (deskew_data_reorder),
+    .o_valid                    (deskew_valid_reorder),
     .o_deskew_done              (deskew_deskewdone_reorder),
     .o_invalid_skew             (deskew_invalidskew_rf)
     //.o_valid_skew               (deskew_validskew_bermonitor)  //no esta conectado, seria lo mismo que deskew done? 
