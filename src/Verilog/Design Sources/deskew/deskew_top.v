@@ -23,6 +23,7 @@ module deskew_top
  	input wire                              i_am_lock,
 
  	output wire [NB_FIFO_DATA_BUS-1 : 0]    o_data, 
+ 	output wire                             o_valid,
     output wire                             o_deskew_done,
     output wire                             o_invalid_skew
  //	output wire 							o_align_status
@@ -75,7 +76,8 @@ module deskew_top
  //PORTS
  //assign o_set_fifo_delay = set_fifo_delay;
  //assign o_lane_delay = lane_counters_value;
- assign o_invalid_skew = invalid_skew;
+ assign o_invalid_skew  = invalid_skew;
+ assign o_valid         = i_valid;
  /*
 
  Salidas de la FSM , pero probablemente align_status deberia ser seteada por las
