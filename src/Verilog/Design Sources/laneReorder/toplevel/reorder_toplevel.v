@@ -21,6 +21,7 @@ module reorder_toplevel
     input  wire [NB_FIFO_DATA_BUS - 1 : 0]   i_data,
 
     output wire [NB_DATA - 1 : 0]            o_data,
+    output wire                              o_valid,
     output wire                              o_tag
  ); 
 
@@ -28,6 +29,7 @@ module reorder_toplevel
 wire [NB_FIFO_DATA - 1 : 0]     swapped_data;
 assign o_tag  = swapped_data[NB_FIFO_DATA - 1];
 assign o_data = swapped_data[NB_FIFO_DATA - 2 : 0];
+assign o_valid = 1'b1; //@TODO: CHECK THIS!!!
 
 //----internal module connections
 wire [NB_ID_BUS - 1 : 0]    ordered_ids;
@@ -54,7 +56,7 @@ always @(posedge i_clock)
 begin
     if (i_reset)
         update_selector_prev <= 0;
-    else if (i_enable && i_valid)
+    else if (i_enable)
         update_selector_prev <= update_selector;
 end
 assign update_selector_posedge = update_selector && (~update_selector_prev);
@@ -63,7 +65,7 @@ always @(posedge i_clock)
 begin
     if (i_reset)
         deskew_done_prev <= 0;
-    else if (i_enable && i_valid)
+    else if (i_enable)
         deskew_done_prev <= i_deskew_done;
 end
 assign deskew_done_posedge = i_deskew_done && (~deskew_done_prev);

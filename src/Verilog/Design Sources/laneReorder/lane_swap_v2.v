@@ -55,9 +55,9 @@ always @ (posedge i_clock)
 begin
         if (i_reset)
                 lane_id_sr <= {NB_ID_BUS{1'b0}};
-        else if (i_reorder_done)
+        else if (i_reorder_done || i_valid)
                 lane_id_sr <= i_lane_ids;
-        else if (i_enable && i_valid)
+        else if (i_enable)
                 lane_id_sr <= {lane_id_sr[NB_ID_BUS - NB_ID - 1 : 0], lane_id_sr[NB_ID_BUS-1 -: NB_ID]};
 end
 assign rd_ptr = lane_id_sr[NB_ID_BUS-1 -: NB_ID];
