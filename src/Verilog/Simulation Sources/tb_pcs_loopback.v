@@ -211,7 +211,7 @@ begin
         tb_rf_enb_am_insertion  = 1'b1;
         tb_rf_enb_pc_20_1       = 1'b1;
         
-#3000   tb_rf_bypass_scrambler  = 1'b1;
+//#3000   tb_rf_bypass_scrambler  = 1'b0;
 
         //RX
         tb_enable_rx= 1'b1;
@@ -238,7 +238,7 @@ begin
         tb_rf_reset_order= 1'b0;
         //Descrambler inputs
         tb_rf_enable_descrambler= 1'b1;
-        tb_rf_descrambler_bypass= 1'b1;
+        tb_rf_descrambler_bypass= 1'b0;
         tb_rf_enable_clock_comp= 1'b1;
         //Test pattern checker & ber_monitor signal
         tb_rf_test_pattern_checker= 1'b1;

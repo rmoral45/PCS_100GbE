@@ -29,7 +29,8 @@ module reorder_toplevel
 wire [NB_FIFO_DATA - 1 : 0]     swapped_data;
 assign o_tag  = swapped_data[NB_FIFO_DATA - 1];
 assign o_data = swapped_data[NB_FIFO_DATA - 2 : 0];
-assign o_valid = 1'b1; //@TODO: CHECK THIS!!!
+assign o_valid = 1'b1;
+
 
 //----internal module connections
 wire [NB_ID_BUS - 1 : 0]    ordered_ids;

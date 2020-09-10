@@ -167,6 +167,7 @@ wire                                deskew_validskew_bermonitor;
 // reorder    --> descrambler
 wire    [NB_DATA     - 1 : 0]       reorder_data_descrambler;
 wire                                reorder_tag_descrambler;
+wire                                reorder_valid_descrambler;
 
 //descrambler --> clock comp rx
 wire    [NB_DATA     - 1 : 0]       descrambler_data_clockcomp;
@@ -359,7 +360,7 @@ descrambler
         .i_clock    (i_clock),
         .i_reset    (i_reset),
         .i_enable   (i_rf_enable_descrambler), 
-        .i_valid    (fast_valid),
+        .i_valid    (reorder_valid_descrambler),
         .i_bypass   (i_rf_descrambler_bypass | reorder_tag_descrambler),
         .i_data     (reorder_data_descrambler),
         .i_tag      (reorder_tag_descrambler),
@@ -387,6 +388,7 @@ reorder_toplevel
     .i_data                     (deskew_data_reorder),
 
     .o_data                     (reorder_data_descrambler),
+    .o_valid                    (reorder_valid_descrambler),
     .o_tag                      (reorder_tag_descrambler)
     );
 
