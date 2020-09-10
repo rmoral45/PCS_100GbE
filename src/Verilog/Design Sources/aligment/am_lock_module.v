@@ -122,7 +122,6 @@ module am_lock_module
     assign                                  o_data              = output_data;
     assign                                  o_start_of_lane     = start_of_lane;
     assign                                  o_resync            = resync;
-    //assign                                  o_valid             = valid; //[CHECK]!!!\
     assign                                  o_valid             = i_valid;
 
 
@@ -200,9 +199,9 @@ am_error_counter
 		// El trigger para calcular el match deberia ser
 		// probablemente la senial de SOL, revisar 
 		//
-	 	.i_match            (start_of_lane_d),	//from comparator
+	 	.i_match            (start_of_lane),	//from comparator
         .i_reset_count      (resync),
-	 	.i_recived_bip 	 	(received_bip_d),		//from input reg
+	 	.i_recived_bip 	 	(received_bip),		//from input reg
 	 	.i_calculated_bip	(calculated_bip),	//from bip_calc
 	 	.o_error_count	 	(o_error_counter)	//to top level
 	 );
