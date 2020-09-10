@@ -201,7 +201,7 @@ am_error_counter
 		//
 	 	.i_match            (start_of_lane),	//from comparator
         .i_reset_count      (resync),
-	 	.i_recived_bip 	 	(received_bip),		//from input reg
+	 	.i_recived_bip 	 	(recived_bip),		//from input reg
 	 	.i_calculated_bip	(calculated_bip),	//from bip_calc
 	 	.o_error_count	 	(o_error_counter)	//to top level
 	 );

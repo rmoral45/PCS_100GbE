@@ -172,16 +172,18 @@ wire                                reorder_valid_descrambler;
 //descrambler --> clock comp rx
 wire    [NB_DATA     - 1 : 0]       descrambler_data_clockcomp;
 wire                                descrambler_tag;
+wire                                descrambler_valid_clockcomp;
 
 //clock comp rx --> decoder
 wire    [NB_DATA     - 1 : 0]       clockcomp_data_decoder;
+wire                                clockcomp_valid_decoder;
 
 //test pattern checker --> rf
 wire    [NB_MISMATCH_COUNTER-1 : 0] missmatch_counter_rf;
 
 
 //decoder --> clock comp rx
-wire    [NB_FSM_CONTROL-1   :   0]  decoder_fsmcontrol_clockcomp;
+wire                                decoder_fsmcontrol_clockcomp;
 wire    [NB_DATA_RAW-1      :   0]  decoder_data_raw;
 wire    [NB_CTRL_RAW-1      :   0]  decoder_ctrl_raw;
 
@@ -317,6 +319,7 @@ u_decoder
     .i_reset(i_reset),
     .i_enable(i_rf_enable_decoder),
     .i_data(clockcomp_data_decoder),
+    .i_valid(clockcomp_valid_decoder),
 
     .o_data(decoder_data_raw),
     .o_ctrl(decoder_ctrl_raw),
@@ -329,7 +332,7 @@ u_test_pattern_checker
     .i_clock(i_clock),
     .i_reset(i_reset),
     .i_enable(i_rf_enable_test_pattern_checker),
-    .i_valid(fast_valid),
+    .i_valid(clockcomp_valid_decoder),
     .i_idle_pattern_mode(i_rf_idle_pattern_mode_rx),
     .i_data(descrambler_data_clockcomp),
     
@@ -343,12 +346,13 @@ u_clock_comp_rx
     .i_clock(i_clock),
     .i_reset(i_reset),
     .i_rf_enable(i_rf_enable_clock_comp),
-    .i_valid(fast_valid),
+    .i_valid(descrambler_valid_clockcomp),
     .i_fsm_control(decoder_fsmcontrol_clockcomp),
     .i_sol_tag(descrambler_tag),  
     .i_data(descrambler_data_clockcomp),
     
-    .o_data(clockcomp_data_decoder)
+    .o_data(clockcomp_data_decoder),
+    .o_valid(clockcomp_valid_decoder)
 );
 
 descrambler
@@ -366,6 +370,7 @@ descrambler
         .i_tag      (reorder_tag_descrambler),
 
         .o_data     (descrambler_data_clockcomp),
+        .o_valid    (descrambler_valid_clockcomp),
         .o_tag      (descrambler_tag)
     );
 

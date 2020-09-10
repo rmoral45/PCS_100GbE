@@ -17,6 +17,7 @@ module descrambler
     input wire                              i_tag,
 
  	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data,
+ 	output wire                             o_valid,
     output wire                             o_tag
  );
 
@@ -35,12 +36,23 @@ wire [NB_SH-1 : 0]			 sync_header;
 		    reg  [LEN_SCRAMBLER-1   : 0] descrambler_state_next;
 		    reg out_bit_N;
 reg tag;
+reg valid_d;
 
 assign sync_header = i_data[LEN_CODED_BLOCK-1 -: NB_SH];
 
 //PORTS
 assign o_data = output_data;
 assign o_tag  = tag;
+assign o_valid = valid_d;
+
+//valid registrring
+always @(posedge i_clock)
+begin
+    if(i_reset)
+        valid_d <= 1'b0;
+    else if(i_enable)
+        valid_d <= i_valid;
+end
 
 //descrambler state
 always @(posedge i_clock)

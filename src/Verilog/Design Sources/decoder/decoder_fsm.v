@@ -5,7 +5,8 @@ module decoder_fsm
 #(
     parameter 							LEN_DATA_BLOCK = 64,
     parameter 							LEN_CTRL_BLOCK = 8,
-    parameter                           N_STATES = 4
+    parameter                           N_STATES = 4,
+    parameter                           NB_ERROR_COUNTER = 32
  )
  (
  	input wire  						i_clock,
@@ -15,18 +16,18 @@ module decoder_fsm
  	input wire 	[3 : 0] 				i_r_type_next,
  	input wire  [LEN_DATA_BLOCK-1 : 0] 	i_rx_data,       //recibida desde el bloque comparador/decodificador
  	input wire  [LEN_CTRL_BLOCK-1 : 0] 	i_rx_control,    //recibida desde el bloque comparador/decodificador
+ 	input wire                          i_valid,
  	output wire	[LEN_DATA_BLOCK-1 : 0] 	o_rx_raw_data,   // solo difiere de lo recibido del comparador si la secuencia es incorrecta
  	output wire	[LEN_CTRL_BLOCK-1 : 0] 	o_rx_raw_control, // solo difiere de lo recibido del comparador si la secuencia es incorrecta
- 	output wire [N_STATES-1       : 0]  o_fsm_state
+ 	output wire                         o_fsm_control
  );
 
 reg [4 : 0]				state,state_next;
 reg [LEN_DATA_BLOCK-1 : 0] rx_raw_data, rx_raw_data_next;
 reg [LEN_CTRL_BLOCK-1 : 0] rx_raw_control, rx_raw_control_next;
 
-assign o_rx_raw_data 	 = rx_raw_data;
-assign o_rx_raw_control  = rx_raw_control;
-assign o_fsm_state       = state;
+reg [NB_ERROR_COUNTER-1 : 0] error_counter;
+wire [NB_ERROR_COUNTER-1 : 0] error_counter_next;
 
 //R_TYPE / i_r_type_next
 localparam [3:0] TYPE_D  = 4'b1000;
@@ -41,6 +42,9 @@ localparam [4:0] RX_D    = 5'b00100;
 localparam [4:0] RX_T    = 5'b00010;
 localparam [4:0] RX_E    = 5'b00001;
 
+assign o_rx_raw_data 	 = rx_raw_data;
+assign o_rx_raw_control  = rx_raw_control;
+assign o_fsm_control     = (state == RX_C);
 
 /*
 
@@ -54,11 +58,20 @@ localparam [LEN_CTRL_BLOCK-1 : 0] LBLOCK_R_CTRL
 localparam [LEN_DATA_BLOCK-1 : 0] EBLOCK_R_DATA = 64'h1E1E1E1E1E1E1E1E;
 localparam [LEN_CTRL_BLOCK-1 : 0] EBLOCK_R_CTRL = 8'h1E;
 
-//Update state
-always @ (posedge i_clock, posedge i_reset)
+//error counter
+always @(posedge i_clock)
 begin
-	
+    if(i_reset)
+        error_counter <= {NB_ERROR_COUNTER{1'b0}};
+    else if(i_enable && i_valid)
+        error_counter <= error_counter_next;
+end
 
+assign error_counter_next = (state_next == RX_E) ? error_counter + 1 : error_counter;
+
+//Update state
+always @ (posedge i_clock)
+begin
 	if(i_reset)
 	begin	
 		//rx_raw_data <= LBLOCK_R_DATA;  
@@ -68,7 +81,7 @@ begin
 		state <= RX_INIT;
 
 	end
-	else if(i_enable)
+	else if(i_enable && i_valid)
 	begin
 
 		rx_raw_data <= rx_raw_data_next;

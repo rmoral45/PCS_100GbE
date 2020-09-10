@@ -13,6 +13,7 @@ module decoder_fsm_interface
  	input wire  					i_reset,
  	input wire  					i_enable,
  	input wire  [LEN_TYPE-1 : 0]	i_r_type,
+ 	input wire                      i_valid,
  	output wire [LEN_TYPE-1 : 0] 	o_r_type,
  	output wire [LEN_TYPE-1 : 0] 	o_r_type_next
  );
@@ -31,7 +32,7 @@ module decoder_fsm_interface
  		r_type 		<= {LEN_TYPE{1'b0}};
  		r_type_next <= {LEN_TYPE{1'b0}};
  	end
- 	else if(i_enable)
+ 	else if(i_enable && i_valid)
  	begin
  		r_type 		<= r_type_next;
  		r_type_next	<= i_r_type;

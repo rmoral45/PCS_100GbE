@@ -21,11 +21,12 @@ module clock_comp_rx
         input  wire                             i_reset,
         input  wire                             i_rf_enable,
         input  wire                             i_valid,
-        input  wire [N_FSM_DECO_STATES-1 : 0]   i_fsm_control,
+        input  wire                             i_fsm_control,
         input  wire                             i_sol_tag,
         input  wire [NB_DATA_CODED-1 : 0]       i_data,
 
-        output wire [NB_DATA_CODED-1 : 0]       o_data
+        output wire [NB_DATA_CODED-1 : 0]       o_data,
+        output wire                             o_valid
  );
 
 localparam                                  WR_PTR_AFTER_RST    = 1;                    
@@ -83,6 +84,7 @@ assign                                      fifo_write_enable   = ~i_sol_tag  ; 
 //-------- Ports -------------------------------//
 
 assign                                      o_data              = (idle_insert) ? PCS_IDLE : fifo_output_data;
+assign                                      o_valid             = i_valid;
 
 
 //------- Instances ---------------------------//

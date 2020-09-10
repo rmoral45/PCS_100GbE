@@ -12,10 +12,11 @@ module decoder
     input   wire                                i_reset,
     input   wire                                i_enable,
     input   wire    [NB_DATA_CODED-1    :   0]  i_data,
+    input   wire                                i_valid,
 
     output  wire    [NB_DATA_RAW-1      :   0]  o_data,
     output  wire    [NB_CTRL_BLOCK-1    :   0]  o_ctrl,
-    output  wire    [NB_BLOCK_TYPE-1    :   0]  o_fsm_control
+    output  wire                                o_fsm_control
 );
 
 //-----------------  module connect wires  ------------------//
@@ -31,7 +32,7 @@ module decoder
     wire            [NB_DATA_RAW-1      :   0]  decoderfsm_data_rxtoplevel;
     wire            [NB_CTRL_BLOCK-1    :   0]  decoderfsm_ctrl_rxtoplevel;
 //decoder_fsm --> clock_comp_rx
-    wire            [NB_BLOCK_TYPE-1    :   0]  decoderfsm_type_clockcomp;
+    wire                                        decoderfsm_type_clockcomp;
     
 
 decoder_comparator
@@ -54,6 +55,7 @@ u_decoder_fsm_interface
     .i_reset            (i_reset),
     .i_enable           (i_enable),
     .i_r_type           (comparator_type_fsminterface),
+    .i_valid            (i_valid),
     
     .o_r_type           (fsminterface_type_fsm),
     .o_r_type_next      (fsminterface_type_next_fsm)
@@ -69,10 +71,11 @@ u_decoder_fsm
     .i_r_type_next      (fsminterface_type_next_fsm),
     .i_rx_data          (comparator_data_fsm),
     .i_rx_control       (comparator_ctrl_fsm),
+    .i_valid            (i_valid),
 
     .o_rx_raw_data      (decoderfsm_data_rxtoplevel),
     .o_rx_raw_control   (decoderfsm_ctrl_rxtoplevel),
-    .o_fsm_state        (decoderfsm_type_clockcomp)
+    .o_fsm_control      (decoderfsm_type_clockcomp)
 );
 
     assign              o_data          = decoderfsm_data_rxtoplevel;
