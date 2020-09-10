@@ -109,7 +109,7 @@ module am_insertion_toplevel
         (
             .i_clock            (i_clock),
             .i_reset            (i_reset),
-            .i_enable           (i_enable && i_valid),
+            .i_enable           (i_enable && valid_d),
             .i_valid            (valid_d),
             .i_am_insert        (data_input_d[(NB_DATA_TAGGED*N_LANES)-1 - i*NB_DATA_TAGGED]),
             .i_data             (data_input_d[(NB_DATA_TAGGED*N_LANES)-2 -(i*NB_DATA_TAGGED) -: NB_DATA_CODED]),
