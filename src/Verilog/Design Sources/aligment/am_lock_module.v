@@ -54,7 +54,7 @@ module am_lock_module
 
 //INTERNAL SIGNALS
     reg         [NB_CODED_BLOCK-1   : 0]	input_data,output_data;
-    reg                                     valid;
+    reg                                     valid_d;
     reg         [NB_BIP-1           : 0]    received_bip_d;
     reg                                     start_of_lane_d;
 
@@ -72,15 +72,13 @@ module am_lock_module
     assign                                  recived_bip         = i_data[BIP_MSB_POS -: NB_BIP]; //[CHECK]
 
 //Output mux
-    always @ *
+    always @ (*)
     begin
-    
-    
-        if(start_of_lane)
-            output_data = { CTRL_SH,BLOCK_TYPE_CTRL,{8{PCS_IDLE}} }; //CHECK
+ 
+       if(start_of_lane)
+            output_data = { CTRL_SH,BLOCK_TYPE_CTRL,64'hBAAD_F00D_DEAD_BAB1 }; //CHECK
         else
             output_data = i_data;
-
     end
     assign                                  am_value            = {i_data[NB_CODED_BLOCK-3 -: NB_AM/2], i_data[AM_MID_POS -: NB_AM/2]}; //PARAMETRIZAR
     
@@ -98,10 +96,18 @@ module am_lock_module
     begin
         if(i_reset)
             start_of_lane_d <= 1'b0;
-        else if(i_rf_enable && i_valid)
+        else 
             start_of_lane_d <= start_of_lane;
     end
-    
+
+    //sol registrring to error_counter
+    always @(posedge i_clock)
+    begin
+        if(i_reset)
+            valid_d <= 1'b0;
+        else
+            valid_d <= i_valid;
+    end    
 
     //Resync counter logic
     reg     [NB_RESYNC_COUNTER-1     : 0]     resync_counter;
@@ -120,7 +126,7 @@ module am_lock_module
 //PORTS
     assign                                  o_resync_counter    = resync_counter;
     assign                                  o_data              = output_data;
-    assign                                  o_start_of_lane     = start_of_lane;
+    assign                                  o_start_of_lane     = start_of_lane & i_valid;
     assign                                  o_resync            = resync;
     assign                                  o_valid             = i_valid;
 

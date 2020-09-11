@@ -251,7 +251,7 @@ end
     end
 
     // PORTS
-    assign o_start_of_lane = ( timer_lock == i_am_period ) && i_valid ;
+    assign o_start_of_lane = ( timer_lock == i_am_period ) ;
     assign o_resync_by_am_start = ((reset_timer_lock && ( timer_lock!=timer_search )) 
                                   || (first_lock_next && !first_lock)) && i_valid;
 
