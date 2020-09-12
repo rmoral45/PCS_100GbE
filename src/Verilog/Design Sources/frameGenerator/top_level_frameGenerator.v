@@ -33,7 +33,7 @@ assign  								nterm 			= noise_data[NB_GNG-8 -: NB_TERM];	//3 bits mas signifi
 assign  								ndata 			= (noise_data[NB_GNG-4 -: NB_DATA] > 8'D189) ? 
                                                         8'D189 : (noise_data[NB_GNG-4 -: NB_DATA] == 0) ?
 														8'D1 :	noise_data[NB_GNG-4 -: NB_DATA]; //8 bits siguientes para data
-assign  								nidle 			= noise_data[NB_GNG-8 -: NB_IDLE]; //6 bits menos significativos para idle
+assign  								nidle 			= (noise_data[NB_GNG-8 -: NB_IDLE] == 0) ? 1 : noise_data[NB_GNG-8 -: NB_IDLE]; //6 bits menos significativos para idle
 
 
 
