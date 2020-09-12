@@ -136,10 +136,15 @@ localparam BYTE_7 = LEN_CODED_BLOCK-3-56;
 //Update state
 reg [LEN_CODED_BLOCK-1 : 0] rx_coded;
 
-always @ (posedge  i_clock)
+// always @ (posedge  i_clock)
+// begin
+// 	if(i_reset)        rx_coded <= {LEN_CODED_BLOCK{1'b0}};
+// 	else if (i_enable) rx_coded <= i_rx_coded;
+// end
+
+always @ *
 begin
-	if(i_reset)        rx_coded <= {LEN_CODED_BLOCK{1'b0}};
-	else if (i_enable) rx_coded <= i_rx_coded;
+    rx_coded = i_rx_coded;
 end
 
 
