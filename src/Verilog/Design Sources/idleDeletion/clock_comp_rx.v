@@ -12,7 +12,7 @@
 module clock_comp_rx
 #(
         parameter                           NB_DATA_CODED       = 66,
-        parameter                           AM_BLOCK_PERIOD     = 16383, //[CHECK]
+        parameter                           AM_BLOCK_PERIOD     = 16382, //[CHECK]
         parameter                           N_LANES             = 20,
         parameter                           N_FSM_DECO_STATES   = 4
  )
@@ -34,7 +34,7 @@ localparam                                  NB_ADDR             = 5;
 
 localparam                                  NB_PERIOD_CNT       = $clog2(AM_BLOCK_PERIOD*N_LANES);
 localparam                                  NB_IDLE_CNT         = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
-localparam [NB_DATA_CODED-1 : 0]            PCS_IDLE            = 'h2_e0_00_00_00_00_00_00_00;
+localparam [NB_DATA_CODED-1 : 0]            PCS_IDLE            = 'h2_1e_00_00_00_00_00_00_00;
 
 //------------ Internal Signals -----------------//
 
@@ -48,37 +48,54 @@ wire                                        fifo_write_enable;
 wire        [NB_DATA_CODED-1 : 0]           fifo_output_data;
 wire                                        fifo_empty;
 
+reg fsm_control_d, fsm_control_2d;
+reg trigger_insertion;
+
 
 //----------- Algorithm ------------------------//
+
+always @ (posedge i_clock)
+begin
+    if(i_reset || i_sol_tag)
+    begin
+        trigger_insertion <= 1'b0;
+       // fsm_control_2d <= 1'b0;
+    end
+    else if(i_fsm_control)
+    begin
+        trigger_insertion <= 1'b1;;
+        //fsm_control_2d <=fsm_control_d; 
+    end
+end
 
 
 always @ (posedge i_clock)
 begin
-        if (i_reset || period_done)
+        if (i_reset || i_sol_tag )
                 period_counter = {NB_PERIOD_CNT{1'b0}};
         else if (i_rf_enable && i_valid)
                 period_counter <= period_counter + 1'b1;
 end
 
-assign                                      period_done         = (period_counter == ((AM_BLOCK_PERIOD*N_LANES)-1)) ? 1'b1 : 1'b0;
+assign                                      period_done         = (period_counter == ((AM_BLOCK_PERIOD*N_LANES))) ? 1'b1 : 1'b0;
 
 
 always @ (posedge i_clock)
 begin
-        if (i_reset || period_done)
+        if (i_reset || i_sol_tag)
                 idle_counter = {NB_IDLE_CNT{1'b0}};
-        else if (i_rf_enable && i_valid && i_fsm_control && idle_insert)
+        else if (i_rf_enable && i_valid && idle_insert)
                 idle_counter <= idle_counter + 1'b1;
 end
 
-assign                                      idle_insert         = ((idle_counter < N_LANES) && i_fsm_control) ? 1'b1 : 1'b0; //si fsm del receptor esta en el estado de
+assign                                     idle_insert         = ((idle_counter < N_LANES ) && ~i_sol_tag && trigger_insertion); //si fsm del receptor esta en el estado de
                                                                                                                             //control puedo insertar los idles necesarios
 
 
 //Fifo enables
 
 assign                                      fifo_read_enable    = ~idle_insert; // si estoy insertando idles no debo sacar datos de la fifo
-assign                                      fifo_write_enable   = ~i_sol_tag  ; // elimino los idle con los cuales se "pisaron" los aligner markers
+assign                                      fifo_write_enable   = ~i_sol_tag | idle_insert  ; // elimino los idle con los cuales se "pisaron" los aligner markers
 
 
 //-------- Ports -------------------------------//
