@@ -44,7 +44,7 @@ localparam [4:0] RX_E    = 5'b00001;
 
 assign o_rx_raw_data 	 = rx_raw_data;
 assign o_rx_raw_control  = rx_raw_control;
-assign o_fsm_control     = (state == RX_C);
+assign o_fsm_control     = (state == RX_T) && state_next == RX_C;
 
 /*
 
