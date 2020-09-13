@@ -47,6 +47,7 @@ wire                                        fifo_read_enable;
 wire                                        fifo_write_enable;
 wire        [NB_DATA_CODED-1 : 0]           fifo_output_data;
 wire                                        fifo_empty;
+wire                                        idle_detected;
 
 reg fsm_control_d, fsm_control_2d;
 reg trigger_insertion;
@@ -54,18 +55,21 @@ reg trigger_insertion;
 
 //----------- Algorithm ------------------------//
 
+assign idle_detected = (fifo_output_data  ==  PCS_IDLE);
+
 always @ (posedge i_clock)
 begin
     if(i_reset || i_sol_tag)
     begin
         trigger_insertion <= 1'b0;
-       // fsm_control_2d <= 1'b0;
     end
-    else if(i_fsm_control)
+    else if(idle_counter < N_LANES && idle_detected)
     begin
         trigger_insertion <= 1'b1;;
         //fsm_control_2d <=fsm_control_d; 
     end
+    else if (idle_counter >= N_LANES)
+        trigger_insertion <= 1'b0;
 end
 
 
