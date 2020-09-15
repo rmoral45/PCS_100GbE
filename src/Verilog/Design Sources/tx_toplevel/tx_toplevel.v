@@ -7,7 +7,8 @@ module toplevel_tx
     parameter           NB_CTRL_RAW         = 8,
     parameter           NB_DATA_CODED       = 66,
     parameter           NB_DATA_TAGGED      = 67,
-    parameter           N_LANES             = 20
+    parameter           N_LANES             = 20,
+    parameter           DELAY               = 10
 )
 (
     input wire                                      i_clock,
@@ -104,9 +105,9 @@ assign  o_slow_valid        = slow_valid;
 assign  o_encoder_data      = encoder_data_clockComp;
 assign  o_clock_comp_data   = clockComp_data_scrambler;
 assign  o_am_insert_data    = am_insert_data_pc_20_1; 
-assign o_pc_data            = pc_1_20_data_am_insert;
+//assign o_pc_data            = pc_1_20_data_am_insert;
 assign o_valid_pc           = pc_1_20_valid_am_insert;
-assign  o_data              = am_insert_data_pc_20_1;
+//assign  o_data              = am_insert_data_pc_20_1;
 
 //tx_modules
 valid_generator
@@ -297,7 +298,7 @@ u_pc_20_to_1
 */
 
 wire [NB_DATA_TAGGED-1 : 0]         dbg_o_pc_per_lane [N_LANES-1:0];
-wire [NB_DATA_CODED-1 : 0]         dbg_o_am_per_lane [N_LANES-1:0];
+wire [NB_DATA_CODED-1 : 0]          dbg_o_am_per_lane [N_LANES-1:0];
 
 genvar i;
 for(i=0; i<N_LANES; i=i+1)
@@ -305,5 +306,29 @@ begin: ger_block2
     assign dbg_o_pc_per_lane[i] = dbg_pc_o[(NB_DATA_TAGGED*N_LANES-2) - i*NB_DATA_TAGGED -: NB_DATA_CODED];
     assign dbg_o_am_per_lane[i] = am_insert_data_pc_20_1[(NB_DATA_CODED*N_LANES-1) - i*NB_DATA_CODED -: NB_DATA_CODED];
 end
+
+/* -------------------------SKEW SIMULATOR------------------------- */
+//reg [NB_DATA_CODED*N_LANES-1 : 0] delayed_data [DELAY-1 : 0]; 
+
+genvar j;
+generate
+for(j = 0; j < N_LANES; j = j + 1)
+begin: delayed_modules
+
+    delayer
+    #(
+        .N_DELAY(j)
+    )
+    u_delayer
+    (
+        .o_data(o_data[NB_DATA_CODED*N_LANES - j*NB_DATA_CODED - 1 -: NB_DATA_CODED]),
+        .i_clock(i_clock),
+        .i_reset(i_reset),
+        .i_valid(am_insert_data_pc_20_1),
+        .i_data(am_insert_data_pc_20_1[NB_DATA_CODED*N_LANES - j*NB_DATA_CODED - 1 -: NB_DATA_CODED])
+    );
+
+end
+endgenerate
 
 endmodule
