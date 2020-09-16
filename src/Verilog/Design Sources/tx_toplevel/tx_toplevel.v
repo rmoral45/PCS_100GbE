@@ -317,14 +317,14 @@ begin: delayed_modules
 
     delayer
     #(
-        .N_DELAY(j)
+        .N_DELAY((j%10) + 2)
     )
     u_delayer
     (
         .o_data(o_data[NB_DATA_CODED*N_LANES - j*NB_DATA_CODED - 1 -: NB_DATA_CODED]),
         .i_clock(i_clock),
         .i_reset(i_reset),
-        .i_valid(am_insert_data_pc_20_1),
+        .i_valid(o_valid_am_insert),
         .i_data(am_insert_data_pc_20_1[NB_DATA_CODED*N_LANES - j*NB_DATA_CODED - 1 -: NB_DATA_CODED])
     );
 
