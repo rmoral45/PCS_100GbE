@@ -44,16 +44,8 @@ module block_sync_toplevel
         
         reg                                     valid;
 
-        //valid registring
-//        always @ (posedge i_clock)
-//        begin
-//            if(i_reset || ~i_signal_ok)
-//                    valid       <=  1'b0;
-//            else if(i_enable)
-//                    valid       <=  i_valid;
-//            else
-//                    valid       <=  valid;
-//        end
+        wire     [NB_DATA_BUS-1      : 0] block_lock_single_lane[N_LANES - 1 : 0];
+
 
         assign      o_valid     =   i_valid;
 
@@ -84,6 +76,8 @@ module block_sync_toplevel
                     .o_valid_sh             (o_sh_bus[i]),
                     .o_block_lock           (o_block_lock[i])
                 );
+                
+                assign block_lock_single_lane[i] = o_data[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA];
         end
         endgenerate
 
