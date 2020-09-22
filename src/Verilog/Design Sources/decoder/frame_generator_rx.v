@@ -65,7 +65,7 @@ module frame_generator_rx
             else if(frame_mux == DATA_FRAME)
                 frame_generated = {DATA_SH, {8{DATA_CHAR}}};
             else if(frame_mux == TERMINATE_FRAME)
-                frame_generated = {CTRL_SH, TERM_TYPE, {7{IDLE_CHAR}}};
+                frame_generated = {CTRL_SH, TERM0_TYPE, {7{IDLE_CHAR}}};
             else if(frame_mux == IDLE_FRAME)
                 frame_generated = {CTRL_SH, IDLE_TYPE, {7{IDLE_CHAR}}}; 
     end
