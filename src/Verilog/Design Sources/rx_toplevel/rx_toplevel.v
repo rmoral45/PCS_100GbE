@@ -315,63 +315,64 @@ end
 decoder
 u_decoder
 (
-    .i_clock(i_clock),
-    .i_reset(i_reset),
-    .i_enable(i_rf_enable_decoder),
-    .i_data(clockcomp_data_decoder),
-    .i_valid(clockcomp_valid_decoder),
+    .i_clock                    (i_clock),
+    .i_reset                    (i_reset),
+    .i_enable                   (i_rf_enable_decoder),
+    .i_data                     (clockcomp_data_decoder),
+    .i_valid                    (clockcomp_valid_decoder),
 
-    .o_data(decoder_data_raw),
-    .o_ctrl(decoder_ctrl_raw),
-    .o_fsm_control(decoder_fsmcontrol_clockcomp)
+    .o_data                     (decoder_data_raw),
+    .o_ctrl                     (decoder_ctrl_raw),
+    .o_fsm_control              (decoder_fsmcontrol_clockcomp)
 );
 
 test_pattern_checker
 u_test_pattern_checker
 (
-    .i_clock(i_clock),
-    .i_reset(i_reset),
-    .i_enable(i_rf_enable_test_pattern_checker),
-    .i_valid(clockcomp_valid_decoder),
-    .i_idle_pattern_mode(i_rf_idle_pattern_mode_rx),
-    .i_data(descrambler_data_clockcomp),
+    .i_clock                    (i_clock),
+    .i_reset                    (i_reset),
+    .i_enable                   (i_rf_enable_test_pattern_checker),
+    .i_valid                    (clockcomp_valid_decoder),
+    .i_idle_pattern_mode        (i_rf_idle_pattern_mode_rx),
+    .i_data                     (descrambler_data_clockcomp),
     
-    .o_mismatch_counter(missmatch_counter_rf)
+    .o_mismatch_counter         (missmatch_counter_rf)
 );
 
 //revisar FIFO para que no propague X para arriba
 clock_comp_rx
 u_clock_comp_rx
 (
-    .i_clock(i_clock),
-    .i_reset(i_reset),
-    .i_rf_enable(i_rf_enable_clock_comp & deskew_deskewdone_reorder),
-    .i_valid(descrambler_valid_clockcomp),
-    .i_fsm_control(decoder_fsmcontrol_clockcomp),
-    .i_sol_tag(descrambler_tag),  
-    .i_data(descrambler_data_clockcomp),
+    .i_clock                    (i_clock),
+    .i_reset                    (i_reset),
+    .i_rf_enable                (i_rf_enable_clock_comp),
+    .i_valid                    (descrambler_valid_clockcomp),
+    .i_fsm_control              (decoder_fsmcontrol_clockcomp),
+    .i_sol_tag                  (descrambler_tag),  
+    .i_data                     (descrambler_data_clockcomp),
     
-    .o_data(clockcomp_data_decoder),
-    .o_valid(clockcomp_valid_decoder)
+    .o_data                     (clockcomp_data_decoder),
+    .o_valid                    (clockcomp_valid_decoder)
 );
 
 descrambler
 #(
-    .LEN_CODED_BLOCK    (NB_DATA)
+    .LEN_CODED_BLOCK            (NB_DATA)
  )
     u_descrambler
     (
-        .i_clock    (i_clock),
-        .i_reset    (i_reset),
-        .i_enable   (i_rf_enable_descrambler), 
-        .i_valid    (reorder_valid_descrambler),
-        .i_bypass   (i_rf_descrambler_bypass | reorder_tag_descrambler),
-        .i_data     (reorder_data_descrambler),
-        .i_tag      (reorder_tag_descrambler),
+        .i_clock                (i_clock),
+        .i_reset                (i_reset),
+        .i_enable               (i_rf_enable_descrambler), 
+        .i_valid                (reorder_valid_descrambler),
+        .i_bypass               (i_rf_descrambler_bypass | reorder_tag_descrambler),
+        .i_data                 (reorder_data_descrambler),
+        .i_tag                  (reorder_tag_descrambler),
+        .i_deskew_done          (deskew_deskewdone_reorder),
 
-        .o_data     (descrambler_data_clockcomp),
-        .o_valid    (descrambler_valid_clockcomp),
-        .o_tag      (descrambler_tag)
+        .o_data                 (descrambler_data_clockcomp),
+        .o_valid                (descrambler_valid_clockcomp),
+        .o_tag                  (descrambler_tag)
     );
 
 

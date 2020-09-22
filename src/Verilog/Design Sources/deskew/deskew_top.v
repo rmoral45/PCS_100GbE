@@ -74,10 +74,6 @@ module deskew_top
     assign prog_fifos_tag[k] = fifo_out_data[NB_FIFO_DATA_BUS - 1 - (k*NB_FIFO_DATA)];
  end
  
- 
- 
- 
- 
  //PORTS
  //assign o_set_fifo_delay = set_fifo_delay;
  //assign o_lane_delay = lane_counters_value;

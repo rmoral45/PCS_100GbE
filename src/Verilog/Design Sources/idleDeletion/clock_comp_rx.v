@@ -12,7 +12,7 @@
 module clock_comp_rx
 #(
         parameter                           NB_DATA_CODED       = 66,
-        parameter                           AM_BLOCK_PERIOD     = 16382, //[CHECK]
+        parameter                           AM_BLOCK_PERIOD     = 16383, //[CHECK]
         parameter                           N_LANES             = 20,
         parameter                           N_FSM_DECO_STATES   = 4
  )
