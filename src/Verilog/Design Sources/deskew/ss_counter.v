@@ -33,7 +33,7 @@ module ss_counter
 
  		if(i_stop_counter)
  			counter <= counter;
- 		else if (i_enable_counter)
+ 		else if (i_enable_counter && i_valid)
  			counter <= counter + 1;
  	end
 

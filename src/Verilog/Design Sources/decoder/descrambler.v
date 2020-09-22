@@ -15,6 +15,7 @@ module descrambler
  	input wire				i_bypass,
  	input wire  [LEN_CODED_BLOCK-1 : 0] 	i_data,
     input wire                              i_tag,
+    input wire                  i_deskew_done,
 
  	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data,
  	output wire                             o_valid,
@@ -38,10 +39,12 @@ wire [NB_SH-1 : 0]			 sync_header;
 reg tag;
 reg valid_d;
 
+wire    [LEN_CODED_BLOCK-1 : 0] frame_generated;
+
 assign sync_header = i_data[LEN_CODED_BLOCK-1 -: NB_SH];
 
 //PORTS
-assign o_data = output_data;
+assign o_data = (i_deskew_done) ? output_data : frame_generated; //output_data muxing to clock_comp_rx
 assign o_tag  = tag;
 assign o_valid = valid_d;
 
@@ -103,6 +106,15 @@ begin
 end
 
 
+frame_generator_rx
+u_frame_generator_rx
+(
+    .i_clock(i_clock),
+    .i_reset(i_reset),
+    .i_enable(i_enable & i_deskew_done),
+    .i_valid(i_valid),
 
+    .o_data(frame_generated)
+);
 
 endmodule
