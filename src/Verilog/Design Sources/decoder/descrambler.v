@@ -44,7 +44,8 @@ wire    [LEN_CODED_BLOCK-1 : 0] frame_generated;
 assign sync_header = i_data[LEN_CODED_BLOCK-1 -: NB_SH];
 
 //PORTS
-assign o_data = (i_deskew_done) ? output_data : frame_generated; //output_data muxing to clock_comp_rx
+//assign o_data = (i_deskew_done) ? output_data : frame_generated; //output_data muxing to clock_comp_rx
+assign o_data = output_data;
 assign o_tag  = tag;
 assign o_valid = valid_d;
 
