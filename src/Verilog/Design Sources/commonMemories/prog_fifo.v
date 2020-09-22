@@ -81,7 +81,7 @@ bram
 u_bram
 (
     .i_clock         (i_clock),
-    .i_write_enable  (i_write_enb),
+    .i_write_enable  (i_write_enb & i_valid),
     .i_read_enable   (i_read_enb | i_reset),  //@FIXME
     .i_write_addr    (wr_ptr),
     .i_read_addr     (rd_ptr),

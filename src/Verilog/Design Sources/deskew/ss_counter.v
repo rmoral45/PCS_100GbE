@@ -8,6 +8,7 @@ module ss_counter
  	input wire 					      i_reset,
  	input wire 					      i_resync,
  	input wire 					      i_enable,
+ 	input wire                        i_valid,
  	input wire					      i_enable_counter,
  	input wire 					      i_stop_counter,
  	
@@ -27,7 +28,7 @@ module ss_counter
  	begin
  		counter <= {NB_DELAY_COUNT{1'b0}};
  	end
- 	else if (i_enable)
+ 	else if (i_enable && i_valid)
  	begin
 
  		if(i_stop_counter)

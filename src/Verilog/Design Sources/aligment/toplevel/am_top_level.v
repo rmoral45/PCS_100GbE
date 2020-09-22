@@ -105,10 +105,10 @@ generate
                 .o_data                 (alignment_out[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
                 .o_lane_id              (o_lane_id[(NB_ID_BUS-1-i*NB_LANE_ID) -: NB_LANE_ID]),
                 .o_error_counter        (o_error_counter[NB_ERR_BUS-1-i*NB_ERROR_COUNTER -: NB_ERROR_COUNTER]),
-                .o_am_lock              (o_am_lock[i]),
-                .o_resync               (o_resync[i]),
+                .o_am_lock              (o_am_lock[N_LANES - i - 1]),
+                .o_resync               (o_resync[N_LANES - i - 1]),
                 .o_resync_counter       (o_resync_counter_bus[NB_RESYNC_COUNTER_BUS-1-i*NB_RESYNC_COUNTER -: NB_RESYNC_COUNTER]),
-                .o_start_of_lane        (o_start_of_lane[i])
+                .o_start_of_lane        (o_start_of_lane[N_LANES - i - 1])
             );
         end
 endgenerate

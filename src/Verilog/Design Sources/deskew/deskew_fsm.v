@@ -18,7 +18,7 @@ module deskew_fsm
 
  	output reg                          o_enable_counters,
  	output reg                          o_stop_common_counter,
- 	output reg                          o_set_fifo_delay, //hace que las fifo recalculen el delay
+ 	output wire                          o_set_fifo_delay, //hace que las fifo recalculen el delay
     output reg                          o_write_prog_fifo_enb,
 	output reg                          o_read_prog_fifo_enb,
  	output wire [N_LANES-1 : 0]         o_stop_lane_counters,
@@ -36,6 +36,7 @@ module deskew_fsm
  reg                    deskew_done   , deskew_done_next;
  reg [N_STATES-1 : 0] 	state, state_next;
  reg [N_LANES-1 : 0]  	start_of_lane, start_of_lane_next;
+ reg set_fifo_delay_d,set_fifo_delay_next;
 
  //PORTS
  assign o_invalid_skew = (i_common_counter >= MAX_SKEW) ? 1'b1 : 1'b0;
@@ -43,6 +44,16 @@ module deskew_fsm
  assign o_stop_lane_counters = start_of_lane;
  assign o_deskew_done = deskew_done;
 
+
+ always @ (posedge  i_clock)
+ begin 	
+ 	if(i_reset || i_resync || ~i_am_lock)
+ 	  set_fifo_delay_d <= 0;
+
+ 	else if (i_enable && i_valid) 				//[REVISAR]no usa valid por que debe funcionar con el clock de sistema?
+        set_fifo_delay_d <= set_fifo_delay_next;
+ end
+ assign o_set_fifo_delay = set_fifo_delay_d;
 
  always @ (posedge  i_clock)
  begin 	
@@ -66,7 +77,7 @@ module deskew_fsm
  	state_next            = state;
     deskew_done_next      = 0;
  	start_of_lane_next    = start_of_lane;
- 	o_set_fifo_delay      = 0;
+ 	set_fifo_delay_next   = 0;
  	o_enable_counters     = 0;
  	o_stop_common_counter = 0;
 	o_write_prog_fifo_enb = 0;
@@ -96,7 +107,7 @@ module deskew_fsm
  			else if ( (& start_of_lane) )
  			begin
  				state_next 		   = DESKEW_DONE;
- 				o_set_fifo_delay   = 1; 
+ 				set_fifo_delay_next   = 1; 
  				o_stop_common_counter = 1;
 
  			end

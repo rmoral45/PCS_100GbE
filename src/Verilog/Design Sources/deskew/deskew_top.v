@@ -54,7 +54,12 @@ module deskew_top
  
  assign o_data = (o_deskew_done) ? fifo_out_data : data_and_tags;          
 
-
+ wire [NB_DATA-1 : 0] deskew_input_single_data[N_LANES - 1 : 0];
+ genvar h;
+ for (h = 0; h < N_LANES; h = h+1)
+ begin
+    assign deskew_input_single_data[h] = i_data[NB_DATA_BUS - 1 - (h*NB_DATA) -: NB_DATA];
+ end
  
  genvar j;
   for (j=0; j<N_LANES; j=j+1)
@@ -65,8 +70,8 @@ module deskew_top
  genvar k;
  for(k = 0; k <N_LANES; k = k+1)
  begin : single_prog_fifo_debug
-    assign prog_fifos_data[k] = fifo_out_data[NB_FIFO_DATA_BUS-2-(k*NB_DATA) -: NB_DATA];
-    assign prog_fifos_tag[k] = fifo_out_data[NB_FIFO_DATA_BUS - 1 - (k*NB_DATA)];
+    assign prog_fifos_data[k] = fifo_out_data[NB_FIFO_DATA_BUS-2-(k*NB_FIFO_DATA) -: NB_DATA];
+    assign prog_fifos_tag[k] = fifo_out_data[NB_FIFO_DATA_BUS - 1 - (k*NB_FIFO_DATA)];
  end
  
  
@@ -147,6 +152,7 @@ module deskew_top
   	.i_clock            (i_clock),
   	.i_reset            (i_reset),
   	.i_enable           (i_enable),
+  	.i_valid            (i_valid),
   	.i_resync           (|i_resync),            //[CAREFUL]reduction OR of all lanes resync signal
   	.i_enable_counter   (enable_counter),
   	.i_stop_counter     (&stop_lane_counters),  //[CAREFUL]reduction AND of all lanes resync signal
@@ -169,9 +175,10 @@ module deskew_top
 	  	.i_clock            (i_clock),
 	  	.i_reset            (i_reset),
 	  	.i_enable           (i_enable),
+	  	.i_valid            (i_valid),
 	  	.i_resync           (|i_resync ), //reduction OR of all lanes resync signal
 	  	.i_enable_counter   (enable_counter),
-	  	.i_stop_counter     (stop_lane_counters[i]),
+	  	.i_stop_counter     (stop_lane_counters[N_LANES - 1 -i]),
 	  	//OUTPUT
 	  	//.o_count 				(lane_counters_value[i*NB_DELAY_COUNT +: NB_DELAY_COUNT])
 	  	.o_count            (lane_counters_value[NB_DELAY_BUS-(i*NB_DELAY_COUNT)-1 -: NB_DELAY_COUNT])
