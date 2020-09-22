@@ -59,13 +59,13 @@ assign idle_detected = (fifo_output_data  ==  PCS_IDLE);
 
 always @ (posedge i_clock)
 begin
-    if(i_reset || i_sol_tag)
+    if(i_reset || i_sol_tag || ~i_rf_enable)
     begin
         trigger_insertion <= 1'b0;
     end
     else if(idle_counter < N_LANES && idle_detected)
     begin
-        trigger_insertion <= 1'b1;;
+        trigger_insertion <= 1'b1;
         //fsm_control_2d <=fsm_control_d; 
     end
     else if (idle_counter >= N_LANES)
@@ -75,9 +75,9 @@ end
 
 always @ (posedge i_clock)
 begin
-        if (i_reset || i_sol_tag )
+        if (i_reset || i_sol_tag || ~i_rf_enable)
                 period_counter = {NB_PERIOD_CNT{1'b0}};
-        else if (i_rf_enable && i_valid)
+        else if (i_valid)
                 period_counter <= period_counter + 1'b1;
 end
 
@@ -86,9 +86,9 @@ assign                                      period_done         = (period_counte
 
 always @ (posedge i_clock)
 begin
-        if (i_reset || i_sol_tag)
+        if (i_reset || i_sol_tag || ~i_rf_enable)
                 idle_counter = {NB_IDLE_CNT{1'b0}};
-        else if (i_rf_enable && i_valid && idle_insert)
+        else if (i_valid && idle_insert)
                 idle_counter <= idle_counter + 1'b1;
 end
 

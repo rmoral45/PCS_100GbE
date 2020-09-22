@@ -345,7 +345,7 @@ u_clock_comp_rx
 (
     .i_clock(i_clock),
     .i_reset(i_reset),
-    .i_rf_enable(i_rf_enable_clock_comp),
+    .i_rf_enable(i_rf_enable_clock_comp & deskew_deskewdone_reorder),
     .i_valid(descrambler_valid_clockcomp),
     .i_fsm_control(decoder_fsmcontrol_clockcomp),
     .i_sol_tag(descrambler_tag),  
