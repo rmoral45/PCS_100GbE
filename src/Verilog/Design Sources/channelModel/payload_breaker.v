@@ -3,7 +3,7 @@
 /*
  * <MAX_ERR_PERIOD> : setea en cuanta cantidad maxima de bloques se aplicara el patron de erro, por ejemplo
  *                    si MAX_ERR_BURST = 10 y MAX_ERR_PERIOD = 100, como maximo se romperan 10 bloques cada 100.
- *
+ *                  FIXME : registrar el modo y mascara usando la senial de update
  */
 
 module payload_breaker
