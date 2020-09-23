@@ -13,9 +13,10 @@ module ber_monitor
         input wire                  i_reset,
         input wire                  i_valid_sh, //seria lo mismo que 'valid sh' --> FIX: es la xor entre los bits del sh
         input wire                  i_test_mode, //config para test de patron idle
+        input wire                  i_deskew_done,
         input wire                  i_valid, //valid generado por block_sync
 
-        output reg                  o_hi_ber
+        output wire                 o_hi_ber
  );
 
         //States
@@ -34,73 +35,73 @@ module ber_monitor
         reg [NB_BER_CNT-1   : 0]    ber_cnt, next_ber_cnt;
         reg [NB_XUS_TIMER-1 : 0]    xus_timer;
         reg                         reset_timer;
-        reg                         reset_ber;
+        reg                         hi_ber, hi_ber_next;
         wire                        xus_timer_done;
 
         //Algorithm Begin
 
         always @ (posedge i_clock)
         begin
-                if (i_reset /* || !i_align_status*/)
+                if (i_reset  || ~i_deskew_done)
                         state <= INIT;
-
                 else if (i_valid)
                         state <= next_state;
         end
 
         always @ (posedge i_clock)
         begin
-                if (i_reset /*|| !i_align_status*/ || reset_ber)
+                if (i_reset || ~i_deskew_done || xus_timer_done)
                         ber_cnt <= {NB_BER_CNT{1'b0}};
-
-                else if (i_valid && i_sh_invalid)
+                else if (i_valid && !i_valid_sh)
                         ber_cnt <= ber_cnt + 1'b1;
         end
 
         always @ (posedge i_clock)
         begin
-                if (i_reset /*|| !align_status*/ || xus_timer_done 
-                            || i_test_mode   || reset_timer)
-
+                if (i_reset || ~i_deskew_done || xus_timer_done || i_test_mode   || reset_timer)
                         xus_timer <= {NB_XUS_TIMER{1'b0}};
-
-                else if (i_valid && i_test_mode)
-
+                else if (i_valid )
                         xus_timer <= xus_timer + 1'b1; 
         end
         assign xus_timer_done = (xus_timer == XUS_TIMER_WINDOW) ? 1'b1 : 1'b0;
+
+        
+        always @ (posedge i_clock)
+        begin
+                if (i_reset  || ~i_deskew_done)
+                        hi_ber <= 0;
+                else
+                        hi_ber <= hi_ber_next;
+        end
 
         always @ *
         begin
                 next_state      = state;
                 reset_timer     = 1'b0;
-                reset_ber       = 1'b0;
-                o_hi_ber        = 1'b0;
+                hi_ber_next     = hi_ber;
                 
                 case(state)
                         INIT :
                         begin
                                 next_state      = TEST;
                                 reset_timer     = 1'b1;
-                                reset_ber       = 1'b1;
                         end
-
                         TEST :
                         begin
                                 if (ber_cnt >= HI_BER_VALUE)
                                         next_state = HI_BER;
                                 else if (xus_timer_done)
-                                        reset_ber  = 1'b1;
+                                        hi_ber_next = 0;
                         end
-
                         HI_BER:
                         begin
-                                o_hi_ber = 1'b1;
+                                hi_ber_next = 1'b1;
                                 if (xus_timer_done)
-                                begin
                                         next_state = TEST;
-                                        reset_ber  = 1'b1;
-                                end
+                        end
+                        default:
+                        begin
+                            next_state = INIT;
                         end   
                 endcase       
         end
