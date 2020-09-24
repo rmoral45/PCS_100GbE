@@ -3,7 +3,7 @@
 module ber_monitor_top_level
 #(
     parameter                           N_LANES             = 20,
-    parameter                           NB_SH_BUS           = N_LANES,
+    parameter                           NB_SH_VALID_BUS     = N_LANES,
     parameter                           HI_BER_VALUE        = 97,
     parameter                           XUS_TIMER_WINDOW    = 1024
 )
@@ -27,11 +27,11 @@ generate
             (
                 .i_clock(i_clock),
                 .i_reset(i_reset),
-                .i_valid_sh(i_sh_bus[i]),
+                .i_valid_sh(i_sh_bus[N_LANES - i - 1]),
                 .i_test_mode(i_test_mode),
                 .i_valid(i_valid),
 
-                .o_hi_ber(o_hi_ber_bus[i])
+                .o_hi_ber(o_hi_ber_bus[N_LANES - i - 1])
             );
         end
 endgenerate
