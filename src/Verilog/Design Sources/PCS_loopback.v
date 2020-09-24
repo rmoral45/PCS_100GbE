@@ -196,12 +196,12 @@ begin: delayed_modules
     (
         .o_data                             (payload_breaker_data_sh_breaker[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
         .o_valid                            (payload_breaker_valid_sh_breaker),
-        .o_aligner_tag                      (payload_breaker_aligner_tag_sh_breaker[i]),
+        .o_aligner_tag                      (payload_breaker_aligner_tag_sh_breaker[N_LANES - i - 1]),
 
         .i_clock                            (i_clock),
         .i_reset                            (i_reset),
         .i_valid                            (tx_valid_channel),
-        .i_aligner_tag                      (1'b1), //[CHECK] !!
+        .i_aligner_tag                      (1'b0), //[CHECK] !!
         .i_data                             (tx_databus_channel[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
         .i_rf_mode                          (i_rf_payload_breaker_mode),
         .i_rf_update                        (i_rf_payload_breaker_update[N_LANES - 1 - i]),
@@ -216,15 +216,15 @@ begin: delayed_modules
     (
         .o_data                             (sh_breaker_data_bitskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
         .o_valid                            (sh_breaker_valid_bitskew),
-        .o_aligner_tag                      (sh_breaker_aligner_tag_bitskew[i]),
+        .o_aligner_tag                      (sh_breaker_aligner_tag_bitskew[N_LANES - i - 1]),
 
         .i_clock                            (i_clock),
         .i_reset                            (i_reset),
         .i_valid                            (payload_breaker_valid_sh_breaker),
         .i_data                             (payload_breaker_data_sh_breaker[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
-        .i_aligner_tag                      (payload_breaker_aligner_tag_sh_breaker[i]),
+        .i_aligner_tag                      (payload_breaker_aligner_tag_sh_breaker[N_LANES - i - 1]),
         .i_rf_mode                          (i_rf_sh_breaker_mode),
-        .i_rf_update                        (i_rf_sh_breaker_update[i]),
+        .i_rf_update                        (i_rf_sh_breaker_update[N_LANES - i - 1]),
         .i_rf_error_burst                   (i_rf_sh_breaker_err_burst),
         .i_rf_error_period                  (i_rf_sh_breaker_err_period),
         .i_rf_error_repeat                  (i_rf_sh_breaker_err_period)
@@ -246,7 +246,7 @@ begin: delayed_modules
 
     block_skew_generator
     #(
-        .N_DELAY((j%i_rf_block_skew) + 2)
+        .N_DELAY((j%10 + 2)
     )
     u_block_skew_generator
     (
