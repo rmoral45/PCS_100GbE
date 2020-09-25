@@ -1,0 +1,22 @@
+#-----------------------------------------------------------
+# Vivado v2019.1 (64-bit)
+# SW Build 2552052 on Fri May 24 14:47:09 MDT 2019
+# IP Build 2548770 on Fri May 24 18:01:18 MDT 2019
+# Start of session at: Sun Sep 13 20:14:18 2020
+# Process ID: 20229
+# Current directory: /media/data/PPS
+# Command line: vivado -jvm -patch-module=java.desktop=/home/ramiro/parche/lib/classes/AR72614/AR72614.jar
+# Log file: /media/data/PPS/vivado.log
+# Journal file: /media/data/PPS/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.xpr
+update_compile_order -fileset sources_1
+launch_simulation
+open_wave_config /home/ramiro/PCS_rx_toplevel/tb_pcs_loopback_behav.wcfg
+source tb_pcs_loopback.tcl
+run all
+run all
+run 20 ms
+save_wave_config {/home/ramiro/PCS_rx_toplevel/tb_pcs_loopback_behav.wcfg}
+close_sim

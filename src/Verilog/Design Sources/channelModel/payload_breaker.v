@@ -3,7 +3,7 @@
 /*
  * <MAX_ERR_PERIOD> : setea en cuanta cantidad maxima de bloques se aplicara el patron de erro, por ejemplo
  *                    si MAX_ERR_BURST = 10 y MAX_ERR_PERIOD = 100, como maximo se romperan 10 bloques cada 100.
- *                  FIXME : registrar el modo y mascara usando la senial de update
+ *                  FIXME : registrar el modo y mascara usando la senial de update --> LISTO: Chequear funcionamiento
  */
 
 module payload_breaker
@@ -32,7 +32,8 @@ module payload_breaker
         input  wire [NB_REPEAT_CNT-1 : 0]       i_rf_error_repeat,   // cantidad de periodos con el mismo patron de error
 
         output reg  [NB_CODED_BLOCK-1 : 0]      o_data,
-        output reg                              o_aligner_tag
+        output reg                              o_aligner_tag,
+        output reg                              o_valid
  );
 
 //Localparams
@@ -78,22 +79,24 @@ assign payload          = i_data[NB_CODED_BLOCK-NB_SH-1 : 0];
 assign sh_ctrl_type = (sh == 2'b10);
 assign sh_data_type = (sh == 2'b01);
 
-assign expected_block = ((i_rf_mode == MODE_ALIN) & i_aligner_tag) |
-                        ((i_rf_mode == MODE_CTRL) & sh_ctrl_type)  |
-                        ((i_rf_mode == MODE_DATA) & sh_data_type)  |
-                         (i_rf_mode == MODE_ALL);
+assign expected_block = ((mode_d == MODE_ALIN) & i_aligner_tag) |
+                        ((mode_d == MODE_CTRL) & sh_ctrl_type)  |
+                        ((mode_d == MODE_DATA) & sh_data_type)  |
+                         (mode_d == MODE_ALL);
 
 //break process
-assign bit_flip         = (payload & i_rf_error_mask) ^ i_rf_error_mask;
-assign masked_payload   = payload & (~i_rf_error_mask);
+assign bit_flip         = (payload & mask_d) ^ mask_d;
+assign masked_payload   = payload & (~mask_d);
 assign err_payload      = bit_flip | masked_payload;
-
 
 //Data out assigment
 always @ *
 begin
-        o_data = i_data; //DEFINIR OUT DATA
-                case (i_rf_mode)
+        o_data          = i_data; //DEFINIR OUT DATA
+        o_aligner_tag   = i_aligner_tag;
+        o_valid         = i_valid;
+
+                case (mode_d)
                 MODE_ALIN :
                         if (burst_on && i_aligner_tag && !i_rf_update)
                                 o_data = {sh , err_payload}; 
@@ -119,9 +122,26 @@ end
         [CHECK] Ver que se va a senializar con i_valid, si necesitamos solo para senializar datos nuevos o algo mas
 */
 
+//Mode and mask registring
+reg [N_MODES-1      :   0] mode_d;
+reg [NB_ERR_MASK-1  :   0] mask_d;
+
+always @ (posedge i_clock)
+begin
+        if (i_reset)
+        begin
+            mode_d <= {N_MODES{1'b0}};
+            mask_d <= {NB_ERR_MASK{1'b0}};
+        end
+        else if(i_rf_update && i_valid)
+        begin
+            mode_d <= i_rf_mode;
+            mask_d <= i_rf_error_mask;
+        end
+end
+
 
 //Counters update
-
 //Burst error counter
 always @ (posedge i_clock)
 begin

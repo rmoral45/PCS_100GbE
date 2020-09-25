@@ -25,7 +25,8 @@ module sh_breaker
         input  wire [NB_REPEAT_CNT-1 : 0]       i_rf_error_repeat,   // cantidad de periodos con el mismo patron de error
 
         output reg  [NB_CODED_BLOCK-1 : 0]      o_data,
-        output reg                              o_aligner_tag
+        output reg                              o_aligner_tag,
+        output reg                              o_valid
 
  );
 
@@ -95,6 +96,7 @@ always @ *
 begin
         o_aligner_tag   = i_aligner_tag;
         o_data          = i_data;
+        o_valid         = i_valid;
 
         case(mode)
         MODE_ALIN:

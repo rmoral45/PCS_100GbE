@@ -1,0 +1,328 @@
+#-----------------------------------------------------------
+# Vivado v2019.1 (64-bit)
+# SW Build 2552052 on Fri May 24 14:47:09 MDT 2019
+# IP Build 2548770 on Fri May 24 18:01:18 MDT 2019
+# Start of session at: Sun Sep 13 20:14:18 2020
+# Process ID: 20229
+# Current directory: /media/data/PPS
+# Command line: vivado -jvm -patch-module=java.desktop=/home/ramiro/parche/lib/classes/AR72614/AR72614.jar
+# Log file: /media/data/PPS/vivado.log
+# Journal file: /media/data/PPS/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/usr/bin/Xilinx/Vivado/2019.1/data/ip'.
+open_project: Time (s): cpu = 00:00:17 ; elapsed = 00:00:09 . Memory (MB): peak = 6399.113 ; gain = 58.250 ; free physical = 844 ; free virtual = 6370
+update_compile_order -fileset sources_1
+launch_simulation
+INFO: [Vivado 12-5682] Launching behavioral simulation in '/home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.sim/sim_1/behav/xsim'
+INFO: [SIM-utils-51] Simulation object is 'sim_1'
+INFO: [SIM-utils-54] Inspecting design source files for 'tb_pcs_loopback' in fileset 'sim_1'...
+INFO: [SIM-utils-43] Exported '/home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.sim/sim_1/behav/xsim/zero.mem'
+INFO: [USF-XSim-97] Finding global include files...
+INFO: [USF-XSim-98] Fetching design files from 'sim_1'...
+INFO: [USF-XSim-2] XSim::Compile design
+INFO: [USF-XSim-61] Executing 'COMPILE and ANALYZE' step in '/home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.sim/sim_1/behav/xsim'
+xvlog --incr --relax -prj tb_pcs_loopback_vlog.prj
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module am_error_counter
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/bitErrorMods/am_insertion_final_6jun.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module am_insertion
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/bitErrorMods/am_insertion_toplevel.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module am_insertion_toplevel
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/aligment/am_lock_comparator_v2.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module am_lock_comparator_v2
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/aligment/am_lock_fsm.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module am_lock_fsm
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/aligment/am_lock_module.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module am_lock_module
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/aligment/toplevel/am_top_level.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module am_top_level
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/bitErrorMods/bip_calculator_final_6jun.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module bip_calculator
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/syncHeader/block_sync_fsm.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module block_sync_fsm
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/syncHeader/block_sync_module.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module block_sync_module
+INFO: [VRFC 10-2458] undeclared symbol o_dbg_search_index, assumed default net type wire [/media/data/PPS/src/Verilog/Design Sources/syncHeader/block_sync_module.v:62]
+INFO: [VRFC 10-2458] undeclared symbol o_dbg_block_index, assumed default net type wire [/media/data/PPS/src/Verilog/Design Sources/syncHeader/block_sync_module.v:64]
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/syncHeader/toplevel/block_sync_toplevel.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module block_sync_toplevel
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/commonMemories/primitives/bram.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module bram
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/cgmiiFSM.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module cgmiiFSM
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/idleDeletion/clock_comp_rx.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clock_comp_rx
+WARNING: [VRFC 10-2096] empty statement in sequential block [/media/data/PPS/src/Verilog/Design Sources/idleDeletion/clock_comp_rx.v:67]
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/idleDeletion/clock_comp_tx.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module clock_comp_tx
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/dataGenerator.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dataGenerator
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/decoder/decoder.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module decoder
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/decoder/decoder_comparator.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module decoder_comparator
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/decoder/decoder_fsm.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module decoder_fsm
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/decoder/decoder_fsm_interface.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module decoder_fsm_interface
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/decoder/descrambler.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module descrambler
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/deskew/deskew_fsm.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module deskew_fsm
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/deskew/deskew_top.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module deskew_top
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/encoder/encoder.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module encoder
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/encoder/encoder_comparator.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module encoder_comparator
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/encoder/encoder_fsm.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module encoder_fsm
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/commonMemories/primitives/fifo_memory.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fifo_memory
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/frameGenerator.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module frameGenerator
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/awgn/gng.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module gng
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/awgn/gng_coef.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module gng_coef
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/awgn/gng_ctg.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module gng_ctg
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/awgn/gng_interp.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module gng_interp
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/awgn/gng_lzd.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module gng_lzd
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/awgn/gng_smul_16_18.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module gng_smul_16_18
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/awgn/gng_smul_16_18_sadd_37.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module gng_smul_16_18_sadd_37
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/aligment/lane_id_decoder.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module lane_id_decoder
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/laneReorder/lane_reorder_final.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module lane_reorder
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/laneReorder/lane_swap_v2.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module lane_swap_v2
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/paralellismConverters/parallel_converter_1_to_N.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module parallel_converter_1_to_N
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/prbs.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module prbs
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/commonMemories/prog_fifo.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module prog_fifo
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/commonMemories/prog_fifo_top.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module prog_fifo_top
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/laneReorder/toplevel/reorder_toplevel.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module reorder_toplevel
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/rx_toplevel/rx_toplevel.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module rx_toplevel
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/encoder/scramblerv2.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module scrambler
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/deskew/ss_counter.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module ss_counter
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/idleDeletion/sync_fifo.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module sync_fifo
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/decoder/test_pattern_checker.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module test_pattern_checker
+WARNING: [VRFC 10-3380] identifier 'counter' is used before its declaration [/media/data/PPS/src/Verilog/Design Sources/decoder/test_pattern_checker.v:21]
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/frameGenerator/top_level_frameGenerator.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module top_level_frameGenerator
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/tx_toplevel/tx_toplevel.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module toplevel_tx
+INFO: [VRFC 10-2458] undeclared symbol o_pc_data, assumed default net type wire [/media/data/PPS/src/Verilog/Design Sources/tx_toplevel/tx_toplevel.v:107]
+INFO: [VRFC 10-2458] undeclared symbol o_valid_pc, assumed default net type wire [/media/data/PPS/src/Verilog/Design Sources/tx_toplevel/tx_toplevel.v:108]
+WARNING: [VRFC 10-986] literal value truncated to fit in 67 bits [/media/data/PPS/src/Verilog/Design Sources/tx_toplevel/tx_toplevel.v:233]
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Design Sources/validGenerator/valid_generator.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module valid_generator
+INFO: [VRFC 10-2263] Analyzing Verilog file "/media/data/PPS/src/Verilog/Simulation Sources/tb_pcs_loopback.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module tb_pcs_loopback
+INFO: [VRFC 10-2458] undeclared symbol tb_rf_resync_counter_bus, assumed default net type wire [/media/data/PPS/src/Verilog/Simulation Sources/tb_pcs_loopback.v:400]
+INFO: [VRFC 10-2458] undeclared symbol tb_rf_invalid_skew, assumed default net type wire [/media/data/PPS/src/Verilog/Simulation Sources/tb_pcs_loopback.v:402]
+INFO: [USF-XSim-69] 'compile' step finished in '2' seconds
+INFO: [USF-XSim-3] XSim::Elaborate design
+INFO: [USF-XSim-61] Executing 'ELABORATE' step in '/home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.sim/sim_1/behav/xsim'
+xelab -wto bf348e9f5ada4b499acc1343835f7e04 --incr --debug typical --relax --mt 8 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot tb_pcs_loopback_behav xil_defaultlib.tb_pcs_loopback xil_defaultlib.glbl -log elaborate.log
+Vivado Simulator 2019.1
+Copyright 1986-1999, 2001-2019 Xilinx, Inc. All Rights Reserved.
+Running: /usr/bin/Xilinx/Vivado/2019.1/bin/unwrapped/lnx64.o/xelab -wto bf348e9f5ada4b499acc1343835f7e04 --incr --debug typical --relax --mt 8 -L xil_defaultlib -L unisims_ver -L unimacro_ver -L secureip --snapshot tb_pcs_loopback_behav xil_defaultlib.tb_pcs_loopback xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+WARNING: [VRFC 10-2861] module 'rx_toplevel' does not have a parameter named FIFO_DATA_BUS [/media/data/PPS/src/Verilog/Simulation Sources/tb_pcs_loopback.v:335]
+WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 160 for port 'o_rf_resync_counter_bus' [/media/data/PPS/src/Verilog/Simulation Sources/tb_pcs_loopback.v:400]
+Completed static elaboration
+Starting simulation data flow analysis
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+WARNING: [XSIM 43-4099] "/media/data/PPS/src/Verilog/Design Sources/aligment/am_error_counter.v" Line 6. Module am_error_counter_default doesn't have a timescale but at least one module in design has a timescale.
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module xil_defaultlib.valid_generator(VALID_COUNT_LIMI...
+Compiling module xil_defaultlib.valid_generator(VALID_COUNT_LIMI...
+Compiling module xil_defaultlib.cgmiiFSM
+Compiling module xil_defaultlib.prbs(HIGH_LIM=10,LOW_LIM=3)
+Compiling module xil_defaultlib.prbs(SEED=12'b111110111110,HIGH_...
+Compiling module xil_defaultlib.prbs(SEED=12'b101010101010,HIGH_...
+Compiling module xil_defaultlib.prbs(SEED=12'b110011101101,HIGH_...
+Compiling module xil_defaultlib.prbs(SEED=12'b101110101010,HIGH_...
+Compiling module xil_defaultlib.prbs(SEED=12'b111110101110,HIGH_...
+Compiling module xil_defaultlib.prbs(SEED=12'b110111001010,LOW_L...
+Compiling module xil_defaultlib.prbs(SEED=12'b101011011100,HIGH_...
+Compiling module xil_defaultlib.dataGenerator
+Compiling module xil_defaultlib.frameGenerator
+Compiling module xil_defaultlib.gng_ctg
+Compiling module xil_defaultlib.gng_lzd
+Compiling module xil_defaultlib.gng_coef
+Compiling module xil_defaultlib.gng_smul_16_18_sadd_37
+Compiling module xil_defaultlib.gng_smul_16_18
+Compiling module xil_defaultlib.gng_interp
+Compiling module xil_defaultlib.gng
+Compiling module xil_defaultlib.top_level_frameGenerator
+Compiling module xil_defaultlib.encoder_comparator_default
+Compiling module xil_defaultlib.encoder_fsm
+Compiling module xil_defaultlib.encoder
+Compiling module xil_defaultlib.fifo_memory(NB_DATA=66)
+Compiling module xil_defaultlib.sync_fifo(NB_DATA=66,WR_PTR_AFTE...
+Compiling module xil_defaultlib.clock_comp_tx_default
+Compiling module xil_defaultlib.scrambler(SEED=58'b0)
+Compiling module xil_defaultlib.parallel_converter_1_to_N(NB_DAT...
+Compiling module xil_defaultlib.bip_calculator_default
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion(AM_ENCODING_LOW=24'...
+Compiling module xil_defaultlib.am_insertion_toplevel_default
+Compiling module xil_defaultlib.toplevel_tx_default
+Compiling module xil_defaultlib.decoder_comparator_default
+Compiling module xil_defaultlib.decoder_fsm_interface
+Compiling module xil_defaultlib.decoder_fsm
+Compiling module xil_defaultlib.decoder
+Compiling module xil_defaultlib.test_pattern_checker
+Compiling module xil_defaultlib.clock_comp_rx_default
+Compiling module xil_defaultlib.descrambler
+Compiling module xil_defaultlib.lane_swap_v2(NB_DATA=67)
+Compiling module xil_defaultlib.lane_reorder_default
+Compiling module xil_defaultlib.reorder_toplevel_default
+Compiling module xil_defaultlib.bram(NB_WORD_RAM=67,RAM_DEPTH=20...
+Compiling module xil_defaultlib.prog_fifo(NB_DATA=67,NB_ADDR=5)
+Compiling module xil_defaultlib.prog_fifo_top(NB_DATA=67)
+Compiling module xil_defaultlib.deskew_fsm(NB_DELAY_COUNT=5)
+Compiling module xil_defaultlib.ss_counter(NB_DELAY_COUNT=5)
+Compiling module xil_defaultlib.deskew_top_default
+Compiling module xil_defaultlib.am_lock_comparator_v2
+Compiling module xil_defaultlib.am_lock_fsm_default
+Compiling module xil_defaultlib.lane_id_decoder_default
+Compiling module xil_defaultlib.am_error_counter_default
+Compiling module xil_defaultlib.am_lock_module(NB_ERROR_COUNTER=...
+Compiling module xil_defaultlib.am_top_level_default
+Compiling module xil_defaultlib.block_sync_fsm(MAX_INVALID_SH=20...
+Compiling module xil_defaultlib.block_sync_module_default
+Compiling module xil_defaultlib.block_sync_toplevel_default
+Compiling module xil_defaultlib.rx_toplevel(NB_DATA_BUS=1320,VAL...
+Compiling module xil_defaultlib.tb_pcs_loopback
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot tb_pcs_loopback_behav
+
+****** Webtalk v2019.1 (64-bit)
+  **** SW Build 2552052 on Fri May 24 14:47:09 MDT 2019
+  **** IP Build 2548770 on Fri May 24 18:01:18 MDT 2019
+    ** Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+source /home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.sim/sim_1/behav/xsim/xsim.dir/tb_pcs_loopback_behav/webtalk/xsim_webtalk.tcl -notrace
+INFO: [Common 17-186] '/home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.sim/sim_1/behav/xsim/xsim.dir/tb_pcs_loopback_behav/webtalk/usage_statistics_ext_xsim.xml' has been successfully sent to Xilinx on Sun Sep 13 20:15:49 2020. For additional details about this file, please refer to the WebTalk help file at /usr/bin/Xilinx/Vivado/2019.1/doc/webtalk_introduction.html.
+INFO: [Common 17-206] Exiting Webtalk at Sun Sep 13 20:15:49 2020...
+run_program: Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 6490.652 ; gain = 0.000 ; free physical = 868 ; free virtual = 6432
+INFO: [USF-XSim-69] 'elaborate' step finished in '10' seconds
+INFO: [USF-XSim-4] XSim::Simulate design
+INFO: [USF-XSim-61] Executing 'SIMULATE' step in '/home/ramiro/PCS_rx_toplevel/PCS_rx_toplevel.sim/sim_1/behav/xsim'
+INFO: [USF-XSim-98] *** Running xsim
+   with args "tb_pcs_loopback_behav -key {Behavioral:sim_1:Functional:tb_pcs_loopback} -tclbatch {tb_pcs_loopback.tcl} -view {/home/ramiro/PCS_rx_toplevel/tb_pcs_loopback_behav.wcfg} -log {simulate.log}"
+INFO: [USF-XSim-8] Loading simulator feature
+Vivado Simulator 2019.1
+Time resolution is 1 ps
+open_wave_config /home/ramiro/PCS_rx_toplevel/tb_pcs_loopback_behav.wcfg
+source tb_pcs_loopback.tcl
+# set curr_wave [current_wave_config]
+# if { [string length $curr_wave] == 0 } {
+#   if { [llength [get_objects]] > 0} {
+#     add_wave /
+#     set_property needs_save false [current_wave_config]
+#   } else {
+#      send_msg_id Add_Wave-1 WARNING "No top level signals found. Simulator will start without a wave window. If you want to open a wave window go to 'File->New Waveform Configuration' or type 'create_wave_config' in the TCL console."
+#   }
+# }
+# run 1000ns
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+WARNING: Too many words specified in data file zero.mem
+INFO: [USF-XSim-96] XSim completed. Design snapshot 'tb_pcs_loopback_behav' loaded.
+INFO: [USF-XSim-97] XSim simulation ran for 1000ns
+launch_simulation: Time (s): cpu = 00:00:24 ; elapsed = 00:00:19 . Memory (MB): peak = 6568.234 ; gain = 77.582 ; free physical = 762 ; free virtual = 6349
+run all
+run: Time (s): cpu = 00:00:05 ; elapsed = 00:00:10 . Memory (MB): peak = 6595.617 ; gain = 0.000 ; free physical = 761 ; free virtual = 6337
+run all
+run: Time (s): cpu = 00:08:53 ; elapsed = 00:51:03 . Memory (MB): peak = 6653.441 ; gain = 48.629 ; free physical = 325 ; free virtual = 5921
+run 20 ms
+run: Time (s): cpu = 00:02:02 ; elapsed = 00:11:56 . Memory (MB): peak = 6653.633 ; gain = 0.000 ; free physical = 296 ; free virtual = 5811
+save_wave_config {/home/ramiro/PCS_rx_toplevel/tb_pcs_loopback_behav.wcfg}
+close_sim
+INFO: [Common 17-41] Interrupt caught. Command should exit soon.
+INFO: [Simtcl 6-16] Simulation closed
+close_sim: Time (s): cpu = 01:02:15 ; elapsed = 00:00:12 . Memory (MB): peak = 6680.457 ; gain = 16.816 ; free physical = 1309 ; free virtual = 5844
+INFO: [Common 17-344] 'close_sim' was cancelled
+exit
+INFO: [Common 17-206] Exiting Vivado at Sun Sep 13 21:24:00 2020...

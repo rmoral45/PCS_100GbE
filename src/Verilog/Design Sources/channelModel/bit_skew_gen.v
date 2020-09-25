@@ -2,9 +2,9 @@
 
 module bit_skew_gen
 #(
-        parameter NB_DATA   = 66,
-        parameter MAX_INDEX = (NB_DATA - 2),
-        parameter NB_INDEX  = $clog2(MAX_INDEX)
+        parameter   NB_DATA             = 66,
+        parameter   MAX_SKEW_INDEX      = (NB_DATA - 2),
+        parameter   NB_SKEW_INDEX       = $clog2(MAX_INDEX)
  )
  (
         input  wire                     i_clock,
@@ -14,7 +14,8 @@ module bit_skew_gen
         input  wire [NB_INDEX-1 : 0]    i_rf_skew_index,
         input  wire                     i_rf_update,
 
-        output wire [NB_DATA-1 : 0]     o_data
+        output wire [NB_DATA-1 : 0]     o_data,
+        output wire                     o_valid
  );
 
 /*-------------------- localparam --------------------- */
@@ -51,6 +52,7 @@ end
 
 assign data_extended = {i_data, data_prev};
 assign o_data        = data_extended[(NB_DATA-1+skew_index) -: NB_DATA] ;
+assign o_valid       = i_valid;
 
 
 endmodule

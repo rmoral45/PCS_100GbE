@@ -1,32 +1,14 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 09/15/2020 08:22:12 PM
-// Design Name: 
-// Module Name: delayer
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 
-module delayer
+module block_skew_generator
 #(
     parameter NB_DATA = 66,
     parameter N_DELAY = 10
 )
 (
     output wire [NB_DATA - 1 : 0] o_data,
+    output wire                   o_valid,
     
     input wire i_clock,
     input wire i_reset,
@@ -50,6 +32,7 @@ begin
     end
 end
 
-assign o_data = delayed_data[N_DELAY - 1];
+assign o_data   = delayed_data[N_DELAY - 1];
+assign o_valid  = i_valid;
 
 endmodule
