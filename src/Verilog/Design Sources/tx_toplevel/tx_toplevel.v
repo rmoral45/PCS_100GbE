@@ -49,6 +49,8 @@ localparam              NB_DATA_BUS             = NB_DATA_TAGGED*N_LANES;
 /* am_insertion */
 localparam              NB_BIP                  = 8;
 
+
+
 wire dbg_valid;
 assign dbg_valid = 1;
 
@@ -92,8 +94,9 @@ assign  o_fast_valid        = fast_valid;
 assign  o_slow_valid        = slow_valid;
 assign  o_encoder_data      = encoder_data_clockComp;
 assign  o_clock_comp_data   = clockComp_data_scrambler;
+wire [NB_DATA_BUS-1 : 0] am_insert_data_channel;
 assign  o_data              = am_insert_data_channel; 
-assign  o_valid             = pc_1_20_valid_am_insert;
+//assign  o_valid             = pc_1_20_valid_am_insert;
 
 //tx_modules
 valid_generator
@@ -263,11 +266,12 @@ u_am_insertion
     .i_data(pc_1_20_data_am_insert),
     //.i_data(dbg_pc_o),
     .o_data(am_insert_data_channel),
-    .o_valid(o_valid_am_insert)
+    .o_valid(o_valid)
 );
 
 wire [NB_DATA_TAGGED-1 : 0]         dbg_o_pc_per_lane [N_LANES-1:0];
 wire [NB_DATA_CODED-1 : 0]          dbg_o_am_per_lane [N_LANES-1:0];
+
 
 genvar i;
 for(i=0; i<N_LANES; i=i+1)

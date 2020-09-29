@@ -4,14 +4,14 @@ module bit_skew_gen
 #(
         parameter   NB_DATA             = 66,
         parameter   MAX_SKEW_INDEX      = (NB_DATA - 2),
-        parameter   NB_SKEW_INDEX       = $clog2(MAX_INDEX)
+        parameter   NB_SKEW_INDEX       = $clog2(MAX_SKEW_INDEX)
  )
  (
         input  wire                     i_clock,
         input  wire                     i_reset,
         input  wire                     i_valid,
         input  wire [NB_DATA-1 : 0]     i_data,
-        input  wire [NB_INDEX-1 : 0]    i_rf_skew_index,
+        input  wire [NB_SKEW_INDEX-1 : 0]    i_rf_skew_index,
         input  wire                     i_rf_update,
 
         output wire [NB_DATA-1 : 0]     o_data,
@@ -26,10 +26,10 @@ localparam DATA_INIT_SEED   = 66'h3_A3_B2_C7_05_D0_23_78_38;
 /*------------------- internal signals ---------------- */
 
 reg [NB_DATA-1 : 0]             data_prev;
-reg [NB_INDEX-1 : 0]            skew_index;
+reg [NB_SKEW_INDEX-1 : 0]            skew_index;
 
 wire [NB_EXTENDED_DATA-1 : 0]   data_extended;
-wire [NB_DATA-1 : 0]            data_shifted;
+//wire [NB_DATA-1 : 0]            data_shifted;
 
 /*------------------ algorithm begin ----------------- */
 
@@ -44,7 +44,7 @@ end
 always @ (posedge i_clock)
 begin
         if (i_reset)
-                skew_index <= {NB_INDEX{1'b0}};
+                skew_index <= {NB_SKEW_INDEX{1'b0}};
         else if (i_rf_update)
                 skew_index <= i_rf_skew_index ;
                 

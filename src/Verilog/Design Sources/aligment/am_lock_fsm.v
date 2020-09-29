@@ -29,7 +29,7 @@ module am_lock_fsm
 	parameter MAX_VALID_AM   = 20,
 	parameter NB_INVALID_CNT = $clog2(MAX_INVALID_AM),
     parameter NB_VALID_CNT   = $clog2(MAX_VALID_AM),
-    parameter NB_AM_PERIOD   = 16
+    parameter NB_AM_PERIOD   = 14
  )
  (
  	input  wire 				i_clock ,

@@ -13,7 +13,7 @@ module am_top_level
         parameter MAX_VAL_AM            = 20,
         parameter NB_VAL_AM             = $clog2(MAX_VAL_AM),
         parameter NB_AM                 = 48,
-        parameter NB_AM_PERIOD          = 16,
+        parameter NB_AM_PERIOD          = 14,
         parameter NB_DATA_BUS           = N_LANES * NB_DATA,
         parameter NB_ID_BUS             = N_LANES * NB_LANE_ID,
         parameter NB_ERR_BUS            = N_LANES * NB_ERROR_COUNTER,

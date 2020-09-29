@@ -17,7 +17,7 @@ module am_lock_module
 	parameter                               MAX_VAL_AM          = 20,
     parameter                               NB_VAL_AM           = $clog2(MAX_VAL_AM),
     parameter                               NB_AM               = 48,
-    parameter                               NB_AM_PERIOD        = 16
+    parameter                               NB_AM_PERIOD        = 14
  )
  (
  	input  wire                             i_clock,		//sys clock

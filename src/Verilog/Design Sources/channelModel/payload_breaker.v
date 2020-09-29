@@ -69,6 +69,11 @@ wire                            expected_block;
 wire                            sh_ctrl_type;
 wire                            sh_data_type;
 
+//Mode and mask registers
+//Mode and mask registring
+reg [N_MODES-1      :   0]      mode_d;
+reg [NB_ERR_MASK-1  :   0]      mask_d;
+
 //-----------------------------Algorithm Begin-------------------------------------
 
 
@@ -121,10 +126,6 @@ end
 
         [CHECK] Ver que se va a senializar con i_valid, si necesitamos solo para senializar datos nuevos o algo mas
 */
-
-//Mode and mask registring
-reg [N_MODES-1      :   0] mode_d;
-reg [NB_ERR_MASK-1  :   0] mask_d;
 
 always @ (posedge i_clock)
 begin

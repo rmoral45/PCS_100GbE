@@ -11,7 +11,7 @@ module PCS_loopback
     parameter           NB_DATA_BUS             = N_LANES * NB_DATA_CODED,
 
     //Channel Model
-    parameter           NB_ERR_MASK             = NB_CODED_BLOCK-2,    //mascara, se romperan los bits cuya posicon en la mascara sea 1
+    parameter           NB_ERR_MASK             = NB_DATA_CODED-2,    //mascara, se romperan los bits cuya posicon en la mascara sea 1
     parameter           MAX_ERR_BURST           = 1024,                //cantidad de bloques consecutivos que se romperan
     parameter           MAX_ERR_PERIOD          = 1024,                //cantidad de bloqus por periodo de error ver NOTAS.
     parameter           MAX_ERR_REPEAT          = 10,                  //cantidad de veces que se repite el mismo patron de error
@@ -19,8 +19,8 @@ module PCS_loopback
     parameter           NB_PERIOD_CNT           = $clog2(MAX_ERR_PERIOD),
     parameter           NB_REPEAT_CNT           = $clog2(MAX_ERR_REPEAT),
     parameter           N_MODES                 = 4,
-    parameter           MAX_SKEW_INDEX          = (NB_DATA - 2),
-    parameter           NB_SKEW_INDEX           = $clog2(MAX_INDEX),
+    parameter           MAX_SKEW_INDEX          = (NB_DATA_RAW - 2),
+    parameter           NB_SKEW_INDEX           = $clog2(MAX_SKEW_INDEX),
     
     //RX Parameters
     // block sync
@@ -56,8 +56,6 @@ module PCS_loopback
 
     //decoder
     parameter           NB_FSM_CONTROL          = 4,
-    parameter           NB_DATA_RAW             = 64,
-    parameter           NB_CTRL_RAW             = 8,
     
     //test pattern checker
     parameter           NB_MISMATCH_COUNTER     = 32    
@@ -110,9 +108,16 @@ module PCS_loopback
     input wire                                      i_rf_enb_rx_clock_comp,
     input wire                                      i_rf_enb_rx_test_pattern_checker,
     input wire                                      i_rf_enb_rx_decoder,
-    //Rx modes
+    //Rx modes and config
     input wire                                      i_rf_rx_descrambler_bypass,
-    input wire                                      i_rf_rx_test_pattern_mode,
+    input  wire     [NB_WINDOW_CNT-1    : 0]        i_rf_rx_unlocked_timer_limit,
+    input  wire     [NB_WINDOW_CNT-1    : 0]        i_rf_rx_locked_timer_limit,
+    input  wire     [NB_INV_SH-1        : 0]        i_rf_rx_sh_invalid_limit,
+    input  wire                                     i_rx_signal_ok,
+    input  wire     [NB_INV_AM-1        : 0]        i_rf_rx_invalid_am_thr,
+    input  wire     [NB_VAL_AM-1        : 0]        i_rf_rx_valid_am_thr,
+    input  wire     [NB_AM-1            : 0]        i_rf_rx_compare_mask,
+    input  wire     [NB_AM_PERIOD-1     : 0]        i_rf_rx_am_period,    
     //Read pulses
     input wire                                      i_rf_rx_read_hi_ber,
     input wire                                      i_rf_rx_read_am_error_counter,
@@ -159,11 +164,12 @@ module PCS_loopback
 
 /* Block skew to RX */
     wire            [NB_DATA_BUS-1              : 0]blockskew_data_rx;
+    wire                                            blockskew_valid_rx;
 
 
 
 //Instances
-tx_toplevel
+toplevel_tx
 u_tx_toplevel
 (
     .o_fast_valid                           (tx_fast_valid),
@@ -173,22 +179,22 @@ u_tx_toplevel
     .o_data                                 (tx_databus_channel),
     .o_valid                                (tx_valid_channel),
 
-    i_clock                                 (i_clock),
-    i_reset                                 (i_reset),
-    i_rf_enb_valid_gen                      (i_rf_enb_tx_valid_gen),
-    i_rf_enb_frame_gen                      (i_rf_enb_tx_frame_gen),
-    i_rf_enb_encoder                        (i_rf_enb_tx_encoder),
-    i_rf_enb_clock_comp                     (i_rf_enb_tx_clock_comp),
-    i_rf_enb_scrambler                      (i_rf_enb_tx_scrambler),
-    i_rf_bypass_scrambler                   (i_rf_tx_bypass_scrambler),
-    i_rf_idle_pattern_mode                  (i_rf_tx_idle_pattern_mode),
-    i_rf_enb_pc_1_20                        (i_rf_enb_tx_pc_1_20),
-    i_rf_enb_am_insertion                   (i_rf_enb_tx_am_insertion)
+    .i_clock                                 (i_clock),
+    .i_reset                                 (i_reset),
+    .i_rf_enb_valid_gen                      (i_rf_enb_tx_valid_gen),
+    .i_rf_enb_frame_gen                      (i_rf_enb_tx_frame_gen),
+    .i_rf_enb_encoder                        (i_rf_enb_tx_encoder),
+    .i_rf_enb_clock_comp                     (i_rf_enb_tx_clock_comp),
+    .i_rf_enb_scrambler                      (i_rf_enb_tx_scrambler),
+    .i_rf_bypass_scrambler                   (i_rf_tx_bypass_scrambler),
+    .i_rf_idle_pattern_mode                  (i_rf_idle_pattern_mode),
+    .i_rf_enb_pc_1_20                        (i_rf_enb_tx_pc_1_20),
+    .i_rf_enb_am_insertion                   (i_rf_enb_tx_am_insertion)
 );
 
-genvar j;
+genvar i;
 generate
-for(j = 0; j < N_LANES; j = j + 1)
+for(i = 0; i < N_LANES; i = i + 1)
 begin: delayed_modules
 
     payload_breaker
@@ -241,16 +247,17 @@ begin: delayed_modules
         .i_valid                            (sh_breaker_valid_bitskew),
         .i_data                             (sh_breaker_data_bitskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
         .i_rf_skew_index                    (i_rf_bit_skew_index),
-        .i_rf_update                        (i_rf_bit_skew_update)
+        .i_rf_update                        (i_rf_bit_skew_update[N_LANES - i - 1])
     );
 
     block_skew_generator
     #(
-        .N_DELAY((j%10 + 2)
+        .N_DELAY((i%10 + 2))
     )
     u_block_skew_generator
     (
-        .o_data                             (blockskew_data_rx),
+        .o_data                             (blockskew_data_rx[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
+        .o_valid                            (blockskew_valid_rx),
 
         .i_clock                            (i_clock),
         .i_reset                            (i_reset),
@@ -263,6 +270,43 @@ endgenerate
 
 
 rx_toplevel
+#(
+    .NB_SH(NB_SH),                   
+    .NB_SH_VALID_BUS(NB_SH_VALID_BUS),         
+    .MAX_WINDOW(MAX_WINDOW),              
+    .NB_WINDOW_CNT(NB_WINDOW_CNT),           
+    .MAX_INV_SH(MAX_INV_SH),              
+    .NB_INV_SH(NB_INV_SH),               
+    // ber monitor
+    .HI_BER_VALUE(HI_BER_VALUE),            
+    .XUS_TIMER_WINDOW(XUS_TIMER_WINDOW),        
+    // aligment
+    .NB_ERROR_COUNTER(NB_ERROR_COUNTER),        
+    .N_ALIGNER(N_ALIGNER),               
+    .NB_LANE_ID(NB_LANE_ID),              
+    .MAX_INV_AM(MAX_INV_AM),              
+    .NB_INV_AM(NB_INV_AM),               
+    .MAX_VAL_AM(MAX_VAL_AM),              
+    .NB_VAL_AM(NB_VAL_AM),               
+    .NB_AM(NB_AM),                   
+    .NB_AM_PERIOD(NB_AM_PERIOD),            
+    .AM_PERIOD_BLOCKS(AM_PERIOD_BLOCKS),        
+    .NB_ID_BUS(NB_ID_BUS),               
+    .NB_ERR_BUS(NB_ERR_BUS),              
+    .NB_RESYNC_COUNTER(NB_RESYNC_COUNTER),       
+    .NB_RESYNC_COUNTER_BUS(NB_RESYNC_COUNTER_BUS),   
+    // deskew
+    .NB_FIFO_DATA(NB_FIFO_DATA),            
+    .FIFO_DEPTH(FIFO_DEPTH),              
+    .MAX_SKEW(MAX_SKEW),                
+    .NB_FIFO_DATA_BUS(NB_FIFO_DATA_BUS),        
+
+    //decoder
+    .NB_FSM_CONTROL(NB_FSM_CONTROL),          
+    
+    //test pattern checker
+    .NB_MISMATCH_COUNTER(NB_MISMATCH_COUNTER)  
+)
 u_rx_toplevel
 (
         .o_rf_hi_ber                        (),
@@ -276,18 +320,26 @@ u_rx_toplevel
 
         .i_clock                            (i_clock),
         .i_reset                            (i_reset),
-        .i_valid                            (block_se),
+        .i_valid                            (blockskew_valid_rx),
         .i_phy_data                         (blockskew_data_rx),
-        .i_rf_enb_block_sync                (i_rf_enb_rx_block_sync),
-        .i_rf_enb_aligner                   (i_rf_enb_rx_aligner),
-        .i_rf_enb_deskewer                  (i_rf_enb_rx_deskewer),
-        .i_rf_enb_lane_reorder              (i_rf_enb_rx_lane_reorder),
-        .i_rf_enb_descrambler               (i_rf_enb_rx_descrambler),
-        .i_rf_enb_clock_comp                (i_rf_enb_rx_clock_comp),
-        .i_rf_enb_test_pattern_checker      (i_rf_enb_rx_test_pattern_checker),
-        .i_rf_enb_decoder                   (i_rf_enb_rx_decoder),
+        .i_rf_enable_block_sync             (i_rf_enb_rx_block_sync),
+        .i_rf_unlocked_timer_limit          (i_rf_rx_unlocked_timer_limit),
+        .i_rf_locked_timer_limit            (i_rf_rx_locked_timer_limit),
+        .i_rf_sh_invalid_limit              (i_rf_rx_sh_invalid_limit),
+        .i_signal_ok                        (i_rx_signal_ok),
+        .i_rf_enable_aligner                (i_rf_enb_rx_aligner),
+        .i_rf_invalid_am_thr                (i_rf_rx_invalid_am_thr),
+        .i_rf_valid_am_thr                  (i_rf_rx_valid_am_thr),
+        .i_rf_compare_mask                  (i_rf_rx_compare_mask),
+        .i_rf_am_period                     (i_rf_rx_am_period  ),        
+        .i_rf_enable_deskewer               (i_rf_enb_rx_deskewer),
+        .i_rf_enable_lane_reorder           (i_rf_enb_rx_lane_reorder),
+        .i_rf_enable_descrambler            (i_rf_enb_rx_descrambler),
+        .i_rf_enable_clock_comp             (i_rf_enb_rx_clock_comp),
+        .i_rf_enable_test_pattern_checker   (i_rf_enb_rx_test_pattern_checker),
+        .i_rf_enable_decoder                (i_rf_enb_rx_decoder),
         .i_rf_descrambler_bypass            (i_rf_rx_descrambler_bypass),
-        .i_rf_idle_pattern_mode             (i_rf_rx_test_pattern_mode),
+        .i_rf_idle_pattern_mode_rx          (i_rf_idle_pattern_mode),
         .i_rf_read_hi_ber                   (i_rf_rx_read_hi_ber),
         .i_rf_read_am_error_counter         (i_rf_rx_read_am_error_counter),
         .i_rf_read_am_resyncs               (i_rf_rx_read_am_resyncs),
