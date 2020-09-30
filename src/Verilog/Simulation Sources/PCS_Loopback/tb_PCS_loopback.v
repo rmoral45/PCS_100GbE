@@ -241,7 +241,27 @@ begin
     tb_bit_skew_index = 10;
     tb_bit_skew_update = 20'h80000;
 #10 tb_bit_skew_update = 20'h00000;
-    
+#500 tb_bit_skew_index = 30;
+     tb_bit_skew_update = 20'h20000;
+#10  tb_bit_skew_update = 20'h00000;
+#500 tb_bit_skew_index = 60;
+     tb_bit_skew_update = 20'h40000;
+#10  tb_bit_skew_update = 20'h00000;
+#500 tb_bit_skew_index = 17;
+     tb_bit_skew_update = 20'h00001;
+#10  tb_bit_skew_update = 20'h00000;
+#500 tb_bit_skew_index = 33;
+     tb_bit_skew_update = 20'h00200;
+#10  tb_bit_skew_update = 20'h00000;
+#3500000
+    tb_payload_breaker_mode = 4'b0100;
+    //tb_payload_breaker_err_mask = 64'hFFFFFFFFFFFFFFFF;
+    tb_payload_breaker_err_mask = 64'hAA00BC00AAFFFFFA;
+    tb_payload_breaker_err_burst = 20;
+    tb_payload_breaker_err_period = 30000;
+    tb_payload_breaker_err_repeat = 1000;
+    tb_payload_breaker_update = 20'h80000;
+#10 tb_payload_breaker_update = 20'h00000;    
     
     
 
