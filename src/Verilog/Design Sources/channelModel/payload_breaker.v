@@ -90,9 +90,9 @@ assign expected_block = ((mode_d == MODE_ALIN) & i_aligner_tag) |
                          (mode_d == MODE_ALL);
 
 //break process
-assign bit_flip         = (payload & mask_d) ^ mask_d;
-assign masked_payload   = payload & (~mask_d);
-assign err_payload      = bit_flip | masked_payload;
+assign bit_flip         = (payload & mask_d) ^ mask_d; //(101100 & 000111) = 000100 ^ 000111 = 000011
+assign masked_payload   = payload & (~mask_d); //101100 & 111000 = 101000
+assign err_payload      = bit_flip | masked_payload; // 000011 | 101000 = 101011
 
 //Data out assigment
 always @ *
@@ -134,7 +134,7 @@ begin
             mode_d <= {N_MODES{1'b0}};
             mask_d <= {NB_ERR_MASK{1'b0}};
         end
-        else if(i_rf_update && i_valid)
+        else if(i_rf_update)
         begin
             mode_d <= i_rf_mode;
             mask_d <= i_rf_error_mask;
