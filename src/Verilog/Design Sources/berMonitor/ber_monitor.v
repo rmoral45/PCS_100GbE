@@ -73,6 +73,8 @@ module ber_monitor
                 else
                         hi_ber <= hi_ber_next;
         end
+        
+        assign  o_hi_ber = hi_ber;
 
         always @ *
         begin

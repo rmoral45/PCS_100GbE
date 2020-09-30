@@ -12,9 +12,10 @@ module ber_monitor_top_level
     input  wire                         i_reset,
     input  wire                         i_test_mode,
     input  wire                         i_valid,
-    input  wire [NB_SH_BUS-1    : 0]    i_sh_bus,
+    input  wire [NB_SH_VALID_BUS-1  : 0]i_sh_bus,
+    input  wire                         i_align_status,
 
-    output  wire [N_LANES-1      : 0]   o_hi_ber_bus    
+    output  wire [N_LANES-1         : 0]o_hi_ber_bus    
 );
 
 genvar i;
@@ -29,6 +30,7 @@ generate
                 .i_reset(i_reset),
                 .i_valid_sh(i_sh_bus[N_LANES - i - 1]),
                 .i_test_mode(i_test_mode),
+                .i_deskew_done(i_align_status), //[FIXME]: REPLACE REDUCTION AND FOR DESKEW_DONE_SIGNAL
                 .i_valid(i_valid),
 
                 .o_hi_ber(o_hi_ber_bus[N_LANES - i - 1])

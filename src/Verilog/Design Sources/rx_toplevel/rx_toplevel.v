@@ -451,18 +451,18 @@ u_aligner_top
     .o_start_of_lane            (aligment_sol_deskew)
 );
 
+ber_monitor_top_level
+u_ber_monitor_top_level
+(
+    .i_clock                    (i_clock),
+    .i_reset                    (i_reset),
+    .i_valid                    (aligment_valid_deskew),
+    .i_sh_bus                   (blksync_sh_bermonitor),
+    .i_test_mode                (i_rf_idle_pattern_mode_rx),
+    .i_align_status             (&blksync_lock_aligment), //[FIXME]: REPLACE REDUCTION AND FOR DESKEW_DONE_SIGNAL
 
-//ber_monitor_top_level
-//u_ber_monitor_top_level
-//(
-//    .i_clock                    (i_clock),
-//    .i_reset                    (i_reset),
-//    .i_valid                    (aligment_valid_deskew),
-//    .i_align_status             (deskew_validskew_bermonitor),
-//    .i_test_mode                (i_rf_idle_pattern_mode_rx),
-
-//    .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
-//);
+    .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
+);
 
 block_sync_toplevel
 #(
