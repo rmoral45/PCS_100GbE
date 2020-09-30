@@ -73,7 +73,7 @@ module block_sync_toplevel
                     .i_sh_invalid_limit     (i_rf_sh_invalid_limit),
 
                     .o_data                 (o_data[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
-                    .o_valid_sh             (o_sh_bus[i]),
+                    .o_valid_sh             (o_sh_bus[N_LANES - i - 1]),
                     .o_block_lock           (o_block_lock[i])
                 );
                 

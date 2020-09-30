@@ -20,14 +20,14 @@ module ber_monitor
  );
 
         //States
-        localparam                  N_STATES            = 2;
+        localparam                  N_STATES            = 3;
         localparam                  INIT                = 3'b001;
         localparam                  TEST                = 3'b010;
         localparam                  HI_BER              = 3'b100;
 
         //Internal params
-        localparam                  NB_BER_CNT          = $clog2(HI_BER_VALUE);
-        localparam                  NB_XUS_TIMER        = $clog2(XUS_TIMER_WINDOW);
+        localparam                  NB_BER_CNT          = $clog2(XUS_TIMER_WINDOW)+ 1;
+        localparam                  NB_XUS_TIMER        = $clog2(XUS_TIMER_WINDOW) + 1;
 
 
         //Internal Signals
@@ -63,7 +63,7 @@ module ber_monitor
                 else if (i_valid )
                         xus_timer <= xus_timer + 1'b1; 
         end
-        assign xus_timer_done = (xus_timer == XUS_TIMER_WINDOW) ? 1'b1 : 1'b0;
+        assign xus_timer_done = ((xus_timer == XUS_TIMER_WINDOW) & i_valid) ? 1'b1 : 1'b0;
 
         
         always @ (posedge i_clock)
@@ -99,7 +99,7 @@ module ber_monitor
                         begin
                                 hi_ber_next = 1'b1;
                                 if (xus_timer_done)
-                                        next_state = TEST;
+                                        next_state = INIT;
                         end
                         default:
                         begin

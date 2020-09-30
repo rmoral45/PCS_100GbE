@@ -1,5 +1,7 @@
 `timescale  1ns/100ps
-
+/*
+    FIXME revisar los periodos de rotura, repeticion etc
+*/
 module sh_breaker
 #(
         parameter NB_CODED_BLOCK = 66,

@@ -456,10 +456,10 @@ u_ber_monitor_top_level
 (
     .i_clock                    (i_clock),
     .i_reset                    (i_reset),
-    .i_valid                    (aligment_valid_deskew),
+    .i_valid                    (blksync_valid_aligment),
     .i_sh_bus                   (blksync_sh_bermonitor),
     .i_test_mode                (i_rf_idle_pattern_mode_rx),
-    .i_align_status             (&blksync_lock_aligment), //[FIXME]: REPLACE REDUCTION AND FOR DESKEW_DONE_SIGNAL
+    .i_align_status             (1'b1), //[FIXME]: REPLACE REDUCTION AND FOR DESKEW_DONE_SIGNAL
 
     .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
 );

@@ -253,6 +253,14 @@ begin
 #500 tb_bit_skew_index = 33;
      tb_bit_skew_update = 20'h00200;
 #10  tb_bit_skew_update = 20'h00000;
+#60000
+    tb_sh_breaker_mode = 4'b0100;
+    //tb_payload_breaker_err_mask = 64'hFFFFFFFFFFFFFFFF;
+    tb_sh_breaker_err_burst = 500;
+    tb_sh_breaker_err_period = 1024;
+    tb_sh_breaker_err_repeat = 10000;
+    tb_sh_breaker_update = 20'h80000;
+#10 tb_sh_breaker_update = 20'h00000;   
 #3500000
     tb_payload_breaker_mode = 4'b0100;
     //tb_payload_breaker_err_mask = 64'hFFFFFFFFFFFFFFFF;
