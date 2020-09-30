@@ -98,8 +98,9 @@ module block_sync_fsm
             block_index <= {NB_INDEX{1'b0}};
 
         else if (i_enable && i_valid && update_block_index)
-            block_index <= (search_index == 0) ? search_index : 
-                                                search_index + 1;
+//            block_index <= (search_index == 0) ? search_index : 
+//                                                search_index + 1;
+            block_index <= search_index;
     end
 
 
