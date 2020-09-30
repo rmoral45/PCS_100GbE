@@ -200,6 +200,7 @@ am_error_counter
 	 	.i_clock            (i_clock),          //from top level
 	 	.i_reset            (i_reset),		    //from top level
 	 	.i_enable 		    (i_rf_enable),	    //from top level
+	 	.i_valid            (i_valid),
 		//
 		// [CHECK] <<<< i_match >>>>>>
 		// El trigger para calcular el match deberia ser

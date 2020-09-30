@@ -6,6 +6,10 @@
  *                  FIXME : registrar el modo y mascara usando la senial de update --> LISTO: Chequear funcionamiento
  */
 
+/*
+    TODO generar la mascara de rotura atraves de prbs. Ya que el bip lleva basicamente un indicador de si la cantodad
+         de 1's es par o impar si rompemos con una mascara fija un numero par de veces el bip terminara siendo el mismo
+*/
 module payload_breaker
 #(
         parameter NB_CODED_BLOCK = 66,

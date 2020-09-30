@@ -13,6 +13,7 @@ module am_error_counter
         input wire 			                    i_clock,
         input wire 			                    i_reset,
         input wire 			                    i_enable,
+        input wire                              i_valid,
         input wire 			                    i_match,
         input wire			                    i_reset_count,
         input wire  [NB_BIP-1 : 0] 	            i_recived_bip,
@@ -35,7 +36,6 @@ module am_error_counter
     //Ports
     assign                                      o_error_count       = error_counter;
 
-    
     //Update counter
      always @ (posedge i_clock)
      begin
@@ -45,7 +45,7 @@ module am_error_counter
              error_counter <= {NB_COUNTER{1'b0}};
          end 
     
-         else if (i_enable && i_match)
+         else if (i_enable && i_valid && i_match)
         begin
              if (overflow_flag)
                  error_counter <= {NB_COUNTER{1'b1}};
@@ -59,12 +59,8 @@ module am_error_counter
      always @ *
      begin
          error_counter_next = 0;
-         for(i=0; i<NB_BIP; i=i+1)
-         begin
-             if(i_recived_bip[i] != i_calculated_bip[i])
-                 error_counter_next  = error_counter_next + 1'b1;
-         end
-    
+         if(i_recived_bip != i_calculated_bip)
+            error_counter_next  = error_counter_next + 1'b1;
      end
     
     endmodule
