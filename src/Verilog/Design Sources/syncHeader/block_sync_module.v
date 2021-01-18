@@ -28,8 +28,6 @@ module block_sync_module
     output  wire                                o_valid_sh,
     output  wire                                o_valid,
     output  wire                                o_block_lock
-    // output  wire    [NB_INDEX-1         : 0]    o_dbg_search_index, //solo p debug, eliminar desp
-    // output  wire    [NB_INDEX-1         : 0]    o_dbg_block_index //solo p debug, eliminar desp
  );
 
     //LOCALPARAMS
@@ -58,11 +56,6 @@ module block_sync_module
     assign o_data 		= data_shifted;
 
     assign o_block_lock = block_lock;
-
-    assign o_dbg_search_index = search_index;//solo p debug, eliminar desp
-
-    assign o_dbg_block_index  = block_index;//solo p debug, eliminar desp
-
 
     assign  o_valid_sh  = sh_valid;
 

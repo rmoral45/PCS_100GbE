@@ -1,7 +1,7 @@
 module ss_counter
 #(
 	parameter FIFO_DEPTH       = 20,
-	parameter NB_DELAY_COUNT   = $clog2(FIFO_DEPTH) //AGREGAR MAS BITS !!!!!
+	parameter NB_DELAY_COUNT   = $clog2(FIFO_DEPTH)
  )
  (
  	input wire 					      i_clock,

@@ -11,10 +11,10 @@
 
 module clock_comp_rx
 #(
-        parameter                           NB_DATA_CODED       = 66,
-        parameter                           AM_BLOCK_PERIOD     = 16383, //[CHECK]
-        parameter                           N_LANES             = 20,
-        parameter                           N_FSM_DECO_STATES   = 4
+        parameter                               NB_DATA_CODED       = 66,
+        parameter                               AM_BLOCK_PERIOD     = 16383, //[CHECK]
+        parameter                               N_LANES             = 20,
+        parameter                               N_FSM_DECO_STATES   = 4
  )
  (
         input  wire                             i_clock,
@@ -29,28 +29,28 @@ module clock_comp_rx
         output wire                             o_valid
  );
 
-localparam                                  WR_PTR_AFTER_RST    = 1;                    
-localparam                                  NB_ADDR             = 5;
+localparam                                      WR_PTR_AFTER_RST    = 1;                    
+localparam                                      NB_ADDR             = 5;
 
-localparam                                  NB_PERIOD_CNT       = $clog2(AM_BLOCK_PERIOD*N_LANES);
-localparam                                  NB_IDLE_CNT         = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
-localparam [NB_DATA_CODED-1 : 0]            PCS_IDLE            = 'h2_1e_00_00_00_00_00_00_00;
+localparam                                      NB_PERIOD_CNT       = $clog2(AM_BLOCK_PERIOD*N_LANES);
+localparam                                      NB_IDLE_CNT         = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
+localparam [NB_DATA_CODED-1 : 0]                PCS_IDLE            = 'h2_1e_00_00_00_00_00_00_00;
 
 //------------ Internal Signals -----------------//
 
-reg         [NB_PERIOD_CNT-1 : 0]           period_counter;
-reg         [NB_IDLE_CNT-1 : 0]             idle_counter;
+reg         [NB_PERIOD_CNT-1 : 0]               period_counter;
+reg         [NB_IDLE_CNT-1 : 0]                 idle_counter;
 
-wire                                        period_done;
-wire                                        idle_insert;
-wire                                        fifo_read_enable;
-wire                                        fifo_write_enable;
-wire        [NB_DATA_CODED-1 : 0]           fifo_output_data;
-wire                                        fifo_empty;
-wire                                        idle_detected;
+wire                                            period_done;
+wire                                            idle_insert;
+wire                                            fifo_read_enable;
+wire                                            fifo_write_enable;
+wire        [NB_DATA_CODED-1 : 0]               fifo_output_data;
+wire                                            fifo_empty;
+wire                                            idle_detected;
 
-reg fsm_control_d, fsm_control_2d;
-reg trigger_insertion;
+reg                                             fsm_control_d, fsm_control_2d;
+reg                                             trigger_insertion;
 
 
 //----------- Algorithm ------------------------//
@@ -66,7 +66,6 @@ begin
     else if(idle_counter < N_LANES && idle_detected)
     begin
         trigger_insertion <= 1'b1;
-        //fsm_control_2d <=fsm_control_d; 
     end
     else if (idle_counter >= N_LANES)
         trigger_insertion <= 1'b0;

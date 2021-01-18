@@ -58,60 +58,46 @@ module am_top_level
         output wire [N_LANES-1                  : 0]    o_start_of_lane
  );
  
-        wire        [NB_DATA_BUS-1 : 0] alignment_out;
-        wire        [NB_DATA-1 : 0] alignment_single_data [N_LANES-1 : 0];
-        
-        genvar j;
-        generate
-        for(j = 0; j < N_LANES; j = j+1)
-        begin
-            assign alignment_single_data[j] = alignment_out[NB_DATA_BUS - j*NB_DATA - 1 -: NB_DATA];
-        end
-        endgenerate
-        
-        
-        
-        
-            
+        wire        [NB_DATA_BUS-1 : 0]                 alignment_out;
+          
         assign                                          o_valid = i_valid;
         assign                                          o_data  = alignment_out;
 
-genvar i;
-generate
-        for (i = 0; i < N_LANES; i = i + 1)
-        begin : LANE_ALIGNERS
-            am_lock_module
-            #(  
-                .NB_CODED_BLOCK         (NB_DATA),
-                .NB_ERROR_COUNTER       (NB_ERROR_COUNTER),
-                .N_ALIGNER              (N_ALIGNER),
-                .MAX_INV_AM             (MAX_INV_AM),
-                .MAX_VAL_AM             (MAX_VAL_AM)
-            )
-            u_am_lock
-            (
-                .i_clock                (i_clock),
-                .i_reset                (i_reset),
-                .i_rf_enable            (i_rf_enable),
-                .i_valid                (i_valid),
-                .i_block_lock           (i_block_lock[N_LANES-1-i]),
-                .i_data                 (i_data[(NB_DATA_BUS-1 - i*NB_DATA) -: NB_DATA]),
-                .i_rf_invalid_am_thr    (i_rf_invalid_am_thr),
-                .i_rf_valid_am_thr      (i_rf_valid_am_thr),
-                .i_rf_compare_mask      (i_rf_compare_mask),
-                .i_rf_am_period         (i_rf_am_period),
-
-                //.o_data                 (o_data[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
-                .o_data                 (alignment_out[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
-                .o_lane_id              (o_lane_id[(NB_ID_BUS-1-i*NB_LANE_ID) -: NB_LANE_ID]),
-                .o_error_counter        (o_error_counter[NB_ERR_BUS-1-i*NB_ERROR_COUNTER -: NB_ERROR_COUNTER]),
-                .o_am_lock              (o_am_lock[N_LANES - i - 1]),
-                .o_resync               (o_resync[N_LANES - i - 1]),
-                .o_resync_counter       (o_resync_counter_bus[NB_RESYNC_COUNTER_BUS-1-i*NB_RESYNC_COUNTER -: NB_RESYNC_COUNTER]),
-                .o_start_of_lane        (o_start_of_lane[N_LANES - i - 1])
-            );
-        end
-endgenerate
+        genvar i;
+        generate
+            for (i = 0; i < N_LANES; i = i + 1)
+            begin : LANE_ALIGNERS
+                am_lock_module
+                #(  
+                    .NB_CODED_BLOCK         (NB_DATA),
+                    .NB_ERROR_COUNTER       (NB_ERROR_COUNTER),
+                    .N_ALIGNER              (N_ALIGNER),
+                    .MAX_INV_AM             (MAX_INV_AM),
+                    .MAX_VAL_AM             (MAX_VAL_AM)
+                )
+                u_am_lock
+                (
+                    .i_clock                (i_clock),
+                    .i_reset                (i_reset),
+                    .i_rf_enable            (i_rf_enable),
+                    .i_valid                (i_valid),
+                    .i_block_lock           (i_block_lock[N_LANES-1-i]),
+                    .i_data                 (i_data[(NB_DATA_BUS-1 - i*NB_DATA) -: NB_DATA]),
+                    .i_rf_invalid_am_thr    (i_rf_invalid_am_thr),
+                    .i_rf_valid_am_thr      (i_rf_valid_am_thr),
+                    .i_rf_compare_mask      (i_rf_compare_mask),
+                    .i_rf_am_period         (i_rf_am_period),
+    
+                    .o_data                 (alignment_out[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
+                    .o_lane_id              (o_lane_id[(NB_ID_BUS-1-i*NB_LANE_ID) -: NB_LANE_ID]),
+                    .o_error_counter        (o_error_counter[NB_ERR_BUS-1-i*NB_ERROR_COUNTER -: NB_ERROR_COUNTER]),
+                    .o_am_lock              (o_am_lock[N_LANES - i - 1]),
+                    .o_resync               (o_resync[N_LANES - i - 1]),
+                    .o_resync_counter       (o_resync_counter_bus[NB_RESYNC_COUNTER_BUS-1-i*NB_RESYNC_COUNTER -: NB_RESYNC_COUNTER]),
+                    .o_start_of_lane        (o_start_of_lane[N_LANES - i - 1])
+                );
+            end
+        endgenerate
 
 
 endmodule

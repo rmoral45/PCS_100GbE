@@ -77,6 +77,7 @@ wire                            sh_data_type;
 //Mode and mask registring
 reg [N_MODES-1      :   0]      mode_d;
 reg [NB_ERR_MASK-1  :   0]      mask_d;
+wire[NB_ERR_MASK-1  :   0]      odd_mask_d;
 
 //-----------------------------Algorithm Begin-------------------------------------
 
@@ -84,7 +85,6 @@ reg [NB_ERR_MASK-1  :   0]      mask_d;
 assign sh               = i_data[NB_CODED_BLOCK-1 -: NB_SH];
 assign payload          = i_data[NB_CODED_BLOCK-NB_SH-1 : 0];
 
-//[CHECK] verificar sh type en el estandar
 assign sh_ctrl_type = (sh == 2'b10);
 assign sh_data_type = (sh == 2'b01);
 
@@ -94,9 +94,10 @@ assign expected_block = ((mode_d == MODE_ALIN) & i_aligner_tag) |
                          (mode_d == MODE_ALL);
 
 //break process
-assign bit_flip         = (payload & mask_d) ^ mask_d; //(101100 & 000111) = 000100 ^ 000111 = 000011
-assign masked_payload   = payload & (~mask_d); //101100 & 111000 = 101000
-assign err_payload      = bit_flip | masked_payload; // 000011 | 101000 = 101011
+assign odd_mask_d       = ((mask_d % 2) == 0) ? mask_d + 1 : mask_d;    //forzamos a la mascara a aplicarse a una cantidad impar de bits siempre 
+assign bit_flip         = (payload & odd_mask_d) ^ odd_mask_d;          //(101100 & 000111) = 000100 ^ 000111 = 000011
+assign masked_payload   = payload & (~odd_mask_d);                      //101100 & 111000 = 101000
+assign err_payload      = bit_flip | masked_payload;                    // 000011 | 101000 = 101011
 
 //Data out assigment
 always @ *

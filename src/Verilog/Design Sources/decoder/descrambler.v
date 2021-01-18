@@ -3,23 +3,23 @@
 
 module descrambler
 #(
-	parameter LEN_SCRAMBLER   = 58,
-	parameter LEN_CODED_BLOCK = 66,
-	parameter SEED			  = 0 //verificar de que tamanio
+	parameter 	LEN_SCRAMBLER   	= 58,
+	parameter 	LEN_CODED_BLOCK 	= 66,
+	parameter 	SEED			  	= 0
  )
  (
- 	input wire  				i_clock,
- 	input wire  				i_reset,
- 	input wire  				i_enable,
- 	input wire                  i_valid,
- 	input wire				i_bypass,
- 	input wire  [LEN_CODED_BLOCK-1 : 0] 	i_data,
-    input wire                              i_tag,
-    input wire                  i_deskew_done,
+ 	input wire  						i_clock,
+ 	input wire  						i_reset,
+ 	input wire  						i_enable,
+ 	input wire                  		i_valid,
+ 	input wire							i_bypass,
+ 	input wire  [LEN_CODED_BLOCK-1 : 0]	i_data,
+    input wire                          i_tag,
+    input wire                  		i_deskew_done,
 
- 	output wire [LEN_CODED_BLOCK-1 : 0] 	o_data,
- 	output wire                             o_valid,
-    output wire                             o_tag
+ 	output wire [LEN_CODED_BLOCK-1 : 0] o_data,
+ 	output wire                         o_valid,
+    output wire                         o_tag
  );
 
 //LOCALPARAM
@@ -29,22 +29,20 @@ localparam [LEN_CODED_BLOCK-1 : 0] IDLE_BLOCK = 66'h2_1E_00_00_00_00_00_00_00;
 //INTERNAL SIGNALS
 
 integer i;
-wire [NB_SH-1 : 0]			 sync_header;
-(* keep = "true" *) reg  [LEN_CODED_BLOCK-1 : 0] output_data;
-		    reg  [LEN_CODED_BLOCK-1 : 0] descrambled_data;
+wire 					[NB_SH-1 : 0]				sync_header;
+(* keep = "true" *) reg [LEN_CODED_BLOCK-1 : 0] 	output_data;
+		    		reg [LEN_CODED_BLOCK-1 : 0] 	descrambled_data;
+(* keep = "true" *) reg [LEN_SCRAMBLER-1   : 0] 	descrambler_state;
+		    		reg [LEN_SCRAMBLER-1   : 0] 	descrambler_state_next;
+reg 												out_bit_N;
+reg 												tag;
+reg 												valid_d;
 
-(* keep = "true" *) reg  [LEN_SCRAMBLER-1   : 0] descrambler_state;
-		    reg  [LEN_SCRAMBLER-1   : 0] descrambler_state_next;
-		    reg out_bit_N;
-reg tag;
-reg valid_d;
-
-wire    [LEN_CODED_BLOCK-1 : 0] frame_generated;
+wire    				[LEN_CODED_BLOCK-1 : 0]		frame_generated;
 
 assign sync_header = i_data[LEN_CODED_BLOCK-1 -: NB_SH];
 
 //PORTS
-//assign o_data = (i_deskew_done) ? output_data : frame_generated; //output_data muxing to clock_comp_rx
 assign o_data = output_data;
 assign o_tag  = tag;
 assign o_valid = valid_d;
@@ -99,7 +97,6 @@ begin
 	descrambler_state_next = descrambler_state;
 	for(i=LEN_CODED_BLOCK-3; i>=0; i=i-1)
 	begin
-		//out_bit_N = (i_data[i] ^ descrambler_state_next[38] ^ descrambler_state_next[57]);
 		out_bit_N = (i_data[i] ^ descrambler_state_next[57-38] ^ descrambler_state_next[0]);
 		descrambled_data[i] = out_bit_N;
 		descrambler_state_next = {i_data[i],descrambler_state_next[LEN_SCRAMBLER-1 : 1]};

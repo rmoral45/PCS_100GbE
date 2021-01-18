@@ -50,10 +50,6 @@ module block_sync_fsm
     wire 								    unlocked_timer_done;
     wire								    invalid_counter_full;
 
-/*
-	Realizar todas las asignaciones de puertos correspondientes
-*/
-
 //PORTS
     assign                                  o_search_index  = search_index;
     assign                                  o_block_index   = block_index;
@@ -98,8 +94,6 @@ module block_sync_fsm
             block_index <= {NB_INDEX{1'b0}};
 
         else if (i_enable && i_valid && update_block_index)
-//            block_index <= (search_index == 0) ? search_index : 
-//                                                search_index + 1;
             block_index <= search_index;
     end
 

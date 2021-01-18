@@ -1,6 +1,4 @@
 `timescale 1ns/100ps
-
-
 /*
  * Recibe como entrada los datos de las N lineas, 
  * los ID's reordenados(osea,el equivalente al selector de cada mux)
@@ -39,36 +37,33 @@ module lane_swap_v2
         output wire [NB_DATA-1 : 0]     o_data
  );
 
+        //INTERNAL SIGNALS
+        reg  [NB_ID_BUS-1 : 0]  lane_id_sr;
+        wire [NB_ID-1 : 0]      rd_ptr;
+        wire [NB_DATA-1 : 0]  lane_data  [N_LANES-1 : 0];
 
-//LOCALPARAMS
+        //PORTS
+        assign o_data = lane_data[rd_ptr];
 
-//INTERNAL SIGNALS
-
-reg  [NB_ID_BUS-1 : 0]  lane_id_sr;
-wire [NB_ID-1 : 0]      rd_ptr;
-wire [NB_DATA-1 : 0]  lane_data  [N_LANES-1 : 0];
-
-//PORTS
-assign o_data = lane_data[rd_ptr];
-
-always @ (posedge i_clock)
-begin
-        if (i_reset)
-                lane_id_sr <= {NB_ID_BUS{1'b0}};
-        else if (i_reorder_done || i_valid)
-                lane_id_sr <= i_lane_ids;
-        else if (i_enable)
-                lane_id_sr <= {lane_id_sr[NB_ID_BUS - NB_ID - 1 : 0], lane_id_sr[NB_ID_BUS-1 -: NB_ID]};
-end
-assign rd_ptr = lane_id_sr[NB_ID_BUS-1 -: NB_ID];
-
-genvar i;
-generate
-
-        for (i = 0; i< N_LANES; i = i + 1)
-        begin : SPLIT_LANES 
-             assign  lane_data[i] = i_data[NB_DATA_BUS-(NB_DATA*i)-1 -: NB_DATA];
+        always @ (posedge i_clock)
+        begin
+                if (i_reset)
+                        lane_id_sr <= {NB_ID_BUS{1'b0}};
+                else if (i_reorder_done || i_valid)
+                        lane_id_sr <= i_lane_ids;
+                else if (i_enable)
+                        lane_id_sr <= {lane_id_sr[NB_ID_BUS - NB_ID - 1 : 0], lane_id_sr[NB_ID_BUS-1 -: NB_ID]};
         end
+        assign rd_ptr = lane_id_sr[NB_ID_BUS-1 -: NB_ID];
 
-endgenerate
+        genvar i;
+        generate
+
+                for (i = 0; i< N_LANES; i = i + 1)
+                begin : SPLIT_LANES 
+                     assign  lane_data[i] = i_data[NB_DATA_BUS-(NB_DATA*i)-1 -: NB_DATA];
+                end
+
+        endgenerate
+
 endmodule

@@ -387,8 +387,6 @@ reorder_toplevel
     .o_tag                      (reorder_tag_descrambler)
     );
 
-//CONECTAR LA SENIAL VALID SKEW
-//REVISAR PARALELISMO DE LA ENTRADA Y LA SALIDA DEL MODULO!!!!!!!
 deskew_top
 #(
     .N_LANES                    (N_LANES),
@@ -412,7 +410,6 @@ deskew_top
     .o_valid                    (deskew_valid_reorder),
     .o_deskew_done              (deskew_deskewdone_reorder),
     .o_invalid_skew             (deskew_invalidskew_rf)
-    //.o_valid_skew               (deskew_validskew_bermonitor)  //no esta conectado, seria lo mismo que deskew done? 
     );
 
 
@@ -422,7 +419,6 @@ am_top_level
     .NB_DATA                    (NB_DATA),
     .NB_ERROR_COUNTER           (NB_ERROR_COUNTER),
     .N_ALIGNER                  (N_ALIGNER),
-    //.N_BLOCKS                   (AM_PERIOD_BLOCKS),
     .MAX_INV_AM                 (MAX_INV_AM),
     .MAX_VAL_AM                 (MAX_VAL_AM),
     .NB_AM                      (NB_AM)
@@ -459,7 +455,7 @@ u_ber_monitor_top_level
     .i_valid                    (blksync_valid_aligment),
     .i_sh_bus                   (blksync_sh_bermonitor),
     .i_test_mode                (i_rf_idle_pattern_mode_rx),
-    .i_align_status             (1'b1), //[FIXME]: REPLACE REDUCTION AND FOR DESKEW_DONE_SIGNAL
+    .i_align_status             (deskew_deskewdone_reorder),
 
     .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
 );

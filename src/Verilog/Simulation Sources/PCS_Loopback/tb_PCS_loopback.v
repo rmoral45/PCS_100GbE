@@ -10,10 +10,10 @@ module tb_PCS_loopback;
     localparam           NB_DATA_BUS             = N_LANES * NB_DATA_CODED;
 
     //Channel Model
-    localparam           NB_ERR_MASK             = NB_DATA_CODED-2;    //mascara, se romperan los bits cuya posicon en la mascara sea ;
-    localparam           MAX_ERR_BURST           = 1024;                //cantidad de bloques consecutivos que se rompera;
-    localparam           MAX_ERR_PERIOD          = 1024;                //cantidad de bloqus por periodo de error ver NOTAS;
-    localparam           MAX_ERR_REPEAT          = 10;                  //cantidad de veces que se repite el mismo patron de erro;
+    localparam           NB_ERR_MASK             = NB_DATA_CODED-2;         //mascara, se romperan los bits cuya posicon en la mascara sea ;
+    localparam           MAX_ERR_BURST           = 1024;                    //cantidad de bloques consecutivos que se rompera;
+    localparam           MAX_ERR_PERIOD          = 1024;                    //cantidad de bloqus por periodo de error ver NOTAS;
+    localparam           MAX_ERR_REPEAT          = 10;                      //cantidad de veces que se repite el mismo patron de erro;
     localparam           NB_BURST_CNT            = $clog2(MAX_ERR_BURST);
     localparam           NB_PERIOD_CNT           = $clog2(MAX_ERR_PERIOD);
     localparam           NB_REPEAT_CNT           = $clog2(MAX_ERR_REPEAT);
@@ -107,6 +107,7 @@ reg tb_rf_enb_rx_test_pattern_checker;
 reg tb_rf_enb_rx_decoder;
 //Rx modes
 reg tb_rf_rx_descrambler_bypass;
+reg tb_rf_rx_reset_order;
 //Read pulses
 reg tb_rf_rx_read_hi_ber;
 reg tb_rf_rx_read_am_error_counter;
@@ -134,6 +135,11 @@ reg [NB_AM_PERIOD-1     : 0]    tb_rx_rf_am_period;
 // reg [NB_MISMATCH_COUNTER-1      : 0]tb_rx_rf_missmatch_counter;
 // reg [N_LANES-1                  : 0]tb_rx_rf_lanes_block_lock;
 // reg [NB_ID_BUS-1                : 0]tb_rx_rf_lanes_i;
+
+//Test description:
+//                  - Time 0: reg initializations 
+//                  - Time 100: reset during 10 periods
+//                  - Time 100: reset during 10 periods
 
 initial
 begin
@@ -179,6 +185,7 @@ begin
     tb_rf_enb_rx_test_pattern_checker = 0;
     tb_rf_enb_rx_decoder = 0;
     tb_rf_rx_descrambler_bypass = 0;
+    tb_rf_rx_reset_order = 0;
     tb_rf_rx_read_hi_ber = 0;
     tb_rf_rx_read_am_error_counter = 0;
     tb_rf_rx_read_am_resyncs = 0;
@@ -255,7 +262,6 @@ begin
 #10  tb_bit_skew_update = 20'h00000;
 #60000
     tb_sh_breaker_mode = 4'b0100;
-    //tb_payload_breaker_err_mask = 64'hFFFFFFFFFFFFFFFF;
     tb_sh_breaker_err_burst = 500;
     tb_sh_breaker_err_period = 1024;
     tb_sh_breaker_err_repeat = 10000;
@@ -263,7 +269,6 @@ begin
 #10 tb_sh_breaker_update = 20'h00000;   
 #3500000
     tb_payload_breaker_mode = 4'b0100;
-    //tb_payload_breaker_err_mask = 64'hFFFFFFFFFFFFFFFF;
     tb_payload_breaker_err_mask = 64'hAA00BC00AAFFFFFA;
     tb_payload_breaker_err_burst = 20;
     tb_payload_breaker_err_period = 30000;
@@ -271,8 +276,6 @@ begin
     tb_payload_breaker_update = 20'h80000;
 #10 tb_payload_breaker_update = 20'h00000;    
     
-    
-
     #300000000 $finish;
 end
 
@@ -336,6 +339,7 @@ u_PCS_loopback
     .i_rf_rx_compare_mask(tb_rx_rf_compare_mask),
     .i_rf_rx_am_period(tb_rx_rf_am_period),
     .i_rf_rx_descrambler_bypass(tb_rf_rx_descrambler_bypass),
+    .i_rf_rx_reset_order(tb_rf_rx_reset_order),
     //Read pulses
     .i_rf_rx_read_hi_ber(tb_rf_rx_read_hi_ber),
     .i_rf_rx_read_am_error_counter(tb_rf_rx_read_am_error_counter),

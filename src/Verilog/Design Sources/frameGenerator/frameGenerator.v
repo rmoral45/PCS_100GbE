@@ -96,14 +96,14 @@ assign 								o_tx_ctrl 		= tx_ctrl;
 assign  							enable_dataGenerator = 1'b1;
 assign                              o_valid         = cgmi_output_valid;
 
-reg [63:0] dbg_count;
-always @ (posedge i_clock)
-begin
-    if (i_reset)
-        dbg_count <= {64{1'b0}};
-    else if (i_enable)
-        dbg_count <= dbg_count + 1;
-end
+// reg [63:0] dbg_count;
+// always @ (posedge i_clock)
+// begin
+//     if (i_reset)
+//         dbg_count <= {64{1'b0}};
+//     else if (i_enable)
+//         dbg_count <= dbg_count + 1;
+// end
 
 
 always @ * begin
@@ -155,8 +155,8 @@ always @ * begin
 
 		TX_D:
 		begin
-			//tx_data = data_block;
-			tx_data = dbg_count;
+			tx_data = data_block;
+			// tx_data = dbg_count;
 			tx_ctrl = DATA_CTRL;
 		end
 

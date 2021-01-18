@@ -118,14 +118,15 @@ module PCS_loopback
     input  wire     [NB_VAL_AM-1        : 0]        i_rf_rx_valid_am_thr,
     input  wire     [NB_AM-1            : 0]        i_rf_rx_compare_mask,
     input  wire     [NB_AM_PERIOD-1     : 0]        i_rf_rx_am_period,    
+    input  wire                                     i_rf_rx_reset_order,
     //Read pulses
-    input wire                                      i_rf_rx_read_hi_ber,
-    input wire                                      i_rf_rx_read_am_error_counter,
-    input wire                                      i_rf_rx_read_am_resyncs,
-    input wire                                      i_rf_rx_read_invalid_skew,
-    input wire                                      i_rf_rx_read_missmatch_counter,
-    input wire                                      i_rf_rx_read_lanes_block_lock,
-    input wire                                      i_rf_rx_read_lanes_id,
+    input  wire                                     i_rf_rx_read_hi_ber,
+    input  wire                                     i_rf_rx_read_am_error_counter,
+    input  wire                                     i_rf_rx_read_am_resyncs,
+    input  wire                                     i_rf_rx_read_invalid_skew,
+    input  wire                                     i_rf_rx_read_missmatch_counter,
+    input  wire                                     i_rf_rx_read_lanes_block_lock,
+    input  wire                                     i_rf_rx_read_lanes_id,
     //Tx rf outputs
     
     //Rx rf outputs
@@ -140,11 +141,10 @@ module PCS_loopback
 );
 
 /* Tx to Channel signals */
-    wire                                            tx_fast_valid;
-    wire                                            tx_slow_valid;
     wire            [NB_DATA_CODED-1            : 0]tx_encoder_data_rx;
     wire            [NB_DATA_CODED-1            : 0]tx_clockcomp_data_rx; 
     wire            [(NB_DATA_CODED*N_LANES)-1  : 0]tx_databus_channel;
+    wire            [N_LANES-1                  : 0]tx_tagbus_channel;
     wire                                            tx_valid_channel;
 
 
@@ -172,24 +172,23 @@ module PCS_loopback
 toplevel_tx
 u_tx_toplevel
 (
-    .o_fast_valid                           (tx_fast_valid),
-    .o_slow_valid                           (tx_slow_valid),
     .o_encoder_data                         (tx_encoder_data_rx),
     .o_clock_comp_data                      (tx_clockcomp_data_rx),
     .o_data                                 (tx_databus_channel),
+    .o_tag_bus                              (tx_tagbus_channel),
     .o_valid                                (tx_valid_channel),
 
-    .i_clock                                 (i_clock),
-    .i_reset                                 (i_reset),
-    .i_rf_enb_valid_gen                      (i_rf_enb_tx_valid_gen),
-    .i_rf_enb_frame_gen                      (i_rf_enb_tx_frame_gen),
-    .i_rf_enb_encoder                        (i_rf_enb_tx_encoder),
-    .i_rf_enb_clock_comp                     (i_rf_enb_tx_clock_comp),
-    .i_rf_enb_scrambler                      (i_rf_enb_tx_scrambler),
-    .i_rf_bypass_scrambler                   (i_rf_tx_bypass_scrambler),
-    .i_rf_idle_pattern_mode                  (i_rf_idle_pattern_mode),
-    .i_rf_enb_pc_1_20                        (i_rf_enb_tx_pc_1_20),
-    .i_rf_enb_am_insertion                   (i_rf_enb_tx_am_insertion)
+    .i_clock                                (i_clock),
+    .i_reset                                (i_reset),
+    .i_rf_enb_valid_gen                     (i_rf_enb_tx_valid_gen),
+    .i_rf_enb_frame_gen                     (i_rf_enb_tx_frame_gen),
+    .i_rf_enb_encoder                       (i_rf_enb_tx_encoder),
+    .i_rf_enb_clock_comp                    (i_rf_enb_tx_clock_comp),
+    .i_rf_enb_scrambler                     (i_rf_enb_tx_scrambler),
+    .i_rf_bypass_scrambler                  (i_rf_tx_bypass_scrambler),
+    .i_rf_idle_pattern_mode                 (i_rf_idle_pattern_mode),
+    .i_rf_enb_pc_1_20                       (i_rf_enb_tx_pc_1_20),
+    .i_rf_enb_am_insertion                  (i_rf_enb_tx_am_insertion)
 );
 
 genvar i;
@@ -207,7 +206,7 @@ begin: delayed_modules
         .i_clock                            (i_clock),
         .i_reset                            (i_reset),
         .i_valid                            (tx_valid_channel),
-        .i_aligner_tag                      (1'b0), //[CHECK] !!
+        .i_aligner_tag                      (tx_tagbus_channel[N_LANES - i - 1]),
         .i_data                             (tx_databus_channel[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
         .i_rf_mode                          (i_rf_payload_breaker_mode),
         .i_rf_update                        (i_rf_payload_breaker_update[N_LANES - 1 - i]),
@@ -233,7 +232,7 @@ begin: delayed_modules
         .i_rf_update                        (i_rf_sh_breaker_update[N_LANES - i - 1]),
         .i_rf_error_burst                   (i_rf_sh_breaker_err_burst),
         .i_rf_error_period                  (i_rf_sh_breaker_err_period),
-        .i_rf_error_repeat                  (i_rf_sh_breaker_err_period)
+        .i_rf_error_repeat                  (i_rf_sh_breaker_err_repeat)
     );
 
     bit_skew_gen
@@ -334,6 +333,7 @@ u_rx_toplevel
         .i_rf_am_period                     (i_rf_rx_am_period  ),        
         .i_rf_enable_deskewer               (i_rf_enb_rx_deskewer),
         .i_rf_enable_lane_reorder           (i_rf_enb_rx_lane_reorder),
+        .i_rf_reset_order                   (i_rf_rx_reset_order),
         .i_rf_enable_descrambler            (i_rf_enb_rx_descrambler),
         .i_rf_enable_clock_comp             (i_rf_enb_rx_clock_comp),
         .i_rf_enable_test_pattern_checker   (i_rf_enb_rx_test_pattern_checker),

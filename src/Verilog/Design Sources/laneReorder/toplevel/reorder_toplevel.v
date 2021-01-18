@@ -15,7 +15,7 @@ module reorder_toplevel
     input  wire                              i_reset,
     input  wire                              i_rf_reset_order,
     input  wire                              i_enable,
-    input  wire                              i_valid, //@TODO revisar si el valid se genera interno
+    input  wire                              i_valid,
     input  wire                              i_deskew_done,
     input  wire [NB_ID_BUS - 1 : 0]          i_logical_rx_ID,
     input  wire [NB_FIFO_DATA_BUS - 1 : 0]   i_data,
@@ -25,57 +25,57 @@ module reorder_toplevel
     output wire                              o_tag
  ); 
 
-//----output data logic
-wire [NB_FIFO_DATA - 1 : 0]     swapped_data;
-assign o_tag  = swapped_data[NB_FIFO_DATA - 1];
-assign o_data = swapped_data[NB_FIFO_DATA - 2 : 0];
-assign o_valid = 1'b1;
+    //----output data logic
+    wire [NB_FIFO_DATA - 1 : 0]     swapped_data;
+    assign o_tag  = swapped_data[NB_FIFO_DATA - 1];
+    assign o_data = swapped_data[NB_FIFO_DATA - 2 : 0];
+    assign o_valid = 1'b1;
 
 
-//----internal module connections
-wire [NB_ID_BUS - 1 : 0]    ordered_ids;
+    //----internal module connections
+    wire [NB_ID_BUS - 1 : 0]    ordered_ids;
 
-//reoder ready flank detection signals
-wire                        update_selector;
-wire                        update_selector_posedge;
-reg                         update_selector_prev;
-//deskew done flank detection
-wire                        deskew_done_posedge;
-reg                         deskew_done_prev;
+    //reoder ready flank detection signals
+    wire                        update_selector;
+    wire                        update_selector_posedge;
+    reg                         update_selector_prev;
+    //deskew done flank detection
+    wire                        deskew_done_posedge;
+    reg                         deskew_done_prev;
 
-reg [NB_FIFO_DATA_BUS - 1 : 0] data_d;
+    reg [NB_FIFO_DATA_BUS - 1 : 0] data_d;
 
-always @(posedge i_clock)
-begin
-    if(i_reset)
-        data_d <= {NB_FIFO_DATA_BUS{1'b0}};
-    else if(i_enable && i_valid)
-        data_d <= i_data;
-end
+    always @(posedge i_clock)
+    begin
+        if(i_reset)
+            data_d <= {NB_FIFO_DATA_BUS{1'b0}};
+        else if(i_enable && i_valid)
+            data_d <= i_data;
+    end
 
-always @(posedge i_clock)
-begin
-    if (i_reset)
-        update_selector_prev <= 0;
-    else if (i_enable)
-        update_selector_prev <= update_selector;
-end
-assign update_selector_posedge = update_selector && (~update_selector_prev);
+    always @(posedge i_clock)
+    begin
+        if (i_reset)
+            update_selector_prev <= 0;
+        else if (i_enable)
+            update_selector_prev <= update_selector;
+    end
+    assign update_selector_posedge = update_selector && (~update_selector_prev);
 
-always @(posedge i_clock)
-begin
-    if (i_reset)
-        deskew_done_prev <= 0;
-    else if (i_enable)
-        deskew_done_prev <= i_deskew_done;
-end
-assign deskew_done_posedge = i_deskew_done && (~deskew_done_prev);
+    always @(posedge i_clock)
+    begin
+        if (i_reset)
+            deskew_done_prev <= 0;
+        else if (i_enable)
+            deskew_done_prev <= i_deskew_done;
+    end
+    assign deskew_done_posedge = i_deskew_done && (~deskew_done_prev);
 
-lane_swap_v2
-#(
-    .NB_DATA    (NB_FIFO_DATA),
-    .N_LANES    (N_LANES)
- )
+    lane_swap_v2
+    #(
+        .NB_DATA    (NB_FIFO_DATA),
+        .N_LANES    (N_LANES)
+     )
     u_lane_swap
     (
         .i_clock            (i_clock),
@@ -85,14 +85,13 @@ lane_swap_v2
         .i_reorder_done     (update_selector_posedge),
         .i_data             (data_d),
         .i_lane_ids         (ordered_ids),
-
         .o_data             (swapped_data)
     );
 
-lane_reorder
-#(
-    .N_LANES(N_LANES)
- )
+    lane_reorder
+    #(
+        .N_LANES(N_LANES)
+     )
     u_lane_reorder
     (
         .i_clock                (i_clock),
@@ -106,6 +105,5 @@ lane_reorder
         .o_reorder_mux_selector (ordered_ids),
         .o_update_selectors     (update_selector)
     );
-
 
 endmodule

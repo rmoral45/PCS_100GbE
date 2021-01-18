@@ -44,7 +44,6 @@ module block_sync_toplevel
         
         reg                                     valid;
 
-        wire     [NB_DATA_BUS-1      : 0] block_lock_single_lane[N_LANES - 1 : 0];
 
 
         assign      o_valid     =   i_valid;
@@ -75,9 +74,7 @@ module block_sync_toplevel
                     .o_data                 (o_data[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),
                     .o_valid_sh             (o_sh_bus[N_LANES - i - 1]),
                     .o_block_lock           (o_block_lock[i])
-                );
-                
-                assign block_lock_single_lane[i] = o_data[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA];
+                );     
         end
         endgenerate
 

@@ -12,7 +12,6 @@ module parallel_converter_1_to_N
     input wire                              i_reset,
     input wire                              i_enable,
     input wire                              i_valid,
-    input wire                              i_set_shadow,
     input wire  [NB_DATA_TAGGED-1 : 0]    i_data,
 
     output wire                             o_valid,

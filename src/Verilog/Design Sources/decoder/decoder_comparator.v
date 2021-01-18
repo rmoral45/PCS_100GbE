@@ -6,11 +6,6 @@
    	-Mapear caracteres de PCS(100GBASE-R) a caracteres CGMII.<tabla 82-1 pag 157 standard>
    	-Realizar decoding 66/64b
    	-Aplicar funcion R_TYPE.<pag 168 estandar> 
-
-
-
-
-   	REVISAR !!!! que pasa si sh = 00
 */
 
 
@@ -136,12 +131,6 @@ localparam BYTE_7 = LEN_CODED_BLOCK-3-56;
 //Update state
 reg [LEN_CODED_BLOCK-1 : 0] rx_coded;
 
-// always @ (posedge  i_clock)
-// begin
-// 	if(i_reset)        rx_coded <= {LEN_CODED_BLOCK{1'b0}};
-// 	else if (i_enable) rx_coded <= i_rx_coded;
-// end
-
 always @ *
 begin
     rx_coded = i_rx_coded;
@@ -151,15 +140,15 @@ end
 
 // Division de bloque de entrada en payload,block_type y sh
 
-wire [1:0] sh;
-wire [7:0] rx_block_type; 
-wire [LEN_CODED_BLOCK-11 : 0] rx_payload;
-wire ctrl_sh;
-wire data_sh;
+wire [1:0] 						sh;
+wire [7:0] 						rx_block_type; 
+wire [LEN_CODED_BLOCK-11 : 0] 	rx_payload;
+wire 							ctrl_sh;
+wire 							data_sh;
 
-assign sh            = rx_coded [LEN_CODED_BLOCK-1 -: 2]; // bits 65-64
-assign rx_block_type   = rx_coded [LEN_CODED_BLOCK-3 -: 8]; // bits 63-56(primer octeto)
-assign rx_payload = rx_coded [LEN_CODED_BLOCK-11 : 0]; // bits 55-0
+assign sh           	= rx_coded [LEN_CODED_BLOCK-1 -: 2]; // bits 65-64
+assign rx_block_type   	= rx_coded [LEN_CODED_BLOCK-3 -: 8]; // bits 63-56(primer octeto)
+assign rx_payload 		= rx_coded [LEN_CODED_BLOCK-11 : 0]; // bits 55-0
 assign ctrl_sh = (sh == CTRL_SH) ? 1'b1 : 1'b0;
 assign data_sh = (sh == DATA_SH) ? 1'b1 : 1'b0;
 

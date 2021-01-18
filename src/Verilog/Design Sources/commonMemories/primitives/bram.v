@@ -3,7 +3,7 @@ module bram
 	parameter                           NB_WORD_RAM        = 66,
     parameter                           RAM_DEPTH          = 1024,
 	parameter 							NB_ADDR_RAM 	   = $clog2(RAM_DEPTH),
-	parameter                           ZERO_FILE               = "zero.mem"
+	parameter                           ZERO_FILE          = "./zero.mem"
  )
  (				 
 	input wire							i_clock,

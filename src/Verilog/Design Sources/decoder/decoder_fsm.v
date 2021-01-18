@@ -12,8 +12,8 @@ module decoder_fsm
  	input wire  						i_clock,
  	input wire  						i_reset,
  	input wire  						i_enable,
- 	input wire 	[3 : 0] 				i_r_type,
- 	input wire 	[3 : 0] 				i_r_type_next,
+ 	input wire 	[N_STATES -1 : 0] 		i_r_type,
+ 	input wire 	[N_STATES -1 : 0] 		i_r_type_next,
  	input wire  [LEN_DATA_BLOCK-1 : 0] 	i_rx_data,       //recibida desde el bloque comparador/decodificador
  	input wire  [LEN_CTRL_BLOCK-1 : 0] 	i_rx_control,    //recibida desde el bloque comparador/decodificador
  	input wire                          i_valid,
@@ -22,12 +22,12 @@ module decoder_fsm
  	output wire                         o_fsm_control
  );
 
-reg [4 : 0]				state,state_next;
-reg [LEN_DATA_BLOCK-1 : 0] rx_raw_data, rx_raw_data_next;
-reg [LEN_CTRL_BLOCK-1 : 0] rx_raw_control, rx_raw_control_next;
+reg [N_STATES -1 : 0]					state,state_next;
+reg [LEN_DATA_BLOCK-1 : 0] 				rx_raw_data, rx_raw_data_next;
+reg [LEN_CTRL_BLOCK-1 : 0] 				rx_raw_control, rx_raw_control_next;
 
-reg [NB_ERROR_COUNTER-1 : 0] error_counter;
-wire [NB_ERROR_COUNTER-1 : 0] error_counter_next;
+reg [NB_ERROR_COUNTER-1 : 0] 			error_counter;
+wire [NB_ERROR_COUNTER-1 : 0] 			error_counter_next;
 
 //R_TYPE / i_r_type_next
 localparam [3:0] TYPE_D  = 4'b1000;

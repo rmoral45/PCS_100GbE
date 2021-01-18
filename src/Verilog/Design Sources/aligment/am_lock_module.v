@@ -20,25 +20,25 @@ module am_lock_module
     parameter                               NB_AM_PERIOD        = 14
  )
  (
- 	input  wire                             i_clock,		//sys clock
- 	input  wire                             i_reset,        //sys or uBlaze reset
- 	input  wire                             i_rf_enable,		//from register_file
- 	input  wire                             i_valid,		//from clock divider(valid signal generator)
- 	input  wire                             i_block_lock,		//from block_sync module
- 	input  wire [NB_CODED_BLOCK-1   : 0] 	i_data,			//from block_sync module
- 	input  wire [NB_INV_AM-1        : 0]    i_rf_invalid_am_thr,  	//from top level am_lock control module, or register file
- 	input  wire [NB_VAL_AM-1        : 0]    i_rf_valid_am_thr, 	//from top level am_lock control module, or register file
-    input  wire [NB_AM-1            : 0]    i_rf_compare_mask,      //from register_file, configurable mask for aligner match
+ 	input  wire                             i_clock,										//sys clock
+ 	input  wire                             i_reset,        								//sys or uBlaze reset
+ 	input  wire                             i_rf_enable,									//from register_file
+ 	input  wire                             i_valid,										//from clock divider(valid signal generator)
+ 	input  wire                             i_block_lock,									//from block_sync module
+ 	input  wire [NB_CODED_BLOCK-1   : 0] 	i_data,											//from block_sync module
+ 	input  wire [NB_INV_AM-1        : 0]    i_rf_invalid_am_thr,  							//from top level am_lock control module, or register file
+ 	input  wire [NB_VAL_AM-1        : 0]    i_rf_valid_am_thr, 								//from top level am_lock control module, or register file
+    input  wire [NB_AM-1            : 0]    i_rf_compare_mask,      						//from register_file, configurable mask for aligner match
     input  wire [NB_AM_PERIOD-1     : 0]    i_rf_am_period,
  
-    output wire [NB_CODED_BLOCK-1   : 0]    o_data,			//to programable_fifo/lane_deskew module
-    output wire                             o_valid,        //to programable_fifo/lane_deskew module             
-	output wire [NB_LANE_ID-1       : 0]    o_lane_id,		//to lane reorder module
-	output wire [NB_ERROR_COUNTER-1 : 0]    o_error_counter,	//to register_file/MDIO register
-	output wire                             o_am_lock,		//to lane deskew module
-    output wire                             o_resync,	 	//to programable_fifo/lane_deskew modul	
-    output wire [NB_RESYNC_COUNTER-1 : 0]   o_resync_counter, //to rf
-	output wire                             o_start_of_lane		//to programable_fifo/lane_deskew modul
+    output wire [NB_CODED_BLOCK-1   : 0]    o_data,											//to programable_fifo/lane_deskew module
+    output wire                             o_valid,        								//to programable_fifo/lane_deskew module             
+	output wire [NB_LANE_ID-1       : 0]    o_lane_id,										//to lane reorder module
+	output wire [NB_ERROR_COUNTER-1 : 0]    o_error_counter,								//to register_file/MDIO register
+	output wire                             o_am_lock,										//to lane deskew module
+    output wire                             o_resync,	 									//to programable_fifo/lane_deskew modul	
+    output wire [NB_RESYNC_COUNTER-1 : 0]   o_resync_counter, 								//to rf
+	output wire                             o_start_of_lane									//to programable_fifo/lane_deskew modul
  );
 
 
@@ -59,28 +59,28 @@ module am_lock_module
     reg                                     start_of_lane_d;
 
 //Module connect wires
-    wire        [N_ALIGNER-1        : 0]    match_mask;                     //done
-    wire        [N_ALIGNER-1        : 0]    match_vector;                   //done
-    wire        [NB_AM-1            : 0] 	am_value;                       //done
-    wire        [NB_BIP-1           : 0]    calculated_bip, recived_bip, bip7;    //terminar al definir que bip_calc usar
-    wire                                    compare_timer_trigg;            //done
-    wire                                    am_match;                       //done
-    wire                                    enable_mask;			        //done
-    wire                                    start_of_lane;                  //done
-    wire                                    resync;                         //done
+    wire        [N_ALIGNER-1        : 0]    match_mask;                     				
+    wire        [N_ALIGNER-1        : 0]    match_vector;                   				
+    wire        [NB_AM-1            : 0] 	am_value;                       				
+    wire        [NB_BIP-1           : 0]    calculated_bip, recived_bip, bip7;    
+    wire                                    compare_timer_trigg;            
+    wire                                    am_match;                       
+    wire                                    enable_mask;			        
+    wire                                    start_of_lane;                  
+    wire                                    resync;                         
 
-    assign                                  recived_bip         = i_data[BIP_MSB_POS -: NB_BIP]; //[CHECK]
+    assign                                  recived_bip         = i_data[BIP_MSB_POS -: NB_BIP];
 
 //Output mux
     always @ (*)
     begin
  
        if(start_of_lane)
-            output_data = { CTRL_SH,BLOCK_TYPE_CTRL,64'hBAAD_F00D_DEAD_BAB1 }; //CHECK
+            output_data = { CTRL_SH,BLOCK_TYPE_CTRL,64'hBAAD_F00D_DEAD_BAB1 };
         else
             output_data = i_data;
     end
-    assign                                  am_value            = {i_data[NB_CODED_BLOCK-3 -: NB_AM/2], i_data[AM_MID_POS -: NB_AM/2]}; //PARAMETRIZAR
+    assign                                  am_value            = {i_data[NB_CODED_BLOCK-3 -: NB_AM/2], i_data[AM_MID_POS -: NB_AM/2]};
     
     //Recv bip registrring to error_counter
     always @(posedge i_clock)
@@ -181,7 +181,6 @@ am_lock_fsm
  	
 lane_id_decoder
 #(
-	//.N_ALIGNER(N_ALIGNER)
  )
 	u_lane_id_decoder
 	(
@@ -201,11 +200,6 @@ am_error_counter
 	 	.i_reset            (i_reset),		    //from top level
 	 	.i_enable 		    (i_rf_enable),	    //from top level
 	 	.i_valid            (i_valid),
-		//
-		// [CHECK] <<<< i_match >>>>>>
-		// El trigger para calcular el match deberia ser
-		// probablemente la senial de SOL, revisar 
-		//
 	 	.i_match            (start_of_lane),	//from comparator
         .i_reset_count      (resync),
 	 	.i_recived_bip 	 	(recived_bip),		//from input reg

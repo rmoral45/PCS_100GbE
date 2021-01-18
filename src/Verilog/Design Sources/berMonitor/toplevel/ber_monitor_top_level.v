@@ -30,7 +30,7 @@ generate
                 .i_reset(i_reset),
                 .i_valid_sh(i_sh_bus[N_LANES - i - 1]),
                 .i_test_mode(i_test_mode),
-                .i_deskew_done(i_align_status), //[FIXME]: REPLACE REDUCTION AND FOR DESKEW_DONE_SIGNAL
+                .i_deskew_done(i_align_status),
                 .i_valid(i_valid),
 
                 .o_hi_ber(o_hi_ber_bus[N_LANES - i - 1])

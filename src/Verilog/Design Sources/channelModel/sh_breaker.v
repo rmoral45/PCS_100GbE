@@ -75,7 +75,7 @@ wire                            sh_type_data;
 //PRBS
 wire                            static_prbs_enable;
 wire                            static_prbs_valid;
-wire                            out_prbs;
+wire [PRBS_HL - PRBS_LL : 0]    out_prbs;
 
 //-------------------------Algorithm begin-------------------------------//
 
@@ -91,7 +91,7 @@ assign expected_block   = ((i_rf_mode == MODE_ALIN) & i_aligner_tag) |
 
 //genero alguno de los dos sh invalidos dependiendo de la salida de la prbs,
 // de esta forma se rompen de una forma aleatoria.
-assign err_sh           = (out_prbs == 1'b1) ? 2'b11 : 2'b00;
+assign err_sh           = (out_prbs[1] == 1'b1) ? 2'b11 : 2'b00;
 
 //Output selection
 always @ *

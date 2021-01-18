@@ -1,4 +1,4 @@
-
+`timescale 1ns/100ps
 
 /* Brief : Aligner Marker detection logic
  *
@@ -39,9 +39,6 @@ module am_lock_comparator_v2
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector
  );
 
-
-
-
 localparam AM_LANE_0  = 48'hC168213E97DE;
 localparam AM_LANE_1  = 48'h9D718E628E71;
 localparam AM_LANE_2  = 48'h594BE8A6B417;
@@ -52,7 +49,7 @@ localparam AM_LANE_6  = 48'h9A4A2665B5D9;
 localparam AM_LANE_7  = 48'h7B456684BA99;
 localparam AM_LANE_8  = 48'hA024765FDB89;
 localparam AM_LANE_9  = 48'h68C9FB973604;
-localparam AM_LANE_10 = 48'hFD6C99029366; //check
+localparam AM_LANE_10 = 48'hFD6C99029366;
 localparam AM_LANE_11 = 48'hB99155466EAA;
 localparam AM_LANE_12 = 48'h5CB9B2A3464D;
 localparam AM_LANE_13 = 48'h1AF8BDE50742;
@@ -74,7 +71,7 @@ reg [NB_AM-1 : 0] 		  am_value_masked;// bits
 reg match_payload;
 reg enable;
 reg match;
-reg aux; //TODO pensar un nombre mejor
+reg aux_am_mask; //TODO pensar un nombre mejor
 
 always @ *
 begin
@@ -86,12 +83,12 @@ begin
 	match_payload = 0;
 	enable = 0;
 	match = 0;
-	aux = 0;
+	aux_am_mask = 0;
 
 	for(i=0;i<N_ALIGNER;i=i+1)
 	begin
-		aux = & (((~( i_am_value ^ aligners[i*NB_AM +: NB_AM] )) | ~i_compare_mask ) ) ;
-		if (aux && i_match_mask[i])
+		aux_am_mask = & (((~( i_am_value ^ aligners[i*NB_AM +: NB_AM] )) | ~i_compare_mask ) ) ;
+		if (aux_am_mask && i_match_mask[i])
 		begin
 			match_vector[i]      = 1;
 		end 

@@ -8,7 +8,6 @@ module top_level_frameGenerator
 	input								i_clock,
 	input								i_reset,
 	input								i_enable,
-	input                               i_valid,
 	output wire	[NB_DATA_RAW-1 : 0]		o_tx_data,
 	output wire	[NB_CTRL_RAW-1 : 0]		o_tx_ctrl,
 	output wire                         o_valid

@@ -16,7 +16,8 @@ module am_insertion
  	input  wire 						i_am_insert,
  	input  wire [NB_DATA_CODED-1 : 0] i_data,
 	
- 	output wire [NB_DATA_CODED-1 : 0]	o_data
+ 	output wire [NB_DATA_CODED-1 : 0]	o_data,
+	output wire							o_tag					//added to connect to payload breaker in channel model
 
  );
 
@@ -24,26 +25,16 @@ module am_insertion
 localparam CTRL_SH = 2'b10;
 
 //INTERNAL SIGNALS
-reg  [NB_DATA_CODED-1 : 0] data;
+reg  [NB_DATA_CODED-1 : 0] 	data;
+reg							tag;
 wire [NB_BIP-1 : 0] bip3, bip7;
 wire static_start_of_lane = 1'b0; 
-
-
-/*always @ *
-begin
-
-	data = {NB_DATA_CODED{1'b0}};
-	if (i_enable && ~i_am_insert)
-		data = i_data;
-
-	else if (i_enable && i_am_insert)
-		data = {CTRL_SH,AM_ENCODING_LOW,bip3,AM_ENCODING_HIGH,bip7};
-end*/
 
 always @ *
 begin
     
-    data = i_data;
+    data 	= i_data;
+	tag 	= i_am_insert;
     
     if(i_am_insert)
         data = {CTRL_SH,AM_ENCODING_LOW,bip3,AM_ENCODING_HIGH,bip7};
@@ -52,6 +43,7 @@ end
 
 //PORTS
 assign o_data = data;
+assign o_tag  = tag;
 
 //instances
 bip_calculator

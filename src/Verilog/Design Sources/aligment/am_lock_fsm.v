@@ -32,23 +32,23 @@ module am_lock_fsm
     parameter NB_AM_PERIOD   = 14
  )
  (
- 	input  wire 				i_clock ,
- 	input  wire 				i_reset ,
- 	input  wire 				i_enable ,
- 	input  wire 				i_valid ,
- 	input  wire 				i_block_lock ,
- 	input  wire 				i_am_valid  ,
- 	input  wire [N_ALIGNERS-1 : 0] 		i_match_vector ,
- 	input wire  [NB_VALID_CNT-1 : 0]    	i_rf_lock_thr,       //contador para am validos
-    input wire  [NB_INVALID_CNT-1 : 0]  	i_rf_unlock_thr,     //contador para am invalidos
-    input  wire [NB_AM_PERIOD-1 : 0]    i_am_period, 
+ 	input  wire 							i_clock,
+ 	input  wire 							i_reset,
+ 	input  wire 							i_enable,
+ 	input  wire 							i_valid,
+ 	input  wire 							i_block_lock,
+ 	input  wire 							i_am_valid,
+ 	input  wire [N_ALIGNERS-1 		: 0] 	i_match_vector,
+ 	input wire  [NB_VALID_CNT-1 	: 0]    i_rf_lock_thr,       		//contador para am validos
+    input wire  [NB_INVALID_CNT-1 	: 0]  	i_rf_unlock_thr,     		//contador para am invalidos
+    input  wire [NB_AM_PERIOD-1 	: 0]    i_am_period, 
 
- 	output wire [N_ALIGNERS-1 : 0] 		o_match_mask ,
- 	output wire				o_enable_mask ,
- 	output wire 				o_am_lock ,	    //quizas no haga falta ya que manejamos todo con resync
- 	output wire 				o_resync_by_am_start ,
- 	output wire 				o_start_of_lane ,
-	output wire 				o_search_timer_done //entrada al comparator
+ 	output wire [N_ALIGNERS-1 		: 0] 	o_match_mask,
+ 	output wire								o_enable_mask,
+ 	output wire 							o_am_lock,	
+ 	output wire 							o_resync_by_am_start,
+ 	output wire 							o_start_of_lane,
+	output wire 							o_search_timer_done 		//entrada al comparator
  );
 
 //LOCALPARAMS
@@ -161,8 +161,7 @@ begin
 				next_state 		 = WAIT_1ST;
 			end
 		end
-		LOCKED: //verificar que sucede con los contadore cuando se cumple 
-			//que el alineador  recibido es invalido pero no se alcanzo la cuenta max
+		LOCKED:
 		begin
 		        confirmation_flag     = 1'b1;
 			if (timer_search_done && i_am_valid)
@@ -242,9 +241,9 @@ end
 //cuenta de timer para start of lane
     always @( posedge i_clock )
     begin
-        if ( i_reset || i_valid && reset_timer_lock )//setear reset timer lock en algun lado !!!
+        if ( i_reset || i_valid && reset_timer_lock )
             timer_lock
-                <= 1 ;  // FIXME: Use proper value to ensure both counters are equal after resync.
+                <= 1 ; 
         else if ( i_valid )
             timer_lock 
                 <= ( o_start_of_lane )? 1 : timer_lock+1'b1 ;
