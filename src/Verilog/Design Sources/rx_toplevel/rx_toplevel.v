@@ -14,6 +14,8 @@ module rx_toplevel
     parameter N_LANES                   = 20,
     parameter NB_DATA_BUS               = N_LANES * NB_DATA,
 
+    // decoder
+    parameter NB_DECODER_ERROR_COUNTER  = 16,
     // block sync
     parameter NB_SH                     = 2,
     parameter NB_SH_VALID_BUS           = N_LANES,
@@ -51,65 +53,68 @@ module rx_toplevel
     parameter NB_CTRL_RAW       = 8,
     
     //test pattern checker
-    parameter NB_MISMATCH_COUNTER = 32
+    parameter NB_MISMATCH_COUNTER = 16
 
 )
 (
-    input  wire                             i_clock,
-    input  wire                             i_reset,
-    input  wire                             i_valid, //esta senial viene del channel? 
-    input  wire [NB_DATA_BUS - 1 : 0]       i_phy_data,
+    input  wire                                     i_clock,
+    input  wire                                     i_reset,
+    input  wire                                     i_valid, //esta senial viene del channel? 
+    input  wire [NB_DATA_BUS - 1 : 0]               i_phy_data,
     
     //Block sync inputs
-    input  wire                             i_rf_enable_block_sync,
-    input  wire [NB_WINDOW_CNT-1    : 0]    i_rf_unlocked_timer_limit,
-    input  wire [NB_WINDOW_CNT-1    : 0]    i_rf_locked_timer_limit,
-    input  wire [NB_INV_SH-1        : 0]    i_rf_sh_invalid_limit,
-    input  wire                             i_signal_ok,
+    input  wire                                     i_rf_enable_block_sync,         //done
+    input  wire [NB_WINDOW_CNT-1    : 0]            i_rf_unlocked_timer_limit,      //done
+    input  wire [NB_WINDOW_CNT-1    : 0]            i_rf_locked_timer_limit,        //done
+    input  wire [NB_INV_SH-1        : 0]            i_rf_sh_invalid_limit,          //done
+    input  wire                                     i_signal_ok,                   
 
     //Aligner inputs
-    input  wire                             i_rf_enable_aligner,
-    input  wire [NB_INV_AM-1        : 0]    i_rf_invalid_am_thr,
-    input  wire [NB_VAL_AM-1        : 0]    i_rf_valid_am_thr,
-    input  wire [NB_AM-1            : 0]    i_rf_compare_mask,
-    input  wire [NB_AM_PERIOD-1     : 0]    i_rf_am_period,
+    input  wire                                     i_rf_enable_aligner,            //done
+    input  wire [NB_INV_AM-1        : 0]            i_rf_invalid_am_thr,            //done
+    input  wire [NB_VAL_AM-1        : 0]            i_rf_valid_am_thr,              //done
+    input  wire [NB_AM-1            : 0]            i_rf_compare_mask,              //done
+    input  wire [NB_AM_PERIOD-1     : 0]            i_rf_am_period,                 //done
 
     //Deskew inputs
-    input  wire                             i_rf_enable_deskewer,
-
-    //Lane reorder inputs
-    input  wire                             i_rf_enable_lane_reorder,
-    input  wire                             i_rf_reset_order,
+    input  wire                                     i_rf_enable_deskewer,           //done
+    
+    //Lane reorder inputs                       
+    input  wire                                     i_rf_enable_lane_reorder,       //done
+    input  wire                                     i_rf_reset_order,               //done
         
     //Descrambler inputs
-    input  wire                             i_rf_enable_descrambler,
-    input  wire                             i_rf_descrambler_bypass,
-    input  wire                             i_rf_enable_clock_comp,
+    input  wire                                     i_rf_enable_descrambler,        //done
+    input  wire                                     i_rf_descrambler_bypass,        //done
+    input  wire                                     i_rf_enable_clock_comp,         //done
 
-    //Test pattern checker & ber_monitor signal
-    input  wire                             i_rf_enable_test_pattern_checker,
-    input  wire                             i_rf_idle_pattern_mode_rx,
+    //Test pattern checker & ber_monitor signal 
+    input  wire                                     i_rf_enable_test_pattern_checker, //done
+    input  wire                                     i_rf_idle_pattern_mode_rx,        //done  
     
     //Decoder signals
-    input  wire                             i_rf_enable_decoder,
+    input  wire                                     i_rf_enable_decoder,              //done
     
     //Read pulses to COR registers
-    input  wire                             i_rf_read_hi_ber,
-    input  wire                             i_rf_read_am_error_counter,
-    input  wire                             i_rf_read_am_resyncs,
-    input  wire                             i_rf_read_invalid_skew,
-    input  wire                             i_rf_read_missmatch_counter,
-    input  wire                             i_rf_read_lanes_block_lock,
-    input  wire                             i_rf_read_lanes_id,
+    input  wire [N_LANES-1                  : 0]    i_rf_read_hi_ber,                 //done
+    input  wire [N_LANES-1                  : 0]    i_rf_read_am_error_counter,       //done
+    input  wire [N_LANES-1                  : 0]    i_rf_read_am_resyncs,             //done
+    input  wire [N_LANES-1                  : 0]    i_rf_read_am_lock,                //done
+    input  wire                                     i_rf_read_invalid_skew,           //done
+    input  wire                                     i_rf_read_missmatch_counter,      //done
+    input  wire [N_LANES-1                  : 0]    i_rf_read_lanes_block_lock,       //done
+    input  wire [N_LANES-1                  : 0]    i_rf_read_lanes_id,               //done
+    input  wire                                     i_rf_read_decoder_error_counter,  //done
 
-    output wire [N_LANES-1          : 0]    o_rf_hi_ber,
-    output wire [NB_ERR_BUS  - 1    : 0]    o_rf_am_error_counter,
-    output wire [NB_RESYNC_COUNTER_BUS  - 1    : 0]    o_rf_resync_counter_bus,
-    output wire [N_LANES     - 1    : 0]    o_rf_am_lock,
-    output wire                             o_rf_invalid_skew,
-    output wire [NB_MISMATCH_COUNTER-1  : 0] o_rf_missmatch_counter,
-    output wire [N_LANES-1          : 0]    o_rf_lanes_block_lock,
-    output wire [NB_ID_BUS-1        : 0]    o_rf_lanes_id
+    output wire [N_LANES-1                  : 0]    o_rf_hi_ber,
+    output wire [NB_ERR_BUS  - 1            : 0]    o_rf_am_error_counter,
+    output wire [NB_RESYNC_COUNTER_BUS- 1   : 0]    o_rf_resync_counter_bus,
+    output wire [N_LANES     - 1            : 0]    o_rf_am_lock,
+    output wire                                     o_rf_invalid_skew,
+    output wire [NB_MISMATCH_COUNTER-1      : 0]    o_rf_missmatch_counter,
+    output wire [N_LANES-1                  : 0]    o_rf_lanes_block_lock,
+    output wire [NB_ID_BUS-1                : 0]    o_rf_lanes_id,
+    output wire [NB_DECODER_ERROR_COUNTER-1 : 0]    o_rf_decoder_error_counter
 );
 
 //-----------------  localparameters  ------------------//
@@ -118,125 +123,140 @@ module rx_toplevel
 //-----------------  module connect wires  ------------------//
 
 //block sync --> aligment
-wire    [NB_DATA_BUS - 1 : 0]       blksync_data_aligment;
-wire                                blksync_valid_aligment;
-wire    [N_LANES     - 1 : 0]       blksync_lock_aligment;
-wire    [NB_SH_VALID_BUS-1     : 0] blksync_sh_bermonitor;
+wire    [NB_DATA_BUS - 1        : 0]    blksync_data_aligment;
+wire                                    blksync_valid_aligment;
+wire    [N_LANES     - 1        : 0]    blksync_lock_aligment;
+wire    [NB_SH_VALID_BUS-1      : 0]    blksync_sh_bermonitor;
 
 //aligment   --> deskew
-wire    [NB_DATA_BUS - 1 : 0]       aligment_data_deskew;
-wire                                aligment_valid_deskew;
-wire    [N_LANES     - 1 : 0]       aligment_resync_deskew;
-wire    [N_LANES     - 1 : 0]       aligment_sol_deskew;
+wire    [NB_DATA_BUS - 1        : 0]    aligment_data_deskew;
+wire                                    aligment_valid_deskew;
+wire    [N_LANES     - 1        : 0]    aligment_resync_deskew;
+wire    [N_LANES     - 1        : 0]    aligment_sol_deskew;
 
 //aligment    --> lane reorder
-wire    [NB_ID_BUS   - 1 : 0]       aligment_id_reorder;
+wire    [NB_ID_BUS   - 1        : 0]    aligment_id_reorder;
 
 //alignment   --> rf
-wire    [NB_ERR_BUS-1       : 0]    alignment_error_bus_rf; 
+wire    [NB_ERR_BUS-1           : 0]    alignment_error_bus_rf; 
 
-wire    [N_LANES-1          : 0]    am_lanes_lock;  
-wire    [NB_RESYNC_COUNTER_BUS-1       : 0]    am_resync_counter_rf_bus;
+wire    [N_LANES-1              : 0]    am_lanes_lock;  
+wire    [NB_RESYNC_COUNTER_BUS-1: 0]    am_resync_counter_rf_bus;
 
 //ber monitor --> rf
-wire    [N_LANES-1          : 0]    ber_monitor_hi_ber_bus_rf;
+wire    [N_LANES-1              : 0]    ber_monitor_hi_ber_bus_rf;
 
 //deskew      --> reorder
 //@CAREFUL estos datos son de 67 bits xq contiene el tag
-wire [NB_FIFO_DATA_BUS  - 1 : 0]    deskew_data_reorder;
-wire                                deskew_deskewdone_reorder;
-wire                                deskew_valid_reorder;
+wire [NB_FIFO_DATA_BUS  - 1     : 0]    deskew_data_reorder;
+wire                                    deskew_deskewdone_reorder;
+wire                                    deskew_valid_reorder;
 
 //deskew      --> regfile
-wire                                deskew_invalidskew_rf;
+wire                                    deskew_invalidskew_rf;
 
 //deskew      --> ber monitor
-wire                                deskew_validskew_bermonitor;
+wire                                    deskew_validskew_bermonitor;
 
 // reorder    --> descrambler
-wire    [NB_DATA     - 1 : 0]       reorder_data_descrambler;
-wire                                reorder_tag_descrambler;
-wire                                reorder_valid_descrambler;
+wire    [NB_DATA     - 1 : 0]           reorder_data_descrambler;
+wire                                    reorder_tag_descrambler;
+wire                                    reorder_valid_descrambler;
 
 //descrambler --> clock comp rx
-wire    [NB_DATA     - 1 : 0]       descrambler_data_clockcomp;
-wire                                descrambler_tag;
-wire                                descrambler_valid_clockcomp;
+wire    [NB_DATA     - 1 : 0]           descrambler_data_clockcomp;
+wire                                    descrambler_tag;
+wire                                    descrambler_valid_clockcomp;
 
 //clock comp rx --> decoder
-wire    [NB_DATA     - 1 : 0]       clockcomp_data_decoder;
-wire                                clockcomp_valid_decoder;
+wire    [NB_DATA     - 1 : 0]           clockcomp_data_decoder;
+wire                                    clockcomp_valid_decoder;
 
 //test pattern checker --> rf
-wire    [NB_MISMATCH_COUNTER-1 : 0] missmatch_counter_rf;
+wire    [NB_MISMATCH_COUNTER-1      : 0]    missmatch_counter_rf;
 
 
 //decoder --> clock comp rx
-wire                                decoder_fsmcontrol_clockcomp;
-wire    [NB_DATA_RAW-1      :   0]  decoder_data_raw;
-wire    [NB_CTRL_RAW-1      :   0]  decoder_ctrl_raw;
+wire                                        decoder_fsmcontrol_clockcomp;
+wire    [NB_DATA_RAW-1              :   0]  decoder_data_raw;
+wire    [NB_CTRL_RAW-1              :   0]  decoder_ctrl_raw;
+
+//decoder --> rf
+wire     [NB_DECODER_ERROR_COUNTER-1: 0]    decoder_errorcounter_rf;
 
 //---------------------  COR registers --------------------------//
-reg     [N_LANES-1          :   0]  hi_ber;
-reg     [NB_ERR_BUS-1       :   0]  am_error_counter;
-reg     [NB_RESYNC_COUNTER_BUS-1 :   0]  am_resyncs;
-reg     [NB_MISMATCH_COUNTER-1  : 0] patternchecker_missmatch_counter;
-reg     [N_LANES-1              : 0] lanes_block_lock;
-reg     [NB_ID_BUS-1            : 0] lanes_id_bus;
-reg                                  invalid_skew;
+reg     [N_LANES-1                  : 0]    hi_ber;
+reg     [NB_ERR_BUS-1               : 0]    am_error_counter;
+reg     [NB_RESYNC_COUNTER_BUS-1    : 0]    am_resyncs;
+reg     [N_LANES-1                  : 0]    am_locks;
+reg     [NB_MISMATCH_COUNTER-1      : 0]    patternchecker_missmatch_counter;
+reg     [N_LANES-1                  : 0]    lanes_block_lock;
+reg     [NB_ID_BUS-1                : 0]    lanes_id_bus;
+reg                                         invalid_skew;
+reg     [NB_DECODER_ERROR_COUNTER-1 : 0]    decoder_error_counter;
 
-reg                                 read_hi_ber_d;
-reg                                 read_am_error_counter_d;
-reg                                 read_am_resyncs_d;
-reg                                 read_invalid_skew_d;
-reg                                 read_missmatch_counter_d;
-reg                                 read_lanes_block_lock_d;
-reg                                 read_lanes_id_d;
+reg     [N_LANES-1                  : 0]    read_hi_ber_d;
+reg     [N_LANES-1                  : 0]    read_am_error_counter_d;
+reg     [N_LANES-1                  : 0]    read_am_resyncs_d;
+reg     [N_LANES-1                  : 0]    read_am_lock_d;
+reg                                         read_invalid_skew_d;
+reg                                         read_missmatch_counter_d;
+reg     [N_LANES-1                  : 0]    read_lanes_block_lock_d;
+reg     [N_LANES-1                  : 0]    read_lanes_id_d;
+reg                                         read_decoder_error_counter_d;                                    
 
-wire                                reset_hi_ber_posedge;
-wire                                reset_am_error_counter_posedge;
-wire                                reset_am_resyncs_posedge;
-wire                                reset_invalid_skew_posedge;
-wire                                reset_missmatch_counter;
-wire                                reset_lanes_block_lock;
-wire                                reset_lanes_id;
+wire                                        reset_hi_ber_posedge;
+wire                                        reset_am_error_counter_posedge;
+wire                                        reset_am_resyncs_posedge;
+wire                                        reset_am_lock_posedge;
+wire                                        reset_invalid_skew_posedge;
+wire                                        reset_missmatch_counter;
+wire                                        reset_lanes_block_lock;
+wire                                        reset_lanes_id;
+wire                                        reset_decoder_error_counter;
 
 always @(posedge i_clock)
 begin
     if(i_reset)
     begin
-        read_hi_ber_d           <=  1'b0;
-        read_am_error_counter_d <=  1'b0;
-        read_am_resyncs_d       <=  1'b0;
-        read_invalid_skew_d     <=  1'b0;
-        read_missmatch_counter_d<=  1'b0;
-        read_lanes_block_lock_d <=  1'b0;
-        read_lanes_id_d         <=  1'b0;
+        read_hi_ber_d                   <=  {N_LANES{1'b0}};
+        read_am_error_counter_d         <=  {N_LANES{1'b0}};
+        read_am_resyncs_d               <=  {N_LANES{1'b0}};
+        read_am_lock_d                  <=  {N_LANES{1'b0}};
+        read_invalid_skew_d             <=  1'b0;
+        read_missmatch_counter_d        <=  1'b0;
+        read_lanes_block_lock_d         <=  {N_LANES{1'b0}};
+        read_lanes_id_d                 <=  {N_LANES{1'b0}};
+        read_decoder_error_counter_d    <=  1'b0;
     end
     else
     begin
-        read_hi_ber_d           <=  i_rf_read_hi_ber;
-        read_am_error_counter_d <=  i_rf_read_am_error_counter;
-        read_am_resyncs_d       <=  i_rf_read_am_resyncs;
-        read_invalid_skew_d     <=  i_rf_read_invalid_skew;
-        read_missmatch_counter_d<=  i_rf_read_missmatch_counter;
-        read_lanes_block_lock_d <=  i_rf_read_lanes_block_lock;
-        read_lanes_id_d         <=  i_rf_read_lanes_id;
+        read_hi_ber_d                   <=  i_rf_read_hi_ber;
+        read_am_error_counter_d         <=  i_rf_read_am_error_counter;
+        read_am_resyncs_d               <=  i_rf_read_am_resyncs;
+        read_am_lock_d                  <=  i_rf_read_am_lock;
+        read_invalid_skew_d             <=  i_rf_read_invalid_skew;
+        read_missmatch_counter_d        <=  i_rf_read_missmatch_counter;
+        read_lanes_block_lock_d         <=  i_rf_read_lanes_block_lock;
+        read_lanes_id_d                 <=  i_rf_read_lanes_id;
+        read_decoder_error_counter_d    <=  i_rf_read_decoder_error_counter;
     end
 end
 
-assign                              reset_hi_ber_posedge             = (i_rf_read_hi_ber & ~read_hi_ber_d);
-assign                              reset_am_error_counter_posedge   = (i_rf_read_am_error_counter & ~read_am_error_counter_d);
-assign                              reset_am_resyncs_posedge         = (i_rf_read_am_resyncs & ~read_am_resyncs_d);
+assign                              reset_hi_ber_posedge             = (|i_rf_read_hi_ber & ~(|read_hi_ber_d));
+assign                              reset_am_error_counter_posedge   = (|i_rf_read_am_error_counter & ~(|read_am_error_counter_d));
+assign                              reset_am_resyncs_posedge         = (|i_rf_read_am_resyncs & ~(|read_am_resyncs_d));
+assign                              reset_am_lock_posedge            = (|i_rf_read_am_lock & ~(|read_am_lock_d));
 assign                              reset_invalid_skew_posedge       = (i_rf_read_invalid_skew & ~read_invalid_skew_d);
 assign                              reset_missmatch_counter          = (i_rf_read_missmatch_counter & ~read_missmatch_counter_d);
-assign                              reset_lanes_block_lock           = (i_rf_read_lanes_block_lock & ~read_lanes_block_lock_d);
-assign                              reset_lanes_id                   = (i_rf_read_lanes_id & ~read_lanes_id_d);
+assign                              reset_lanes_block_lock           = (|i_rf_read_lanes_block_lock & ~(|read_lanes_block_lock_d));
+assign                              reset_lanes_id                   = (|i_rf_read_lanes_id & ~(|read_lanes_id_d));
+assign                              reset_decoder_error_counter      = (i_rf_read_decoder_error_counter & ~read_decoder_error_counter_d);
 
 always @(posedge i_clock)
 begin
     if(i_reset || reset_hi_ber_posedge)
-        hi_ber                  <=  1'b0;
+        hi_ber                  <=  {N_LANES{1'b0}};
     else
         hi_ber                  <=  ber_monitor_hi_ber_bus_rf;
 end
@@ -255,6 +275,14 @@ begin
         am_resyncs              <=  {NB_ERR_BUS{1'b0}};
     else
         am_resyncs              <=  am_resync_counter_rf_bus;
+end
+
+always @(posedge i_clock)
+begin
+    if(i_reset || reset_am_lock_posedge)
+        am_locks              <=  {N_LANES{1'b0}};
+    else
+        am_locks              <=  am_lanes_lock;
 end
 
 always @(posedge i_clock)
@@ -289,15 +317,24 @@ begin
         lanes_id_bus  <=  aligment_id_reorder;
 end
 
-//---------------------  Outputs --------------------------//
-    assign                                  o_rf_hi_ber             = hi_ber;
-    assign                                  o_rf_am_error_counter   = am_error_counter;
-    assign                                  o_rf_resync_counter_bus = am_resyncs;
-    assign                                  o_rf_am_lock            = am_lanes_lock;
-    assign                                  o_rf_missmatch_counter  = patternchecker_missmatch_counter;
-    assign                                  o_rf_lanes_block_lock   = lanes_block_lock;
-    assign                                  o_rf_invalid_skew       = invalid_skew;
+always @(posedge i_clock)
+begin
+    if(i_reset || reset_decoder_error_counter)
+        decoder_error_counter  <=  {NB_DECODER_ERROR_COUNTER{1'b0}};
+    else
+        decoder_error_counter  <=  decoder_errorcounter_rf;
+end
 
+//---------------------  Outputs --------------------------//
+    assign                                  o_rf_hi_ber                 = hi_ber;
+    assign                                  o_rf_am_error_counter       = am_error_counter;
+    assign                                  o_rf_resync_counter_bus     = am_resyncs;
+    assign                                  o_rf_am_lock                = am_lanes_lock;
+    assign                                  o_rf_missmatch_counter      = patternchecker_missmatch_counter;
+    assign                                  o_rf_lanes_block_lock       = lanes_block_lock;
+    assign                                  o_rf_lanes_id               = lanes_id_bus;
+    assign                                  o_rf_invalid_skew           = invalid_skew;
+    assign                                  o_rf_decoder_error_counter  = decoder_error_counter;
 
 //---------------------  Instances --------------------------//
 
@@ -312,7 +349,8 @@ u_decoder
 
     .o_data                     (decoder_data_raw),
     .o_ctrl                     (decoder_ctrl_raw),
-    .o_fsm_control              (decoder_fsmcontrol_clockcomp)
+    .o_fsm_control              (decoder_fsmcontrol_clockcomp),
+    .o_rf_error_counter         (decoder_errorcounter_rf)
 );
 
 test_pattern_checker

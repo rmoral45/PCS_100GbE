@@ -94,7 +94,8 @@ assign expected_block = ((mode_d == MODE_ALIN) & i_aligner_tag) |
                          (mode_d == MODE_ALL);
 
 //break process
-assign odd_mask_d       = ((mask_d % 2) == 0) ? mask_d + 1 : mask_d;    //forzamos a la mascara a aplicarse a una cantidad impar de bits siempre 
+assign odd_mask_d[NB_ERR_MASK-1 -: NB_ERR_MASK-1] = mask_d[NB_ERR_MASK-1 -: NB_ERR_MASK-1];
+assign odd_mask_d[0]    = 1'b1;    //forzamos a la mascara a aplicarse a una cantidad impar de bits siempre 
 assign bit_flip         = (payload & odd_mask_d) ^ odd_mask_d;          //(101100 & 000111) = 000100 ^ 000111 = 000011
 assign masked_payload   = payload & (~odd_mask_d);                      //101100 & 111000 = 101000
 assign err_payload      = bit_flip | masked_payload;                    // 000011 | 101000 = 101011

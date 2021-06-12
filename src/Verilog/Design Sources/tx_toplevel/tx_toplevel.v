@@ -12,7 +12,6 @@ module toplevel_tx
 (
     input wire                                      i_clock,
     input wire                                      i_reset,
-    input wire                                      i_rf_enb_valid_gen,
     input wire                                      i_rf_enb_frame_gen,
     input wire                                      i_rf_enb_encoder,
     input wire                                      i_rf_enb_clock_comp,

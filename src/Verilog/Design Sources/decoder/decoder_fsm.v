@@ -3,23 +3,25 @@
 */
 module decoder_fsm
 #(
-    parameter 							LEN_DATA_BLOCK = 64,
-    parameter 							LEN_CTRL_BLOCK = 8,
-    parameter                           N_STATES = 4,
-    parameter                           NB_ERROR_COUNTER = 32
+    parameter 								LEN_DATA_BLOCK = 64,
+    parameter 								LEN_CTRL_BLOCK = 8,
+    parameter                           	N_STATES = 5,
+    parameter                           	N_TYPES = 4,
+    parameter                           	NB_ERROR_COUNTER = 32
  )
  (
- 	input wire  						i_clock,
- 	input wire  						i_reset,
- 	input wire  						i_enable,
- 	input wire 	[N_STATES -1 : 0] 		i_r_type,
- 	input wire 	[N_STATES -1 : 0] 		i_r_type_next,
- 	input wire  [LEN_DATA_BLOCK-1 : 0] 	i_rx_data,       //recibida desde el bloque comparador/decodificador
- 	input wire  [LEN_CTRL_BLOCK-1 : 0] 	i_rx_control,    //recibida desde el bloque comparador/decodificador
- 	input wire                          i_valid,
- 	output wire	[LEN_DATA_BLOCK-1 : 0] 	o_rx_raw_data,   // solo difiere de lo recibido del comparador si la secuencia es incorrecta
- 	output wire	[LEN_CTRL_BLOCK-1 : 0] 	o_rx_raw_control, // solo difiere de lo recibido del comparador si la secuencia es incorrecta
- 	output wire                         o_fsm_control
+ 	input wire  							i_clock,
+ 	input wire  							i_reset,
+ 	input wire  							i_enable,
+ 	input wire 	[N_TYPES -1 : 0] 			i_r_type,
+ 	input wire 	[N_TYPES -1 : 0] 			i_r_type_next,
+ 	input wire  [LEN_DATA_BLOCK-1 : 0] 		i_rx_data,       //recibida desde el bloque comparador/decodificador
+ 	input wire  [LEN_CTRL_BLOCK-1 : 0] 		i_rx_control,    //recibida desde el bloque comparador/decodificador
+ 	input wire                          	i_valid,
+ 	output wire	[LEN_DATA_BLOCK-1 : 0] 		o_rx_raw_data,   // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+ 	output wire	[LEN_CTRL_BLOCK-1 : 0] 		o_rx_raw_control, // solo difiere de lo recibido del comparador si la secuencia es incorrecta
+ 	output wire                         	o_fsm_control,
+	output wire [NB_ERROR_COUNTER-1 : 0]	o_rf_error_counter
  );
 
 reg [N_STATES -1 : 0]					state,state_next;
@@ -30,21 +32,22 @@ reg [NB_ERROR_COUNTER-1 : 0] 			error_counter;
 wire [NB_ERROR_COUNTER-1 : 0] 			error_counter_next;
 
 //R_TYPE / i_r_type_next
-localparam [3:0] TYPE_D  = 4'b1000;
-localparam [3:0] TYPE_S  = 4'b0100;
-localparam [3:0] TYPE_C  = 4'b0010;
-localparam [3:0] TYPE_T  = 4'b0001;
-localparam [3:0] TYPE_E  = 4'b0000;
+localparam [3:0] TYPE_D  	= 4'b1000;
+localparam [3:0] TYPE_S  	= 4'b0100;
+localparam [3:0] TYPE_C  	= 4'b0010;
+localparam [3:0] TYPE_T  	= 4'b0001;
+localparam [3:0] TYPE_E  	= 4'b0000;
 //STATES
-localparam [4:0] RX_INIT = 5'b10000;
-localparam [4:0] RX_C    = 5'b01000;
-localparam [4:0] RX_D    = 5'b00100;
-localparam [4:0] RX_T    = 5'b00010;
-localparam [4:0] RX_E    = 5'b00001;
+localparam [4:0] RX_INIT 	= 5'b10000;
+localparam [4:0] RX_C    	= 5'b01000;
+localparam [4:0] RX_D    	= 5'b00100;
+localparam [4:0] RX_T    	= 5'b00010;
+localparam [4:0] RX_E    	= 5'b00001;
 
-assign o_rx_raw_data 	 = rx_raw_data;
-assign o_rx_raw_control  = rx_raw_control;
-assign o_fsm_control     = (state == RX_T) && state_next == RX_C;
+assign o_rx_raw_data 	 	= rx_raw_data;
+assign o_rx_raw_control  	= rx_raw_control;
+assign o_fsm_control     	= (state == RX_T) && state_next == RX_C;
+assign o_rf_error_counter	= error_counter;
 
 /*
 
@@ -79,7 +82,6 @@ begin
 		rx_raw_data <= {LEN_DATA_BLOCK{1'b0}};  
         rx_raw_control <= {LEN_CTRL_BLOCK{1'b0}};
 		state <= RX_INIT;
-
 	end
 	else if(i_enable && i_valid)
 	begin

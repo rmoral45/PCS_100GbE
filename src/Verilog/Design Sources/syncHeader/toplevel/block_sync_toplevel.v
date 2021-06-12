@@ -7,7 +7,7 @@ module block_sync_toplevel
         parameter                               N_LANES           = 20,
         parameter                               MAX_INDEX_VALUE   = (NB_DATA - 2),
         parameter                               MAX_WINDOW        = 4096,
-        parameter                               MAX_INVALID_SH    = (MAX_WINDOW/2), //FIX especificar correctamen    te
+        parameter                               MAX_INVALID_SH    = (MAX_WINDOW/2),
         parameter                               NB_WINDOW_CNT     = $clog2(MAX_WINDOW),
         parameter                               NB_INVALID_CNT    = $clog2(MAX_INVALID_SH),
         parameter                               NB_INDEX          = $clog2(NB_DATA),

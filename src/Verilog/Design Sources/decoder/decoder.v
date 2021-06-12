@@ -2,10 +2,11 @@
 
 module decoder
 #(
-    parameter                                   NB_DATA_CODED   = 66,
-    parameter                                   NB_DATA_RAW     = 64,
-    parameter                                   NB_CTRL_BLOCK   = 8,
-    parameter                                   NB_BLOCK_TYPE   = 4  
+    parameter                                   NB_DATA_CODED       = 66,
+    parameter                                   NB_DATA_RAW         = 64,
+    parameter                                   NB_CTRL_BLOCK       = 8,
+    parameter                                   NB_BLOCK_TYPE       = 4,
+    parameter                           	    NB_ERROR_COUNTER    = 32
 )
 (
     input   wire                                i_clock,
@@ -16,7 +17,8 @@ module decoder
 
     output  wire    [NB_DATA_RAW-1      :   0]  o_data,
     output  wire    [NB_CTRL_BLOCK-1    :   0]  o_ctrl,
-    output  wire                                o_fsm_control
+    output  wire                                o_fsm_control,
+    output  wire    [NB_ERROR_COUNTER-1 :   0]  o_rf_error_counter
 );
 
 //-----------------  module connect wires  ------------------//
@@ -31,6 +33,7 @@ module decoder
 //decoder_fsm --> rx_toplevel
     wire            [NB_DATA_RAW-1      :   0]  decoderfsm_data_rxtoplevel;
     wire            [NB_CTRL_BLOCK-1    :   0]  decoderfsm_ctrl_rxtoplevel;
+    wire            [NB_ERROR_COUNTER-1 :   0]  decoderfsm_error_counter;
 //decoder_fsm --> clock_comp_rx
     wire                                        decoderfsm_type_clockcomp;
     
@@ -75,10 +78,12 @@ u_decoder_fsm
 
     .o_rx_raw_data      (decoderfsm_data_rxtoplevel),
     .o_rx_raw_control   (decoderfsm_ctrl_rxtoplevel),
-    .o_fsm_control      (decoderfsm_type_clockcomp)
+    .o_fsm_control      (decoderfsm_type_clockcomp),
+    .o_rf_error_counter (decoderfsm_error_counter)
 );
 
-    assign              o_data          = decoderfsm_data_rxtoplevel;
-    assign              o_ctrl          = decoderfsm_ctrl_rxtoplevel;
-    assign              o_fsm_control   = decoderfsm_type_clockcomp;
+    assign              o_data              = decoderfsm_data_rxtoplevel;
+    assign              o_ctrl              = decoderfsm_ctrl_rxtoplevel;
+    assign              o_fsm_control       = decoderfsm_type_clockcomp;
+    assign              o_rf_error_counter  = decoderfsm_error_counter;
 endmodule

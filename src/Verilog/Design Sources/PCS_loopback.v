@@ -56,9 +56,10 @@ module PCS_loopback
 
     //decoder
     parameter           NB_FSM_CONTROL          = 4,
+    parameter           NB_DECODER_ERROR_COUNTER= 32,
     
     //test pattern checker
-    parameter           NB_MISMATCH_COUNTER     = 32    
+    parameter           NB_MISMATCH_COUNTER     = 16    
 )
 (
     //Common inputs
@@ -69,7 +70,6 @@ module PCS_loopback
 
     //-----------------------Tx-----------------------
     //Enables
-    input wire                                      i_rf_enb_tx_valid_gen       ,
     input wire                                      i_rf_enb_tx_frame_gen       ,
     input wire                                      i_rf_enb_tx_encoder         ,
     input wire                                      i_rf_enb_tx_clock_comp      ,
@@ -120,13 +120,16 @@ module PCS_loopback
     input  wire     [NB_AM_PERIOD-1     : 0]        i_rf_rx_am_period,    
     input  wire                                     i_rf_rx_reset_order,
     //Read pulses
-    input  wire                                     i_rf_rx_read_hi_ber,
-    input  wire                                     i_rf_rx_read_am_error_counter,
-    input  wire                                     i_rf_rx_read_am_resyncs,
+    input  wire     [N_LANES-1          : 0]        i_rf_rx_read_hi_ber,
+    input  wire     [N_LANES-1          : 0]        i_rf_rx_read_am_error_counter,
+    input  wire     [N_LANES-1          : 0]        i_rf_rx_read_am_resyncs,
+    input  wire     [N_LANES-1          : 0]        i_rf_rx_read_am_lock,
     input  wire                                     i_rf_rx_read_invalid_skew,
     input  wire                                     i_rf_rx_read_missmatch_counter,
-    input  wire                                     i_rf_rx_read_lanes_block_lock,
-    input  wire                                     i_rf_rx_read_lanes_id,
+    input  wire     [N_LANES-1          : 0]        i_rf_rx_read_lanes_block_lock,
+    input  wire     [N_LANES-1          : 0]        i_rf_rx_read_lanes_id,
+    input  wire                                     i_rf_rx_read_decoder_error_counter,
+  
     //Tx rf outputs
     
     //Rx rf outputs
@@ -137,7 +140,8 @@ module PCS_loopback
     output wire                                     o_rf_invalid_skew,
     output wire     [NB_MISMATCH_COUNTER-1      : 0]o_rf_missmatch_counter,
     output wire     [N_LANES-1                  : 0]o_rf_lanes_block_lock,
-    output wire     [NB_ID_BUS-1                : 0]o_rf_lanes_id
+    output wire     [NB_ID_BUS-1                : 0]o_rf_lanes_id,
+    output wire     [NB_DECODER_ERROR_COUNTER-1 : 0]o_rf_decoder_error_counter
 );
 
 /* Tx to Channel signals */
@@ -180,7 +184,6 @@ u_tx_toplevel
 
     .i_clock                                (i_clock),
     .i_reset                                (i_reset),
-    .i_rf_enb_valid_gen                     (i_rf_enb_tx_valid_gen),
     .i_rf_enb_frame_gen                     (i_rf_enb_tx_frame_gen),
     .i_rf_enb_encoder                       (i_rf_enb_tx_encoder),
     .i_rf_enb_clock_comp                    (i_rf_enb_tx_clock_comp),
@@ -308,14 +311,15 @@ rx_toplevel
 )
 u_rx_toplevel
 (
-        .o_rf_hi_ber                        (),
-        .o_rf_am_error_counter              (),
-        .o_rf_resync_counter_bus            (),
-        .o_rf_am_lock                       (),
-        .o_rf_invalid_skew                  (),
-        .o_rf_missmatch_counter             (),
-        .o_rf_lanes_block_lock              (),
-        .o_rf_lanes_id                      (),
+        .o_rf_hi_ber                        (o_rf_hi_ber),
+        .o_rf_am_error_counter              (o_rf_am_error_counter),
+        .o_rf_resync_counter_bus            (o_rf_resync_counter_bus),
+        .o_rf_am_lock                       (o_rf_am_lock),
+        .o_rf_invalid_skew                  (o_rf_invalid_skew),
+        .o_rf_missmatch_counter             (o_rf_missmatch_counter),
+        .o_rf_lanes_block_lock              (o_rf_lanes_block_lock),
+        .o_rf_lanes_id                      (o_rf_lanes_id),
+        .o_rf_decoder_error_counter         (o_rf_decoder_error_counter),
 
         .i_clock                            (i_clock),
         .i_reset                            (i_reset),
@@ -343,10 +347,12 @@ u_rx_toplevel
         .i_rf_read_hi_ber                   (i_rf_rx_read_hi_ber),
         .i_rf_read_am_error_counter         (i_rf_rx_read_am_error_counter),
         .i_rf_read_am_resyncs               (i_rf_rx_read_am_resyncs),
+        .i_rf_read_am_lock                  (i_rf_rx_read_am_lock),
         .i_rf_read_invalid_skew             (i_rf_rx_read_invalid_skew),
         .i_rf_read_missmatch_counter        (i_rf_rx_read_missmatch_counter),
         .i_rf_read_lanes_block_lock         (i_rf_rx_read_lanes_block_lock),
-        .i_rf_read_lanes_id                 (i_rf_rx_read_lanes_id) 
+        .i_rf_read_lanes_id                 (i_rf_rx_read_lanes_id),
+        .i_rf_read_decoder_error_counter    (i_rf_rx_read_decoder_error_counter) 
 );
 
 endmodule

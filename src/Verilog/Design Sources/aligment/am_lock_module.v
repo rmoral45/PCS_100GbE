@@ -53,7 +53,7 @@ module am_lock_module
 
 
 //INTERNAL SIGNALS
-    reg         [NB_CODED_BLOCK-1   : 0]	input_data,output_data;
+    reg         [NB_CODED_BLOCK-1   : 0]	output_data;
     reg                                     valid_d;
     reg         [NB_BIP-1           : 0]    received_bip_d;
     reg                                     start_of_lane_d;

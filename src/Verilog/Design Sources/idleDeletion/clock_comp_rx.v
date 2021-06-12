@@ -49,7 +49,6 @@ wire        [NB_DATA_CODED-1 : 0]               fifo_output_data;
 wire                                            fifo_empty;
 wire                                            idle_detected;
 
-reg                                             fsm_control_d, fsm_control_2d;
 reg                                             trigger_insertion;
 
 

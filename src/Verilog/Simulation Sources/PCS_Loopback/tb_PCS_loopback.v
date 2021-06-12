@@ -109,13 +109,15 @@ reg tb_rf_enb_rx_decoder;
 reg tb_rf_rx_descrambler_bypass;
 reg tb_rf_rx_reset_order;
 //Read pulses
-reg tb_rf_rx_read_hi_ber;
-reg tb_rf_rx_read_am_error_counter;
-reg tb_rf_rx_read_am_resyncs;
-reg tb_rf_rx_read_invalid_skew;
-reg tb_rf_rx_read_missmatch_counter;
-reg tb_rf_rx_read_lanes_block_lock;
-reg tb_rf_rx_read_lanes_id;
+reg [N_LANES-1          : 0]    tb_rf_rx_read_hi_ber;
+reg [N_LANES-1          : 0]    tb_rf_rx_read_am_error_counter;
+reg [N_LANES-1          : 0]    tb_rf_rx_read_am_resyncs;
+reg [N_LANES-1          : 0]    tb_rf_rx_read_am_lock;
+reg                             tb_rf_rx_read_invalid_skew;
+reg                             tb_rf_rx_read_missmatch_counter;
+reg [N_LANES-1          : 0]    tb_rf_rx_read_lanes_block_lock;
+reg [N_LANES-1          : 0]    tb_rf_rx_read_lanes_id;
+reg                             tb_rf_rx_read_decoder_error_counter;
 
 reg [NB_WINDOW_CNT-1    : 0]    tb_rx_rf_unlocked_timer_limit;
 reg [NB_WINDOW_CNT-1    : 0]    tb_rx_rf_locked_timer_limit;
@@ -189,10 +191,12 @@ begin
     tb_rf_rx_read_hi_ber = 0;
     tb_rf_rx_read_am_error_counter = 0;
     tb_rf_rx_read_am_resyncs = 0;
+    tb_rf_rx_read_am_lock = 0;
     tb_rf_rx_read_invalid_skew = 0;
     tb_rf_rx_read_missmatch_counter = 0;
     tb_rf_rx_read_lanes_block_lock = 0;
     tb_rf_rx_read_lanes_id = 0;
+    tb_rf_rx_read_decoder_error_counter = 0;
 
     tb_rx_rf_unlocked_timer_limit = 0;
     tb_rx_rf_locked_timer_limit = 0;
@@ -202,9 +206,6 @@ begin
     tb_rx_rf_valid_am_thr = 0;
     tb_rx_rf_compare_mask = 0;
     tb_rx_rf_am_period = 0;    
-
-    #100    tb_reset                = 1'b1;
-    #10     tb_reset                = 1'b0;
 
     //TX
     tb_enb_tx_valid_gen     = 1;
@@ -242,24 +243,27 @@ begin
     tb_rx_rf_valid_am_thr = 1;
     tb_rx_rf_compare_mask = {NB_AM{1'b1}};
     tb_rx_rf_am_period = 16383;  
+    
+    #10000   tb_reset                = 1'b1;
+    #10     tb_reset                = 1'b0;
         
 
-#20000
-    tb_bit_skew_index = 10;
-    tb_bit_skew_update = 20'h80000;
-#10 tb_bit_skew_update = 20'h00000;
-#500 tb_bit_skew_index = 30;
-     tb_bit_skew_update = 20'h20000;
-#10  tb_bit_skew_update = 20'h00000;
-#500 tb_bit_skew_index = 60;
-     tb_bit_skew_update = 20'h40000;
-#10  tb_bit_skew_update = 20'h00000;
-#500 tb_bit_skew_index = 17;
-     tb_bit_skew_update = 20'h00001;
-#10  tb_bit_skew_update = 20'h00000;
-#500 tb_bit_skew_index = 33;
-     tb_bit_skew_update = 20'h00200;
-#10  tb_bit_skew_update = 20'h00000;
+//#20000
+//    tb_bit_skew_index = 10;
+//    tb_bit_skew_update = 20'h80000;
+//#10 tb_bit_skew_update = 20'h00000;
+//#500 tb_bit_skew_index = 30;
+//     tb_bit_skew_update = 20'h20000;
+//#10  tb_bit_skew_update = 20'h00000;
+//#500 tb_bit_skew_index = 60;
+//     tb_bit_skew_update = 20'h40000;
+//#10  tb_bit_skew_update = 20'h00000;
+//#500 tb_bit_skew_index = 17;
+//     tb_bit_skew_update = 20'h00001;
+//#10  tb_bit_skew_update = 20'h00000;
+//#500 tb_bit_skew_index = 33;
+//     tb_bit_skew_update = 20'h00200;
+//#10  tb_bit_skew_update = 20'h00000;
 #60000
     tb_sh_breaker_mode = 4'b0100;
     tb_sh_breaker_err_burst = 500;
@@ -344,10 +348,12 @@ u_PCS_loopback
     .i_rf_rx_read_hi_ber(tb_rf_rx_read_hi_ber),
     .i_rf_rx_read_am_error_counter(tb_rf_rx_read_am_error_counter),
     .i_rf_rx_read_am_resyncs(tb_rf_rx_read_am_resyncs),
+    .i_rf_rx_read_am_lock(tb_rf_rx_read_am_lock),
     .i_rf_rx_read_invalid_skew(tb_rf_rx_read_invalid_skew),
     .i_rf_rx_read_missmatch_counter(tb_rf_rx_read_missmatch_counter),
     .i_rf_rx_read_lanes_block_lock(tb_rf_rx_read_lanes_block_lock),
     .i_rf_rx_read_lanes_id(tb_rf_rx_read_lanes_id),
+    .i_rf_rx_read_decoder_error_counter(tb_rf_rx_read_decoder_error_counter),
     //Tx rf outputs
     
     //Rx rf outputs
