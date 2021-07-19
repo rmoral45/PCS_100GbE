@@ -26,7 +26,6 @@ module block_sync_module
 
     output  wire    [NB_CODED_BLOCK-1   : 0]	o_data,
     output  wire                                o_valid_sh,
-    output  wire                                o_valid,
     output  wire                                o_block_lock
  );
 

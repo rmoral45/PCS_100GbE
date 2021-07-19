@@ -19,8 +19,7 @@ module am_error_counter
         input wire  [NB_BIP-1 : 0] 	            i_recived_bip,
         input wire  [NB_BIP-1 : 0] 	            i_calculated_bip,
     
-        output wire [NB_COUNTER-1 : 0]          o_error_count,
-        output wire 			                o_overflow_flag
+        output wire [NB_COUNTER-1 : 0]          o_error_count
      );
     
     //LOCALPARAM

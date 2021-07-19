@@ -47,7 +47,8 @@ module rf_toplevel
     input wire                  i_reset,
     input wire                  i_signal_ok,
     input wire  [NB_GPIO-1 : 0] i_gpio_data,
-    output wire [NB_GPIO-1 : 0] o_gpio_data
+    output wire [NB_GPIO-1 : 0] o_gpio_data,
+    output wire [15:0]          o_leds
 );
 
 wire                                    rf_input_enable;
@@ -294,7 +295,8 @@ u_PCS_loopback
     .o_rf_missmatch_counter(rx_missmatch_counter_rf),
     .o_rf_lanes_block_lock(rx_lanes_block_lock_rf),
     .o_rf_lanes_id(rx_lanes_id_rf),
-    .o_rf_decoder_error_counter(rx_decoder_error_counter_rf)
+    .o_rf_decoder_error_counter(rx_decoder_error_counter_rf),
+    .o_leds(o_leds)
 );
 
 endmodule

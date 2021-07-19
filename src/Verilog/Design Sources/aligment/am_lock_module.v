@@ -32,7 +32,6 @@ module am_lock_module
     input  wire [NB_AM_PERIOD-1     : 0]    i_rf_am_period,
  
     output wire [NB_CODED_BLOCK-1   : 0]    o_data,											//to programable_fifo/lane_deskew module
-    output wire                             o_valid,        								//to programable_fifo/lane_deskew module             
 	output wire [NB_LANE_ID-1       : 0]    o_lane_id,										//to lane reorder module
 	output wire [NB_ERROR_COUNTER-1 : 0]    o_error_counter,								//to register_file/MDIO register
 	output wire                             o_am_lock,										//to lane deskew module
@@ -128,7 +127,6 @@ module am_lock_module
     assign                                  o_data              = output_data;
     assign                                  o_start_of_lane     = start_of_lane & i_valid;
     assign                                  o_resync            = resync;
-    assign                                  o_valid             = i_valid;
 
 
 //Instances

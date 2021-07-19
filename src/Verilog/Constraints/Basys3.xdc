@@ -264,10 +264,10 @@ set_property PACKAGE_PIN U18 [get_ports i_reset]
 
 
 ##USB-RS232 Interface
-set_property PACKAGE_PIN B18 [get_ports i_rx_uart]						
-	set_property IOSTANDARD LVCMOS33 [get_ports i_rx_uart]
-set_property PACKAGE_PIN A18 [get_ports o_tx_uart]						
-    set_property IOSTANDARD LVCMOS33 [get_ports o_tx_uart]
+#set_property PACKAGE_PIN B18 [get_ports i_rx_uart]						
+	#set_property IOSTANDARD LVCMOS33 [get_ports i_rx_uart]
+#set_property PACKAGE_PIN A18 [get_ports o_tx_uart]						
+    #set_property IOSTANDARD LVCMOS33 [get_ports o_tx_uart]
 
 
 ##USB HID (PS/2)

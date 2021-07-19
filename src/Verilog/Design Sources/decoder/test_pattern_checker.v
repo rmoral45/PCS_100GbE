@@ -18,16 +18,15 @@ module test_pattern_checker
 	 output wire [NB_MISMATCH_COUNTER-1 : 0] 	o_mismatch_counter
  );
  
- assign 										o_mismatch_counter = counter;
-
-//LOCALPARAM
+ //LOCALPARAM
 localparam [NB_CODED_BLOCK-1 : 0] 				static_idle_block = 66'h21E00000000000000;
 
 //INTERNAL SIGNALS
 reg  [NB_MISMATCH_COUNTER-1 : 0] 				counter;
 wire 											max_limit;
 wire 											mismatch;
-
+ 
+assign 										o_mismatch_counter = counter;
 
 always @ (posedge i_clock)
 begin

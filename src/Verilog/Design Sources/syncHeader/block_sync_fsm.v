@@ -100,12 +100,13 @@ module block_sync_fsm
 
     always @ *
     begin
-        next_state		= state;
+        next_state		    = state;
         reset_count 		= 1'b0;
-        reset_timer		= 1'b0;
+        reset_timer		    = 1'b0;
         update_search_index	= 1'b0;
         update_block_index	= 1'b0;
         reset_search_index 	= 1'b0;
+        block_lock          = 1'b0;
 
         case(state)
             UNLOCKED:

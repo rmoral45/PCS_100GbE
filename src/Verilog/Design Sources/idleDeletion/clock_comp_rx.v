@@ -21,7 +21,6 @@ module clock_comp_rx
         input  wire                             i_reset,
         input  wire                             i_rf_enable,
         input  wire                             i_valid,
-        input  wire                             i_fsm_control,
         input  wire                             i_sol_tag,
         input  wire [NB_DATA_CODED-1 : 0]       i_data,
 

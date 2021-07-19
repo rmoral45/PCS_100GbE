@@ -6,7 +6,7 @@ module decoder
     parameter                                   NB_DATA_RAW         = 64,
     parameter                                   NB_CTRL_BLOCK       = 8,
     parameter                                   NB_BLOCK_TYPE       = 4,
-    parameter                           	    NB_ERROR_COUNTER    = 32
+    parameter                           	    NB_ERROR_COUNTER    = 16
 )
 (
     input   wire                                i_clock,

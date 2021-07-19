@@ -56,7 +56,7 @@ module PCS_loopback
 
     //decoder
     parameter           NB_FSM_CONTROL          = 4,
-    parameter           NB_DECODER_ERROR_COUNTER= 32,
+    parameter           NB_DECODER_ERROR_COUNTER= 16,
     
     //test pattern checker
     parameter           NB_MISMATCH_COUNTER     = 16    
@@ -141,9 +141,11 @@ module PCS_loopback
     output wire     [NB_MISMATCH_COUNTER-1      : 0]o_rf_missmatch_counter,
     output wire     [N_LANES-1                  : 0]o_rf_lanes_block_lock,
     output wire     [NB_ID_BUS-1                : 0]o_rf_lanes_id,
-    output wire     [NB_DECODER_ERROR_COUNTER-1 : 0]o_rf_decoder_error_counter
-);
+    output wire     [NB_DECODER_ERROR_COUNTER-1 : 0]o_rf_decoder_error_counter,
 
+    //To board ports
+    output wire     [15 : 0]                        o_leds
+);
 /* Tx to Channel signals */
     wire            [NB_DATA_CODED-1            : 0]tx_encoder_data_rx;
     wire            [NB_DATA_CODED-1            : 0]tx_clockcomp_data_rx; 
@@ -170,7 +172,28 @@ module PCS_loopback
     wire            [NB_DATA_BUS-1              : 0]blockskew_data_rx;
     wire                                            blockskew_valid_rx;
 
+//============================================================================//
+//                          AUX CODE TO CONNECT BOARD
+    wire            [NB_DECODER_ERROR_COUNTER-1         : 0] aux_decoder_error_counter_bus;
+    reg             [NB_DECODER_ERROR_COUNTER-1         : 0] aux_decoder_error_counter_bus_d;
+    reg             [NB_DECODER_ERROR_COUNTER-1         : 0] aux_decoder_error_counter_bus_2d;
+    reg             [NB_DECODER_ERROR_COUNTER-1         : 0] aux_decoder_error_counter_bus_3d;
 
+    always @(posedge i_clock) begin
+        if(i_reset) begin
+            aux_decoder_error_counter_bus_d <= {NB_DECODER_ERROR_COUNTER{1'b0}};
+            aux_decoder_error_counter_bus_2d <= {NB_DECODER_ERROR_COUNTER{1'b0}};
+            aux_decoder_error_counter_bus_3d <= {NB_DECODER_ERROR_COUNTER{1'b0}};             
+        end
+        else begin
+            aux_decoder_error_counter_bus_d <= aux_decoder_error_counter_bus;
+            aux_decoder_error_counter_bus_2d <= aux_decoder_error_counter_bus_d;
+            aux_decoder_error_counter_bus_3d <= aux_decoder_error_counter_bus_2d;
+        end
+    end
+
+    assign          o_leds = aux_decoder_error_counter_bus[NB_DECODER_ERROR_COUNTER/2 - 1 : 0];
+//============================================================================//    
 
 //Instances
 toplevel_tx
@@ -319,7 +342,7 @@ u_rx_toplevel
         .o_rf_missmatch_counter             (o_rf_missmatch_counter),
         .o_rf_lanes_block_lock              (o_rf_lanes_block_lock),
         .o_rf_lanes_id                      (o_rf_lanes_id),
-        .o_rf_decoder_error_counter         (o_rf_decoder_error_counter),
+        .o_rf_decoder_error_counter         (aux_decoder_error_counter_bus),
 
         .i_clock                            (i_clock),
         .i_reset                            (i_reset),

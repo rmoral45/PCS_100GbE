@@ -60,6 +60,8 @@ module frame_generator_rx
 
     always @ (*)
     begin
+            frame_generated = {NB_DATA{1'b0}};
+    
             if(frame_mux == START_FRAME)
                 frame_generated = {CTRL_SH, START_TYPE, {7{DATA_CHAR}}};
             else if(frame_mux == DATA_FRAME)

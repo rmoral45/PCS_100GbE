@@ -177,7 +177,6 @@ wire    [NB_MISMATCH_COUNTER-1      : 0]    missmatch_counter_rf;
 
 
 //decoder --> clock comp rx
-wire                                        decoder_fsmcontrol_clockcomp;
 wire    [NB_DATA_RAW-1              :   0]  decoder_data_raw;
 wire    [NB_CTRL_RAW-1              :   0]  decoder_ctrl_raw;
 
@@ -374,7 +373,6 @@ u_clock_comp_rx
     .i_reset                    (i_reset),
     .i_rf_enable                (i_rf_enable_clock_comp & deskew_deskewdone_reorder),
     .i_valid                    (descrambler_valid_clockcomp),
-    .i_fsm_control              (decoder_fsmcontrol_clockcomp),
     .i_sol_tag                  (descrambler_tag),  
     .i_data                     (descrambler_data_clockcomp),
     

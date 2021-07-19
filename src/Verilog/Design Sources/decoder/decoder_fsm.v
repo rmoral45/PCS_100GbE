@@ -7,7 +7,7 @@ module decoder_fsm
     parameter 								LEN_CTRL_BLOCK = 8,
     parameter                           	N_STATES = 5,
     parameter                           	N_TYPES = 4,
-    parameter                           	NB_ERROR_COUNTER = 32
+    parameter                           	NB_ERROR_COUNTER = 16
  )
  (
  	input wire  							i_clock,
