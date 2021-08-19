@@ -1,63 +1,69 @@
 module rf_toplevel
-#(
-    parameter NB_ENABLE_RF      = 1,
-    parameter NB_ADDR           = 9, //slice of GPIOmused for addr
-    parameter NB_I_DATA         = 22, //slice of GPIO used for data
-    parameter NB_GPIO           = 32,
-    parameter N_LANES           = 20,
+(
+    input   wire                i_fpga_clock,
+    input   wire                i_reset,
+    input   wire                RsRx,
+    output  wire                RsTx
+
+//    output wire [15:0]          o_leds
+);
+
+    localparam NB_ENABLE_RF      = 1;
+    localparam NB_ADDR           = 9; //slice of GPIOmused for addr
+    localparam NB_I_DATA         = 22; //slice of GPIO used for data
+    localparam NB_GPIO           = 32;
+    localparam N_LANES           = 20;
 
     //Channel parameters
-    parameter NB_CODED_BLOCK    = 66,
-    parameter NB_ERR_MASK       = NB_CODED_BLOCK-2,    //mascara, se romperan los bits cuya posicon en la mascara sea 1
-    parameter MAX_ERR_BURST     = 1024,                //cantidad de bloques consecutivos que se romperan
-    parameter MAX_ERR_PERIOD    = 1024,                //cantidad de bloqus por periodo de error ver NOTAS.
-    parameter MAX_ERR_REPEAT    = 10,                  //cantidad de veces que se repite el mismo patron de error
-    parameter NB_BURST_CNT      = $clog2(MAX_ERR_BURST),
-    parameter NB_PERIOD_CNT     = $clog2(MAX_ERR_PERIOD),
-    parameter NB_REPEAT_CNT     = $clog2(MAX_ERR_REPEAT),
-    parameter N_MODES           = 4,
-    parameter MAX_SKEW_INDEX    = NB_CODED_BLOCK-2,
-    parameter NB_SKEW_INDEX     = $clog2(MAX_SKEW_INDEX),
+    localparam NB_CODED_BLOCK    = 66;
+    localparam NB_ERR_MASK       = NB_CODED_BLOCK-2;    //mascara; se romperan los bits cuya posicon en la mascara sea 1
+    localparam MAX_ERR_BURST     = 1024;                //cantidad de bloques consecutivos que se romperan
+    localparam MAX_ERR_PERIOD    = 1024;                //cantidad de bloqus por periodo de error ver NOTAS.
+    localparam MAX_ERR_REPEAT    = 10;                  //cantidad de veces que se repite el mismo patron de error
+    localparam NB_BURST_CNT      = $clog2(MAX_ERR_BURST);
+    localparam NB_PERIOD_CNT     = $clog2(MAX_ERR_PERIOD);
+    localparam NB_REPEAT_CNT     = $clog2(MAX_ERR_REPEAT);
+    localparam N_MODES           = 4;
+    localparam MAX_SKEW_INDEX    = NB_CODED_BLOCK-2;
+    localparam NB_SKEW_INDEX     = $clog2(MAX_SKEW_INDEX);
     //Block sync parameters
-    parameter MAX_WINDOW        = 4096,
-    parameter MAX_INVALID_SH    = (MAX_WINDOW/2), 
-    parameter NB_WINDOW_CNT     = $clog2(MAX_WINDOW),
-    parameter NB_INVALID_CNT    = $clog2(MAX_INVALID_SH),
-    parameter NB_INDEX          = $clog2(NB_CODED_BLOCK),
+    localparam MAX_WINDOW        = 4096;
+    localparam MAX_INVALID_SH    = (MAX_WINDOW/2); 
+    localparam NB_WINDOW_CNT     = $clog2(MAX_WINDOW);
+    localparam NB_INVALID_CNT    = $clog2(MAX_INVALID_SH);
+    localparam NB_INDEX          = $clog2(NB_CODED_BLOCK);
     //Am checker parameters
-    parameter NB_AM             = 48,
-    parameter MAX_INV_AM        = 8,
-    parameter NB_INV_AM         = $clog2(MAX_INV_AM),
-    parameter MAX_VAL_AM        = 20,
-    parameter NB_VAL_AM         = $clog2(MAX_VAL_AM),
-    parameter NB_BIP_ERR        = 16,
-    parameter NB_BIP_ERR_BUS    = N_LANES * NB_BIP_ERR,
-    parameter NB_RESYNC_CNT     = 8,
-    parameter NB_RESYNC_CNT_BUS = N_LANES * NB_RESYNC_CNT,  
-    parameter NB_AM_PERIOD      = 14,  
+    localparam NB_AM             = 48;
+    localparam MAX_INV_AM        = 8;
+    localparam NB_INV_AM         = $clog2(MAX_INV_AM);
+    localparam MAX_VAL_AM        = 20;
+    localparam NB_VAL_AM         = $clog2(MAX_VAL_AM);
+    localparam NB_BIP_ERR        = 16;
+    localparam NB_BIP_ERR_BUS    = N_LANES * NB_BIP_ERR;
+    localparam NB_RESYNC_CNT     = 8;
+    localparam NB_RESYNC_CNT_BUS = N_LANES * NB_RESYNC_CNT;  
+    localparam NB_AM_PERIOD      = 14;  
     //Default parameters
-    parameter NB_LANE_ID        = $clog2(N_LANES),    
-    parameter AM_PERIOD_BLOCKS  = 16383,
-    parameter NB_DECODER_ERROR_COUNTER  = 16,
-    parameter NB_ID_BUS         = N_LANES * NB_LANE_ID,
-    parameter NB_MISMATCH_COUNTER = 16
-)
-(
-    input wire                  i_clock,
-    input wire                  i_reset,
-    input wire                  i_signal_ok,
-    input wire  [NB_GPIO-1 : 0] i_gpio_data,
-    output wire [NB_GPIO-1 : 0] o_gpio_data,
-    output wire [15:0]          o_leds
-);
+    localparam NB_LANE_ID        = $clog2(N_LANES);    
+    localparam AM_PERIOD_BLOCKS  = 16383;
+    localparam NB_DECODER_ERROR_COUNTER  = 16;
+    localparam NB_ID_BUS         = N_LANES * NB_LANE_ID;
+    localparam NB_MISMATCH_COUNTER = 16;
 
 wire                                    rf_input_enable;
 wire            [NB_ADDR-1      : 0]    rf_input_addr;
 wire            [NB_I_DATA-1    : 0]    rf_input_data;
 
-assign                                  rf_input_enable = i_gpio_data[NB_GPIO- NB_ENABLE_RF];
-assign                                  rf_input_data   = i_gpio_data[NB_GPIO - NB_ADDR -1 -: NB_I_DATA];
-assign                                  rf_input_addr   = i_gpio_data[NB_GPIO - NB_ENABLE_RF - 1 -: NB_ADDR];
+//========================================IP core clocks
+wire                                    micro_clock_out_rf;
+wire                                    micro_clock_out_pcs;
+wire            [NB_GPIO - 1 : 0]       micro_gpio_rf; // gpio_rtl_tri_o
+wire            [NB_GPIO - 1 : 0]       rf_gpio_micro; //gpio_rtl_tri_i
+wire                                    locked_clock;
+
+assign                                  rf_input_enable = micro_gpio_rf[NB_GPIO- NB_ENABLE_RF];
+assign                                  rf_input_data   = micro_gpio_rf[NB_GPIO - NB_ADDR -1 -: NB_I_DATA];
+assign                                  rf_input_addr   = micro_gpio_rf[NB_GPIO - NB_ENABLE_RF - 1 -: NB_ADDR];
 
 /* RF to PCS TOP */
 wire rf_reset_pcs;
@@ -133,9 +139,9 @@ wire     [NB_DECODER_ERROR_COUNTER-1 : 0] rx_decoder_error_counter_rf;
 rf_write
 u_rf_write
 (
-    .i_clock(i_clock),
+    .i_clock(micro_clock_out_rf),
     .i_reset(i_reset),
-    .i_gpio_data(i_gpio_data),
+    .i_gpio_data(rf_input_data),
 
     //-----------------------Global-----------------------
     .o_pcs__i_rf_reset(rf_reset_pcs),
@@ -199,8 +205,8 @@ u_rf_write
 rf_read_mux
 u_rf_read_mux
 (
-    .o_gpio_data(o_gpio_data),
-    .i_clock    (i_clock),
+    .o_gpio_data(rf_gpio_micro),
+    .i_clock    (micro_clock_out_rf),
     .i_reset    (i_reset),
     .input_addr(rf_input_addr),
     .bermonitor__o_rf_hi_ber(rx_hi_ber_rf),
@@ -218,7 +224,7 @@ PCS_loopback
 u_PCS_loopback
 (
 //Common inputs
-    .i_clock                     (i_clock),
+    .i_clock                     (micro_clock_out_pcs),
     .i_reset                     (rf_reset_pcs),
     .i_rf_idle_pattern_mode      (rf_iddle_pattern_mode_pcs),
 
@@ -297,6 +303,20 @@ u_PCS_loopback
     .o_rf_lanes_id(rx_lanes_id_rf),
     .o_rf_decoder_error_counter(rx_decoder_error_counter_rf),
     .o_leds(o_leds)
+);
+
+PCS_RF_MICRO
+u_micro
+(
+    .clock50            (micro_clock_out_rf),
+    .clock25            (micro_clock_out_pcs),
+    .gpio_rtl_tri_o     (micro_gpio_rf),
+    .gpio_rtl_tri_i     (rf_gpio_micro),
+    .reset              (i_reset), //hard reset
+    .sys_clock          (i_fpga_clock), //fpga clock
+    .o_lock_clock       (locked_clock),
+    .usb_uart_rxd       (RsRx),
+    .usb_uart_txd       (RsTx)
 );
 
 endmodule
