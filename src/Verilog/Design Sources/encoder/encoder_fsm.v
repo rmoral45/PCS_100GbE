@@ -38,23 +38,10 @@ reg [4:0] state_next;
 reg [NB_DATA_CODED-1 : 0] tx_coded ; 
 reg [NB_DATA_CODED-1 : 0] tx_coded_next;
 reg                       valid_d;
-reg [NB_ERROR_COUNTER-1 : 0] error_counter;
-wire [NB_ERROR_COUNTER-1 : 0] error_counter_next;
 
 //PORTS
 assign o_tx_coded   = tx_coded;
 assign o_valid      = valid_d;
-
-//Error counter
-always @ (posedge i_clock)
-begin
-    if(i_reset)
-        error_counter <= {NB_ERROR_COUNTER{1'b0}};
-    else if(i_enable && i_valid)
-        error_counter <= error_counter_next;
-end
-
-assign error_counter_next = (state == TX_E) ? error_counter + 1 : error_counter;
 
 //Update state
 always @ (posedge i_clock)

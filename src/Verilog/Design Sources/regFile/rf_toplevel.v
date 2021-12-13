@@ -4,8 +4,6 @@ module rf_toplevel
     input   wire                i_reset,
     input   wire                RsRx,
     output  wire                RsTx
-
-//    output wire [15:0]          o_leds
 );
 
     localparam NB_ENABLE_RF      = 1;
@@ -61,9 +59,12 @@ wire            [NB_GPIO - 1 : 0]       micro_gpio_rf; // gpio_rtl_tri_o
 wire            [NB_GPIO - 1 : 0]       rf_gpio_micro; //gpio_rtl_tri_i
 wire                                    locked_clock;
 
-assign                                  rf_input_enable = micro_gpio_rf[NB_GPIO- NB_ENABLE_RF];
-assign                                  rf_input_data   = micro_gpio_rf[NB_GPIO - NB_ADDR -1 -: NB_I_DATA];
-assign                                  rf_input_addr   = micro_gpio_rf[NB_GPIO - NB_ENABLE_RF - 1 -: NB_ADDR];
+
+//Delay regs
+reg reset_d;
+reg reset_2d;
+reg locked_clock_d; 
+reg locked_clock_2d;
 
 /* RF to PCS TOP */
 wire rf_reset_pcs;
@@ -141,7 +142,7 @@ u_rf_write
 (
     .i_clock(micro_clock_out_rf),
     .i_reset(i_reset),
-    .i_gpio_data(rf_input_data),
+    .i_gpio_data(micro_gpio_rf),
 
     //-----------------------Global-----------------------
     .o_pcs__i_rf_reset(rf_reset_pcs),
@@ -225,6 +226,7 @@ u_PCS_loopback
 (
 //Common inputs
     .i_clock                     (micro_clock_out_pcs),
+
     .i_reset                     (rf_reset_pcs),
     .i_rf_idle_pattern_mode      (rf_iddle_pattern_mode_pcs),
 
@@ -273,7 +275,7 @@ u_PCS_loopback
     .i_rf_rx_unlocked_timer_limit(rf_rx_unlocked_timer_limit),
     .i_rf_rx_locked_timer_limit(rf_rx_locked_timer_limit),
     .i_rf_rx_sh_invalid_limit(rf_rx_sh_invalid_limit),
-    .i_rx_signal_ok(i_signal_ok),
+    .i_rx_signal_ok(1'b1),
     .i_rf_rx_invalid_am_thr(rf_rx_invalid_am_thr),
     .i_rf_rx_valid_am_thr(rf_rx_valid_am_thr),
     .i_rf_rx_compare_mask(rf_rx_compare_mask),
@@ -301,15 +303,15 @@ u_PCS_loopback
     .o_rf_missmatch_counter(rx_missmatch_counter_rf),
     .o_rf_lanes_block_lock(rx_lanes_block_lock_rf),
     .o_rf_lanes_id(rx_lanes_id_rf),
-    .o_rf_decoder_error_counter(rx_decoder_error_counter_rf),
-    .o_leds(o_leds)
+    .o_rf_decoder_error_counter(rx_decoder_error_counter_rf)
+//    .o_leds(o_leds)
 );
 
-PCS_RF_MICRO
+Micro_rf_PCS
 u_micro
 (
-    .clock50            (micro_clock_out_rf),
-    .clock25            (micro_clock_out_pcs),
+    .clock50            (micro_clock_out_pcs),
+    .clock25            (micro_clock_out_rf),
     .gpio_rtl_tri_o     (micro_gpio_rf),
     .gpio_rtl_tri_i     (rf_gpio_micro),
     .reset              (i_reset), //hard reset

@@ -38,7 +38,6 @@ reg 		[IDLE_NBIT - 1:0]		n_idle;
 reg 		[IDLE_NBIT - 1:0]		n_idle_next;
 reg 		[DATA_NBIT - 1:0]		n_data;
 reg 		[DATA_NBIT - 1:0]		n_data_next;
-reg                                 first_transition;
 reg                                 start_signal;
 reg                                 start_signal_next;
 reg                                 valid_signal;
@@ -53,10 +52,8 @@ always @ (posedge i_clock)begin
 	if(i_reset)begin
         data_counter    <= {DATA_NBIT{1'b0}};
         idle_counter 	<= {IDLE_NBIT{1'b0}};
-        //first_transition<= 1'b1; 
         n_idle 			<= i_nidle;
         n_data          <= i_ndata;
-        first_transition<= 1'b0;
         start_signal    <= 1'b0;
         actual_state    <= INIT;
         valid_signal    <= 1'b0;

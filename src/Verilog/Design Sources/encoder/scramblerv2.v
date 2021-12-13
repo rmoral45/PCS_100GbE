@@ -27,6 +27,7 @@ localparam [NB_DATA_CODED-1 : 0] IDLE_BLOCK = 66'h21E00000000000000;
 //INTERNAL SIGNALS
 integer i;
 wire [NB_SH-1 : 0]	   sync_header;
+//(* keep = "true" *) reg  [NB_SCRAMBLER-1   : 0] scrambler_state;
 
 /* Usados para combinacional */
 reg  [NB_DATA_CODED-1 : 0] scrambled_data; 
