@@ -164,7 +164,7 @@ begin
     #10
     tb_rf_i_gpio_data[NB_GPIO_DATA - NB_ENABLE_RF]  = 1'b0;    //enable of RF input
     
-    #100
+    #1000
     tb_rf_i_gpio_data[NB_GPIO_DATA - NB_ENABLE_RF - 1 -: NB_ADDR_RF] = 9'd5; //scrambler addr
     
     #10
@@ -611,9 +611,8 @@ always #1 tb_clock = ~tb_clock;
 rf_toplevel
 u_rf_toplevel
 (
-    .i_clock(tb_clock),
+    .i_fpga_clock(tb_clock),
     .i_reset(tb_reset),
-    .i_signal_ok(tb_signal_ok),
     .i_gpio_data(tb_rf_i_gpio_data),
     .o_gpio_data(tb_rf_o_gpio_data)
 );

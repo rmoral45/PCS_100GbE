@@ -137,6 +137,25 @@ wire     [N_LANES-1                  : 0] rx_lanes_block_lock_rf;
 wire     [NB_ID_BUS-1                : 0] rx_lanes_id_rf;
 wire     [NB_DECODER_ERROR_COUNTER-1 : 0] rx_decoder_error_counter_rf;
 
+/* Signal registring [FIXME]: how to initialize those regs? */  
+always @(posedge i_fpga_clock) begin
+    reset_d         <= i_reset;
+    reset_2d        <= reset_d;
+    locked_clock_d  <= locked_clock;
+    locked_clock_2d <= locked_clock_d;
+end
+
+syncrhonizer
+#(
+    .NB_DATA(1)
+)
+(
+    .i_data(i_reset),
+    .i_clock(i_fpga_clock),
+    .o_data(reset_synced)
+);
+
+
 rf_write
 u_rf_write
 (

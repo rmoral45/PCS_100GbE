@@ -22,8 +22,48 @@ module encoder
     localparam  N_DATA_TYPES    = 4;
 
     //connection wires between comparator and fsm
-    wire        [N_DATA_TYPES-1 : 0]    comparator_type_fsm;
-    wire        [NB_DATA_CODED-1 : 0]   comparator_data_fsm;        
+    wire        [N_DATA_TYPES-1 : 0]        comparator_type_fsm;
+    wire        [NB_DATA_CODED-1 : 0]       comparator_data_fsm;
+
+    //regs to solve timing issues
+    wire        [NB_DATA_CODED-1 : 0]       tx_coded;
+    reg         [NB_DATA_CODED-1 : 0]       tx_coded_data_d;
+    reg         [NB_DATA_CODED-1 : 0]       tx_coded_data_2d;
+    wire                                    tx_coded_valid;
+    reg                                     tx_coded_valid_d;
+    reg                                     tx_coded_valid_2d;
+
+    //data output registring
+    always @posedge(i_clock) begin
+        if(i_reset) begin
+            tx_coded_data_d     <= {NB_DATA_CODED{1'b0}};
+            tx_coded_data_2d    <= {NB_DATA_CODED{1'b0}};
+        end
+        if(i_valid) begin
+            tx_coded_data_d     <= tx_coded;
+            tx_coded_data_2d    <= tx_coded_data_d;
+        end
+        else begin
+            tx_coded_data_d     <= tx_coded_data_d;
+            tx_coded_data_2d    <= tx_coded_data_2d;
+        end
+    end
+
+    //valid output registring
+    always @posedge(i_clock) begin
+        if(i_reset) begin
+            tx_coded_valid_d    <= 1'b0;
+            tx_coded_valid_2d   <= 1'b0;
+        end
+        if(i_valid) begin
+            tx_coded_valid_d    <= tx_coded_valid;
+            tx_coded_valid_2d   <= tx_coded_valid_d;
+        end
+        else begin
+            tx_coded_valid_d    <= tx_coded_valid_d;
+            tx_coded_valid_2d   <= tx_coded_valid_2d;
+        end
+    end
 
 //encoder modules
 encoder_comparator
@@ -56,8 +96,12 @@ u_encoder_fsm
     .i_valid   (i_valid)                ,
     .i_tx_type (comparator_type_fsm)    ,
     .i_tx_coded(comparator_data_fsm)    ,
-    .o_tx_coded(o_tx_coded)             ,
+    .o_tx_coded(tx_coded)               ,
     .o_valid   (o_valid)
 );
+
+//outputs
+assign o_tx_data    = tx_coded_data_2d;
+assign o_valid      = tx_coded_valid_2d;
 
 endmodule
