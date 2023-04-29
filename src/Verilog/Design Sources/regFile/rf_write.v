@@ -133,9 +133,7 @@ module rf_write
         if (i_reset)
             pcs__i_rf_reset <= 1'b0;
         else if ((rf_input_addr == PCS__I_RF_RESET) && rf_input_enable)   
-            pcs__i_rf_reset <= rf_input_data[0];
-        else
-            pcs__i_rf_reset <= 1'b0;
+            pcs__i_rf_reset <= rf_input_data[0];;
      end
 
      always @ (posedge i_clock) begin
@@ -737,7 +735,7 @@ module rf_write
 
      always @ (posedge i_clock) begin
         if (i_reset)
-            blksync__i_rf_enable <= 1'b1;
+            blksync__i_rf_enable <= 1'b0;
         else if ((rf_input_addr == BLKSYNC__I_RF_ENABLE) && rf_input_enable)   
             blksync__i_rf_enable <= rf_input_data[0];
      end

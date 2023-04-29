@@ -102,18 +102,13 @@
 #define CHANNEL__I_RF_BIT_SKEW_INDEX            103
 #define BLKSYNC__I_RF_ENABLE            104
 #define ALIGNER__I_RF_ENABLE            105
-#define DESKEWER__I_RF_ENABLE            106
-#define REORDER__I_RF_ENABLE            107
-#define DESCRAMBLER__I_RF_ENABLE            108
 #define PTRNCHECK__I_RF_ENABLE            109
-#define DECODER__I_RF_ENABLE            110
 #define BLKSYNC__I_RF_LOCKED_TIMER_LIMIT            111
 #define BLKSYNC__I_RF_UNLOCKED_TIMER_LIMIT            112
 #define BLKSYNC__I_RF_SH_INVALID_LIMIT            113
 #define ALIGNER__I_RF_INVALID_AM_THR            114
 #define ALIGNER__I_RF_VALID_AM_THR            115
 #define ALIGNER__I_RF_AM_PERIOD            116
-#define REORDER__I_RF_RESET_ORDER            117
 #define BERMONITOR__O_RF_HI_BER_BASE            118
 #define BERMONITOR1__O_RF_HI_BER            119
 #define BERMONITOR2__O_RF_HI_BER            120
@@ -345,3 +340,8 @@
 #define TESTPATT__O_COR_ERROR_COUNTER            346
 #define DECODER__O_RF_ERROR_COUNTER            347
 #define DECODER__O_COR_ERROR_COUNTER            348
+#define FRAME_GENERATOR__I_RF_ENABLE    349
+#define ENCODER__I_RF_ENABLE            350
+#define TX_CLOCK_COMP__I_RF_ENABLE      351
+#define TX_PC__I_RF_ENABLE              352
+#define RX_CLOCK_COMP__I_RF_ENABLE      353

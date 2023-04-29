@@ -608,13 +608,22 @@ end
 
 always #1 tb_clock = ~tb_clock;
 
+// Without Microblaze instance
+// rf_toplevel
+// u_rf_toplevel
+// (
+//     .i_fpga_clock(tb_clock),
+//     .i_reset(tb_reset),
+//     .i_gpio_data(tb_rf_i_gpio_data),
+//     .o_gpio_data(tb_rf_o_gpio_data)
+// );
+
+
 rf_toplevel
 u_rf_toplevel
 (
     .i_fpga_clock(tb_clock),
-    .i_reset(tb_reset),
-    .i_gpio_data(tb_rf_i_gpio_data),
-    .o_gpio_data(tb_rf_o_gpio_data)
+    .i_reset(tb_reset)
 );
 
 endmodule

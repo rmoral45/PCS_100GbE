@@ -21,8 +21,8 @@ wire 			[NB_BYTE-1 : 0]	data5;
 wire 			[NB_BYTE-1 : 0]	data6;
 wire 			[NB_BYTE-1 : 0]	data7;
 
-//assign o_data_block	= {data0, data1, data2, data3, data4, data5, data6, data7};
-assign o_data_block = 64'b0;
+assign o_data_block	= {data0, data1, data2, data3, data4, data5, data6, data7};
+// assign o_data_block = 64'b0;
 
 prbs#(
     .HIGH_LIM(10),

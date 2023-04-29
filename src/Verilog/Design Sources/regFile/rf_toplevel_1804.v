@@ -2,9 +2,10 @@ module rf_toplevel
 (
     input   wire                i_fpga_clock,
     input   wire                i_reset,
-    input   wire                RsRx,
-    output  wire                RsTx,
-    output wire [15:0]  o_leds
+    input   wire [31:0]         i_gpio_data,
+    output   wire [31:0]         o_gpio_data
+    //input   wire                RsRx,
+    //output  wire                RsTx
 );
 
     localparam NB_ENABLE_RF      = 1;
@@ -54,6 +55,7 @@ wire            [NB_ADDR-1      : 0]    rf_input_addr;
 wire            [NB_I_DATA-1    : 0]    rf_input_data;
 
 //========================================IP core clocks
+wire                                    micro_clock_out_rf;
 wire                                    micro_clock_out_pcs;
 wire            [NB_GPIO - 1 : 0]       micro_gpio_rf; // gpio_rtl_tri_o
 wire            [NB_GPIO - 1 : 0]       rf_gpio_micro; //gpio_rtl_tri_i
@@ -137,17 +139,12 @@ wire     [N_LANES-1                  : 0] rx_lanes_block_lock_rf;
 wire     [NB_ID_BUS-1                : 0] rx_lanes_id_rf;
 wire     [NB_DECODER_ERROR_COUNTER-1 : 0] rx_decoder_error_counter_rf;
 
-
-
-(* keep = "true" *) reg  [1 : 0] single_clk_comp_enb;
-
 /* Signal registring [FIXME]: how to initialize those regs? */  
 always @(posedge i_fpga_clock) begin
-    reset_d             <= i_reset;
-    reset_2d            <= reset_d;
-    locked_clock_d      <= locked_clock;
-    locked_clock_2d     <= locked_clock_d;
-    single_clk_comp_enb <= {rf_clock_comp_enb_pcs, rf_clock_comp_enb_pcs};//[FIXME]: si cambiamos el clock de la pcs cambiar el clock de este reg
+    reset_d         <= i_reset;
+    reset_2d        <= reset_d;
+    locked_clock_d  <= locked_clock;
+    locked_clock_2d <= locked_clock_d;
 end
 
 //syncrhonizer
@@ -165,8 +162,8 @@ rf_write
 u_rf_write
 (
     .i_clock(i_fpga_clock),
-    .i_reset(reset_2d),
-    .i_gpio_data(micro_gpio_rf),
+    .i_reset(i_reset),
+    .i_gpio_data(i_gpio_data),
 
     //-----------------------Global-----------------------
     .o_pcs__i_rf_reset(rf_reset_pcs),
@@ -227,39 +224,12 @@ u_rf_write
     .o_decoder__i_cor_err_counter(rf_rx_read_decoder_error_counter)
 );
 
-//    assign rf_input_addr =  9'd220; //FIXME: REVISAR
-    assign rf_input_addr = micro_gpio_rf[30:22];
-   
-    reg [15:0] leds;
-    
-    always @(posedge i_fpga_clock) begin
-        if(i_reset)
-            leds <= 16'hFAFA;
-        else
-            leds <={{3{1'b0}},rf_enb_rx_aligner,
-                rf_enb_rx_block_sync,
-                rf_enb_rx_decoder,
-                rf_enb_rx_descrambler,
-                rf_enb_rx_deskewer,
-                rf_encoder_enb_tx,
-                rf_frame_generator_enb_tx,
-                rf_enb_rx_lane_reorder,
-                rf_clock_comp_enb_pcs,
-                rf_scrambler_enb_tx,
-                rf_am_insertion_enb_tx,
-                rf_clock_comp_enb_pcs,
-                rf_pc_enb_tx};
-            // leds <= {{7{1'b0}}, rf_input_addr};
-    end
-    
-    assign o_leds = leds;
-
 rf_read_mux
 u_rf_read_mux
 (
     .o_gpio_data(rf_gpio_micro),
     .i_clock    (i_fpga_clock),
-    .i_reset    (reset_2d),
+    .i_reset    (i_reset),
     .input_addr(rf_input_addr),
     .bermonitor__o_rf_hi_ber(rx_hi_ber_rf),
     .aligner__o_rf_bip_error_count(rx_am_error_counter_rf),
@@ -278,14 +248,14 @@ u_PCS_loopback
 //Common inputs
     .i_clock                     (i_fpga_clock),
 
-    .i_reset                     (rf_reset_pcs),
+    .i_reset                     (i_reset),
     .i_rf_idle_pattern_mode      (rf_iddle_pattern_mode_pcs),
 
     //-----------------------Tx-----------------------
     //Enables
     .i_rf_enb_tx_frame_gen       (rf_frame_generator_enb_tx),
     .i_rf_enb_tx_encoder         (rf_encoder_enb_tx),
-    .i_rf_enb_tx_clock_comp      (single_clk_comp_enb[0]),
+    .i_rf_enb_tx_clock_comp      (rf_clock_comp_enb_pcs),
     .i_rf_enb_tx_scrambler       (rf_scrambler_enb_tx),
     .i_rf_tx_bypass_scrambler    (rf_scrambler_bypass_tx),
     .i_rf_enb_tx_pc_1_20         (rf_pc_enb_tx),
@@ -318,7 +288,7 @@ u_PCS_loopback
     .i_rf_enb_rx_deskewer(rf_enb_rx_deskewer),
     .i_rf_enb_rx_lane_reorder(rf_enb_rx_lane_reorder),
     .i_rf_enb_rx_descrambler(rf_enb_rx_descrambler),
-    .i_rf_enb_rx_clock_comp(single_clk_comp_enb[1]),
+    .i_rf_enb_rx_clock_comp(rf_clock_comp_enb_pcs),
     .i_rf_enb_rx_test_pattern_checker(rf_enb_rx_test_pattern_checker),
     .i_rf_enb_rx_decoder(rf_enb_rx_decoder),
     //Rx modes and config
@@ -355,19 +325,21 @@ u_PCS_loopback
     .o_rf_lanes_block_lock(rx_lanes_block_lock_rf),
     .o_rf_lanes_id(rx_lanes_id_rf),
     .o_rf_decoder_error_counter(rx_decoder_error_counter_rf)
+//    .o_leds(o_leds)
 );
 
-Micro_rf_PCS
-u_micro
-(
-    .pcs_clock          (micro_clock_out_pcs),
-    .gpio_rtl_tri_o     (micro_gpio_rf),
-    .gpio_rtl_tri_i     (rf_gpio_micro),
-    .reset              (i_reset), //hard reset
-    .sys_clock          (i_fpga_clock), //fpga clock
-    .o_lock_clock       (locked_clock),
-    .usb_uart_rxd       (RsRx),
-    .usb_uart_txd       (RsTx)
-);
+// Micro_rf_PCS
+// u_micro
+// (
+//     .clock50            (micro_clock_out_pcs),
+//     .clock25            (micro_clock_out_rf),
+//     .gpio_rtl_tri_o     (micro_gpio_rf),
+//     .gpio_rtl_tri_i     (rf_gpio_micro),
+//     .reset              (i_reset), //hard reset
+//     .sys_clock          (i_fpga_clock), //fpga clock
+//     .o_lock_clock       (locked_clock),
+//     .usb_uart_rxd       (RsRx),
+//     .usb_uart_txd       (RsTx)
+// );
 
 endmodule

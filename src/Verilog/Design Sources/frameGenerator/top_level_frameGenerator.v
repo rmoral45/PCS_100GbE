@@ -38,7 +38,7 @@ assign  								nidle 			= (noise_data[NB_GNG-8 -: NB_IDLE] == 0) ? 1 : noise_da
 
 //Registros y parametros para el generador de frames
 wire									frameGenerator_enb;
-assign 									frameGenerator_enb	= (noise_valid && i_enable) ? 1'b1 : 1'b0;
+assign 									frameGenerator_enb	= i_enable ? 1'b1 : 1'b0;
 
 frameGenerator#(
 	.NB_DATA_RAW(NB_DATA_RAW),

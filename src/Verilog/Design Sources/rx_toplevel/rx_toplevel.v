@@ -245,12 +245,23 @@ end
 assign                              reset_hi_ber_posedge             = (|i_rf_read_hi_ber & ~(|read_hi_ber_d));
 assign                              reset_am_error_counter_posedge   = (|i_rf_read_am_error_counter & ~(|read_am_error_counter_d));
 assign                              reset_am_resyncs_posedge         = (|i_rf_read_am_resyncs & ~(|read_am_resyncs_d));
-assign                              reset_am_lock_posedge            = (|i_rf_read_am_lock & ~(|read_am_lock_d));
+assign                              reset_am_lock_posedge            = 0;// (|i_rf_read_am_lock & ~(|read_am_lock_d));
 assign                              reset_invalid_skew_posedge       = (i_rf_read_invalid_skew & ~read_invalid_skew_d);
 assign                              reset_missmatch_counter          = (i_rf_read_missmatch_counter & ~read_missmatch_counter_d);
-assign                              reset_lanes_block_lock           = (|i_rf_read_lanes_block_lock & ~(|read_lanes_block_lock_d));
+assign                              reset_lanes_block_lock           = 0;//(|i_rf_read_lanes_block_lock & ~(|read_lanes_block_lock_d));
 assign                              reset_lanes_id                   = (|i_rf_read_lanes_id & ~(|read_lanes_id_d));
 assign                              reset_decoder_error_counter      = (i_rf_read_decoder_error_counter & ~read_decoder_error_counter_d);
+
+(* keep = "true" *) reg     [4:0] deskew_done_replicated;
+
+always @(posedge i_clock)
+begin
+    deskew_done_replicated <= {deskew_deskewdone_reorder, 
+                               deskew_deskewdone_reorder,
+                               deskew_deskewdone_reorder,
+                               deskew_deskewdone_reorder,
+                               deskew_deskewdone_reorder};
+end
 
 always @(posedge i_clock)
 begin
@@ -286,10 +297,11 @@ end
 
 always @(posedge i_clock)
 begin
-    if(i_reset || reset_invalid_skew_posedge)
+    if(i_reset)
         invalid_skew            <=  1'b0;
     else
-        invalid_skew            <=  deskew_invalidskew_rf;
+        // invalid_skew            <=  deskew_invalidskew_rf;
+        invalid_skew            <= deskew_done_replicated[4];
 end
 
 always @(posedge i_clock)
@@ -318,10 +330,10 @@ end
 
 always @(posedge i_clock)
 begin
-    if(i_reset || reset_decoder_error_counter)
+    if(i_reset /*|| reset_decoder_error_counter*/)
         decoder_error_counter  <=  {NB_DECODER_ERROR_COUNTER{1'b0}};
     else
-        decoder_error_counter  <=  decoder_errorcounter_rf;
+       decoder_error_counter  <=  decoder_errorcounter_rf; 
 end
 
 //---------------------  Outputs --------------------------//
@@ -337,11 +349,20 @@ end
 
 //---------------------  Instances --------------------------//
 
+    (* keep = "true" *) reg     [9:0] reset_replied;
+
+    always @(posedge i_clock)
+    begin
+        reset_replied <= {  i_reset, i_reset, i_reset, i_reset, i_reset,
+                            i_reset, i_reset, i_reset, i_reset, i_reset};
+    end
+
+
 decoder
 u_decoder
 (
     .i_clock                    (i_clock),
-    .i_reset                    (i_reset),
+    .i_reset                    (reset_replied[0] & (~i_rf_enable_decoder)),
     .i_enable                   (i_rf_enable_decoder),
     .i_data                     (clockcomp_data_decoder),
     .i_valid                    (clockcomp_valid_decoder),
@@ -356,7 +377,7 @@ test_pattern_checker
 u_test_pattern_checker
 (
     .i_clock                    (i_clock),
-    .i_reset                    (i_reset),
+    .i_reset                    (reset_replied[1] & (~i_rf_enable_test_pattern_checker)),
     .i_enable                   (i_rf_enable_test_pattern_checker),
     .i_valid                    (clockcomp_valid_decoder),
     .i_idle_pattern_mode        (i_rf_idle_pattern_mode_rx),
@@ -370,8 +391,8 @@ clock_comp_rx
 u_clock_comp_rx
 (
     .i_clock                    (i_clock),
-    .i_reset                    (i_reset),
-    .i_rf_enable                (i_rf_enable_clock_comp & deskew_deskewdone_reorder),
+    .i_reset                    (reset_replied[2] & (~i_rf_enable_clock_comp)),
+    .i_rf_enable                (i_rf_enable_clock_comp & deskew_done_replicated[0]),
     .i_valid                    (descrambler_valid_clockcomp),
     .i_sol_tag                  (descrambler_tag),  
     .i_data                     (descrambler_data_clockcomp),
@@ -387,13 +408,13 @@ descrambler
     u_descrambler
     (
         .i_clock                (i_clock),
-        .i_reset                (i_reset),
+        .i_reset                (reset_replied[3] & (~i_rf_enable_descrambler)),
         .i_enable               (i_rf_enable_descrambler), 
         .i_valid                (reorder_valid_descrambler),
         .i_bypass               (i_rf_descrambler_bypass | reorder_tag_descrambler),
         .i_data                 (reorder_data_descrambler),
         .i_tag                  (reorder_tag_descrambler),
-        .i_deskew_done          (deskew_deskewdone_reorder),
+        .i_deskew_done          (deskew_done_replicated[1]),
 
         .o_data                 (descrambler_data_clockcomp),
         .o_valid                (descrambler_valid_clockcomp),
@@ -410,11 +431,11 @@ reorder_toplevel
     u_reorder_top
     (
     .i_clock                    (i_clock),
-    .i_reset                    (i_reset),
+    .i_reset                    (reset_replied[4] & (~i_rf_enable_lane_reorder)),
     .i_rf_reset_order           (i_rf_reset_order),
     .i_enable                   (i_rf_enable_lane_reorder),
     .i_valid                    (deskew_valid_reorder),
-    .i_deskew_done              (deskew_deskewdone_reorder),
+    .i_deskew_done              (deskew_done_replicated[2]),
     .i_logical_rx_ID            (aligment_id_reorder),
     .i_data                     (deskew_data_reorder),
 
@@ -434,7 +455,7 @@ deskew_top
     u_deskew_top
     (
     .i_clock                    (i_clock),
-    .i_reset                    (i_reset),
+    .i_reset                    (reset_replied[5] & (~i_rf_enable_deskewer)),
     .i_enable                   (i_rf_enable_deskewer),
     .i_valid                    (aligment_valid_deskew),
     .i_resync                   (aligment_resync_deskew),
@@ -463,15 +484,15 @@ am_top_level
 u_aligner_top
 (
     .i_clock                    (i_clock),
-    .i_reset                    (i_reset),
+    .i_reset                    (reset_replied[6] & (~i_rf_enable_aligner)),
     .i_rf_enable                (i_rf_enable_aligner),
     .i_valid                    (blksync_valid_aligment),
     .i_block_lock               (blksync_lock_aligment),
     .i_data                     (blksync_data_aligment),
-    .i_rf_invalid_am_thr        (i_rf_invalid_am_thr),
-    .i_rf_valid_am_thr          (i_rf_valid_am_thr),
-    .i_rf_compare_mask          (i_rf_compare_mask),
-    .i_rf_am_period             (i_rf_am_period),
+    .i_rf_invalid_am_thr        ('d6),
+    .i_rf_valid_am_thr          ('d3),
+    .i_rf_compare_mask          (48'hffffffffffff),
+    .i_rf_am_period             ('d16383),
 
     .o_data                     (aligment_data_deskew),
     .o_valid                    (aligment_valid_deskew),
@@ -487,11 +508,11 @@ ber_monitor_top_level
 u_ber_monitor_top_level
 (
     .i_clock                    (i_clock),
-    .i_reset                    (i_reset),
+    .i_reset                    (reset_replied[7]),
     .i_valid                    (blksync_valid_aligment),
     .i_sh_bus                   (blksync_sh_bermonitor),
     .i_test_mode                (i_rf_idle_pattern_mode_rx),
-    .i_align_status             (deskew_deskewdone_reorder),
+    .i_align_status             (deskew_done_replicated[3]),
 
     .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
 );
@@ -505,14 +526,14 @@ block_sync_toplevel
 u_block_sync_top
 (
     .i_clock                    (i_clock),
-    .i_reset                    (i_reset),
+    .i_reset                    (reset_replied[8] & (~i_rf_enable_block_sync)),
     .i_enable                   (i_rf_enable_block_sync),
     .i_valid                    (i_valid),
     .i_data                     (i_phy_data),
     .i_signal_ok                (i_signal_ok),
-    .i_rf_unlocked_timer_limit  (i_rf_unlocked_timer_limit),
-    .i_rf_locked_timer_limit    (i_rf_locked_timer_limit),
-    .i_rf_sh_invalid_limit      (i_rf_sh_invalid_limit),
+    .i_rf_unlocked_timer_limit  ('d512),
+    .i_rf_locked_timer_limit    ('d128),
+    .i_rf_sh_invalid_limit      ('d128),
 
     .o_data                     (blksync_data_aligment),
     .o_sh_bus                   (blksync_sh_bermonitor),

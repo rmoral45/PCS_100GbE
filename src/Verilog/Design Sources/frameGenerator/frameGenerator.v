@@ -94,7 +94,10 @@ assign 								data7 			= data_block[NB_DATA_RAW-8 -: 8];
 assign 								o_tx_data 		= tx_data;
 assign 								o_tx_ctrl 		= tx_ctrl;
 assign  							enable_dataGenerator = 1'b1;
-assign                              o_valid         = cgmi_output_valid;
+// assign                              o_valid         = cgmi_output_valid;
+assign                              o_valid         = i_enable ? 1'b1 : 1'b0;
+//assign 								o_tx_data 		= {8{IDLE_CHAR}};
+//assign 								o_tx_ctrl 		= IDLE_CTRL;
 
 // reg [63:0] dbg_count;
 // always @ (posedge i_clock)

@@ -85,7 +85,7 @@ module am_top_level
                     .i_data                 (i_data[(NB_DATA_BUS-1 - i*NB_DATA) -: NB_DATA]),
                     .i_rf_invalid_am_thr    (i_rf_invalid_am_thr),
                     .i_rf_valid_am_thr      (i_rf_valid_am_thr),
-                    .i_rf_compare_mask      (i_rf_compare_mask),
+                    .i_rf_compare_mask      (48'hffffffffffff),
                     .i_rf_am_period         (i_rf_am_period),
     
                     .o_data                 (alignment_out[NB_DATA_BUS-1-i*NB_DATA -: NB_DATA]),

@@ -34,7 +34,7 @@ module encoder
     reg                                     tx_coded_valid_2d;
 
     //data output registring
-    always @posedge(i_clock) begin
+    always @(posedge i_clock) begin
         if(i_reset) begin
             tx_coded_data_d     <= {NB_DATA_CODED{1'b0}};
             tx_coded_data_2d    <= {NB_DATA_CODED{1'b0}};
@@ -50,7 +50,7 @@ module encoder
     end
 
     //valid output registring
-    always @posedge(i_clock) begin
+    always @(posedge i_clock) begin
         if(i_reset) begin
             tx_coded_valid_d    <= 1'b0;
             tx_coded_valid_2d   <= 1'b0;
@@ -97,11 +97,11 @@ u_encoder_fsm
     .i_tx_type (comparator_type_fsm)    ,
     .i_tx_coded(comparator_data_fsm)    ,
     .o_tx_coded(tx_coded)               ,
-    .o_valid   (o_valid)
+    .o_valid   (tx_coded_valid)
 );
 
 //outputs
-assign o_tx_data    = tx_coded_data_2d;
+assign o_tx_coded   = tx_coded_data_2d;
 assign o_valid      = tx_coded_valid_2d;
 
 endmodule

@@ -51,8 +51,10 @@ module block_sync_fsm
     wire								    invalid_counter_full;
 
 //PORTS
-    assign                                  o_search_index  = search_index;
-    assign                                  o_block_index   = block_index;
+    // assign                                  o_search_index  = search_index;
+    // assign                                  o_block_index   = block_index;
+    assign                                  o_search_index  = 0;
+    assign                                  o_block_index   = 0;
     assign                                  o_block_lock    = block_lock;
 
     //Update state

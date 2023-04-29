@@ -84,6 +84,14 @@ assign  o_clock_comp_data   = clockComp_data_scrambler;
 assign  o_data              = am_insert_data_channel; 
 assign  o_tag_bus           = am_insert_tag_bus_channel;
 
+(* keep = "true" *) reg     [5:0] reset_replied;
+
+always @(posedge i_clock)
+begin
+    reset_replied <= {i_reset, i_reset, i_reset, i_reset, i_reset};
+end
+
+
 //tx_modules
 top_level_frameGenerator
 #(
@@ -93,7 +101,7 @@ top_level_frameGenerator
 u_frameGenerator
 (
     .i_clock(i_clock),
-    .i_reset(i_reset),
+    .i_reset(reset_replied[0] & (~i_rf_enb_frame_gen) ),
     .i_enable(i_rf_enb_frame_gen),
     .o_tx_data(frameGenerator_data_encoder),
     .o_tx_ctrl(frameGenerator_ctrl_encoder),
@@ -109,7 +117,7 @@ encoder
 u_encoder
 (
     .i_clock(i_clock),
-    .i_reset(i_reset),
+    .i_reset(reset_replied[1] & (~i_rf_enb_encoder)),
     .i_enable(i_rf_enb_encoder),
     .i_valid(frameGenerator_valid_encoder),
     .i_data(frameGenerator_data_encoder),
@@ -127,7 +135,7 @@ clock_comp_tx
 u_clock_comp
 (
     .i_clock(i_clock),
-    .i_reset(i_reset),
+    .i_reset(reset_replied[2] & (~i_rf_enb_clock_comp)),
     .i_enable(i_rf_enb_clock_comp),
     .i_valid(encoder_valid_clockComp),
     .i_data(encoder_data_clockComp),
@@ -147,7 +155,7 @@ scrambler
 u_scrambler
 (
     .i_clock(i_clock),
-    .i_reset(i_reset),
+    .i_reset(reset_replied[3] & (~i_rf_enb_scrambler)),
     .i_enable(i_rf_enb_scrambler),
     .i_valid(clockComp_valid_scrambler),
     .i_bypass(i_rf_bypass_scrambler || clockComp_tag_scrambler),
@@ -168,7 +176,7 @@ parallel_converter_1_to_N
 u_pc_1_to_20
 (
     .i_clock(i_clock),
-    .i_reset(i_reset),
+    .i_reset(reset_replied[4] & (~i_rf_enb_pc_1_20)),
     .i_enable(i_rf_enb_pc_1_20),
     .i_valid(scrambler_valid_pc_1_20),
     .i_data(scrambler_data_pc_1_20),
@@ -186,7 +194,7 @@ am_insertion_toplevel
 u_am_insertion
 (
     .i_clock(i_clock),
-    .i_reset(i_reset),
+    .i_reset(reset_replied[5] & (~i_rf_enb_am_insertion)),
     .i_enable(i_rf_enb_am_insertion),
     .i_valid(pc_1_20_valid_am_insert),
     .i_data(pc_1_20_data_am_insert),

@@ -141,10 +141,7 @@ module PCS_loopback
     output wire     [NB_MISMATCH_COUNTER-1      : 0]o_rf_missmatch_counter,
     output wire     [N_LANES-1                  : 0]o_rf_lanes_block_lock,
     output wire     [NB_ID_BUS-1                : 0]o_rf_lanes_id,
-    output wire     [NB_DECODER_ERROR_COUNTER-1 : 0]o_rf_decoder_error_counter,
-
-    //To board ports
-    output wire     [15 : 0]                        o_leds
+    output wire     [NB_DECODER_ERROR_COUNTER-1 : 0]o_rf_decoder_error_counter
 );
 /* Tx to Channel signals */
     wire            [NB_DATA_CODED-1            : 0]tx_encoder_data_rx;
@@ -179,6 +176,7 @@ module PCS_loopback
     reg             [NB_DECODER_ERROR_COUNTER-1         : 0] aux_decoder_error_counter_bus_2d;
     reg             [NB_DECODER_ERROR_COUNTER-1         : 0] aux_decoder_error_counter_bus_3d;
 
+    //fixme remove
     always @(posedge i_clock) begin
         if(i_reset) begin
             aux_decoder_error_counter_bus_d <= {NB_DECODER_ERROR_COUNTER{1'b0}};
@@ -217,81 +215,81 @@ u_tx_toplevel
     .i_rf_enb_am_insertion                  (i_rf_enb_tx_am_insertion)
 );
 
-genvar i;
-generate
-for(i = 0; i < N_LANES; i = i + 1)
-begin: delayed_modules
+// genvar i;
+// generate
+// for(i = 0; i < N_LANES; i = i + 1)
+// begin: delayed_modules
 
-    payload_breaker
-    u_payload_breaker
-    (
-        .o_data                             (payload_breaker_data_sh_breaker[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
-        .o_valid                            (payload_breaker_valid_sh_breaker),
-        .o_aligner_tag                      (payload_breaker_aligner_tag_sh_breaker[N_LANES - i - 1]),
+//     payload_breaker
+//     u_payload_breaker
+//     (
+//         .o_data                             16383(payload_breaker_data_sh_breaker[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
+//         .o_valid                            (payload_breaker_valid_sh_breaker),
+//         .o_aligner_tag                      (payload_breaker_aligner_tag_sh_breaker[N_LANES - i - 1]),
 
-        .i_clock                            (i_clock),
-        .i_reset                            (i_reset),
-        .i_valid                            (tx_valid_channel),
-        .i_aligner_tag                      (tx_tagbus_channel[N_LANES - i - 1]),
-        .i_data                             (tx_databus_channel[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
-        .i_rf_mode                          (i_rf_payload_breaker_mode),
-        .i_rf_update                        (i_rf_payload_breaker_update[N_LANES - 1 - i]),
-        .i_rf_error_mask                    (i_rf_payload_breaker_err_mask),
-        .i_rf_error_burst                   (i_rf_payload_breaker_err_burst),
-        .i_rf_error_period                  (i_rf_payload_breaker_err_period),
-        .i_rf_error_repeat                  (i_rf_payload_breaker_err_repeat)
-    );
+//         .i_clock                            (i_clock),
+//         .i_reset                            (i_reset),
+//         .i_valid                            (tx_valid_channel),
+//         .i_aligner_tag                      (tx_tagbus_channel[N_LANES - i - 1]),
+//         .i_data                             (tx_databus_channel[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
+//         .i_rf_mode                          (i_rf_payload_breaker_mode),
+//         .i_rf_update                        (i_rf_payload_breaker_update[N_LANES - 1 - i]),
+//         .i_rf_error_mask                    (i_rf_payload_breaker_err_mask),
+//         .i_rf_error_burst                   (i_rf_payload_breaker_err_burst),
+//         .i_rf_error_period                  (i_rf_payload_breaker_err_period),
+//         .i_rf_error_repeat                  (i_rf_payload_breaker_err_repeat)
+//     );
 
-    sh_breaker
-    u_sh_breaker
-    (
-        .o_data                             (sh_breaker_data_bitskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
-        .o_valid                            (sh_breaker_valid_bitskew),
-        .o_aligner_tag                      (sh_breaker_aligner_tag_bitskew[N_LANES - i - 1]),
+//     sh_breaker
+//     u_sh_breaker
+//     (
+//         .o_data                             (sh_breaker_data_bitskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
+//         .o_valid                            (sh_breaker_valid_bitskew),
+//         .o_aligner_tag                      (sh_breaker_aligner_tag_bitskew[N_LANES - i - 1]),
 
-        .i_clock                            (i_clock),
-        .i_reset                            (i_reset),
-        .i_valid                            (payload_breaker_valid_sh_breaker),
-        .i_data                             (payload_breaker_data_sh_breaker[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
-        .i_aligner_tag                      (payload_breaker_aligner_tag_sh_breaker[N_LANES - i - 1]),
-        .i_rf_mode                          (i_rf_sh_breaker_mode),
-        .i_rf_update                        (i_rf_sh_breaker_update[N_LANES - i - 1]),
-        .i_rf_error_burst                   (i_rf_sh_breaker_err_burst),
-        .i_rf_error_period                  (i_rf_sh_breaker_err_period),
-        .i_rf_error_repeat                  (i_rf_sh_breaker_err_repeat)
-    );
+//         .i_clock                            (i_clock),
+//         .i_reset                            (i_reset),
+//         .i_valid                            (payload_breaker_valid_sh_breaker),
+//         .i_data                             (payload_breaker_data_sh_breaker[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
+//         .i_aligner_tag                      (payload_breaker_aligner_tag_sh_breaker[N_LANES - i - 1]),
+//         .i_rf_mode                          (i_rf_sh_breaker_mode),
+//         .i_rf_update                        (i_rf_sh_breaker_update[N_LANES - i - 1]),
+//         .i_rf_error_burst                   (i_rf_sh_breaker_err_burst),
+//         .i_rf_error_period                  (i_rf_sh_breaker_err_period),
+//         .i_rf_error_repeat                  (i_rf_sh_breaker_err_repeat)
+//     );
 
-    bit_skew_gen
-    u_bit_skew_gen
-    (
-        .o_data                             (bitskew_data_blockskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
-        .o_valid                            (bitskew_valid_blockskew),
+//     bit_skew_gen
+//     u_bit_skew_gen
+//     (
+//         .o_data                             (bitskew_data_blockskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
+//         .o_valid                            (bitskew_valid_blockskew),
 
-        .i_clock                            (i_clock),
-        .i_reset                            (i_reset),
-        .i_valid                            (sh_breaker_valid_bitskew),
-        .i_data                             (sh_breaker_data_bitskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
-        .i_rf_skew_index                    (i_rf_bit_skew_index),
-        .i_rf_update                        (i_rf_bit_skew_update[N_LANES - i - 1])
-    );
+//         .i_clock                            (i_clock),
+//         .i_reset                            (i_reset),
+//         .i_valid                            (sh_breaker_valid_bitskew),
+//         .i_data                             (sh_breaker_data_bitskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
+//         .i_rf_skew_index                    (i_rf_bit_skew_index),
+//         .i_rf_update                        (i_rf_bit_skew_update[N_LANES - i - 1])
+//     );
 
-    block_skew_generator
-    #(
-        .N_DELAY((i%10 + 2))
-    )
-    u_block_skew_generator
-    (
-        .o_data                             (blockskew_data_rx[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
-        .o_valid                            (blockskew_valid_rx),
+//     block_skew_generator
+//     #(
+//         .N_DELAY((i%10 + 2))
+//     )
+//     u_block_skew_generator
+//     (
+//         .o_data                             (blockskew_data_rx[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED]),
+//         .o_valid                            (blockskew_valid_rx),
 
-        .i_clock                            (i_clock),
-        .i_reset                            (i_reset),
-        .i_valid                            (bitskew_valid_blockskew),
-        .i_data                             (bitskew_data_blockskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED])
-    );          
+//         .i_clock                            (i_clock),
+//         .i_reset                            (i_reset),
+//         .i_valid                            (bitskew_valid_blockskew),
+//         .i_data                             (bitskew_data_blockskew[NB_DATA_BUS - (i*NB_DATA_CODED) - 1 -: NB_DATA_CODED])
+//     );          
 
-end
-endgenerate
+// end
+// endgenerate
 
 
 rx_toplevel
@@ -342,17 +340,19 @@ u_rx_toplevel
         .o_rf_missmatch_counter             (o_rf_missmatch_counter),
         .o_rf_lanes_block_lock              (o_rf_lanes_block_lock),
         .o_rf_lanes_id                      (o_rf_lanes_id),
-        .o_rf_decoder_error_counter         (aux_decoder_error_counter_bus),
+        .o_rf_decoder_error_counter         (o_rf_decoder_error_counter),
 
         .i_clock                            (i_clock),
         .i_reset                            (i_reset),
-        .i_valid                            (blockskew_valid_rx),
-        .i_phy_data                         (blockskew_data_rx),
+        // .i_valid                            (blockskew_valid_rx),
+        // .i_phy_data                         (blockskew_data_rx),
+        .i_valid                            (tx_valid_channel),
+        .i_phy_data                         (tx_databus_channel),
         .i_rf_enable_block_sync             (i_rf_enb_rx_block_sync),
         .i_rf_unlocked_timer_limit          (i_rf_rx_unlocked_timer_limit),
         .i_rf_locked_timer_limit            (i_rf_rx_locked_timer_limit),
         .i_rf_sh_invalid_limit              (i_rf_rx_sh_invalid_limit),
-        .i_signal_ok                        (i_rx_signal_ok),
+        .i_signal_ok                        (i_rf_enb_rx_block_sync),
         .i_rf_enable_aligner                (i_rf_enb_rx_aligner),
         .i_rf_invalid_am_thr                (i_rf_rx_invalid_am_thr),
         .i_rf_valid_am_thr                  (i_rf_rx_valid_am_thr),

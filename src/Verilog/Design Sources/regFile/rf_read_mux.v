@@ -51,7 +51,7 @@ always @ (*) begin
     
     case (input_addr)
 
-        BERMONITOR__O_RF_HI_BER_BASE :                    
+       /* BERMONITOR__O_RF_HI_BER_BASE :                    
         begin                         
          rf_o_data_muxed = bermonitor__o_rf_hi_ber[19];    
         end                           
@@ -459,14 +459,29 @@ always @ (*) begin
         PTRNCHECK__O_RF_MISMATCH_COUNT :                    
         begin                         
          rf_o_data_muxed = ptrncheck__o_rf_mismatch_count;    
-        end                           
+        end  */                         
 
         BLKSYNC__O_RF_BLOCK_LOCK_BASE :                    
         begin                         
-         rf_o_data_muxed = blksync__o_rf_block_lock[19];    
+         rf_o_data_muxed = blksync__o_rf_block_lock;    
         end                           
 
-        BLKSYNC1__O_RF_BLOCK_LOCK :                    
+        ALIGNER__O_RF_AM_LOCK_BASE :                    
+        begin                         
+        rf_o_data_muxed = aligner__o_rf_am_lock;
+        end
+        
+        DESKEWER__O_RF_INVALID_SKEW :                    
+        begin                         
+         rf_o_data_muxed = deskewer__o_rf_invalid_skew; 
+        end 
+
+        DECODER__O_RF_ERROR_COUNTER :                    
+        begin                         
+         rf_o_data_muxed = decoder__o_rf_error_counter; 
+        end
+
+       /* BLKSYNC1__O_RF_BLOCK_LOCK :                    
         begin                         
          rf_o_data_muxed = blksync__o_rf_block_lock[18];    
         end                           
@@ -559,8 +574,10 @@ always @ (*) begin
         BLKSYNC19__O_RF_BLOCK_LOCK :                    
         begin                         
          rf_o_data_muxed = blksync__o_rf_block_lock[0];
-        end                           
+        end    */       
+        
 
+        /*
         ALIGNER__O_RF_ID_BASE :                    
         begin                         
          rf_o_data_muxed = aligner__o_rf_id[NB_LANE_ID_BUS-(0*NB_LANE_ID)  -1-: NB_LANE_ID];   
@@ -664,10 +681,10 @@ always @ (*) begin
         DECODER__O_RF_ERROR_COUNTER :                    
         begin                         
          rf_o_data_muxed = decoder__o_rf_error_counter; 
-        end
+        end*/
 
         default :                          
-            rf_o_data_muxed = {NB_O_DATA{1'b1}};                
+            rf_o_data_muxed = {23'b0,input_addr};                
     endcase
 end
 
