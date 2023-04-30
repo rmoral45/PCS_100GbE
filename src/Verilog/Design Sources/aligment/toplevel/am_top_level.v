@@ -57,6 +57,19 @@ module am_top_level
 
         output wire [N_LANES-1                  : 0]    o_start_of_lane
  );
+
+        (* keep = "true" *) reg enable_replicated [0 : N_LANES-1];
+        (* keep = "true" *) reg reset_replicated [0 : N_LANES-1];
+
+        integer enb_idx;
+
+        always @(posedge i_clock)
+        begin
+            for(enb_idx = 0; enb_idx < 20; enb_idx=enb_idx+1) begin
+                enable_replicated[enb_idx]  <= i_rf_enable;
+                reset_replicated[enb_idx]   <= i_reset;
+            end
+        end
  
         wire        [NB_DATA_BUS-1 : 0]                 alignment_out;
           
@@ -79,7 +92,7 @@ module am_top_level
                 (
                     .i_clock                (i_clock),
                     .i_reset                (i_reset),
-                    .i_rf_enable            (i_rf_enable),
+                    .i_rf_enable            (enable_replicated[i]),
                     .i_valid                (i_valid),
                     .i_block_lock           (i_block_lock[N_LANES-1-i]),
                     .i_data                 (i_data[(NB_DATA_BUS-1 - i*NB_DATA) -: NB_DATA]),

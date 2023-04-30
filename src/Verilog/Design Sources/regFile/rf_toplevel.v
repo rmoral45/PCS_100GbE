@@ -3,8 +3,8 @@ module rf_toplevel
     input   wire                i_fpga_clock,
     input   wire                i_reset,
     input   wire                RsRx,
-    output  wire                RsTx,
-    output wire [15:0]  o_leds
+    output  wire                RsTx
+    // output wire [15:0]  o_leds
 );
 
     localparam NB_ENABLE_RF      = 1;
@@ -37,7 +37,7 @@ module rf_toplevel
     localparam NB_INV_AM         = $clog2(MAX_INV_AM);
     localparam MAX_VAL_AM        = 20;
     localparam NB_VAL_AM         = $clog2(MAX_VAL_AM);
-    localparam NB_BIP_ERR        = 16;
+    localparam NB_BIP_ERR        = 8;
     localparam NB_BIP_ERR_BUS    = N_LANES * NB_BIP_ERR;
     localparam NB_RESYNC_CNT     = 8;
     localparam NB_RESYNC_CNT_BUS = N_LANES * NB_RESYNC_CNT;  
@@ -131,7 +131,7 @@ wire     [N_LANES-1                  : 0] rx_hi_ber_rf;
 wire     [NB_BIP_ERR_BUS-1           : 0] rx_am_error_counter_rf;
 wire     [NB_RESYNC_CNT_BUS-1        : 0] rx_resync_counter_bus_rf;
 wire     [N_LANES-1                  : 0] rx_am_lock_rf;
-wire                                      rx_invalid_skew_rf;
+wire                                      rx_deskew_done_rf;
 wire     [NB_MISMATCH_COUNTER-1      : 0] rx_missmatch_counter_rf;
 wire     [N_LANES-1                  : 0] rx_lanes_block_lock_rf;
 wire     [NB_ID_BUS-1                : 0] rx_lanes_id_rf;
@@ -149,17 +149,6 @@ always @(posedge i_fpga_clock) begin
     locked_clock_2d     <= locked_clock_d;
     single_clk_comp_enb <= {rf_clock_comp_enb_pcs, rf_clock_comp_enb_pcs};//[FIXME]: si cambiamos el clock de la pcs cambiar el clock de este reg
 end
-
-//syncrhonizer
-//#(
-//    .NB_DATA(1)
-//)
-//(
-//    .i_data(i_reset),
-//    .i_clock(i_fpga_clock),
-//    .o_data(reset_synced)
-//);
-
 
 rf_write
 u_rf_write
@@ -213,46 +202,34 @@ u_rf_write
     .o_aligner__i_rf_valid_am_thr(rf_rx_valid_am_thr),
     .o_aligner__i_rf_am_period(rf_rx_am_period),
     .o_aligner__i_rf_compare_mask(rf_rx_compare_mask),
-    .o_reorder__i_rf_reset_order(rf_rx_reset_order),
-        
-    //-----------------------COR registers-----------------------
-    .o_bermonitor__i_rf_cor_hi_ber(rf_rx_read_hi_ber),
-    .o_aligner__i_cor_bip_error(rf_rx_read_am_error_counter),
-    .o_aligner__i_cor_resync_counters(rf_rx_read_am_resyncs),
-    .o_aligner__i_cor_am_lock(rf_rx_read_am_lock),
-    .o_aligner__i_cor_lanes_id(rf_rx_read_lanes_id),
-    .o_deskew__i_cor_invalid_deskew(rf_rx_read_invalid_skew),
-    .o_blocklock__i_cor_sh_lock(rf_rx_read_lanes_block_lock),
-    .o_ptrncheck__i_cor_mismatch_counters(rf_rx_read_missmatch_counter),
-    .o_decoder__i_cor_err_counter(rf_rx_read_decoder_error_counter)
+    .o_reorder__i_rf_reset_order(rf_rx_reset_order)
 );
 
-//    assign rf_input_addr =  9'd220; //FIXME: REVISAR
     assign rf_input_addr = micro_gpio_rf[30:22];
    
-    reg [15:0] leds;
+    // reg [15:0] leds;
     
-    always @(posedge i_fpga_clock) begin
-        if(i_reset)
-            leds <= 16'hFAFA;
-        else
-            leds <={{3{1'b0}},rf_enb_rx_aligner,
-                rf_enb_rx_block_sync,
-                rf_enb_rx_decoder,
-                rf_enb_rx_descrambler,
-                rf_enb_rx_deskewer,
-                rf_encoder_enb_tx,
-                rf_frame_generator_enb_tx,
-                rf_enb_rx_lane_reorder,
-                rf_clock_comp_enb_pcs,
-                rf_scrambler_enb_tx,
-                rf_am_insertion_enb_tx,
-                rf_clock_comp_enb_pcs,
-                rf_pc_enb_tx};
-            // leds <= {{7{1'b0}}, rf_input_addr};
-    end
+    // always @(posedge i_fpga_clock) begin
+    //     if(i_reset)
+    //         leds <= 16'hFAFA;
+    //     else
+    //         leds <={{3{1'b0}},rf_enb_rx_aligner,
+    //             rf_enb_rx_block_sync,
+    //             rf_enb_rx_decoder,
+    //             rf_enb_rx_descrambler,
+    //             rf_enb_rx_deskewer,
+    //             rf_encoder_enb_tx,
+    //             rf_frame_generator_enb_tx,
+    //             rf_enb_rx_lane_reorder,
+    //             rf_clock_comp_enb_pcs,
+    //             rf_scrambler_enb_tx,
+    //             rf_am_insertion_enb_tx,
+    //             rf_clock_comp_enb_pcs,
+    //             rf_pc_enb_tx};
+    //         // leds <= {{7{1'b0}}, rf_input_addr};
+    // end
     
-    assign o_leds = leds;
+    // assign o_leds = leds;
 
 rf_read_mux
 u_rf_read_mux
@@ -265,7 +242,7 @@ u_rf_read_mux
     .aligner__o_rf_bip_error_count(rx_am_error_counter_rf),
     .aligner__o_rf_am_lock(rx_am_lock_rf),
     .aligner__o_rf_am_resync_counters(rx_resync_counter_bus_rf),
-    .deskewer__o_rf_invalid_skew(rx_invalid_skew_rf),
+    .deskewer__o_rf_deskew_done(rx_deskew_done_rf),
     .ptrncheck__o_rf_mismatch_count(rx_missmatch_counter_rf),
     .blksync__o_rf_block_lock(rx_lanes_block_lock_rf),
     .aligner__o_rf_id(rx_lanes_id_rf),
@@ -332,25 +309,13 @@ u_PCS_loopback
     .i_rf_rx_compare_mask(rf_rx_compare_mask),
     .i_rf_rx_am_period(rf_rx_am_period),
     .i_rf_rx_reset_order(rf_rx_reset_order),
-    //Read pulses
-    .i_rf_rx_read_hi_ber(rf_rx_read_hi_ber),
-    .i_rf_rx_read_am_error_counter(rf_rx_read_am_error_counter),
-    .i_rf_rx_read_am_resyncs(rf_rx_read_am_resyncs),
-    .i_rf_rx_read_am_lock(rf_rx_read_am_lock),
-    .i_rf_rx_read_invalid_skew(rf_rx_read_invalid_skew),
-    .i_rf_rx_read_missmatch_counter(rf_rx_read_missmatch_counter),
-    .i_rf_rx_read_lanes_block_lock(rf_rx_read_lanes_block_lock),
-    .i_rf_rx_read_lanes_id(rf_rx_read_lanes_id),
-    .i_rf_rx_read_decoder_error_counter(rf_rx_read_decoder_error_counter),
-  
-    //Tx rf outputs
     
     //Rx rf outputs
     .o_rf_hi_ber(rx_hi_ber_rf),
     .o_rf_am_error_counter(rx_am_error_counter_rf),
     .o_rf_resync_counter_bus(rx_resync_counter_bus_rf),
     .o_rf_am_lock(rx_am_lock_rf),
-    .o_rf_invalid_skew(rx_invalid_skew_rf),
+    .o_rf_deskew_done(rx_deskew_done_rf),
     .o_rf_missmatch_counter(rx_missmatch_counter_rf),
     .o_rf_lanes_block_lock(rx_lanes_block_lock_rf),
     .o_rf_lanes_id(rx_lanes_id_rf),

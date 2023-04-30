@@ -61,7 +61,7 @@ module am_insertion_toplevel
                                                                        24'h3B_CE_B3, 
                                                                        24'h52_29_48, 
                                                                        24'hA0_99_D5, 
-                                                                       24'h3F_0F_1A};                                                                                                                
+                                                                       24'h3F_0F_1A};   
 
     //Vector que almacena los tags de cada lane
     wire        [(NB_DATA_CODED*N_LANES)-1 : 0]     out_data;  
