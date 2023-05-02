@@ -116,7 +116,7 @@ module am_lock_module
     begin
         if(i_reset)
             resync_counter  <=  {NB_RESYNC_COUNTER{1'b0}};
-        else if(i_rf_enable && i_valid)
+        else
             resync_counter  <=  resync_counter_next;
     end
 

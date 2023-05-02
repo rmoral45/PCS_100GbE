@@ -48,6 +48,7 @@ module rf_toplevel
     localparam NB_DECODER_ERROR_COUNTER  = 16;
     localparam NB_ID_BUS         = N_LANES * NB_LANE_ID;
     localparam NB_MISMATCH_COUNTER = 16;
+    localparam NB_DATA_CHECKER_ERROR_COUNTER = 16;
 
 wire                                    rf_input_enable;
 wire            [NB_ADDR-1      : 0]    rf_input_addr;
@@ -80,62 +81,49 @@ wire rf_scrambler_bypass_tx;
 wire rf_pc_enb_tx;
 wire rf_am_insertion_enb_tx;
 
-/* RF to PCS Channel */
-wire      [N_LANES-1                  : 0]  rf_payload_breaker_update;
-wire      [N_MODES-1                  : 0]  rf_payload_breaker_mode;
-wire      [NB_ERR_MASK-1              : 0]  rf_payload_breaker_err_mask;
-wire      [NB_BURST_CNT-1             : 0]  rf_payload_breaker_err_burst;
-wire      [NB_PERIOD_CNT-1            : 0]  rf_payload_breaker_err_period;
-wire      [NB_REPEAT_CNT-1            : 0]  rf_payload_breaker_err_repeat;
-//Sh breaker
-wire      [N_LANES-1                  : 0]  rf_sh_breaker_update;
-wire      [N_MODES-1                  : 0]  rf_sh_breaker_mode;
-wire      [NB_BURST_CNT-1             : 0]  rf_sh_breaker_err_burst;
-wire      [NB_PERIOD_CNT-1            : 0]  rf_sh_breaker_err_period;
-wire      [NB_REPEAT_CNT-1            : 0]  rf_sh_breaker_err_repeat;
-//Bit sk
-wire      [N_LANES-1                  : 0]  rf_bit_skew_update;
-wire      [NB_SKEW_INDEX-1            : 0]  rf_bit_skew_index;
-
 /* RF to PCS RX */
-wire                                     rf_enb_rx_block_sync;
-wire                                     rf_enb_rx_aligner;
-wire                                     rf_enb_rx_deskewer;
-wire                                     rf_enb_rx_lane_reorder;
-wire                                     rf_enb_rx_descrambler;
-wire                                     rf_enb_rx_test_pattern_checker;
-wire                                     rf_enb_rx_decoder;
+wire                                            rf_enb_rx_block_sync;
+wire                                            rf_enb_rx_aligner;
+wire                                            rf_enb_rx_deskewer;
+wire                                            rf_enb_rx_lane_reorder;
+wire                                            rf_enb_rx_descrambler;
+wire                                            rf_enb_rx_test_pattern_checker;
+wire                                            rf_enb_rx_decoder;
 //Rx modes and config
-wire                                     rf_rx_descrambler_bypass;
-wire     [NB_WINDOW_CNT-1    : 0]        rf_rx_unlocked_timer_limit;
-wire     [NB_WINDOW_CNT-1    : 0]        rf_rx_locked_timer_limit;
-wire     [NB_INVALID_CNT-1   : 0]        rf_rx_sh_invalid_limit;
-wire     [NB_INV_AM-1        : 0]        rf_rx_invalid_am_thr;
-wire     [NB_VAL_AM-1        : 0]        rf_rx_valid_am_thr;
-wire     [NB_AM-1            : 0]        rf_rx_compare_mask;
-wire     [NB_AM_PERIOD-1     : 0]        rf_rx_am_period;    
-wire                                     rf_rx_reset_order;
+wire                                            rf_rx_descrambler_bypass;
+wire     [NB_WINDOW_CNT-1    : 0]               rf_rx_unlocked_timer_limit;
+wire     [NB_WINDOW_CNT-1    : 0]               rf_rx_locked_timer_limit;
+wire     [NB_INVALID_CNT-1   : 0]               rf_rx_sh_invalid_limit;
+wire     [NB_INV_AM-1        : 0]               rf_rx_invalid_am_thr;
+wire     [NB_VAL_AM-1        : 0]               rf_rx_valid_am_thr;
+wire     [NB_AM-1            : 0]               rf_rx_compare_mask;
+wire     [NB_AM_PERIOD-1     : 0]               rf_rx_am_period;    
+wire                                            rf_rx_reset_order;
 //Read pulses
-wire     [N_LANES-1          : 0]        rf_rx_read_hi_ber;
-wire     [N_LANES-1          : 0]        rf_rx_read_am_error_counter;
-wire     [N_LANES-1          : 0]        rf_rx_read_am_resyncs;
-wire     [N_LANES-1          : 0]        rf_rx_read_am_lock;
-wire                                     rf_rx_read_invalid_skew;
-wire                                     rf_rx_read_missmatch_counter;
-wire     [N_LANES-1          : 0]        rf_rx_read_lanes_block_lock;
-wire     [N_LANES-1          : 0]        rf_rx_read_lanes_id;
-wire                                     rf_rx_read_decoder_error_counter;
+wire     [N_LANES-1          : 0]               rf_rx_read_hi_ber;
+wire     [N_LANES-1          : 0]               rf_rx_read_am_error_counter;
+wire     [N_LANES-1          : 0]               rf_rx_read_am_resyncs;
+wire     [N_LANES-1          : 0]               rf_rx_read_am_lock;
+wire                                            rf_rx_read_invalid_skew;
+wire                                            rf_rx_read_missmatch_counter;
+wire     [N_LANES-1          : 0]               rf_rx_read_lanes_block_lock;
+wire     [N_LANES-1          : 0]               rf_rx_read_lanes_id;
+wire                                            rf_rx_read_decoder_error_counter;
 
 /* PCS RX to RF */
-wire     [N_LANES-1                  : 0] rx_hi_ber_rf;
-wire     [NB_BIP_ERR_BUS-1           : 0] rx_am_error_counter_rf;
-wire     [NB_RESYNC_CNT_BUS-1        : 0] rx_resync_counter_bus_rf;
-wire     [N_LANES-1                  : 0] rx_am_lock_rf;
-wire                                      rx_deskew_done_rf;
-wire     [NB_MISMATCH_COUNTER-1      : 0] rx_missmatch_counter_rf;
-wire     [N_LANES-1                  : 0] rx_lanes_block_lock_rf;
-wire     [NB_ID_BUS-1                : 0] rx_lanes_id_rf;
-wire     [NB_DECODER_ERROR_COUNTER-1 : 0] rx_decoder_error_counter_rf;
+wire     [N_LANES-1                  : 0]       rx_hi_ber_rf;
+wire     [NB_BIP_ERR_BUS-1           : 0]       rx_am_error_counter_rf;
+wire     [NB_RESYNC_CNT_BUS-1        : 0]       rx_resync_counter_bus_rf;
+wire     [N_LANES-1                  : 0]       rx_am_lock_rf;
+wire                                            rx_deskew_done_rf;
+wire     [NB_MISMATCH_COUNTER-1      : 0]       rx_missmatch_counter_rf;
+wire     [N_LANES-1                  : 0]       rx_lanes_block_lock_rf;
+wire     [NB_ID_BUS-1                : 0]       rx_lanes_id_rf;
+wire     [NB_DECODER_ERROR_COUNTER-1 : 0]       rx_decoder_error_counter_rf;
+
+wire    [NB_DATA_CHECKER_ERROR_COUNTER-1: 0]    frame_data_checker_error_counter_rf;
+wire                                            frame_data_checker_lock_rf;
+
 
 
 
@@ -171,21 +159,6 @@ u_rf_write
     .o_tx_pc__i_rf_enable(rf_pc_enb_tx),
     .o_pcs__i_rf_enable_tx_am_insertion(rf_am_insertion_enb_tx),
 
-    //-----------------------Channel-----------------------
-    .o_channel__i_rf_update_payload(rf_payload_breaker_update),
-    .o_channel__i_rf_payload_mode(rf_payload_breaker_mode),
-    .o_channel__i_rf_payload_err_mask(rf_payload_breaker_err_mask),
-    .o_channel__i_rf_payload_err_burst(rf_payload_breaker_err_burst),
-    .o_channel__i_rf_payload_err_period(rf_payload_breaker_err_period),
-    .o_channel__i_rf_payload_err_repeat(rf_payload_breaker_err_repeat),
-    .o_channel__i_rf_update_shbreaker(rf_sh_breaker_update),
-    .o_channel__i_rf_shbreaker_mode(rf_sh_breaker_mode),
-    .o_channel__i_rf_shbreaker_err_burst(rf_sh_breaker_err_burst),
-    .o_channel__i_rf_shbreaker_err_period(rf_sh_breaker_err_period),
-    .o_channel__i_rf_shbreaker_err_repeat(rf_sh_breaker_err_repeat),
-    .o_channel__i_rf_update_bitskew(rf_bit_skew_update),
-    .o_channel__i_rf_bit_skew_index(rf_bit_skew_index),
-
     //-----------------------Rx-----------------------
     .o_blksync__i_rf_enable(rf_enb_rx_block_sync),
     .o_aligner__i_rf_enable(rf_enb_rx_aligner),
@@ -206,30 +179,6 @@ u_rf_write
 );
 
     assign rf_input_addr = micro_gpio_rf[30:22];
-   
-    // reg [15:0] leds;
-    
-    // always @(posedge i_fpga_clock) begin
-    //     if(i_reset)
-    //         leds <= 16'hFAFA;
-    //     else
-    //         leds <={{3{1'b0}},rf_enb_rx_aligner,
-    //             rf_enb_rx_block_sync,
-    //             rf_enb_rx_decoder,
-    //             rf_enb_rx_descrambler,
-    //             rf_enb_rx_deskewer,
-    //             rf_encoder_enb_tx,
-    //             rf_frame_generator_enb_tx,
-    //             rf_enb_rx_lane_reorder,
-    //             rf_clock_comp_enb_pcs,
-    //             rf_scrambler_enb_tx,
-    //             rf_am_insertion_enb_tx,
-    //             rf_clock_comp_enb_pcs,
-    //             rf_pc_enb_tx};
-    //         // leds <= {{7{1'b0}}, rf_input_addr};
-    // end
-    
-    // assign o_leds = leds;
 
 rf_read_mux
 u_rf_read_mux
@@ -246,7 +195,9 @@ u_rf_read_mux
     .ptrncheck__o_rf_mismatch_count(rx_missmatch_counter_rf),
     .blksync__o_rf_block_lock(rx_lanes_block_lock_rf),
     .aligner__o_rf_id(rx_lanes_id_rf),
-    .decoder__o_rf_error_counter(rx_decoder_error_counter_rf)
+    .decoder__o_rf_error_counter(rx_decoder_error_counter_rf),
+    .frame_data_checker__o_rf_error_counter(frame_data_checker_error_counter_rf),
+    .frame_data_checker__o_rf_lock(frame_data_checker_lock_rf)    
 );
 
 PCS_loopback
@@ -267,26 +218,6 @@ u_PCS_loopback
     .i_rf_tx_bypass_scrambler    (rf_scrambler_bypass_tx),
     .i_rf_enb_tx_pc_1_20         (rf_pc_enb_tx),
     .i_rf_enb_tx_am_insertion    (rf_am_insertion_enb_tx),
-
-    //-----------------------Channel Module-----------------------
-    //Payload breaker
-    .i_rf_payload_breaker_update(rf_payload_breaker_update),
-    .i_rf_payload_breaker_mode(rf_payload_breaker_mode),
-    .i_rf_payload_breaker_err_mask(rf_payload_breaker_err_mask),
-    .i_rf_payload_breaker_err_burst(rf_payload_breaker_err_burst),
-    .i_rf_payload_breaker_err_period(rf_payload_breaker_err_period),
-    .i_rf_payload_breaker_err_repeat(rf_payload_breaker_err_repeat),
-    //Sh breaker
-    .i_rf_sh_breaker_update(rf_sh_breaker_update),
-    .i_rf_sh_breaker_mode(rf_sh_breaker_mode),
-    .i_rf_sh_breaker_err_burst(rf_sh_breaker_err_burst),
-    .i_rf_sh_breaker_err_period(rf_sh_breaker_err_period),
-    .i_rf_sh_breaker_err_repeat(rf_sh_breaker_err_repeat),
-    //Bit sk
-    .i_rf_bit_skew_update(rf_bit_skew_update),
-    .i_rf_bit_skew_index(rf_bit_skew_index),
-    //Skew generator
-    .i_rf_block_skew(6'b0),
 
     //-----------------------Rx-----------------------
     //Enables
@@ -319,7 +250,10 @@ u_PCS_loopback
     .o_rf_missmatch_counter(rx_missmatch_counter_rf),
     .o_rf_lanes_block_lock(rx_lanes_block_lock_rf),
     .o_rf_lanes_id(rx_lanes_id_rf),
-    .o_rf_decoder_error_counter(rx_decoder_error_counter_rf)
+    .o_rf_decoder_error_counter(rx_decoder_error_counter_rf),
+    .o_rf_frame_data_checker_error_counter(frame_data_checker_error_counter_rf),
+    .o_rf_frame_data_checker_lock(frame_data_checker_lock_rf)
+    
 );
 
 Micro_rf_PCS

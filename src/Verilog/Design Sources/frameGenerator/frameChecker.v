@@ -1,150 +1,122 @@
 `timescale 1ns/100ps
 module frameChecker
 	#(
-	parameter								NB_DATA_RAW 	= 64,
-	parameter								NB_CTRL_RAW 	= 8,
-	parameter								NB_GNG			= 16,
-	parameter								N_BLOCKS		= 2048
+		parameter									NB_DATA_RAW 		= 64,
+		parameter									NB_CTRL_RAW 		= 8,
+		parameter									NB_ERROR_COUNTER	= 16,
+		parameter                               	MAX_COUNT       	= 255,
+		parameter                               	NB_MAX_COUNT    	= $clog2(MAX_COUNT),
+		parameter									NB_BYTE				= 8
 	)
 	(
-	input									i_clock,
-	input									i_reset,
-	input									i_enable,
-	input 	wire	[NB_DATA_RAW-1 : 0]	i_tx_data,
-	input 	wire	[NB_CTRL_RAW-1 : 0]	i_tx_ctrl,
-	input	wire	[NB_DATA_RAW-1 : 0]	i_rx_raw_data,
-	input	wire	[NB_CTRL_RAW-1 : 0]	i_rx_raw_ctrl,
-	output 	wire							o_match_data,
-	output	wire							o_match_ctrl
+		input	wire 								i_clock,
+		input	wire 								i_reset,
+		input	wire 								i_enable,
+		input	wire	[NB_DATA_RAW-1 		: 0]	i_rx_raw_data,
+		input	wire	[NB_CTRL_RAW-1 		: 0]	i_rx_raw_ctrl,
+		output 	wire	[NB_ERROR_COUNTER-1 : 0]	o_error_counter,
+		output	wire								o_lock
 	);
 
-	localparam								DEPTH			= 2048;
-	localparam								NB_ADDR_RAM		= $clog2(DEPTH);
-	localparam 								NB_PERIOD_CNTR	= $clog2(N_BLOCKS); 
+	localparam										N_STATES 	= 2;
+	localparam										NB_STATE	= $clog2(N_STATES);
+	localparam										STATE_LOSS	= 0;
+	localparam										STATE_LOCK	= 1;
 
-	reg 									read_enable;
-	reg										run_memory;
-	reg				[NB_PERIOD_CNTR-1 : 0]	period_counter;
-	reg                                     match_ctrl;
-	reg                                     match_data;
+	reg					[NB_STATE-1 		: 0]	state;
+	reg					[NB_STATE-1 		: 0]	next_state;
 
-	reg				[NB_PERIOD_CNTR-1 : 0]	current_error;			
-	reg				[NB_PERIOD_CNTR-1 : 0]	min_error;				//Worst scenario is min_error = N_BLOCKS
-	reg                                     reset_current_error;
-	reg				[NB_ADDR_RAM-1 : 0]		read_ptr;
-	reg				[NB_ADDR_RAM-1 : 0]		min_read_ptr;
+	reg												update_err_counter;
+	reg					[NB_ERROR_COUNTER-1 : 0]	error_counter;
 	
+	wire											match_counter;
 
-	wire			[NB_CTRL_RAW-1 : 0]	ctrl_compare;
-	wire			[NB_DATA_RAW-1 : 0]	data_compare;
-	wire 									depth_flag;
-	
-	assign  	depth_flag            = (read_ptr == 2**(NB_ADDR_RAM-1)) ? 1 : 0;
-    
+	reg					[NB_BYTE-1			: 0]	tx_data_single	[0 : (NB_DATA_RAW/NB_BYTE) - 1];
+	reg												tx_data_eq;
 
-	/*	Run de memoria	*/
-	always @ (posedge i_clock)
-	begin
+	reg					[NB_MAX_COUNT-1 	: 0]	prev_counter;
+	reg				    [NB_MAX_COUNT-1 	: 0]	prev_counter_next;
 
-        read_enable <= 1;	
-		
-		if(i_reset) 
-		
-			run_memory 		<= 0;
-	
-		else if(i_enable) 
+	wire											ctrl_block; 
+	assign 											ctrl_block	= |i_rx_raw_ctrl;
 
-		    run_memory  	<= 1;
-
+	integer data_idx_0;
+	always @ (*) begin
+		for(data_idx_0 = 0; data_idx_0 < NB_DATA_RAW/NB_BYTE; data_idx_0 = data_idx_0 + 1) begin
+			tx_data_single[data_idx_0] = i_rx_raw_data[NB_DATA_RAW - 1 - (data_idx_0*NB_BYTE) -: NB_BYTE];
+		end
 	end
 
-
-	/*	Incremento el read pointer automaticamente	*/
-	always @ (posedge i_clock) 
-	begin
-		
-		if(i_reset)
-		begin
-			period_counter	    <= {NB_PERIOD_CNTR{1'b0}};
-			read_ptr 	        <= {NB_ADDR_RAM{1'b0}};
-			reset_current_error <= 1'b0;
+	integer data_idx_1;
+	always @ (*) begin
+		tx_data_eq = 1;
+		for(data_idx_1 = 0; data_idx_1 < (NB_DATA_RAW/NB_BYTE) - 1; data_idx_1 = data_idx_1 + 1) begin
+			tx_data_eq = tx_data_eq & (tx_data_single[data_idx_1] == tx_data_single[data_idx_1+1]);
 		end
-		else if(i_enable && !depth_flag)
-		begin
-			period_counter 	    <= period_counter + 1;
-			read_ptr 		    <= read_ptr;
+	end
 
-			if(period_counter == N_BLOCKS-1)
-			begin
-				period_counter 	<= {NB_PERIOD_CNTR{1'b0}};
-				read_ptr 		<= read_ptr + 1;
-                reset_current_error <= 1'b1;
-                		
-				if(current_error < min_error)
-                begin
-                    min_error           <= current_error;
-                    min_read_ptr        <= read_ptr;
-                end
+	always@(posedge i_clock) begin
+		if(i_reset) begin
+			prev_counter <= 'd0;
+		end
+		else if(i_enable & ~ctrl_block) begin
+			prev_counter <= prev_counter_next;
+		end
+	end
+
+	always@(posedge i_clock) begin
+		if(i_reset) begin
+			state <= STATE_LOSS;
+		end
+		else if(i_enable & ~ctrl_block) begin
+			state <= next_state;
+		end
+	end
+
+	always@(posedge i_clock) begin
+		if(i_reset) begin
+			error_counter <= {NB_ERROR_COUNTER{1'b0}};
+		end
+		else if(i_enable & ~ctrl_block & update_err_counter) begin
+			error_counter <= error_counter + 1;
+		end
+	end	
+	
+	wire overflow_count;
+	assign overflow_count = (prev_counter == 8'hff);
+	assign	match_counter = tx_data_eq & (tx_data_single[0] ==  prev_counter_next);
+
+	always @ (*) begin
+
+		update_err_counter 	= 1'b0;
+		next_state			= state;
+		prev_counter_next	= prev_counter+1;
+
+		case(state)
+			
+			STATE_LOSS: begin
+				prev_counter_next	= tx_data_single[0];
+				if(match_counter) begin
+					next_state 			= STATE_LOCK;
+				end
 			end
-		end
 
+			STATE_LOCK: begin
+				if(!match_counter) begin
+					next_state			= STATE_LOSS;
+					update_err_counter 	= 1'b1;
+				end
+			end
+
+			default: begin
+				next_state 			= STATE_LOSS;
+			end
+		
+		endcase 
 	end
 
-	/*	Comparacion entre la salida del deco y la entrada al encoder */
-    always @ *
-    begin
-        match_ctrl = 0;
-        if(read_enable)
-        begin
-            match_ctrl = (ctrl_compare == i_rx_raw_ctrl) ? 1 : 0;
-        end
-    end 
-
-    assign o_match_ctrl = match_ctrl;
-
-
-	/*	error counter	*/	
-	always @ (posedge i_clock)
-	begin
-
-		if(i_reset)
-		begin
-			min_error		<= {NB_PERIOD_CNTR{1'b1}}; 	//After reset, has max value possible
-			current_error	<= {NB_PERIOD_CNTR{1'b0}};
-			min_read_ptr	<= {NB_ADDR_RAM{1'b0}};
-		end
-		else if(i_enable)
-		begin
-			
-			if(reset_current_error)
-			begin
-			    current_error	<= {NB_PERIOD_CNTR{1'b0}};
-			    reset_current_error <= 1'b0;
-			end    
-			else if(match_ctrl)
-				current_error <= current_error;
-			
-			else if(!match_ctrl)
-			    current_error <= current_error +1; 
-
-		end
-	end
-
-
-shift_memory
-    #(
-    .NB_DATA(NB_CTRL_RAW),
-    .NB_ADDR(NB_ADDR_RAM)
-    )
-    u_shift_memory
-    (
-    .i_clock(i_clock),
-    .i_write_enb(run_memory),
-    .i_data(i_tx_ctrl),
-    .i_read_addr(read_ptr),
-    .i_read_enb(read_enable),
-    .o_data(ctrl_compare)
-    );
+	assign 	o_lock 			= (state == STATE_LOCK);
+	assign 	o_error_counter	= error_counter;
 
 endmodule
 

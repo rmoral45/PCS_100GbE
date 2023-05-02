@@ -54,6 +54,7 @@ localparam	[N_STATES-1:0]			TX_E 		     = 6'b100000;
 //Registros y parametros de debug del generador de datos
 localparam							DEBUG_PULSE = 4'b0000;
 wire								enable_dataGenerator;
+reg 								data_gen_valid;
 
 //Registros para uso local del generador de frames
 reg	 [NB_DATA_RAW-1 :0] 			tx_data;
@@ -83,34 +84,22 @@ wire [NB_CTRL_RAW-1 :0]				data7;
 wire                                cgmi_output_valid;
 
 
-assign 								data0 			= data_block[NB_CTRL_RAW -: 8];
-assign 								data1 			= data_block[NB_CTRL_RAW*2 -: 8];
-assign 								data2 			= data_block[NB_CTRL_RAW*3 -: 8];
-assign 								data3 			= data_block[NB_CTRL_RAW*4 -: 8];
-assign 								data4 			= data_block[NB_CTRL_RAW*5 -: 8];
-assign 								data5 			= data_block[NB_CTRL_RAW*6 -: 8];
-assign 								data6 			= data_block[NB_CTRL_RAW*7 -: 8];
-assign 								data7 			= data_block[NB_DATA_RAW-8 -: 8];
-assign 								o_tx_data 		= tx_data;
-assign 								o_tx_ctrl 		= tx_ctrl;
-assign  							enable_dataGenerator = 1'b1;
-// assign                              o_valid         = cgmi_output_valid;
-assign                              o_valid         = i_enable ? 1'b1 : 1'b0;
-//assign 								o_tx_data 		= {8{IDLE_CHAR}};
-//assign 								o_tx_ctrl 		= IDLE_CTRL;
-
-// reg [63:0] dbg_count;
-// always @ (posedge i_clock)
-// begin
-//     if (i_reset)
-//         dbg_count <= {64{1'b0}};
-//     else if (i_enable)
-//         dbg_count <= dbg_count + 1;
-// end
-
+assign 								data0 					= data_block[NB_CTRL_RAW -: 8];
+assign 								data1 					= data_block[NB_CTRL_RAW*2 -: 8];
+assign 								data2 					= data_block[NB_CTRL_RAW*3 -: 8];
+assign 								data3 					= data_block[NB_CTRL_RAW*4 -: 8];
+assign 								data4 					= data_block[NB_CTRL_RAW*5 -: 8];
+assign 								data5 					= data_block[NB_CTRL_RAW*6 -: 8];
+assign 								data6 					= data_block[NB_CTRL_RAW*7 -: 8];
+assign 								data7 					= data_block[NB_DATA_RAW-8 -: 8];
+assign 								o_tx_data 				= tx_data;
+assign 								o_tx_ctrl 				= tx_ctrl;
+assign  							enable_dataGenerator 	= 1'b1;
+assign                              o_valid         		= i_enable ? 1'b1 : 1'b0;
 
 always @ * begin
 
+		data_gen_valid	= 1'b0;
 	    tx_data = {NB_DATA_RAW{1'b0}};
 	    tx_ctrl = {NB_CTRL_RAW{1'b0}};
 
@@ -159,8 +148,8 @@ always @ * begin
 		TX_D:
 		begin
 			tx_data = data_block;
-			// tx_data = dbg_count;
 			tx_ctrl = DATA_CTRL;
+			data_gen_valid = 1'b1;
 		end
 
 		TX_T:	
@@ -207,6 +196,7 @@ u_dataGenerator
 	.i_clock(i_clock),
 	.i_reset(i_reset),
 	.i_enable(enable_dataGenerator),
+	.i_valid(data_gen_valid),
 	.o_data_block(data_block)
 	);
 
