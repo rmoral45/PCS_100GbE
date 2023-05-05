@@ -5,8 +5,8 @@
 */
 module ber_monitor
 #(
-        parameter                   HI_BER_VALUE        = 97,
-        parameter                   XUS_TIMER_WINDOW    = 1024
+        parameter                   HI_BER_VALUE        = 970,
+        parameter                   XUS_TIMER_WINDOW    = 4096
  )
  (
         input wire                  i_clock,
