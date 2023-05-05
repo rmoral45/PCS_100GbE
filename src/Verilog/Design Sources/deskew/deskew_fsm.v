@@ -41,7 +41,7 @@ module deskew_fsm
  	//PORTS
  	assign 					o_invalid_skew = (i_common_counter >= MAX_SKEW) ? 1'b1 : 1'b0;		
  	assign 					o_stop_lane_counters = start_of_lane;
- 	assign 					o_deskew_done = deskew_done;
+ 	assign 					o_deskew_done = deskew_done & (!o_invalid_skew);
 
  	always @ (posedge  i_clock)
  	begin 	

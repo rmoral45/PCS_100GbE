@@ -158,6 +158,7 @@ u_rf_write
     .o_scrambler__i_rf_bypass(rf_scrambler_bypass_tx),
     .o_tx_pc__i_rf_enable(rf_pc_enb_tx),
     .o_pcs__i_rf_enable_tx_am_insertion(rf_am_insertion_enb_tx),
+    .o_pcs__i_rf_broke_data_sh(rf_broke_data_sh),
 
     //-----------------------Rx-----------------------
     .o_blksync__i_rf_enable(rf_enb_rx_block_sync),
@@ -218,6 +219,7 @@ u_PCS_loopback
     .i_rf_tx_bypass_scrambler    (rf_scrambler_bypass_tx),
     .i_rf_enb_tx_pc_1_20         (rf_pc_enb_tx),
     .i_rf_enb_tx_am_insertion    (rf_am_insertion_enb_tx),
+    .i_rf_broke_data_sh          (rf_broke_data_sh),
 
     //-----------------------Rx-----------------------
     //Enables

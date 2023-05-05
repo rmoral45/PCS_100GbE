@@ -54,6 +54,7 @@ module rf_write
     output wire                                 o_scrambler__i_rf_bypass,
     output wire                                 o_tx_pc__i_rf_enable,
     output wire                                 o_pcs__i_rf_enable_tx_am_insertion,
+    output wire                                 o_pcs__i_rf_broke_data_sh,
 
     //-----------------------Rx-----------------------
     output wire                                 o_blksync__i_rf_enable,
@@ -285,7 +286,12 @@ module rf_write
             pcs__i_rf_enable_clock_comp <= 1'b1;
      end       
         
-
+     always @ (posedge i_clock) begin
+        if (i_reset)
+            pcs_tx__i_rf_broke_sh <= 1'b0;
+        else if ((rf_input_addr == TX__I_RF_BROKE_SH) && rf_input_enable)   
+            pcs_tx__i_rf_broke_sh <= rf_input_data[0];
+     end  
 
 //====================================================================================     
 
@@ -302,6 +308,7 @@ module rf_write
     assign o_descrambler__i_rf_enable = descrambler__i_rf_enable ;
     assign o_descrambler__i_rf_bypass = descrambler__i_rf_bypass ;
     assign o_decoder__i_rf_enable = decoder__i_rf_enable ;
+    assign o_pcs__i_rf_broke_data_sh = pcs_tx__i_rf_broke_sh;
 
     assign o_blksync__i_rf_enable = blksync__i_rf_enable;
     assign o_aligner__i_rf_enable = aligner__i_rf_enable;

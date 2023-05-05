@@ -53,9 +53,9 @@ fifo_memory
  //Update write pointer
  always @ (posedge i_clock)
  begin
- 	if(i_reset)
+ 	if(i_reset || ~i_enable)
  		write_ptr <= WR_PTR_AFTER_RESET; 
- 	else if (i_enable && i_write_enb && i_valid)
+ 	else if ( i_write_enb && i_valid)
  	begin
  		if(write_ptr == DEPTH-1 )
  			write_ptr <= 0;
@@ -68,9 +68,9 @@ fifo_memory
 //Update read pointer
 always @ (posedge i_clock)
 begin
-	if (i_reset)
+	if (i_reset || ~i_enable)
 		read_ptr <= 0;
-	else if (i_enable && i_read_enb && i_valid)
+	else if ( i_read_enb && i_valid)
 	begin
 		if(read_ptr == DEPTH-1 )
  			read_ptr <= 0;

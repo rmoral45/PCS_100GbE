@@ -14,6 +14,7 @@ module encoder
     input wire                              i_valid,
     input wire      [NB_DATA_RAW-1 : 0]     i_data,
     input wire      [NB_CTRL_RAW-1 : 0]     i_ctrl,
+    input wire                              i_rf_broke_data_sh,
     
     output wire     [NB_DATA_CODED-1 : 0]   o_tx_coded,
     output wire                             o_valid
@@ -80,6 +81,7 @@ u_encoder_comparator
     .i_valid    (i_valid)               ,
     .i_tx_data  (i_data)                ,
     .i_tx_ctrl  (i_ctrl)                ,
+    .i_rf_broke_data_sh(i_rf_broke_data_sh),
     .o_tx_type  (comparator_type_fsm)   ,
     .o_tx_coded (comparator_data_fsm)
 );

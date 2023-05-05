@@ -24,6 +24,7 @@ module encoder_comparator
   input wire  [NB_DATA_RAW-1 : 0]  i_tx_data,
   input wire  [NB_CTRL_RAW-1 : 0]  i_tx_ctrl,
   input wire 					      i_enable,
+  input wire							i_rf_broke_data_sh,
   output wire [3:0]                   o_tx_type,
   output reg  [NB_DATA_CODED-1 : 0] o_tx_coded
 
@@ -346,9 +347,8 @@ begin
 
 end
 
-
-
-
+wire [1:0] data_sh;
+assign data_sh = (i_rf_broke_data_sh) ? 2'b11 : DATA_SH;
 
 //Port assigment
 
@@ -358,7 +358,7 @@ always @ *
 begin
    
     case(deco_type)
-        CODED_DATA : o_tx_coded = {DATA_SH,tx_data};
+        CODED_DATA : o_tx_coded = {data_sh,tx_data};
 
         CODED_S :    o_tx_coded = {CTRL_SH,BTYPE_S,tx_data[55:0]};
         

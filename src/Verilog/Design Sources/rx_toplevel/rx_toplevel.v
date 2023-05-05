@@ -160,6 +160,10 @@ wire    [NB_DATA     - 1 : 0]           descrambler_data_clockcomp;
 wire                                    descrambler_tag;
 wire                                    descrambler_valid_clockcomp;
 
+reg    [NB_DATA     - 1 : 0]           descrambler_data_clockcomp_d;
+reg                                    descrambler_tag_d;
+reg                                    descrambler_valid_clockcomp_d;
+
 //clock comp rx --> decoder
 wire    [NB_DATA     - 1 : 0]           clockcomp_data_decoder;
 wire                                    clockcomp_valid_decoder;
@@ -181,6 +185,11 @@ wire                                            frame_data_chekcer_lock_rf;
 //data pipe between blksync and aligners
 reg [NB_DATA_BUS - 1        : 0]    blksync_data_aligment_d;
 reg                                 blksync_valid_aligment_d;
+reg                                 blksync_valid_aligment_2d;
+reg                                 blksync_valid_aligment_3d;
+reg [NB_SH_VALID_BUS-1      : 0]    blksync_sh_bermonitor_d;
+reg [NB_SH_VALID_BUS-1      : 0]    blksync_sh_bermonitor_2d;
+reg [NB_SH_VALID_BUS-1      : 0]    blksync_sh_bermonitor_3d;
 
 //---------------------  Output RF signals registers --------------------------//
 (* keep = "true" *) reg     [N_LANES-1                          : 0]    hi_ber;
@@ -201,6 +210,8 @@ always @(posedge i_clock)
 begin
     blksync_data_aligment_d     <= blksync_data_aligment;
     blksync_valid_aligment_d    <= blksync_valid_aligment;
+    blksync_valid_aligment_2d   <= blksync_valid_aligment_d;
+    blksync_valid_aligment_3d   <= blksync_valid_aligment_2d;
 end
 
 always @(posedge i_clock)
@@ -329,7 +340,7 @@ frameChecker
 u_frame_data_checker
 (
     .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[9] & (~i_rf_enable_decoder)),
+    .i_reset                    (reset_replied[9]),
     .i_enable                   (i_rf_enable_decoder),
     .i_rx_raw_data              (decoder_data_raw),
     .i_rx_raw_ctrl              (decoder_ctrl_raw),
@@ -342,7 +353,7 @@ decoder
 u_decoder
 (
     .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[0] & (~i_rf_enable_decoder)),
+    .i_reset                    (reset_replied[0]),
     .i_enable                   (i_rf_enable_decoder),
     .i_data                     (clockcomp_data_decoder),
     .i_valid                    (clockcomp_valid_decoder),
@@ -357,7 +368,7 @@ test_pattern_checker
 u_test_pattern_checker
 (
     .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[1] & (~i_rf_enable_test_pattern_checker)),
+    .i_reset                    (reset_replied[1]),
     .i_enable                   (i_rf_enable_test_pattern_checker),
     .i_valid                    (clockcomp_valid_decoder),
     .i_idle_pattern_mode        (i_rf_idle_pattern_mode_rx),
@@ -371,15 +382,42 @@ clock_comp_rx
 u_clock_comp_rx
 (
     .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[2] & (~i_rf_enable_clock_comp)),
+    .i_reset                    (reset_replied[2]),
     .i_rf_enable                (i_rf_enable_clock_comp & deskew_done_replicated[0]),
-    .i_valid                    (descrambler_valid_clockcomp),
-    .i_sol_tag                  (descrambler_tag),  
-    .i_data                     (descrambler_data_clockcomp),
+    .i_valid                    (descrambler_valid_clockcomp_d),
+    .i_sol_tag                  (descrambler_tag_d),  
+    .i_data                     (descrambler_data_clockcomp_d),
     
     .o_data                     (clockcomp_data_decoder),
     .o_valid                    (clockcomp_valid_decoder)
 );
+
+//fixme ver si se puede volar
+always@(posedge i_clock) begin
+    if(reset_replied[3]) begin
+        descrambler_data_clockcomp_d    <= 66'd0;
+        descrambler_tag_d   <= 1'b0;
+        descrambler_valid_clockcomp_d   <= 1'b0;
+    end else begin
+        descrambler_data_clockcomp_d    <= descrambler_data_clockcomp;
+        descrambler_tag_d   <= descrambler_tag;
+        descrambler_valid_clockcomp_d   <= descrambler_valid_clockcomp;
+    end
+end
+
+// wire bermon_sh_good;
+// assign bermon_sh_good = ^descrambler_data_clockcomp_d[65 -: 2];
+// ber_monitor_top_level
+// u_ber_monitor_top_level
+// (
+//     .i_clock                    (i_clock),
+//     .i_reset                    (reset_replied[7]),
+//     .i_valid                    (descrambler_valid_clockcomp_d),
+//     .i_sh_bus                   (bermon_sh_good),
+//     .i_test_mode                (1'b0),
+//     .i_align_status             (1'b1),
+//     .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
+// );
 
 descrambler
 #(
@@ -388,7 +426,7 @@ descrambler
     u_descrambler
     (
         .i_clock                (i_clock),
-        .i_reset                (reset_replied[3] & (~i_rf_enable_descrambler)),
+        .i_reset                (reset_replied[3]),
         .i_enable               (i_rf_enable_descrambler), 
         .i_valid                (reorder_valid_descrambler),
         .i_bypass               (i_rf_descrambler_bypass | reorder_tag_descrambler),
@@ -401,7 +439,6 @@ descrambler
         .o_tag                  (descrambler_tag)
     );
 
-
 reorder_toplevel
 #(
     .NB_DATA        (NB_DATA),
@@ -411,7 +448,7 @@ reorder_toplevel
     u_reorder_top
     (
     .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[4] & (~i_rf_enable_lane_reorder)),
+    .i_reset                    (reset_replied[4]),
     .i_rf_reset_order           (i_rf_reset_order),
     .i_enable                   (i_rf_enable_lane_reorder),
     .i_valid                    (deskew_valid_reorder),
@@ -435,7 +472,7 @@ deskew_top
     u_deskew_top
     (
     .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[5] & (~i_rf_enable_deskewer)),
+    .i_reset                    (reset_replied[5]),
     .i_enable                   (i_rf_enable_deskewer),
     .i_valid                    (aligment_valid_deskew),
     .i_resync                   (aligment_resync_deskew),
@@ -464,7 +501,7 @@ am_top_level
 u_aligner_top
 (
     .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[6] & (~i_rf_enable_aligner)),
+    .i_reset                    (reset_replied[6]),
     .i_rf_enable                (i_rf_enable_aligner),
     .i_block_lock               (blksync_lock_aligment),
     .i_data                     (blksync_data_aligment_d),
@@ -484,19 +521,6 @@ u_aligner_top
     .o_start_of_lane            (aligment_sol_deskew)
 );
 
-ber_monitor_top_level
-u_ber_monitor_top_level
-(
-    .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[7]),
-    .i_valid                    (blksync_valid_aligment),
-    .i_sh_bus                   (blksync_sh_bermonitor),
-    .i_test_mode                (i_rf_idle_pattern_mode_rx),
-    .i_align_status             (deskew_done_replicated[3]),
-
-    .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
-);
-
 block_sync_toplevel
 #(
     .NB_DATA                    (NB_DATA),
@@ -506,7 +530,7 @@ block_sync_toplevel
 u_block_sync_top
 (
     .i_clock                    (i_clock),
-    .i_reset                    (reset_replied[8] & (~i_rf_enable_block_sync)),
+    .i_reset                    (reset_replied[8]),
     .i_enable                   (i_rf_enable_block_sync),
     .i_valid                    (i_valid),
     .i_data                     (i_phy_data),

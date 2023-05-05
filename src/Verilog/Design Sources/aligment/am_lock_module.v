@@ -86,7 +86,7 @@ module am_lock_module
     begin
         if(i_reset)
             received_bip_d <= {NB_BIP{1'b0}};
-        else if(i_rf_enable && i_valid)
+        else if(/*i_rf_enable &&*/ i_valid)
             received_bip_d <= recived_bip;
     end
     
@@ -187,6 +187,26 @@ lane_id_decoder
 		.o_lane_id	    (o_lane_id)	//to top level
 	);
 
+
+
+    (* keep = "true" *) reg  bip_enable_d;
+    (* keep = "true" *) reg  bip_valid_d;
+    (* keep = "true" *) reg  bip_start_of_lane_d;
+    (* keep = "true" *) reg  bip_resync_d;
+    (* keep = "true" *) reg [NB_BIP-1           : 0] bip_received_d;
+    (* keep = "true" *) reg [NB_BIP-1           : 0] bip_calculated_d;
+    //(* keep = "true" *) reg [NB_CODED_BLOCK-1   : 0] bip_data_d;
+
+    always @(posedge i_clock)
+    begin
+        bip_enable_d        <= i_rf_enable;
+        bip_valid_d         <= i_valid;
+        bip_start_of_lane_d <= start_of_lane;
+        bip_resync_d        <= resync;
+        bip_received_d      <= recived_bip;
+        bip_calculated_d    <= calculated_bip;
+        //bip_data_d          <= i_data;
+    end
 am_error_counter
 #(
 	.NB_BIP(NB_BIP),
@@ -196,12 +216,12 @@ am_error_counter
 	 (
 	 	.i_clock            (i_clock),          //from top level
 	 	.i_reset            (i_reset),		    //from top level
-	 	.i_enable 		    (i_rf_enable),	    //from top level
-	 	.i_valid            (i_valid),
-	 	.i_match            (start_of_lane),	//from comparator
-        .i_reset_count      (resync),
-	 	.i_recived_bip 	 	(recived_bip),		//from input reg
-	 	.i_calculated_bip	(calculated_bip),	//from bip_calc
+	 	.i_enable 		    (bip_enable_d),	    //from top level
+	 	.i_valid            (bip_valid_d),
+	 	.i_match            (bip_start_of_lane_d),	//from comparator
+        .i_reset_count      (bip_resync_d),
+	 	.i_recived_bip 	 	(bip_received_d),		//from input reg
+	 	.i_calculated_bip	(bip_calculated_d),	//from bip_calc
 	 	.o_error_count	 	(o_error_counter)	//to top level
 	 );
 
@@ -215,13 +235,14 @@ bip_calculator
 	 	.i_clock	        (i_clock),                  //from top level
 	 	.i_reset	        (i_reset),                  //from top level
 	 	.i_data		        (i_data),                   //from top level
-	 	.i_valid            (i_valid),
-	 	.i_enable	        (i_rf_enable),              //from register file
-		.i_start_of_lane    (start_of_lane | resync),   //from fsm
+	 	.i_valid            (bip_valid_d),
+	 	.i_enable	        (bip_enable_d),              //from register file
+		.i_start_of_lane    (bip_start_of_lane_d | bip_resync_d),   //from fsm
 		.i_am_insert        (1'b0),                     //input valid in tx
 
 	 	.o_bip3             (calculated_bip),           //to error counter
 	 	.o_bip7             (bip7)                      //to error counter
 	 );
+     
 endmodule
 

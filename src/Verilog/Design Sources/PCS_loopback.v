@@ -80,6 +80,7 @@ module PCS_loopback
     input wire                                                  i_rf_tx_bypass_scrambler    ,
     input wire                                                  i_rf_enb_tx_pc_1_20         ,
     input wire                                                  i_rf_enb_tx_am_insertion    ,
+    input wire                                                  i_rf_broke_data_sh          ,
 
     //-----------------------Rx-----------------------
     //Enables
@@ -271,7 +272,8 @@ u_tx_toplevel
     .i_rf_bypass_scrambler                  (i_rf_tx_bypass_scrambler),
     .i_rf_idle_pattern_mode                 (i_rf_idle_pattern_mode),
     .i_rf_enb_pc_1_20                       (i_rf_enb_tx_pc_1_20),
-    .i_rf_enb_am_insertion                  (i_rf_enb_tx_am_insertion)
+    .i_rf_enb_am_insertion                  (i_rf_enb_tx_am_insertion),
+    .i_rf_broke_data_sh                     (i_rf_broke_data_sh)
 );
 
 rx_toplevel

@@ -20,6 +20,7 @@ module toplevel_tx
     input wire                                      i_rf_idle_pattern_mode,
     input wire                                      i_rf_enb_pc_1_20,
     input wire                                      i_rf_enb_am_insertion,
+    input wire                                      i_rf_broke_data_sh,
         
     output wire    [NB_DATA_CODED-1 : 0]            o_encoder_data,
     output wire    [NB_DATA_CODED-1 : 0]            o_clock_comp_data,
@@ -67,7 +68,7 @@ wire                                    clockComp_tag_scrambler;
 wire                                    clockComp_valid_scrambler;
 
 //----------------------(Scrambler - PC_1_to_20)----------------------
-//--outputs
+
 wire    [NB_DATA_TAGGED-1 : 0]          scrambler_data_pc_1_20;
 wire                                    scrambler_valid_pc_1_20;
 
@@ -88,7 +89,7 @@ assign  o_tag_bus           = am_insert_tag_bus_channel;
 
 always @(posedge i_clock)
 begin
-    reset_replied <= {i_reset, i_reset, i_reset, i_reset, i_reset};
+    reset_replied <= {i_reset, i_reset, i_reset, i_reset, i_reset,  i_reset};
 end
 
 
@@ -101,7 +102,7 @@ top_level_frameGenerator
 u_frameGenerator
 (
     .i_clock(i_clock),
-    .i_reset(reset_replied[0] & (~i_rf_enb_frame_gen) ),
+    .i_reset(reset_replied[0] ),
     .i_enable(i_rf_enb_frame_gen),
     .o_tx_data(frameGenerator_data_encoder),
     .o_tx_ctrl(frameGenerator_ctrl_encoder),
@@ -117,11 +118,12 @@ encoder
 u_encoder
 (
     .i_clock(i_clock),
-    .i_reset(reset_replied[1] & (~i_rf_enb_encoder)),
+    .i_reset(reset_replied[1]),
     .i_enable(i_rf_enb_encoder),
     .i_valid(frameGenerator_valid_encoder),
     .i_data(frameGenerator_data_encoder),
     .i_ctrl(frameGenerator_ctrl_encoder),
+    .i_rf_broke_data_sh(i_rf_broke_data_sh),
     .o_tx_coded(encoder_data_clockComp),
     .o_valid(encoder_valid_clockComp)
 );
@@ -135,7 +137,7 @@ clock_comp_tx
 u_clock_comp
 (
     .i_clock(i_clock),
-    .i_reset(reset_replied[2] & (~i_rf_enb_clock_comp)),
+    .i_reset(reset_replied[2]),
     .i_enable(i_rf_enb_clock_comp),
     .i_valid(encoder_valid_clockComp),
     .i_data(encoder_data_clockComp),
@@ -155,7 +157,7 @@ scrambler
 u_scrambler
 (
     .i_clock(i_clock),
-    .i_reset(reset_replied[3] & (~i_rf_enb_scrambler)),
+    .i_reset(reset_replied[3]),
     .i_enable(i_rf_enb_scrambler),
     .i_valid(clockComp_valid_scrambler),
     .i_bypass(i_rf_bypass_scrambler || clockComp_tag_scrambler),
@@ -165,6 +167,7 @@ u_scrambler
     .o_data(scrambler_data_pc_1_20),
     .o_valid(scrambler_valid_pc_1_20)
 );
+
 
 parallel_converter_1_to_N
 #(
@@ -176,7 +179,7 @@ parallel_converter_1_to_N
 u_pc_1_to_20
 (
     .i_clock(i_clock),
-    .i_reset(reset_replied[4] & (~i_rf_enb_pc_1_20)),
+    .i_reset(reset_replied[4]),
     .i_enable(i_rf_enb_pc_1_20),
     .i_valid(scrambler_valid_pc_1_20),
     .i_data(scrambler_data_pc_1_20),
@@ -194,7 +197,7 @@ am_insertion_toplevel
 u_am_insertion
 (
     .i_clock(i_clock),
-    .i_reset(reset_replied[5] & (~i_rf_enb_am_insertion)),
+    .i_reset(reset_replied[5]),
     .i_enable(i_rf_enb_am_insertion),
     .i_valid(pc_1_20_valid_am_insert),
     .i_data(pc_1_20_data_am_insert),

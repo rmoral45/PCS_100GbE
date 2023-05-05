@@ -59,7 +59,7 @@ localparam [LEN_CTRL_BLOCK-1 : 0] LBLOCK_R_CTRL
 */
 
 localparam [LEN_DATA_BLOCK-1 : 0] EBLOCK_R_DATA = 64'h1E1E1E1E1E1E1E1E;
-localparam [LEN_CTRL_BLOCK-1 : 0] EBLOCK_R_CTRL = 8'h1E;
+localparam [LEN_CTRL_BLOCK-1 : 0] EBLOCK_R_CTRL = 8'hFF;
 
 //error counter
 always @(posedge i_clock)
@@ -98,8 +98,8 @@ always @ *
 begin
 
 	state_next 			= state;
-	rx_raw_control_next = {LEN_CTRL_BLOCK{1'b0}};
-	rx_raw_data_next 	= {LEN_DATA_BLOCK{1'b0}};
+	rx_raw_control_next = {LEN_CTRL_BLOCK{1'b1}};
+	rx_raw_data_next 	= {LEN_DATA_BLOCK{1'b1}};
 
 	case(state)
 		

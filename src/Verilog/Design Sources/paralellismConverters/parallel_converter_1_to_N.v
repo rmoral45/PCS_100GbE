@@ -69,25 +69,9 @@ begin
         
 end
 
-always @ (posedge i_clock)
-begin
-    if (i_reset)
-        shadow_output_data <= {NB_DATA_BUS{1'b0}};
-    
-     else if(o_valid)
-        shadow_output_data <= output_data;                                                 
-        
-end
 
 assign count_done = ((index == (N_LANES-1)) && i_valid);
 assign o_valid    = valid_d;
 
-wire [NB_DATA_TAGGED-1 : 0] tb_o_pc_per_lane [N_LANES-1 : 0];
-genvar i;
-for(i=0; i<N_LANES; i=i+1)
-begin: ger_block2
-    assign tb_o_pc_per_lane[i] = shadow_output_data[((NB_DATA_TAGGED*(N_LANES))-1) - i*NB_DATA_TAGGED -: NB_DATA_TAGGED];
-end
-//endgenera
 
 endmodule

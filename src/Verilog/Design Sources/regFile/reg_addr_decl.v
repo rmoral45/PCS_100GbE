@@ -156,3 +156,4 @@ localparam ALIGNER__O_RF_COMPARE_MASK_1             = 354;
 localparam ALIGNER__O_RF_COMPARE_MASK_2             = 436;
 localparam FRAME_DATA_CHECKER__O_RF_ERROR_COUNTER   = 437;
 localparam FRAME_DATA_CHECKER__O_RF_LOCK            = 438;
+localparam TX__I_RF_BROKE_SH                        = 439;

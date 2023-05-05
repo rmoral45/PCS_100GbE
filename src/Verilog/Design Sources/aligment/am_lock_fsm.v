@@ -134,6 +134,7 @@ begin
 			am_lock_next 	= 1'b0;
 			match_mask_next	= {N_ALIGNERS{1'b1}};
 			next_state   	= WAIT_1ST;
+			rst_good_am_cnt = 1'b1;
 		end
 		WAIT_1ST:
 		begin
@@ -256,7 +257,7 @@ end
 
     always @ (posedge i_clock)
     begin
-        if (i_reset)
+        if (i_reset || (state 	== INIT) )
                 first_lock <= 0;
         else
                 first_lock <= first_lock_next;

@@ -14,6 +14,8 @@ reg frame_gen__i_rf_enable;
 
 reg tx_pc__i_rf_enable;
 
+reg pcs_tx__i_rf_broke_sh;
+
 reg scrambler__i_rf_enable;
 
 reg scrambler__i_rf_bypass;
