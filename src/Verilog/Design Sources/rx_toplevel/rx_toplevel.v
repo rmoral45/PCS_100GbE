@@ -164,6 +164,9 @@ reg    [NB_DATA     - 1 : 0]           descrambler_data_clockcomp_d;
 reg                                    descrambler_tag_d;
 reg                                    descrambler_valid_clockcomp_d;
 
+reg                                    descrambler_valid_clockcomp_2d;
+reg                                    descrambler_valid_clockcomp_3d;
+
 //clock comp rx --> decoder
 wire    [NB_DATA     - 1 : 0]           clockcomp_data_decoder;
 wire                                    clockcomp_valid_decoder;
@@ -398,26 +401,30 @@ always@(posedge i_clock) begin
         descrambler_data_clockcomp_d    <= 66'd0;
         descrambler_tag_d   <= 1'b0;
         descrambler_valid_clockcomp_d   <= 1'b0;
+        descrambler_valid_clockcomp_2d   <= 1'b0;
+        descrambler_valid_clockcomp_3d   <= 1'b0;
     end else begin
         descrambler_data_clockcomp_d    <= descrambler_data_clockcomp;
         descrambler_tag_d   <= descrambler_tag;
         descrambler_valid_clockcomp_d   <= descrambler_valid_clockcomp;
+        descrambler_valid_clockcomp_2d  <= descrambler_valid_clockcomp_d;
+        descrambler_valid_clockcomp_3d  <= descrambler_valid_clockcomp_2d;
     end
 end
 
-// wire bermon_sh_good;
-// assign bermon_sh_good = ^descrambler_data_clockcomp_d[65 -: 2];
-// ber_monitor_top_level
-// u_ber_monitor_top_level
-// (
-//     .i_clock                    (i_clock),
-//     .i_reset                    (reset_replied[7]),
-//     .i_valid                    (descrambler_valid_clockcomp_d),
-//     .i_sh_bus                   (bermon_sh_good),
-//     .i_test_mode                (1'b0),
-//     .i_align_status             (1'b1),
-//     .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
-// );
+wire bermon_sh_good;
+assign bermon_sh_good = ^descrambler_data_clockcomp_d[65 -: 2];
+ber_monitor_top_level
+u_ber_monitor_top_level
+(
+    .i_clock                    (i_clock),
+    .i_reset                    (reset_replied[7]),
+    .i_valid                    (descrambler_valid_clockcomp_3d),
+    .i_sh_bus                   (bermon_sh_good),
+    .i_test_mode                (1'b0),
+    .i_align_status             (1'b1),
+    .o_hi_ber_bus               (ber_monitor_hi_ber_bus_rf)
+);
 
 descrambler
 #(
