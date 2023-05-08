@@ -146,6 +146,16 @@ u_clock_comp
     .o_valid(clockComp_valid_scrambler)
 );
 
+(* keep = "true" *) reg     [65:0] data_ccomp;
+(* keep = "true" *) reg             tag_ccomp;
+(* keep = "true" *) reg             valid_ccomp;
+
+always @ (posedge i_clock) begin
+    data_ccomp <= clockComp_data_scrambler;
+    tag_ccomp <= clockComp_tag_scrambler;
+    valid_ccomp <= clockComp_valid_scrambler;
+end
+
 scrambler
 #(  
     .NB_SCRAMBLER(NB_SCRAMBLER),
@@ -159,11 +169,11 @@ u_scrambler
     .i_clock(i_clock),
     .i_reset(reset_replied[3]),
     .i_enable(i_rf_enb_scrambler),
-    .i_valid(clockComp_valid_scrambler),
-    .i_bypass(i_rf_bypass_scrambler || clockComp_tag_scrambler),
-    .i_alligner_tag(clockComp_tag_scrambler),
-    .i_idle_pattern_mode(i_rf_idle_pattern_mode),
-    .i_data(clockComp_data_scrambler),
+    .i_valid(valid_ccomp),
+    .i_bypass(i_rf_bypass_scrambler || tag_ccomp),
+    .i_alligner_tag(tag_ccomp),
+    .i_idle_pattern_mode(1'b0),
+    .i_data(data_ccomp),
     .o_data(scrambler_data_pc_1_20),
     .o_valid(scrambler_valid_pc_1_20)
 );

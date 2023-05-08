@@ -34,15 +34,17 @@ module clock_comp_tx
         output wire                     o_valid
  );
 
-localparam                      NB_ADDR       = 5;
-localparam                      NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES)+1; //[CHECK]
-localparam                      NB_IDLE_CNT   = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
-localparam [NB_DATA_CODED-1 : 0]      PCS_IDLE      = 'h2_1e_00_00_00_00_00_00_00;
-localparam                      WR_PTR_AFTER_RST = 1;
+localparam                              NB_ADDR       = 5;
+localparam                              NB_PERIOD_CNT = $clog2(AM_BLOCK_PERIOD*N_LANES)+1; //[CHECK]
+localparam                              NB_IDLE_CNT   = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
+localparam [NB_DATA_CODED-1 : 0]        PCS_IDLE      = 'h2_1e_00_00_00_00_00_00_00;
+localparam                              WR_PTR_AFTER_RST = 1;
 
 //------------ Internal Signals -----------------//
 
 reg [NB_PERIOD_CNT-1 : 0]       period_counter;
+reg [NB_IDLE_CNT-1  : 0]        am_counter;
+wire                            am_count_done;
 reg [NB_IDLE_CNT-1 : 0]         idle_counter;
 
 wire                            idle_detected;
@@ -56,7 +58,49 @@ wire                            fifo_empty;
 reg                             valid_d;
 
 
+localparam NB_AM_ENCODING           = 24;
 
+//LANE_MARKERS'S MATRIX
+localparam [(NB_AM_ENCODING*N_LANES)-1 : 0] AM_ENCODING_LOW    = { 24'hC1_68_21, 
+                                                                   24'h9D_71_8E, 
+                                                                   24'h59_4B_E8, 
+                                                                   24'h4D_95_7B, 
+                                                                   24'hF5_07_09,
+                                                                   24'hDD_14_C2, 
+                                                                   24'h9A_4A_26, 
+                                                                   24'h7B_45_66, 
+                                                                   24'hA0_24_76, 
+                                                                   24'h68_C9_FB,
+                                                                   24'hFD_6C_99, 
+                                                                   24'hB9_91_55, 
+                                                                   24'h5C_B9_B2, 
+                                                                   24'h1A_F8_BD, 
+                                                                   24'h83_C7_CA,
+                                                                   24'h35_36_CD, 
+                                                                   24'hC4_31_4C, 
+                                                                   24'hAD_D6_B7, 
+                                                                   24'h5F_66_2A, 
+                                                                   24'hC0_F0_E5}; 
+localparam [(NB_AM_ENCODING*N_LANES)-1 : 0] AM_ENCODING_HIGH    = {24'h3E_97_DE,
+                                                                   24'h62_8E_71, 
+                                                                   24'hA6_B4_17, 
+                                                                   24'hB2_6A_84, 
+                                                                   24'h0A_F8_F6, 
+                                                                   24'h22_EB_3D, 
+                                                                   24'h65_B5_D9, 
+                                                                   24'h84_BA_99, 
+                                                                   24'h5F_DB_89, 
+                                                                   24'h97_36_04, 
+                                                                   24'h02_93_66, 
+                                                                   24'h46_6E_AA, 
+                                                                   24'hA3_46_4D, 
+                                                                   24'hE5_07_42, 
+                                                                   24'h7C_38_35, 
+                                                                   24'hCA_C9_32, 
+                                                                   24'h3B_CE_B3, 
+                                                                   24'h52_29_48, 
+                                                                   24'hA0_99_D5, 
+                                                                   24'h3F_0F_1A};  
 
 //----------- Algorithm ------------------------//
 always @ (posedge i_clock)
@@ -66,6 +110,16 @@ begin
     else
         valid_d <= i_valid;     
 end
+
+always @ (posedge i_clock)
+begin
+        if (i_reset || am_count_done)
+                am_counter = {NB_IDLE_CNT{1'b0}};
+        else if (i_enable && i_valid && idle_insert)
+                am_counter <= am_counter + 1'b1;
+end
+
+assign am_count_done = (am_counter == (N_LANES-1));
 
 always @ (posedge i_clock)
 begin
@@ -97,10 +151,10 @@ assign fifo_write_enable = ((idle_detected && !idle_count_full) || i_reset) ? 1'
 
 
 //-------- Ports -------------------------------//
-
-assign o_data           = (idle_insert) ? PCS_IDLE : fifo_output_data;
+assign o_data           = (idle_insert) ? {2'b10,AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-1 - am_counter*NB_AM_ENCODING -: NB_AM_ENCODING],
+                                           8'h00,AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-1 - am_counter*NB_AM_ENCODING -: NB_AM_ENCODING],8'h00} 
+                                           : fifo_output_data;
 assign o_aligner_tag    = (idle_insert) ? 1'b1     : 1'b0; // si inserto idle le agrego el tag para que sea "pisado" con un alineador
-//assign o_valid          = valid_d;
 assign o_valid          = i_valid;
 
 //------- Instances ---------------------------//

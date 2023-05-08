@@ -21,6 +21,7 @@ module am_insertion
 
  );
 
+ localparam NB_AM_HALF = 24;
 //LOCALPARAMS
 localparam CTRL_SH = 2'b10;
 
@@ -37,8 +38,8 @@ begin
 	tag 	= i_am_insert;
     
     if(i_am_insert)
-        data = {CTRL_SH,AM_ENCODING_LOW,bip3,AM_ENCODING_HIGH,bip7};
-
+        // data = {CTRL_SH,AM_ENCODING_LOW,bip3,AM_ENCODING_HIGH,bip7};
+		data = {CTRL_SH,i_data[NB_DATA_CODED-2-1 -:NB_AM_HALF],bip3,i_data[NB_DATA_CODED-2-1-NB_BIP-NB_AM_HALF -: NB_AM_HALF],bip7};
 end
 
 //PORTS

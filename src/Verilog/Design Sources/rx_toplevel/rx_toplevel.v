@@ -128,11 +128,17 @@ wire    [N_LANES     - 1        : 0]    aligment_sol_deskew;
 
 //aligment    --> lane reorder
 wire    [NB_ID_BUS   - 1        : 0]    aligment_id_reorder;
+(* keep = "true" *) reg    [NB_ID_BUS   - 1        : 0]    aligment_id_reorder_d;
+(* keep = "true" *) reg    [NB_ID_BUS   - 1        : 0]    aligment_id_reorder_2d;
+(* keep = "true" *) reg    [NB_ID_BUS   - 1        : 0]    aligment_id_reorder_3d;
 
 //alignment   --> rf
 wire    [NB_ERR_BUS-1           : 0]    alignment_error_bus_rf; 
 
 wire    [N_LANES-1              : 0]    am_lanes_lock;  
+(* keep = "true" *) reg    [N_LANES-1              : 0]    am_lanes_lock_d;  
+(* keep = "true" *) reg    [N_LANES-1              : 0]    am_lanes_lock_2d;  
+(* keep = "true" *) reg    [N_LANES-1              : 0]    am_lanes_lock_3d;
 wire    [NB_RESYNC_COUNTER_BUS-1: 0]    am_resync_counter_rf_bus;
 
 //ber monitor --> rf
@@ -460,7 +466,7 @@ reorder_toplevel
     .i_enable                   (i_rf_enable_lane_reorder),
     .i_valid                    (deskew_valid_reorder),
     .i_deskew_done              (deskew_done_replicated[2]),
-    .i_logical_rx_ID            (aligment_id_reorder),
+    .i_logical_rx_ID            (aligment_id_reorder_3d),
     .i_data                     (deskew_data_reorder),
 
     .o_data                     (reorder_data_descrambler),
@@ -492,6 +498,15 @@ deskew_top
     .o_deskew_done              (deskew_deskewdone_reorder),
     .o_invalid_skew             (deskew_invalidskew_rf)
     );
+
+    always@(posedge i_clock) begin
+        aligment_id_reorder_3d <= aligment_id_reorder_2d;
+        aligment_id_reorder_2d <= aligment_id_reorder_d;
+        aligment_id_reorder_d <= aligment_id_reorder;
+        am_lanes_lock_3d <= am_lanes_lock_2d;
+        am_lanes_lock_2d <= am_lanes_lock_d;
+        am_lanes_lock_d <= am_lanes_lock;
+    end
 
 
 am_top_level

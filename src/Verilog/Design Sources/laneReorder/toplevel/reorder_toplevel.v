@@ -45,9 +45,18 @@ module reorder_toplevel
 
     reg [NB_FIFO_DATA_BUS - 1 : 0] data_d;
 
+    reg dis_data;
+
+    always @ (posedge i_clock) begin
+        if (i_reset || ~i_deskew_done)
+            dis_data <= 1;
+        else if (update_selector_posedge)
+            dis_data <= 0;
+    end
+
     always @(posedge i_clock)
     begin
-        if(i_reset)
+        if(i_reset || dis_data)
             data_d <= {NB_FIFO_DATA_BUS{1'b0}};
         else if(i_enable && i_valid)
             data_d <= i_data;

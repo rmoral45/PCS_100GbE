@@ -88,6 +88,7 @@ module deskew_fsm
  				begin
  					state_next 		   = COUNT;
  					start_of_lane_next = i_start_of_lane;
+					 o_write_prog_fifo_enb = 1;
  				end
  			end
  			COUNT :

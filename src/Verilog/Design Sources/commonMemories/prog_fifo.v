@@ -47,12 +47,21 @@ assign fifo_level_next = (i_write_enb && i_read_enb)    ? fifo_level        :
                          (i_write_enb && !i_read_enb)   ? fifo_level + 1'b1 : fifo_level - 1'b1;
 
 //update write pointer
+
+//reg write_enb_prev;
+//always @ ( posedge i_clock ) begin
+//     write_enb_prev <= i_write_enb;
+//end
+//wire pe;
+
+//assign pe = i_write_enb & (~write_enb_prev);
 always @ ( posedge i_clock )
 begin
 
 	if(i_reset || reset_wr_ptr)
 		wr_ptr <= {NB_ADDR{1'b0}};
-
+   // else if (pe)
+        //wr_ptr <= 2;
 	else if(i_write_enb && i_valid)
 		wr_ptr <= wr_ptr + 1'b1;
 end
