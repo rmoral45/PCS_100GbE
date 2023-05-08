@@ -22,7 +22,8 @@ module lane_reorder
         input wire  [NB_ID_BUS-1 : 0]   i_logical_rx_ID,
 
         output wire [NB_ID_BUS-1 : 0]   o_reorder_mux_selector,
-        output wire                     o_update_selectors
+        output wire                     o_update_selectors,
+        output wire                     o_reorder_done
 );
         
         //LOCALPARAMS
@@ -37,6 +38,7 @@ module lane_reorder
         wire [NB_POINTER   : 0]         wr_ptr;
         wire [NB_POINTER   : 0]         aux_wr_ptr;
         wire                            reorder_done;
+        reg                             reorder_done_d;
         wire                            all_lanes_present;
         wire [NB_ID_BUS-1  : 0]         default_lane_select;
 
@@ -68,6 +70,13 @@ module lane_reorder
 
         assign reorder_done = (counter == N_LANES) ? 1'b1 : 1'b0;
 
+        always @(posedge i_clock) begin
+                if(i_reset)
+                        reorder_done_d <= 1'b0;
+                else        
+                        reorder_done_d <= reorder_done;
+        end
+
 
         //Check if any ID is repeated
         always @ (posedge i_clock)
@@ -91,6 +100,7 @@ module lane_reorder
         end
 
         assign o_update_selectors = ~update_sel & (all_lanes_present & reorder_done);
+        assign o_reorder_done = reorder_done_d;
 
 endmodule
 

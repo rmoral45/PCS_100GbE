@@ -43,20 +43,13 @@ module reorder_toplevel
     wire                        deskew_done_posedge;
     reg                         deskew_done_prev;
 
+    wire                        reorder_done;
+
     reg [NB_FIFO_DATA_BUS - 1 : 0] data_d;
-
-    reg dis_data;
-
-    always @ (posedge i_clock) begin
-        if (i_reset || ~i_deskew_done)
-            dis_data <= 1;
-        else if (update_selector_posedge)
-            dis_data <= 0;
-    end
 
     always @(posedge i_clock)
     begin
-        if(i_reset || dis_data)
+        if(i_reset || ~reorder_done)
             data_d <= {NB_FIFO_DATA_BUS{1'b0}};
         else if(i_enable && i_valid)
             data_d <= i_data;
@@ -112,7 +105,8 @@ module reorder_toplevel
         .i_logical_rx_ID        (i_logical_rx_ID),
 
         .o_reorder_mux_selector (ordered_ids),
-        .o_update_selectors     (update_selector)
+        .o_update_selectors     (update_selector),
+        .o_reorder_done         (reorder_done)
     );
 
 endmodule
