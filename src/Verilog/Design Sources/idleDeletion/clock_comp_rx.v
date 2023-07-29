@@ -32,8 +32,8 @@ localparam                                      WR_PTR_AFTER_RST    = 1;
 localparam                                      NB_ADDR             = 5;
 
 localparam                                      NB_PERIOD_CNT       = $clog2(AM_BLOCK_PERIOD*N_LANES);
-localparam                                      NB_IDLE_CNT         = $clog2(N_LANES); //se insertaran tantos idle como lineas se tengan
-localparam [NB_DATA_CODED-1 : 0]                PCS_IDLE            = 'h2_1e_00_00_00_00_00_00_00;
+localparam                                      NB_IDLE_CNT         = $clog2(N_LANES);
+localparam [NB_DATA_CODED-1 : 0]                PCS_IDLE            = 'h2_78_00_00_00_00_00_00_00;
 
 //------------ Internal Signals -----------------//
 
@@ -57,7 +57,7 @@ assign idle_detected = (fifo_output_data  ==  PCS_IDLE);
 
 always @ (posedge i_clock)
 begin
-    if(i_reset || i_sol_tag || ~i_rf_enable)
+    if(i_reset || i_sol_tag || ~i_rf_enable || fifo_empty)
     begin
         trigger_insertion <= 1'b0;
     end
@@ -72,7 +72,7 @@ end
 
 always @ (posedge i_clock)
 begin
-        if (i_reset || i_sol_tag || ~i_rf_enable)
+        if (i_reset || i_sol_tag || ~i_rf_enable || fifo_empty)
                 period_counter = {NB_PERIOD_CNT{1'b0}};
         else if (i_valid)
                 period_counter <= period_counter + 1'b1;
@@ -83,20 +83,19 @@ assign                                      period_done         = (period_counte
 
 always @ (posedge i_clock)
 begin
-        if (i_reset || i_sol_tag || ~i_rf_enable)
+        if (i_reset || i_sol_tag || ~i_rf_enable || fifo_empty)
                 idle_counter = {NB_IDLE_CNT{1'b0}};
         else if (i_valid && idle_insert)
                 idle_counter <= idle_counter + 1'b1;
 end
 
-assign                                     idle_insert         = ((idle_counter < N_LANES ) && ~i_sol_tag && trigger_insertion); //si fsm del receptor esta en el estado de
-                                                                                                                            //control puedo insertar los idles necesarios
+assign                                     idle_insert         = ((idle_counter < N_LANES ) && ~i_sol_tag && trigger_insertion);
 
 
 //Fifo enables
 
-assign                                      fifo_read_enable    = ~idle_insert; // si estoy insertando idles no debo sacar datos de la fifo
-assign                                      fifo_write_enable   = ~i_sol_tag | idle_insert  ; // elimino los idle con los cuales se "pisaron" los aligner markers
+assign                                      fifo_read_enable    = ~idle_insert;
+assign                                      fifo_write_enable   = ~i_sol_tag | idle_insert;
 
 
 //-------- Ports -------------------------------//

@@ -28,9 +28,6 @@ module deskew_top
     output wire                             o_invalid_skew
  );
 
-
- //LOCALPARAMS
- localparam test = { 6'd19,6'd18,6'd17,6'd16,6'd15,6'd14,6'd13,6'd12,6'd11,6'd10,6'd9,6'd8,6'd7,6'd6,6'd5,6'd4,6'd3,6'd2,6'd1,6'd0};
  //INTERNAL SIGNALS
  wire [N_LANES-1 : 0]		    stop_lane_counters;
  wire [NB_DELAY_BUS-1 : 0]      lane_counters_value;
@@ -117,9 +114,9 @@ module deskew_top
   	.i_reset            (i_reset),
   	.i_enable           (i_enable),
   	.i_valid            (i_valid),
-  	.i_resync           (|i_resync),            //[CAREFUL]reduction OR of all lanes resync signal
+  	.i_resync           (|i_resync),           
   	.i_enable_counter   (enable_counter),
-  	.i_stop_counter     (&stop_lane_counters),  //[CAREFUL]reduction AND of all lanes resync signal
+  	.i_stop_counter     (&stop_lane_counters), 
   	//OUTPUT
   	.o_count            (common_counter_value)
    );
@@ -139,7 +136,7 @@ module deskew_top
 	  	.i_reset            (i_reset),
 	  	.i_enable           (i_enable),
 	  	.i_valid            (i_valid),
-	  	.i_resync           (|i_resync ), //reduction OR of all lanes resync signal
+	  	.i_resync           (|i_resync ), 
 	  	.i_enable_counter   (enable_counter),
 	  	.i_stop_counter     (stop_lane_counters[N_LANES - 1 -i]),
 	  	//OUTPUT

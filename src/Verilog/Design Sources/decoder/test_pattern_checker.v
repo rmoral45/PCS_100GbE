@@ -19,7 +19,7 @@ module test_pattern_checker
  );
  
  //LOCALPARAM
-localparam [NB_CODED_BLOCK-1 : 0] 				static_idle_block = 66'h21E00000000000000;
+localparam [NB_CODED_BLOCK-1 : 0] 				static_idle_block = 66'h27800000000000000;
 
 //INTERNAL SIGNALS
 reg  [NB_MISMATCH_COUNTER-1 : 0] 				counter;

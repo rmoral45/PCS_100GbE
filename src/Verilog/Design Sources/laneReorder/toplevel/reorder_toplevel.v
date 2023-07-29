@@ -1,6 +1,6 @@
 `timescale 1ns/100ps
 
-module reorder_toplevel
+module lane_reorder_top
 #(
     parameter NB_DATA           = 66,
     parameter NB_FIFO_DATA      = 67,

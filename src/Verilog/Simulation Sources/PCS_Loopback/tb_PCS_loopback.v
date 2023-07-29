@@ -62,16 +62,25 @@ module tb_PCS_loopback;
 reg i_fpga_clock;
 reg rf_reset_pcs;
 
+	wire [2 : 0]                tb_n_term;
+	wire [7 : 0]                tb_n_data;
+	wire [5 : 0]                tb_n_idle;
+
 initial begin
     i_fpga_clock = 0;
     rf_reset_pcs = 1;
     #10;
     rf_reset_pcs = 0;
-
+    #1000;
+    rf_reset_pcs = 1;
+    #1000;
+    rf_reset_pcs = 0;
 end
 
 
-always #1 i_fpga_clock = ~i_fpga_clock;
+always #1 begin 
+    i_fpga_clock = ~i_fpga_clock;
+end
 
 PCS_loopback
 u_PCS_loopback
@@ -126,8 +135,13 @@ u_PCS_loopback
     .o_rf_lanes_id(rx_lanes_id_rf),
     .o_rf_decoder_error_counter(rx_decoder_error_counter_rf),
     .o_rf_frame_data_checker_error_counter(frame_data_checker_error_counter_rf),
-    .o_rf_frame_data_checker_lock(frame_data_checker_lock_rf)
+    .o_rf_frame_data_checker_lock(frame_data_checker_lock_rf),
+    .o_n_term(tb_n_term),
+    .o_n_data(tb_n_data),
+    .o_n_idle(tb_n_idle)
     
 );
+
+
 
 endmodule

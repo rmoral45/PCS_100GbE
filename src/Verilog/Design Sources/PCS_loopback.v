@@ -105,7 +105,7 @@ module PCS_loopback
     input  wire                                                 i_rf_rx_reset_order,
     
     //Rx rf outputs
-    output wire     [N_LANES-1                          : 0]    o_rf_hi_ber,
+    output wire                                                 o_rf_hi_ber,
     output wire     [NB_ERR_BUS-1                       : 0]    o_rf_am_error_counter,
     output wire     [NB_RESYNC_COUNTER_BUS-1            : 0]    o_rf_resync_counter_bus,
     output wire     [N_LANES-1                          : 0]    o_rf_am_lock,
@@ -115,7 +115,10 @@ module PCS_loopback
     output wire     [NB_ID_BUS-1                        : 0]    o_rf_lanes_id,
     output wire     [NB_DECODER_ERROR_COUNTER-1         : 0]    o_rf_decoder_error_counter,
     output wire     [NB_DATA_CHECKER_ERROR_COUNTER-1    : 0]    o_rf_frame_data_checker_error_counter,
-    output wire                                                 o_rf_frame_data_checker_lock
+    output wire                                                 o_rf_frame_data_checker_lock,
+    output wire [2 : 0]                o_n_term,
+	output wire [7 : 0]                o_n_data,
+	output wire [5 : 0]                o_n_idle
 );
 /* Tx to Channel signals */
     wire            [NB_DATA_CODED-1                    : 0]    tx_encoder_data_rx;
@@ -128,7 +131,7 @@ module PCS_loopback
 
     // Rx RF signals registers    
     wire                        [N_LANES-1                      : 0]    lanes_block_lock_rf;
-    wire                        [N_LANES-1                      : 0]    ber_monitor_hi_ber_rf;
+    wire                                                                ber_monitor_hi_ber_rf;
     wire                        [N_LANES-1                      : 0]    am_lanes_lock_rf;  
     wire                        [NB_RESYNC_COUNTER_BUS-1        : 0]    am_resync_counter_rf;
     wire                        [NB_ERR_BUS-1                   : 0]    am_error_counter_rf; 
@@ -141,7 +144,7 @@ module PCS_loopback
     
 
     (* keep = "true" *) reg     [N_LANES-1                      : 0]    lanes_block_lock_rf_d;
-    (* keep = "true" *) reg     [N_LANES-1                      : 0]    ber_monitor_hi_ber_rf_d;
+    (* keep = "true" *) reg                                             ber_monitor_hi_ber_rf_d;
     (* keep = "true" *) reg     [N_LANES-1                      : 0]    am_lanes_lock_rf_d;
     (* keep = "true" *) reg     [NB_RESYNC_COUNTER_BUS-1        : 0]    am_resync_counter_rf_d;
     (* keep = "true" *) reg     [NB_ERR_BUS-1                   : 0]    am_error_counter_rf_d;
@@ -175,7 +178,7 @@ module PCS_loopback
     always @(posedge i_clock)
     begin
         if(i_reset)
-            ber_monitor_hi_ber_rf_d <=  {N_LANES{1'b0}};
+            ber_monitor_hi_ber_rf_d <=  1'b0;
         else
             ber_monitor_hi_ber_rf_d <=  ber_monitor_hi_ber_rf;
     end
@@ -273,7 +276,10 @@ u_tx_toplevel
     .i_rf_idle_pattern_mode                 (i_rf_idle_pattern_mode),
     .i_rf_enb_pc_1_20                       (i_rf_enb_tx_pc_1_20),
     .i_rf_enb_am_insertion                  (i_rf_enb_tx_am_insertion),
-    .i_rf_broke_data_sh                     (i_rf_broke_data_sh)
+    .i_rf_broke_data_sh                     (i_rf_broke_data_sh),
+     .o_n_term(o_n_term),
+    .o_n_data(o_n_data),
+    .o_n_idle(o_n_idle)
 );
 
 rx_toplevel
@@ -346,7 +352,7 @@ u_rx_toplevel
         .i_rf_reset_order                       (i_rf_rx_reset_order),
         .i_rf_enable_descrambler                (i_rf_enb_rx_descrambler),
         .i_rf_enable_clock_comp                 (i_rf_enb_rx_clock_comp),
-        .i_rf_enable_test_pattern_checker       (i_rf_enb_rx_test_pattern_checker),
+        .i_rf_enable_test_pattern_checker       (i_rf_idle_pattern_mode),
         .i_rf_enable_decoder                    (i_rf_enb_rx_decoder),
         .i_rf_descrambler_bypass                (i_rf_rx_descrambler_bypass),
         .i_rf_idle_pattern_mode_rx              (i_rf_idle_pattern_mode)

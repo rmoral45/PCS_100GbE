@@ -28,6 +28,12 @@ module  sync_fifo
  reg [NB_ADDR-1 : 0] write_ptr;
  reg [NB_ADDR-1 : 0] read_ptr;
 
+ wire fifo_empty;
+
+ assign fifo_empty = (read_ptr == write_ptr) ? 1'b1 : 1'b0;
+
+
+
 
 
 //INSTANCIAS
@@ -53,7 +59,7 @@ fifo_memory
  //Update write pointer
  always @ (posedge i_clock)
  begin
- 	if(i_reset || ~i_enable)
+ 	if(i_reset || ~i_enable || fifo_empty)
  		write_ptr <= WR_PTR_AFTER_RESET; 
  	else if ( i_write_enb && i_valid)
  	begin
@@ -68,7 +74,7 @@ fifo_memory
 //Update read pointer
 always @ (posedge i_clock)
 begin
-	if (i_reset || ~i_enable)
+	if (i_reset || ~i_enable || fifo_empty )
 		read_ptr <= 0;
 	else if ( i_read_enb && i_valid)
 	begin
@@ -81,6 +87,6 @@ end
 
 //PORTS
 
-assign o_empty = (read_ptr == write_ptr) ? 1'b1 : 1'b0;
+assign o_empty = fifo_empty;
 
 endmodule

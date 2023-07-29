@@ -1,77 +1,95 @@
 `timescale 1ns/100ps
 
-/* Brief : Aligner Marker detection logic
- *
- * Endianess : BIG ENDIAN -> same format as figure 82-5 of IEEE 802.3ba
- *
- * Bus ordering : - None multiple data block buses in current module  -
- *
- * Port description :
- *
- *      i_enable_mask  : input from FSM, disables output from comparators
- *      i_timer_done   : input from FSM, indicates if AM income is expected
- *      i_am_value     : 48bits from input payload, doesn't include SH nor
- *                       bytes in BIP positions
- *      i_compare_mask : input from register file, mask to enable partial 
- *                       comparisons of input payload
- *      i_match_mask   : input from FSM, indicates which AM we are waiting for
- *
- *      o_am_match     : indicates that a match was found
- *
- *      o_match_vector : one-hot encoded value indicating which AM we found,
- *                       i.e the one corresponding to X lane
- *
- * Detailed description : - None - 
- */   
-
-
 module am_lock_comparator_v2
 #(
-	parameter NB_AM    = 48,
-	parameter N_ALIGNER = 20
+	parameter 						NB_AM    = 48,
+	parameter 						N_ALIGNER = 20
  )
- (	input  wire 			i_enable_mask,	  // input from fsm
- 	input  wire 			i_timer_done ,
+ (	input  wire 					i_enable_mask,	
+ 	input  wire 					i_timer_done ,
  	input  wire [NB_AM-1 	 : 0] 	i_am_value ,
- 	input  wire [NB_AM-1 	 : 0] 	i_compare_mask ,  //mascara configurable para permitir flexibilidad en la comparacion
- 	input  wire [N_ALIGNER-1 : 0]	i_match_mask ,	  //expected am mask
- 	output wire 			o_am_match ,  	  //flag signaling match
+ 	input  wire [NB_AM-1 	 : 0] 	i_compare_mask ,
+ 	input  wire [N_ALIGNER-1 : 0]	i_match_mask ,	
+ 	output wire 					o_am_match ,  	
  	output wire [N_ALIGNER-1 : 0] 	o_match_vector
  );
 
-localparam AM_LANE_0  = 48'hC168213E97DE;
-localparam AM_LANE_1  = 48'h9D718E628E71;
-localparam AM_LANE_2  = 48'h594BE8A6B417;
-localparam AM_LANE_3  = 48'h4D957BB26A84;
-localparam AM_LANE_4  = 48'hF507090AF8F6;
-localparam AM_LANE_5  = 48'hDD14C222EB3D;
-localparam AM_LANE_6  = 48'h9A4A2665B5D9;
-localparam AM_LANE_7  = 48'h7B456684BA99;
-localparam AM_LANE_8  = 48'hA024765FDB89;
-localparam AM_LANE_9  = 48'h68C9FB973604;
-localparam AM_LANE_10 = 48'hFD6C99029366;
-localparam AM_LANE_11 = 48'hB99155466EAA;
-localparam AM_LANE_12 = 48'h5CB9B2A3464D;
-localparam AM_LANE_13 = 48'h1AF8BDE50742;
-localparam AM_LANE_14 = 48'h83C7CA7C3835;
-localparam AM_LANE_15 = 48'h3536CDCAC932;
-localparam AM_LANE_16 = 48'hC4314C3BCEB3;
-localparam AM_LANE_17 = 48'hADD6B7522948;
-localparam AM_LANE_18 = 48'h5F662AA099D5;
-localparam AM_LANE_19 = 48'hC0F0E53F0F1A;
+localparam NB_AM_ENCODING = 24;
+localparam N_LANES = 20;
 
+localparam [(NB_AM_ENCODING*N_LANES)-1 : 0] AM_ENCODING_LOW    = { 24'h83_16_84, 
+                                                                   24'hB9_8E_71, 
+                                                                   24'h9A_D2_17, 
+                                                                   24'hB2_A9_DE, 
+                                                                   24'hAF_E0_90,
+                                                                   24'hBB_28_43, 
+                                                                   24'h59_52_64, 
+                                                                   24'hDE_A2_66, 
+                                                                   24'h05_24_6E, 
+                                                                   24'h16_93_DF,
+                                                                   24'hBF_36_99, 
+                                                                   24'h9D_89_AA, 
+                                                                   24'h3A_9D_4D, 
+                                                                   24'h58_1F_BD, 
+                                                                   24'hC1_E3_53,
+                                                                   24'hAC_6C_B3, 
+                                                                   24'h23_8C_32, 
+                                                                   24'hB5_6B_ED, 
+                                                                   24'hFA_66_54, 
+                                                                   24'h03_0F_A7}; 
+localparam [(NB_AM_ENCODING*N_LANES)-1 : 0] AM_ENCODING_HIGH    = {~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-1 -: NB_AM_ENCODING],
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(1*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(2*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(3*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(4*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(5*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(6*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(7*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(8*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(9*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(10*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(11*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(12*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(13*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(14*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(15*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(16*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(17*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(18*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], 
+                                                                   ~AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(19*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]}; 
+
+localparam AM_LANE_0  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_1  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(1*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(1*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_2  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(2*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(2*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_3  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(3*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(3*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_4  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(4*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(4*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_5  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(5*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(5*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_6  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(6*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(6*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_7  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(7*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(7*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_8  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(8*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(8*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_9  = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(9*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(9*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_10 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(10*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(10*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_11 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(11*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(11*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_12 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(12*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(12*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_13 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(13*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(13*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_14 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(14*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(14*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_15 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(15*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(15*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_16 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(16*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(16*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_17 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(17*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(17*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_18 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(18*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(18*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
+localparam AM_LANE_19 = {AM_ENCODING_LOW[(NB_AM_ENCODING*N_LANES)-(19*NB_AM_ENCODING)-1 -: NB_AM_ENCODING], AM_ENCODING_HIGH[(NB_AM_ENCODING*N_LANES)-(19*NB_AM_ENCODING)-1 -: NB_AM_ENCODING]};
 
 integer i;
 
 reg [NB_AM*N_ALIGNER-1 : 0] 	  aligners; 
-reg [N_ALIGNER-1 : 0] 		  match_mask; //salida de fsm
-reg [N_ALIGNER-1 : 0] 		  match_vector;//salida de comparadores
+reg [N_ALIGNER-1 : 0] 		  match_mask; 
+reg [N_ALIGNER-1 : 0] 		  match_vector;
 reg [N_ALIGNER-1 : 0] 		  match_expected_am;
-reg [NB_AM-1 : 0] 		  am_value_masked;// bits
+reg [NB_AM-1 : 0] 		  am_value_masked;
 reg match_payload;
 reg enable;
 reg match;
-reg aux_am_mask; //TODO pensar un nombre mejor
+reg aux_am_mask;
 
 always @ *
 begin
@@ -94,9 +112,9 @@ begin
 		end 
 	end
 
-	match_payload = | match_vector; // se encontro un match
-	enable 	      = (i_timer_done | i_enable_mask);//se cumplio el tiempo en el que debe llegar otro bloque o todavia no encontre el primero
-	match 	      = match_payload & enable;//input to fsm
+	match_payload = | match_vector; 
+	enable 	      = (i_timer_done | i_enable_mask);
+	match 	      = match_payload & enable;
 
 end 
 

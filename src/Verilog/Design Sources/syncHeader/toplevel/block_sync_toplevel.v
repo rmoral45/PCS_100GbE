@@ -42,19 +42,15 @@ module block_sync_toplevel
         output wire [N_LANES-1          : 0]    o_block_lock
  );
         
-        reg                                     valid;
+        reg                                                     valid;
+        (* keep = "true" *) reg                                 replicated_enable       [0: N_LANES-1];
+        (* keep = "true" *) reg                                 replicated_valid        [0: N_LANES-1];
+        (* keep = "true" *) reg  [NB_DATA_BUS-1      : 0]       i_data_d;
+        (* keep = "true" *) reg  [NB_DATA_BUS-1      : 0]       o_data_d;
+        (* keep = "true" *) reg                                 out_valid_d;
+        (* keep = "true" *) reg                                 out_valid_2d;
+        wire                     [NB_DATA_BUS-1      : 0]       o_data_w;
 
-
-
-        assign      o_valid     =   out_valid_2d;
-
-        (* keep = "true" *) reg  replicated_enable [0: N_LANES-1];
-        (* keep = "true" *) reg  replicated_valid [0: N_LANES-1];
-        (* keep = "true" *) reg  [NB_DATA_BUS-1      : 0]    i_data_d;
-        (* keep = "true" *) reg  [NB_DATA_BUS-1      : 0]    o_data_d;
-        wire   [NB_DATA_BUS-1      : 0]    o_data_w;
-        (* keep = "true" *) reg     out_valid_d;
-        (* keep = "true" *) reg     out_valid_2d;
         integer k;
         always @ (posedge i_clock) begin
                 i_data_d <= i_data;
@@ -62,12 +58,13 @@ module block_sync_toplevel
                         replicated_enable[k] <= i_enable;
                         replicated_valid[k]  <= i_valid;
                 end
-                out_valid_d <= i_valid;
-                out_valid_2d <= out_valid_d;
-                o_data_d <= o_data_w;
+                out_valid_d     <= i_valid;
+                out_valid_2d    <= out_valid_d;
+                o_data_d        <= o_data_w;
         end
-        assign o_data = o_data_d;
- 
+
+        assign          o_data          = o_data_d;
+        assign          o_valid         = out_valid_2d; 
 
         genvar i;
 

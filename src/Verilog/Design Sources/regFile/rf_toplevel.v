@@ -111,7 +111,7 @@ wire     [N_LANES-1          : 0]               rf_rx_read_lanes_id;
 wire                                            rf_rx_read_decoder_error_counter;
 
 /* PCS RX to RF */
-wire     [N_LANES-1                  : 0]       rx_hi_ber_rf;
+wire                                            rx_hi_ber_rf;
 wire     [NB_BIP_ERR_BUS-1           : 0]       rx_am_error_counter_rf;
 wire     [NB_RESYNC_CNT_BUS-1        : 0]       rx_resync_counter_bus_rf;
 wire     [N_LANES-1                  : 0]       rx_am_lock_rf;
@@ -254,7 +254,10 @@ u_PCS_loopback
     .o_rf_lanes_id(rx_lanes_id_rf),
     .o_rf_decoder_error_counter(rx_decoder_error_counter_rf),
     .o_rf_frame_data_checker_error_counter(frame_data_checker_error_counter_rf),
-    .o_rf_frame_data_checker_lock(frame_data_checker_lock_rf)
+    .o_rf_frame_data_checker_lock(frame_data_checker_lock_rf),
+     .o_n_term(o_n_term),
+    .o_n_data(o_n_data),
+    .o_n_idle(o_n_idle)
     
 );
 

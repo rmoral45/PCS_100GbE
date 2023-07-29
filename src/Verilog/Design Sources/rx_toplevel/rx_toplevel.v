@@ -96,7 +96,7 @@ module rx_toplevel
     //Decoder signals
     input  wire                                             i_rf_enable_decoder,              //done
 
-    output wire [N_LANES-1                          : 0]    o_rf_hi_ber,
+    output wire                                             o_rf_hi_ber,
     output wire [NB_ERR_BUS  - 1                    : 0]    o_rf_am_error_counter,
     output wire [NB_RESYNC_COUNTER_BUS- 1           : 0]    o_rf_resync_counter_bus,
     output wire [N_LANES     - 1                    : 0]    o_rf_am_lock,
@@ -142,7 +142,7 @@ wire    [N_LANES-1              : 0]    am_lanes_lock;
 wire    [NB_RESYNC_COUNTER_BUS-1: 0]    am_resync_counter_rf_bus;
 
 //ber monitor --> rf
-wire    [N_LANES-1              : 0]    ber_monitor_hi_ber_bus_rf;
+wire                                    ber_monitor_hi_ber_bus_rf;
 
 //deskew      --> reorder
 //@CAREFUL estos datos son de 67 bits xq contiene el tag
@@ -201,7 +201,7 @@ reg [NB_SH_VALID_BUS-1      : 0]    blksync_sh_bermonitor_2d;
 reg [NB_SH_VALID_BUS-1      : 0]    blksync_sh_bermonitor_3d;
 
 //---------------------  Output RF signals registers --------------------------//
-(* keep = "true" *) reg     [N_LANES-1                          : 0]    hi_ber;
+(* keep = "true" *) reg                                                 hi_ber;
 (* keep = "true" *) reg     [NB_ERR_BUS-1                       : 0]    am_error_counter;
 (* keep = "true" *) reg     [NB_RESYNC_COUNTER_BUS-1            : 0]    am_resyncs;
 (* keep = "true" *) reg     [N_LANES-1                          : 0]    am_locks;
@@ -235,7 +235,7 @@ end
 always @(posedge i_clock)
 begin
     if(i_reset)
-        hi_ber                  <=  {N_LANES{1'b0}};
+        hi_ber                  <=  1'b0;
     else
         hi_ber                  <=  ber_monitor_hi_ber_bus_rf;
 end
@@ -378,7 +378,7 @@ u_test_pattern_checker
 (
     .i_clock                    (i_clock),
     .i_reset                    (reset_replied[1]),
-    .i_enable                   (i_rf_enable_test_pattern_checker),
+    .i_enable                   (i_rf_enable_test_pattern_checker & (~descrambler_tag)),
     .i_valid                    (clockcomp_valid_decoder),
     .i_idle_pattern_mode        (i_rf_idle_pattern_mode_rx),
     .i_data                     (descrambler_data_clockcomp),

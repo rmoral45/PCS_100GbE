@@ -22,19 +22,14 @@ module decoder
 );
 
 //-----------------  module connect wires  ------------------//
-//decoder_comparator --> decoder_fsm_interface
     wire            [NB_BLOCK_TYPE-1    :   0]  comparator_type_fsminterface;
-//decoder_comparator --> decoder_fsm
     wire            [NB_DATA_RAW-1      :   0]  comparator_data_fsm;
     wire            [NB_CTRL_BLOCK-1    :   0]  comparator_ctrl_fsm;
-//decoder_fsm_interface --> decoder_fsm
     wire            [NB_BLOCK_TYPE-1    :   0]  fsminterface_type_fsm;
     wire            [NB_BLOCK_TYPE-1    :   0]  fsminterface_type_next_fsm;
-//decoder_fsm --> rx_toplevel
     wire            [NB_DATA_RAW-1      :   0]  decoderfsm_data_rxtoplevel;
     wire            [NB_CTRL_BLOCK-1    :   0]  decoderfsm_ctrl_rxtoplevel;
     wire            [NB_ERROR_COUNTER-1 :   0]  decoderfsm_error_counter;
-//decoder_fsm --> clock_comp_rx
     wire                                        decoderfsm_type_clockcomp;
     
 

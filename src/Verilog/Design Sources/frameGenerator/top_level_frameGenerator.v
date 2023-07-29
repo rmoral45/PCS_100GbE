@@ -10,7 +10,10 @@ module top_level_frameGenerator
 	input								i_enable,
 	output wire	[NB_DATA_RAW-1 : 0]		o_tx_data,
 	output wire	[NB_CTRL_RAW-1 : 0]		o_tx_ctrl,
-	output wire                         o_valid
+	output wire                         o_valid,
+	output wire [2 : 0]                o_n_term,
+	output wire [7 : 0]                o_n_data,
+	output wire [5 : 0]                o_n_idle
 	);
 
 
@@ -35,6 +38,9 @@ assign  								ndata 			= (noise_data[NB_GNG-4 -: NB_DATA] > 8'D189) ?
 assign  								nidle 			= (noise_data[NB_GNG-8 -: NB_IDLE] == 0) ? 1 : noise_data[NB_GNG-8 -: NB_IDLE]; //6 bits menos significativos para idle
 
 
+assign o_n_term = nterm;
+assign o_n_data = ndata;
+assign o_n_idle = nidle;
 
 //Registros y parametros para el generador de frames
 wire									frameGenerator_enb;

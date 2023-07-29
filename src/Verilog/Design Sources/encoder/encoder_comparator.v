@@ -34,35 +34,36 @@ module encoder_comparator
 //LOCALPARAMS
 
 //CGMII CHARACTERS
-localparam [7:0] CGMII_START     = 8'hFB;
-localparam [7:0] CGMII_TERMINATE = 8'hFD;
-localparam [7:0] CGMII_FSIG      = 8'h5C;
-localparam [7:0] CGMII_Q         = 8'h9C;
-localparam [7:0] CGMII_IDLE      = 8'h07;
-localparam [7:0] CGMII_ERROR     = 8'hFE;
-localparam [3:0] ZERO = 4'h0; 
+localparam [7:0] CGMII_START     	= 8'hFB;
+localparam [7:0] CGMII_TERMINATE 	= 8'hFD;
+localparam [7:0] CGMII_FSIG      	= 8'h5C;
+localparam [7:0] CGMII_Q         	= 8'h9C;
+localparam [7:0] CGMII_IDLE      	= 8'h07;
+localparam [7:0] CGMII_ERROR     	= 8'hFE;
+localparam [3:0] ZERO 				= 4'h0; 
 
 //PCS CHARACTERS 
-localparam [6:0] PCS_IDLE  = 7'h00;
-localparam [6:0] PCS_ERROR = 7'h1E;
-localparam [3:0] PCS_Q     = 4'h0;
-localparam [3:0] PCS_FSIG  = 4'hF;
+localparam [6:0] PCS_IDLE  			= 7'h00;
+localparam [6:0] PCS_ERROR 			= 7'h1E;
+localparam [3:0] PCS_Q     			= 4'h0;
+localparam [3:0] PCS_FSIG  			= 4'hF;
 //Sync Headers
-localparam [1:0]  DATA_SH 	 = 2'b01;
-localparam [1:0]  CTRL_SH 	 = 2'b10;
+localparam [1:0]  DATA_SH 	 		= 2'b01;
+localparam [1:0]  CTRL_SH 	 		= 2'b10;
 //BLOCK_TYPE
-localparam		 N_BLOCK_TYPE= 13;
-localparam [7:0] BTYPE_CTRL  = 8'h1E;
-localparam [7:0] BTYPE_S     = 8'h78;
-localparam [7:0] BTYPE_ORDER = 8'h4B;
-localparam [7:0] BTYPE_T0    = 8'h87;
-localparam [7:0] BTYPE_T1    = 8'h99;
-localparam [7:0] BTYPE_T2    = 8'hAA;
-localparam [7:0] BTYPE_T3    = 8'hB4;
-localparam [7:0] BTYPE_T4    = 8'hCC;
-localparam [7:0] BTYPE_T5    = 8'hD2;
-localparam [7:0] BTYPE_T6    = 8'hE1;
-localparam [7:0] BTYPE_T7    = 8'hFF;
+localparam		 N_BLOCK_TYPE		= 13;
+
+localparam [7:0] BTYPE_CTRL  		= 8'h78;
+localparam [7:0] BTYPE_S     		= 8'h1E;
+localparam [7:0] BTYPE_ORDER 		= 8'hD2;
+localparam [7:0] BTYPE_T0    		= 8'hE1;
+localparam [7:0] BTYPE_T1    		= 8'h99;
+localparam [7:0] BTYPE_T2    		= 8'h55;
+localparam [7:0] BTYPE_T3    		= 8'h2D;
+localparam [7:0] BTYPE_T4    		= 8'h33;
+localparam [7:0] BTYPE_T5    		= 8'h4B;
+localparam [7:0] BTYPE_T6    		= 8'h87;
+localparam [7:0] BTYPE_T7    		= 8'hFF;
 
 //Byte positions
 localparam BYTE_0 = NB_DATA_RAW-1;
@@ -160,7 +161,7 @@ wire type_t4;
 wire type_t5;
 wire type_t6;
 wire type_t7;
-wire [N_BLOCK_TYPE-1:0] deco_type;  // de tamanio igual a la suma de todos los type_
+wire [N_BLOCK_TYPE-1:0] deco_type;
 
 
 //caracteres mapeados 
@@ -275,10 +276,6 @@ assign payload_t7_block =
 
 
 //Type check    
-/*
- determino el formato de bloque recibido utilizando la comparacion de tx_ctrl
- con el payload correspondiente a cada una de ellas
-*/
 assign type_data =  enable_data_block;
 assign type_S    = (enable_S_Q_Fsig_block & payload_S_block);
 assign type_Q    = (enable_S_Q_Fsig_block & payload_Q_block);
@@ -299,9 +296,6 @@ type_t0,type_t1,type_t2,type_t3,type_t4,type_t5,type_t6, type_t7 };
 
 
 //FSM signal assigment
-/*
-  Equivalente a funcion T_TYPE definida en el estandar.
-*/
 assign D_SIGNAL = type_data;
 
 assign C_SIGNAL = (type_Q | type_Fsig | type_idle );
@@ -427,7 +421,7 @@ begin
 	end
 	else 
 	begin
-		char_out = 7'hFF; // seteo algun valor que no sirva por defecto
+		char_out = 7'hFF;
 		valid_out = 1'b0;
 	end
 end

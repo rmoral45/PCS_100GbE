@@ -3,9 +3,9 @@
 
 module descrambler
 #(
-	parameter 	LEN_SCRAMBLER   	= 58,
-	parameter 	LEN_CODED_BLOCK 	= 66,
-	parameter 	SEED			  	= 0
+	parameter 							LEN_SCRAMBLER   	= 58,
+	parameter 							LEN_CODED_BLOCK 	= 66,
+	parameter 							SEED			  	= 0
  )
  (
  	input wire  						i_clock,
@@ -23,8 +23,7 @@ module descrambler
  );
 
 //LOCALPARAM
-localparam 			   NB_SH = 2;
-localparam [LEN_CODED_BLOCK-1 : 0] IDLE_BLOCK = 66'h2_1E_00_00_00_00_00_00_00;
+localparam 			   								NB_SH = 2;
 
 //INTERNAL SIGNALS
 

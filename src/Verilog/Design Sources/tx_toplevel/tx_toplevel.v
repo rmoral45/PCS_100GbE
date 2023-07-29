@@ -27,7 +27,10 @@ module toplevel_tx
 
     output wire [(NB_DATA_CODED*N_LANES)-1  : 0]    o_data,
     output wire [N_LANES-1                  : 0]    o_tag_bus,
-    output wire                                     o_valid
+    output wire                                     o_valid,
+    output wire [2 : 0]                o_n_term,
+	output wire [7 : 0]                o_n_data,
+	output wire [6 : 0]                o_n_idle
 );
 
 //parameters for modules
@@ -106,7 +109,10 @@ u_frameGenerator
     .i_enable(i_rf_enb_frame_gen),
     .o_tx_data(frameGenerator_data_encoder),
     .o_tx_ctrl(frameGenerator_ctrl_encoder),
-    .o_valid(frameGenerator_valid_encoder)
+    .o_valid(frameGenerator_valid_encoder),
+    .o_n_term(o_n_term),
+    .o_n_data(o_n_data),
+    .o_n_idle(o_n_idle)
 );
 
 encoder
@@ -172,7 +178,7 @@ u_scrambler
     .i_valid(valid_ccomp),
     .i_bypass(i_rf_bypass_scrambler || tag_ccomp),
     .i_alligner_tag(tag_ccomp),
-    .i_idle_pattern_mode(1'b0),
+    .i_idle_pattern_mode(i_rf_idle_pattern_mode),
     .i_data(data_ccomp),
     .o_data(scrambler_data_pc_1_20),
     .o_valid(scrambler_valid_pc_1_20)

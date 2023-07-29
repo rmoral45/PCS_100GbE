@@ -147,7 +147,7 @@ module am_top_level
                     .i_reset                (reset_replicated[i]),
                     .i_rf_enable            (enable_replicated[i]),
                     .i_valid                (valid_replicated[i]),
-                    .i_block_lock           (i_block_lock[N_LANES-1-i]),
+                    .i_block_lock           (&i_block_lock),
                     .i_data                 (input_data_d[(NB_DATA_BUS-1 - i*NB_DATA) -: NB_DATA]),
                     .i_rf_invalid_am_thr    (i_rf_invalid_am_thr),
                     .i_rf_valid_am_thr      (i_rf_valid_am_thr),
